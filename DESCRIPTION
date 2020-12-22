@@ -8,6 +8,7 @@ Authors@R: c(
       comment = c(ORCID = "0000-0001-8401-0545"))
     )
 Description: What the package does (one paragraph).
+Suggests: AnnotationHub
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
