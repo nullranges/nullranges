@@ -56,9 +56,12 @@ system.time({
 # https://stat.ethz.ch/pipermail/bioc-devel/2018-August/013907.html
 blocks <- successiveIRanges(rep(W, n))
 mcols(y)$block <- findOverlaps(y, blocks, select="first")
-perm <- sample(n)
-permuted_blocks <- successiveIRanges(width(blocks)[perm])
-permuted_blocks[perm] <- permuted_blocks
-block_shift <- start(permuted_blocks) - start(blocks)
-y_prime <- shift(y, block_shift[mcols(y)$block])
+# entire bootstrap y here is on the order of 1e-2 s.
+system.time({
+  perm <- sample(n)
+  permuted_blocks <- successiveIRanges(width(blocks)[perm])
+  permuted_blocks[perm] <- permuted_blocks
+  block_shift <- start(permuted_blocks) - start(blocks)
+  y_prime <- shift(y, block_shift[mcols(y)$block])
+})
 ```
