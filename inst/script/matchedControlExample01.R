@@ -3,25 +3,23 @@ library(data.table)
 library(tximeta)
 library(DESeq2)
 library(magrittr)
-library(EnsDb.Hsapiens.v75)
 library(plyranges)
 
 ## RNA-seq Differential Gene Expression Analysis -----------------------------------------
 
 ## Read in sample sheet
 info <- 
-  fread("data/rna/config_MOMA_THP1_WT_S_190306_122127.tsv") %>%
+  fread("../extdata/rna/samplesheet.tsv") %>%
   as.data.frame()
 
 ## Add quant info to sample sheet
-info$files <- sprintf("data/rna/quant/%s/quant.sf", info$Name)
+info$Sample <- sub("_(1|2).fq.gz","",info$Read1)
+info$files <- sprintf("../extdata/rna/quants/%s/quant.sf", info$Sample)
+file.exists(info$files)
 
 ## Create coldata with relevant info
 coldata <- info[,c("Name", "Cell_Type", "Condition", "Bio_Rep", "files")]
 colnames(coldata)[1] <- "names"
-
-## Load Linked Txome
-loadLinkedTxome("data/rna/GENCODE.v19.LinkedTxome.json")
 
 ## Import data with tximeta & summarize to gene
 se <- tximeta(coldata)
