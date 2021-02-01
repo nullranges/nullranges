@@ -12,6 +12,9 @@ info <-
   fread("../extdata/rna/samplesheet.tsv") %>%
   as.data.frame()
 
+## The Salmon quant directories are available as a gzipped tar file on Zenodo
+## https://zenodo.org/record/4484319#.YBdM2NZOmEI
+
 ## Add quant info to sample sheet
 info$Sample <- sub("_(1|2).fq.gz","",info$Read1)
 info$files <- sprintf("../extdata/rna/quants/%s/quant.sf", info$Sample)
