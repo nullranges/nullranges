@@ -7,42 +7,34 @@ library(plyranges)
 
 ## RNA-seq Differential Gene Expression Analysis -----------------------------------------
 
-## Read in sample sheet
-info <- 
-  fread("../extdata/rna/samplesheet.tsv") %>%
-  as.data.frame()
-
+## Download and untar Salmon quantification to inst/extdata/rna ##
 ## The Salmon quant directories are available as a gzipped tar file on Zenodo
 ## https://zenodo.org/record/4484319#.YBdM2NZOmEI
+# 
+# ## Download
+# download.file(url = "https://zenodo.org/record/4484319/files/mono_macro_diff.tgz?download=1",
+#               destfile = "inst/extdata/rna/mono_macro_diff.tgz")
+# 
+# ## Untar
+# untar(tarfile = "inst/extdata/rna/mono_macro_diff.tgz",
+#       exdir = "inst/extdata/rna/")
 
-## Add quant info to sample sheet
-info$Sample <- sub("_(1|2).fq.gz","",info$Read1)
-info$files <- sprintf("../extdata/rna/quants/%s/quant.sf", info$Sample)
-file.exists(info$files)
 
-## Create coldata with relevant info
-coldata <- info[,c("Name", "Cell_Type", "Condition", "Bio_Rep", "files")]
-colnames(coldata)[1] <- "names"
+## Read in sample sheet as coldata
+coldata <-
+  fread("inst/extdata/rna/samplesheet.tsv") %>%
+  as.data.frame()
+
+## Check that quant paths are correct
+file.exists(coldata$files)
 
 ## Import data with tximeta & summarize to gene
 se <- tximeta(coldata)
 gse <- summarizeToGene(se)
 
-## Add seqinfo
-library(TxDb.Hsapiens.UCSC.hg19.knownGene)
-txdb <- TxDb.Hsapiens.UCSC.hg19.knownGene
-seqinfo(gse) <- seqinfo(txdb)[seqnames(seqinfo(gse))]
-
-## Create keys by removing version and y-chromosome "R" designation
-k <- rowData(gse)$gene_id %>%
-  gsub("\\..*", "", .) %>%
-  gsub("ENSGR", "ENSG0", .)
-
-## Map ENSG to SYMBOLS with keys
-gene_map <- mapIds(EnsDb.Hsapiens.v75, keys = k, column = "SYMBOL", keytype = "GENEID")
-
-## Add gene symbols to gse
-rowData(gse)$gene_symbol <- gene_map
+## Add gene symbols
+library(org.Hs.eg.db)
+gse <- addIds(gse, column = "SYMBOL", gene = T)
 
 ## Convert to factors
 colData(gse)$Bio_Rep <- as.factor(colData(gse)$Bio_Rep)
@@ -67,14 +59,14 @@ de_genes <- results(dds,
 
 ## Add gene symbols to de_genes
 de_genes$gene_symbol <-
-  rowData(gse)$gene_symbol[match(de_genes$gene_id, rowData(gse)$gene_id)]
+  rowData(gse)$SYMBOL[match(de_genes$gene_id, rowData(gse)$gene_id)]
 
 
 ## Load H3K27Ac Peak Data ----------------------------------------------------------------
 
 ## Read in merged peak counts
 chipPeaks <-
-  fread("data/chip/H3K27ac/peaks/h3k27ac_hg38_counts.txt") %>%
+  fread("inst/extdata/chip/H3K27ac/peaks/h3k27ac_hg38_counts.txt") %>%
   as_granges(keep_mcols = T) %>%
   mutate(start = start + 1)
 
@@ -86,7 +78,6 @@ mcols(chipPeaks) %<>%
 library(TxDb.Hsapiens.UCSC.hg38.knownGene)
 txdb <- TxDb.Hsapiens.UCSC.hg38.knownGene
 seqinfo(chipPeaks) <- seqinfo(txdb)[seqnames(seqinfo(chipPeaks))]
-
 
 ## Quantile normalize peak counts
 mcols(chipPeaks) %<>%
@@ -102,7 +93,7 @@ chipPeaks$peakFC <-
 ## Calculate peak strength across samples
 chipPeaks$peakStrength <-
   chipPeaks %>%
-  select(1:4) %>%
+  plyranges::select(1:4) %>%
   mcols() %>%
   as.matrix %>%
   rowSums()
@@ -111,8 +102,8 @@ chipPeaks$peakStrength <-
 ## Do promoters of upregulated genes also show a directional change in K27ac signal? -----
 
 ## Define up/down-regulated genes (will reverse)
-up_genes <- de_genes %>% filter(log2FoldChange > 0)
-dn_genes <- de_genes %>% filter(log2FoldChange < 0)
+up_genes <- de_genes %>% filter(log2FoldChange >= 2)
+dn_genes <- de_genes %>% filter(log2FoldChange <= -2)
 
 ## Get promoters of up/down-regulated genes
 up_gene_prom <- promoters(x = up_genes, upstream = 2000, downstream = 200)
@@ -152,7 +143,7 @@ ggplot(data = df, aes(x = group, y = log2(peakFC)))+
 
 ## Plot log2-transformed Peak strengths for all peaks
 chipPeaks %>%
-  select(peakStrength) %>%
+  plyranges::select(peakStrength) %>%
   mcols() %>%
   as.matrix() %>%
   log2() %>%
@@ -161,7 +152,7 @@ chipPeaks %>%
 
 ## Plot log2-transformed Peak strengths for peaks in up-gene promoters
 ov_up %>%
-  select(peakStrength) %>%
+  plyranges::select(peakStrength) %>%
   mcols() %>%
   as.matrix() %>%
   log2() %>%
@@ -219,7 +210,7 @@ plot(matchObj, type = "qq", interactive = FALSE,
 ## Visualize distributions of peak strength (matched covariate)
 md %>%
   filter(group == 0) %>%
-  select(peakStrength) %>%
+  plyranges::select(peakStrength) %>%
   as.matrix() %>%
   log2() %>%
   density() %>%
@@ -227,7 +218,7 @@ md %>%
 
 md %>%
   filter(group == 1) %>%
-  select(peakStrength) %>%
+  plyranges::select(peakStrength) %>%
   as.matrix() %>%
   log2() %>%
   density() %>%
@@ -285,8 +276,8 @@ ov_no <- ov_no[s]
 ov_gr <- c(ov_up, ov_no)
 
 ## Get sequences using biostrings & BSgenome
-library(BSgenome.Hsapiens.UCSC.hg19)
-seqs <- getSeq(BSgenome.Hsapiens.UCSC.hg19, ov_gr)
+library(BSgenome.Hsapiens.UCSC.hg38)
+seqs <- getSeq(BSgenome.Hsapiens.UCSC.hg38, ov_gr)
 
 ## Calculate gc content
 ov_gr$gc <-
@@ -322,7 +313,7 @@ par(mfrow = c(1, 2))
 ## Visualize distributions of peak strength (matched covariate)
 md %>%
   filter(group == 1) %>%
-  select(peakStrength) %>%
+  plyranges::select(peakStrength) %>%
   as.matrix() %>%
   log2() %>%
   density() %>%
@@ -330,7 +321,7 @@ md %>%
 
 md %>%
   filter(group == 0) %>%
-  select(peakStrength) %>%
+  plyranges::select(peakStrength) %>%
   as.matrix() %>%
   log2() %>%
   density() %>%
@@ -346,7 +337,7 @@ legend('topright',
 ## Visualize distributions of gc content (matched covariate)
 md %>%
   filter(group == 1) %>%
-  select(gc) %>%
+  plyranges::select(gc) %>%
   as.matrix() %>%
   log2() %>%
   density() %>%
@@ -354,7 +345,7 @@ md %>%
 
 md %>%
   filter(group == 0) %>%
-  select(gc) %>%
+  plyranges::select(gc) %>%
   as.matrix() %>%
   log2() %>%
   density() %>%
@@ -399,3 +390,4 @@ fit <- lm(data = md,
           weights = weights)
 
 coeftest(fit, vcov. = vcovCL, cluster = ~subclass)
+

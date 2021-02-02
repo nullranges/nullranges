@@ -1,5 +1,5 @@
-Unique_ID	Name	Project	Cell_Type	Genotype	Condition	Time	Bio_Rep	Tech_Rep	Seq_Rep	Tag	Exclude	User_ONYEN	Date_Sequenced	ReadLength_Cycles	Sequencer	Protocol	Notebook_Info	Date_Lib_Prep_Start	Date_Lib_Prep_End	Notes	Read1	Read2	Sequencing_Directory
-KR1D9ED8	MOMA_RNA_THP1_WT_NON_NA_S_1.1.1	MOMA	THP1	WT	NON		1	1	1	S		ksmetz	12/9/2016	2x100	HiSeq2500	Epicenter ScriptSeq v2				Doug's Mol Cell libraries	DP.CI_THP1_non_1.1_1.fq.gz	DP.CI_THP1_non_1.1_2.fq.gz	/proj/phanstiel_lab/rawdata/CI/rna/
-KR045AF5	MOMA_RNA_THP1_WT_NON_NA_S_2.1.1	MOMA	THP1	WT	NON		2	1	1	S		ksmetz	12/9/2016	2x100	HiSeq2500	Epicenter ScriptSeq v2					DP.CI_THP1_non_1.2_1.fq.gz	DP.CI_THP1_non_1.2_2.fq.gz	/proj/phanstiel_lab/rawdata/CI/rna/
-KR363849	MOMA_RNA_THP1_WT_PMA_NA_S_1.1.1	MOMA	THP1	WT	PMA		1	1	1	S		ksmetz	12/9/2016	2x100	HiSeq2500	Epicenter ScriptSeq v2					DP.CI_THP1_pma_1.1_1.fq.gz	DP.CI_THP1_pma_1.1_2.fq.gz	/proj/phanstiel_lab/rawdata/CI/rna/
-KR8C04D2	MOMA_RNA_THP1_WT_PMA_NA_S_2.1.1	MOMA	THP1	WT	PMA		2	1	1	S		ksmetz	12/9/2016	2x100	HiSeq2500	Epicenter ScriptSeq v2					DP.CI_THP1_pma_1.2_1.fq.gz	DP.CI_THP1_pma_1.2_2.fq.gz	/proj/phanstiel_lab/rawdata/CI/rna/
+names	Cell_Type	Condition	Bio_Rep	files
+MOMA_RNA_THP1_WT_NON_NA_S_1.1.1	THP1	NON	1	inst/extdata/rna/quants/DP.CI_THP1_non_1.1/quant.sf
+MOMA_RNA_THP1_WT_NON_NA_S_2.1.1	THP1	NON	2	inst/extdata/rna/quants/DP.CI_THP1_non_1.2/quant.sf
+MOMA_RNA_THP1_WT_PMA_NA_S_1.1.1	THP1	PMA	1	inst/extdata/rna/quants/DP.CI_THP1_pma_1.1/quant.sf
+MOMA_RNA_THP1_WT_PMA_NA_S_2.1.1	THP1	PMA	2	inst/extdata/rna/quants/DP.CI_THP1_pma_1.2/quant.sf
