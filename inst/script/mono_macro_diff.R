@@ -53,8 +53,7 @@ dds <- DESeq(dds)
 de_genes <- results(dds,
                     contrast = c("Condition", "PMA", "NON"), 
                     format = "GRanges") %>%
-  names_to_column("gene_id") %>%
-  filter(padj < 0.01)
+  names_to_column("gene_id")
 
 ## Add gene symbols to de_genes
 de_genes$gene_symbol <-
