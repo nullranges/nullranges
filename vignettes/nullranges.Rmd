@@ -33,15 +33,15 @@ W <- 1e5
 n <- floor(L/W) # 2492
 # deal with last block problem later
 y <- y[end(y) <= n*W]
-random_blocks <- IRanges(start=round(runif(n, 1, (n-1)*W+1 )), width=W)
-# mcols(random_blocks)$block_id <- seq_along(random_blocks)
+random_blocks <- IRanges(start=round(runif(n, 1, (n-1)*W+1)), width=W)
+mcols(random_blocks)$block_id <- seq_along(random_blocks)
 rearranged_blocks <- successiveIRanges(width(random_blocks))
 block_shift <- start(rearranged_blocks) - start(random_blocks)
 # per random block indexed by 'b':
 shiftBlock <- function(b) {
   features_to_shift <- subsetByOverlaps(y, random_blocks[b])
-  # block_id <- mcols(random_blocks)$block_id[b]
-  # mcols(features_to_shift)$block_id <- rep(block_id, length(features_to_shift))
+  #block_id <- mcols(random_blocks)$block_id[b]
+  #mcols(features_to_shift)$block_id <- rep(block_id, length(features_to_shift))
   shift(features_to_shift, block_shift[b])
 }
 # compute bootstrap version of y
@@ -49,6 +49,15 @@ shiftBlock <- function(b) {
 system.time({
   y_prime <- do.call(c, lapply(seq_along(random_blocks), shiftBlock))
 })
+```
+
+```{r}
+# < .01 second
+system.time({
+  fo <- findOverlaps(random_blocks, y)
+  y_prime2 <- shift(y[subjectHits(fo)], block_shift[queryHits(fo)])
+})
+all.equal(y_prime, y_prime2)
 ```
 
 ```{r}
