@@ -23,54 +23,10 @@ gr <- keepStandardChromosomes(gr)
 seqlengths(gr)
 ```
 
-```{r}
-# Code from Herve
-# https://stat.ethz.ch/pipermail/bioc-devel/2018-August/013912.html
-y <- ranges(gr[seqnames(gr) == "chr1"])
-mcols(y)$feature_id <- seq_along(y)
-L <- seqlengths(gr)[[1]]
-W <- 1e5
-n <- floor(L/W) # 2492
-# deal with last block problem later
-y <- y[end(y) <= n*W]
-random_blocks <- IRanges(start=round(runif(n, 1, (n-1)*W+1)), width=W)
-mcols(random_blocks)$block_id <- seq_along(random_blocks)
-rearranged_blocks <- successiveIRanges(width(random_blocks))
-block_shift <- start(rearranged_blocks) - start(random_blocks)
-# per random block indexed by 'b':
-shiftBlock <- function(b) {
-  features_to_shift <- subsetByOverlaps(y, random_blocks[b])
-  #block_id <- mcols(random_blocks)$block_id[b]
-  #mcols(features_to_shift)$block_id <- rep(block_id, length(features_to_shift))
-  shift(features_to_shift, block_shift[b])
-}
-# compute bootstrap version of y
-# ~30 s for chr 1...
-system.time({
-  y_prime <- do.call(c, lapply(seq_along(random_blocks), shiftBlock))
-})
-```
+Code from Herve...
+
+<https://stat.ethz.ch/pipermail/bioc-devel/2018-August/013912.html>
 
 ```{r}
-# < .01 second
-system.time({
-  fo <- findOverlaps(random_blocks, y)
-  y_prime2 <- shift(y[subjectHits(fo)], block_shift[queryHits(fo)])
-})
-all.equal(y_prime, y_prime2)
-```
-
-```{r}
-# if we don't care about bootstrapping (sampling w replacement)
-# https://stat.ethz.ch/pipermail/bioc-devel/2018-August/013907.html
-blocks <- successiveIRanges(rep(W, n))
-mcols(y)$block <- findOverlaps(y, blocks, select="first")
-# entire bootstrap y here is on the order of 1e-2 s.
-system.time({
-  perm <- sample(n)
-  permuted_blocks <- successiveIRanges(width(blocks)[perm])
-  permuted_blocks[perm] <- permuted_blocks
-  block_shift <- start(permuted_blocks) - start(blocks)
-  y_prime <- shift(y, block_shift[mcols(y)$block])
-})
+bgr <- bootstrap_granges(gr, W=1e6)
 ```

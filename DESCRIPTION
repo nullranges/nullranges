@@ -1,6 +1,6 @@
 Package: nullranges
 Title: Generates null sets of genomic ranges
-Version: 0.0.1
+Version: 0.0.2
 Authors@R: c(
     person("Michael", "Love",
       role = c("aut", "cre"),
