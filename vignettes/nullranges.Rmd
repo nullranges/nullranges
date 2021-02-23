@@ -11,13 +11,13 @@ vignette: |
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r}
+```{r eval=FALSE}
 library(AnnotationHub)
 ah <- AnnotationHub()
 gr <- query(ah, c("DnaseSeq", "narrowPeak", "A549", "UniPk"))[[1]]
 ```
 
-```{r}
+```{r eval=FALSE}
 library(GenomeInfoDb)
 gr <- keepStandardChromosomes(gr)
 seqlengths(gr)
@@ -27,6 +27,34 @@ Code from Herve...
 
 <https://stat.ethz.ch/pipermail/bioc-devel/2018-August/013912.html>
 
+```{r eval=FALSE}
+bgr <- bootstrap_granges(gr, L_b=1e6)
+```
+
+# Visualize boot on synthetic data
+
 ```{r}
-bgr <- bootstrap_granges(gr, W=1e6)
+load_all()
+```
+
+```{r}
+library(GenomicRanges)
+gr <- GRanges(rep(c("chr1","chr2"),c(4,5)),
+              IRanges(start=c(1,100,120,200,100,200,215,230,400),
+                      width=c(20, 5,  5, 30, 20,  5,  5,  5, 30)),
+              seqlengths=c(chr1=300,chr2=450))
+```
+
+```{r}
+library(ggbio)
+autoplot(gr)
+```
+
+```{r}
+p <- list()
+for (s in 1:5) {
+  set.seed(s)
+  gr_prime <- bootstrap_granges(gr, L_b=100)
+  print(autoplot(gr_prime))
+}
 ```
