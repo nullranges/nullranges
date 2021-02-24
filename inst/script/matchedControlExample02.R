@@ -15,7 +15,7 @@ load("data/mono_macro_diff_genes.rda")
 load("data/h3k27ac_peak_counts.rda")
 
 ## Source matching functions
-source("inst/script/matchRanges.R")
+source("R/matchRanges.R")
 
 
 ## Basic processing ----------------------------------------------------------------------
