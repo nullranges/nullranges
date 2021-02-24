@@ -30,7 +30,6 @@ query <- tileGenome(seqlengths(gr)["chr1"], tilewidth=1e6, cut.last.tile.in.chro
 counts <- countOverlaps(query, gr2)
 eps <- rnorm(length(counts),0,.2)
 hist(counts,breaks=50)
-plot(density(counts))
 plot(sqrt(counts) + eps)
 ```
 
@@ -42,7 +41,6 @@ bgr <- bootstrap_granges(gr2, L_b=5e5)
 counts_bts <- countOverlaps(query, bgr)
 eps <- rnorm(length(counts_bts),0,.2)
 hist(counts_bts,breaks=50)
-plot(density(counts_bts))
 plot(sqrt(counts_bts) + eps)
 ```
 
@@ -127,7 +125,6 @@ CBS_boot<-GRanges(seqnames="chr1", ranges=res, seqlengths=L_c)
 counts_cbs_boot <- countOverlaps(query, CBS_boot)
 eps <- rnorm(length(counts_cbs_boot),0,.2)
 hist(counts_cbs_boot,breaks=50)
-plot(density(counts_cbs_boot))
 plot(sqrt(counts_cbs_boot) + eps)
 ```
 
@@ -177,7 +174,6 @@ hmm_boot<-GRanges(seqnames="chr1", ranges=res, seqlengths=L_c)
 counts_hmm_boot <- countOverlaps(query, hmm_boot)
 eps <- rnorm(length(counts_hmm_boot),0,.2)
 hist(counts_hmm_boot,breaks=50)
-plot(density(counts_hmm_boot))
 plot(sqrt(counts_hmm_boot) + eps)
 ```
 
