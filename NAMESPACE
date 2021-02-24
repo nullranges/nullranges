@@ -2,4 +2,6 @@
 
 export(bootstrap_granges)
 export(bootstrap_iranges)
+export(matchRanges)
 export(permute_blocks_iranges)
+export(seg_bootstrap_iranges)

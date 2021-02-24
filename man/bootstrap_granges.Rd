@@ -4,7 +4,14 @@
 \alias{bootstrap_granges}
 \title{Bootstrap GRanges}
 \usage{
-bootstrap_granges(x, type = c("bootstrap", "permute"), W)
+bootstrap_granges(x, type = c("bootstrap", "permute"), L_b)
+}
+\arguments{
+\item{x}{the input GRanges}
+
+\item{type}{the type of null generation}
+
+\item{L_b}{the length of the block}
 }
 \description{
 Bootstrap GRanges

@@ -4,7 +4,14 @@
 \alias{bootstrap_iranges}
 \title{Block bootstrap IRanges}
 \usage{
-bootstrap_iranges(x, L, W)
+bootstrap_iranges(x, L_s, L_b)
+}
+\arguments{
+\item{x}{the input ranges}
+
+\item{L_s}{the length of the segment}
+
+\item{L_b}{the length of the blocks}
 }
 \description{
 Block bootstrap IRanges

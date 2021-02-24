@@ -4,7 +4,14 @@
 \alias{permute_blocks_iranges}
 \title{Permute blocks IRanges}
 \usage{
-permute_blocks_iranges(x, L, W)
+permute_blocks_iranges(x, L_s, L_b)
+}
+\arguments{
+\item{x}{the input ranges}
+
+\item{L_s}{the length of the segment}
+
+\item{L_b}{the length of the blocks}
 }
 \description{
 Permute blocks IRanges
