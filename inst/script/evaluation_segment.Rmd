@@ -1,0 +1,179 @@
+---
+title: "evaluation_segment"
+author: "wancen"
+date: "`r format(Sys.Date(), '%m/%d/%Y')`"
+output:
+  rmarkdown::html_document:
+    highlight: tango
+vignette: |
+  %\VignetteIndexEntry{nullranges}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r }
+library(AnnotationHub)
+ah <- AnnotationHub()
+gr <- query(ah, c("DnaseSeq", "narrowPeak", "A549", "UniPk"))[[1]]
+```
+
+```{r }
+library(GenomeInfoDb)
+gr <- keepStandardChromosomes(gr)
+seqlengths(gr)
+```
+
+# Gene density distribution-original dataset
+```{r}
+gr2 <- gr[seqnames(gr) == "chr1"]
+query <- tileGenome(seqlengths(gr)["chr1"], tilewidth=1e6, cut.last.tile.in.chrom=TRUE)
+counts <- countOverlaps(query, gr2)
+eps <- rnorm(length(counts),0,.2)
+hist(counts,breaks=50)
+plot(density(counts))
+plot(sqrt(counts) + eps)
+```
+
+# Gene density distribution-block-bootstrap
+```{r}
+library(devtools)
+load_all()
+bgr <- bootstrap_granges(gr2, L_b=5e5)
+counts_bts <- countOverlaps(query, bgr)
+eps <- rnorm(length(counts_bts),0,.2)
+hist(counts_bts,breaks=50)
+plot(density(counts_bts))
+plot(sqrt(counts_bts) + eps)
+```
+
+# Segmentation-CBS
+```{r}
+library(DNAcopy)
+cna <- CNA(matrix(sqrt(counts) + eps,ncol=1),
+           chrom=as.character(seqnames(query)), # wont work for X,Y,MT
+           maploc=start(query),
+           data.type="logratio",
+           presorted=TRUE)
+scna <- segment(cna,
+                undo.splits="sdundo",
+                undo.SD=1.5,
+                verbose=1)
+seq <- with(scna$output, rep(seg.mean, num.mark))
+plot(scna)
+plot(seq)
+q <- quantile(seq, .95)
+seq2 <- pmin(seq, q)
+plot(seq2)
+km <- kmeans(seq2, 3)
+plot(sqrt(counts) + eps, col=km$cluster)
+df<-data.frame(count=counts,state=km$cluster)
+boxplot(count~state,data=df)
+```
+# Derive segmentation length
+```{r}
+query$states<-km$cluster 
+# Combine nearby regions within same states
+x<-do.call(c, lapply(1:3, function(s) { x <- reduce(query[query$states == s]); mcols(x)$state <- s; x }))
+
+library(plyranges)
+x2<-x %>% group_by(state) %>% summarise(Ls=sum(width)) # derive each states length
+
+gr3<-do.call(c, lapply(1:3, function(s) {x <-join_overlap_intersect(gr2,x[x$state == s])
+                                                                  mcols(x)$state <- s
+                                                                  return(x) }))
+gr3<-sort(gr3)
+plot(gr3$state)
+table(gr3$state)
+
+L_c<-seqlengths(gr3)["chr1"]
+L_b<-5e5
+L_s<-x2$Ls
+```
+
+# Define segmentation-bootstrap function
+```{r}
+seg_bootstrap_iranges <- function(x, L_c, L_s,L_b) {
+  ns<-length(L_s)
+  n <- ceiling(L_c/L_b) 
+  L_b0<-round(L_s*L_b/L_c)
+  obj<-lapply(1:ns,function(m){
+    r<-ranges(x[x$state == m])
+    L_bs<-L_b0[m]
+    random_blocks <- IRanges(start=round(runif(n, 1, L_c-L_bs+1)), width=L_bs)
+    rearranged_blocks <- successiveIRanges(rep(L_b,n))
+    block_shift <- start(rearranged_blocks) - start(random_blocks)
+    fo <- findOverlaps(random_blocks, r)
+    x_prime <- shift(r[subjectHits(fo)], block_shift[queryHits(fo)])
+    x_prime <- x_prime[start(x_prime) >= 1 & end(x_prime) <= L_c]
+    x_prime
+  })
+  return(obj)
+}
+```
+
+# Gene density distribution-segmentation+block-bootstrap-CBS
+```{r}
+res<-seg_bootstrap_iranges(gr3,L_c,L_s,L_b)
+res
+res<-do.call(c,res)  
+res
+res<-sort(res)
+res
+CBS_boot<-GRanges(seqnames="chr1", ranges=res, seqlengths=L_c)
+counts_cbs_boot <- countOverlaps(query, CBS_boot)
+eps <- rnorm(length(counts_cbs_boot),0,.2)
+hist(counts_cbs_boot,breaks=50)
+plot(density(counts_cbs_boot))
+plot(sqrt(counts_cbs_boot) + eps)
+```
+
+# Segmentation-HMM
+```{r}
+library(RcppHMM)
+hmm <- initPHMM(3)
+hmm <- learnEM(hmm,
+               counts,
+               iter = 400,
+               delta = 1e-5,
+               print = TRUE)
+hmm
+lvls<-c("x1","x2","x3")
+v <- as.integer(factor(viterbi(hmm, counts),levels=lvls))
+plot(sqrt(counts) + eps, col=v)
+df<-data.frame(count=counts,state=v)
+boxplot(count~state,data=df)
+```
+
+# Gene density distribution-segmentation+block-bootstrap-HMM
+```{r}
+query$states<-v
+# Combine nearby regions within same states
+x<-do.call(c, lapply(1:3, function(s) { x <- reduce(query[query$states == s]); mcols(x)$state <- s; x }))
+x2<-x %>% group_by(state) %>% summarise(Ls=sum(width)) # derive each states length
+
+gr3<-do.call(c, lapply(1:3, function(s) {obj <-join_overlap_intersect(gr2,x[x$state == s])
+                                                    mcols(obj)$state <- s
+                                                          return(obj) }))
+
+gr3<-sort(gr3)
+plot(gr3$state)
+table(gr3$state)
+gr3 <- gr3[seqnames(gr3) == "chr1"]
+L_c<-seqlengths(gr3)["chr1"]
+L_b<-5e5
+L_s<-x2$Ls
+
+res<-seg_bootstrap_iranges(gr3,L_c,L_s,L_b)
+res
+res<-do.call(c,res)  
+res
+res<-sort(res)
+res
+hmm_boot<-GRanges(seqnames="chr1", ranges=res, seqlengths=L_c)
+counts_hmm_boot <- countOverlaps(query, hmm_boot)
+eps <- rnorm(length(counts_hmm_boot),0,.2)
+hist(counts_hmm_boot,breaks=50)
+plot(density(counts_hmm_boot))
+plot(sqrt(counts_hmm_boot) + eps)
+```
+
