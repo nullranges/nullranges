@@ -5,3 +5,5 @@
 nullranges.Rproj
 inst/extdata/rna/quants
 inst/extdata/rna/mono_macro_diff.tgz
+*.hic
+
