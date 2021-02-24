@@ -86,7 +86,7 @@ plot(gr3$state)
 table(gr3$state)
 
 L_c<-seqlengths(gr3)["chr1"]
-L_b<-5e5
+L_b<-4e5
 L_s<-x2$Ls
 ```
 
@@ -94,14 +94,18 @@ L_s<-x2$Ls
 ```{r}
 seg_bootstrap_iranges <- function(x, L_c, L_s,L_b) {
   ns<-length(L_s)
-  n <- ceiling(L_c/L_b) 
   L_b0<-round(L_s*L_b/L_c)
+  n <- ceiling(L_c/L_b) 
   obj<-lapply(1:ns,function(m){
     r<-ranges(x[x$state == m])
     L_bs<-L_b0[m]
-    random_blocks <- IRanges(start=round(runif(n, 1, L_c-L_bs+1)), width=L_bs)
-    rearranged_blocks <- successiveIRanges(rep(L_b,n))
+    n0 <- ceiling(L_c/L_bs) 
+    random_blocks <- IRanges(start=round(runif(n0, 1, L_c-L_bs+1)), width=L_bs)
+    rearranged_blocks <- successiveIRanges(width(random_blocks))
     block_shift <- start(rearranged_blocks) - start(random_blocks)
+    index<-sample(n0,n) # selecting n blocks from n0
+    random_blocks<-random_blocks[index]
+    block_shift<-block_shift[index]
     fo <- findOverlaps(random_blocks, r)
     x_prime <- shift(r[subjectHits(fo)], block_shift[queryHits(fo)])
     x_prime <- x_prime[start(x_prime) >= 1 & end(x_prime) <= L_c]
@@ -160,7 +164,7 @@ plot(gr3$state)
 table(gr3$state)
 gr3 <- gr3[seqnames(gr3) == "chr1"]
 L_c<-seqlengths(gr3)["chr1"]
-L_b<-5e5
+L_b<-4e5
 L_s<-x2$Ls
 
 res<-seg_bootstrap_iranges(gr3,L_c,L_s,L_b)
