@@ -31,8 +31,6 @@ seg<-segment_density(g1,n=3,Ls=Ls,type = "CBS",boxplot = TRUE)
 ```
 
 
-
-
 # Gene density distribution-block-bootstrap
 ```{r}
 L_b=5e5
@@ -76,10 +74,35 @@ res<-do.call(c,res)
 res
 res<-sort(res)
 res
-CBS_boot<-GRanges(seqnames="9", ranges=res, seqlengths=L_c)
-counts_cbs_boot <- countOverlaps(query, CBS_boot)
-eps <- rnorm(length(counts_cbs_boot),0,.2)
-hist(counts_cbs_boot,breaks=50)
-plot(sqrt(counts_cbs_boot) + eps)
+HMM_boot<-GRanges(seqnames="9", ranges=res, seqlengths=L_c)
+counts_HMM_boot <- countOverlaps(query, HMM_boot)
+eps <- rnorm(length(counts_HMM_boot),0,.2)
+hist(counts_HMM_boot,breaks=50)
+plot(sqrt(counts_HMM_boot) + eps)
+```
+
+# Test performance on difference segmentation and block length
+```{r}
+Ls<-c(1e5,1e6,5e6)
+L_b<-c(5e4,5e5,1e6)
+
+mapply(function(Ls, L_b) {
+  seg<-segment_density(g1,n=3,Ls=Ls,type = "CBS",plot_origin = TRUE)
+  seg_length<-seg %>% group_by(state) %>% summarise(Ls=sum(width)) # derive each states length
+  
+  L_c<-seqlengths(g1)["9"]
+  L_s<-seg_length$Ls
+  system.time(res<-seg_bootstrap_iranges(seg,g1,L_c,L_s,L_b))[[3]]
+  res
+  res<-do.call(c,res)  
+  res
+  res<-sort(res)
+  res
+  CBS_boot<-GRanges(seqnames="9", ranges=res, seqlengths=L_c)
+  counts_cbs_boot <- countOverlaps(query, CBS_boot)
+  eps <- rnorm(length(counts_cbs_boot),0,.2)
+  print(hist(counts_cbs_boot,breaks=50,xlab = paste(Ls,"with",L_b,"block size")))
+  print(plot(sqrt(counts_cbs_boot) + eps))
+  },Ls, L_b)
 ```
 
