@@ -1,6 +1,6 @@
 Package: nullranges
 Title: Generates null sets of genomic ranges
-Version: 0.0.2
+Version: 0.0.3
 Authors@R: c(
     person("Michael", "Love",
       role = c("aut", "cre"),
@@ -9,6 +9,10 @@ Authors@R: c(
     )
 Description: What the package does (one paragraph).
 Suggests: AnnotationHub
+Imports: 
+    DNAcopy,
+    RcppHMM,
+    ggplot2
 License: GPL-3
 Encoding: UTF-8
 LazyData: true

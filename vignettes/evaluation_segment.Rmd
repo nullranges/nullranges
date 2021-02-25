@@ -1,0 +1,85 @@
+---
+title: "evaluation_segment"
+author: "wancen"
+date: "`r format(Sys.Date(), '%m/%d/%Y')`"
+output:
+  rmarkdown::html_document:
+    highlight: tango
+vignette: |
+  %\VignetteIndexEntry{nullranges}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r }
+library(EnsDb.Hsapiens.v86)
+edb <- EnsDb.Hsapiens.v86
+g <- genes(edb, filter=AnnotationFilterList(GeneIdFilter("ENSG", "startsWith")))
+g1 <- g[seqnames(g) == "9"]
+```
+
+```{r}
+library(devtools)
+load_all()
+```
+
+# Gene density distribution-original dataset
+## CBS segmentation
+```{r}
+Ls=1e6
+seg<-segment_density(g1,n=3,Ls=Ls,type = "CBS",boxplot = TRUE)
+```
+
+
+
+
+# Gene density distribution-block-bootstrap
+```{r}
+L_b=5e5
+system.time(bgr <- bootstrap_granges(g1, L_b=L_b))[[3]]
+counts_bts <- countOverlaps(query, bgr)
+eps <- rnorm(length(counts_bts),0,.2)
+hist(counts_bts,breaks=50)
+plot(sqrt(counts_bts) + eps)
+```
+
+# Gene density distribution-segmentated blockbootstrap-CBS
+```{r}
+library(plyranges)
+seg_length<-seg %>% group_by(state) %>% summarise(Ls=sum(width)) # derive each states length
+
+L_c<-seqlengths(g1)["9"]
+L_s<-seg_length$Ls
+system.time(res<-seg_bootstrap_iranges(seg,g1,L_c,L_s,L_b))[[3]]
+res
+res<-do.call(c,res)  
+res
+res<-sort(res)
+res
+CBS_boot<-GRanges(seqnames="9", ranges=res, seqlengths=L_c)
+counts_cbs_boot <- countOverlaps(query, CBS_boot)
+eps <- rnorm(length(counts_cbs_boot),0,.2)
+hist(counts_cbs_boot,breaks=50)
+plot(sqrt(counts_cbs_boot) + eps)
+```
+
+# Gene density distribution-segmentation+block-bootstrap-HMM
+```{r}
+seg<-segment_density(g1,n=3,Ls=Ls,type = "HMM",boxplot = TRUE)
+seg_length<-seg %>% group_by(state) %>% summarise(Ls=sum(width)) # derive each states length
+
+L_c<-seqlengths(g1)["9"]
+L_s<-seg_length$Ls
+system.time(res<-seg_bootstrap_iranges(seg,g1,L_c,L_s,L_b))[[3]]
+res
+res<-do.call(c,res)  
+res
+res<-sort(res)
+res
+CBS_boot<-GRanges(seqnames="9", ranges=res, seqlengths=L_c)
+counts_cbs_boot <- countOverlaps(query, CBS_boot)
+eps <- rnorm(length(counts_cbs_boot),0,.2)
+hist(counts_cbs_boot,breaks=50)
+plot(sqrt(counts_cbs_boot) + eps)
+```
+
