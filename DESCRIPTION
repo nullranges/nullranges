@@ -12,7 +12,9 @@ Suggests: AnnotationHub
 Imports: 
     DNAcopy,
     RcppHMM,
-    ggplot2
+    ggplot2,
+    MatchIt,
+    plyranges
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
