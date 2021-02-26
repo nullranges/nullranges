@@ -1,5 +1,0 @@
-names	Cell_Type	Condition	Bio_Rep	files
-MOMA_RNA_THP1_WT_NON_NA_S_1.1.1	THP1	NON	1	inst/extdata/rna/quants/DP.CI_THP1_non_1.1/quant.sf
-MOMA_RNA_THP1_WT_NON_NA_S_2.1.1	THP1	NON	2	inst/extdata/rna/quants/DP.CI_THP1_non_1.2/quant.sf
-MOMA_RNA_THP1_WT_PMA_NA_S_1.1.1	THP1	PMA	1	inst/extdata/rna/quants/DP.CI_THP1_pma_1.1/quant.sf
-MOMA_RNA_THP1_WT_PMA_NA_S_2.1.1	THP1	PMA	2	inst/extdata/rna/quants/DP.CI_THP1_pma_1.2/quant.sf
