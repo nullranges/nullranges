@@ -4,6 +4,8 @@
 ## Loading libraries and data ------------------------------------------------------------
 
 ## Load required libraries
+library(nullranges)
+library(nullrangesData)
 library(magrittr)
 library(plyranges)
 library(MatchIt)
@@ -11,12 +13,12 @@ library(BSgenome)
 library(BSgenome.Hsapiens.UCSC.hg38)
 
 ## Load RNA-seq differential genes & H3K27Ac peak counts
-load("data/mono_macro_diff_genes.rda")
-load("data/h3k27ac_peak_counts.rda")
+data("monoMacroDEGHg38")
+data("H3K27acPeakCountsHg38")
 
-## Source matching functions
-source("R/matchRanges.R")
-
+## Simplify dataset names
+de_genes <- monoMacroDEGHg38
+chipPeaks <- H3K27acPeakCountsHg38
 
 ## Basic processing ----------------------------------------------------------------------
 
@@ -106,3 +108,4 @@ ggplot(data = df2, aes(x = group, y = log2(peakFC), color = group))+
   geom_boxplot(outlier.colour = NA) +
   geom_jitter(size = 0.01, width = 0.15)+
   theme_bw()
+
