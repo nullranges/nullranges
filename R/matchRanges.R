@@ -23,8 +23,8 @@
 matchRanges <- function(x, univ, covar, method = "nearest") {
   
   ## Add identifier for focal & universe groups
-  x$mrid <- 1 
-  univ$mrid <- 0 
+  mcols(x)$mrid <- 1 
+  mcols(univ)$mrid <- 0 
   
   ## Combine & convert to data.frame
   df <- as.data.frame(c(x, univ))
