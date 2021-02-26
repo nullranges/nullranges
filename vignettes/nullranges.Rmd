@@ -39,10 +39,10 @@ load_all()
 
 ```{r}
 library(GenomicRanges)
-gr <- GRanges(rep(c("chr1","chr2"),c(4,5)),
-              IRanges(start=c(1,100,120,200,100,200,215,230,400),
-                      width=c(20, 5,  5, 30, 20,  5,  5,  5, 30)),
-              seqlengths=c(chr1=300,chr2=450))
+gr <- GRanges(rep(c("chr1","chr2","chr3"),c(4,5,2)),
+              IRanges(start=c(1,100,120,200,100,200,215,230,400,1 ,100),
+                      width=c(20, 5,  5, 30, 20,  5,  5,  5, 30,80,80)),
+              seqlengths=c(chr1=300,chr2=450,chr3=200))
 ```
 
 ```{r}
@@ -55,6 +55,17 @@ p <- list()
 for (s in 1:5) {
   set.seed(s)
   gr_prime <- bootstrap_granges(gr, L_b=100)
+  print(autoplot(gr_prime))
+}
+```
+
+# Now across chroms:
+
+```{r}
+p <- list()
+for (s in 1:5) {
+  set.seed(s)
+  gr_prime <- bootstrap_granges(gr, L_b=100, within_chrom=FALSE)
   print(autoplot(gr_prime))
 }
 ```

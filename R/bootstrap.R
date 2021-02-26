@@ -5,22 +5,63 @@
 #' @param L_b the length of the block
 #' 
 #' @export
-bootstrap_granges <- function(x, type=c("bootstrap", "permute"), L_b) {
+bootstrap_granges <- function(x, type=c("bootstrap", "permute"), within_chrom=TRUE, L_b) {
   type <- match.arg(type)
   chrom_lens <- seqlengths(x)
   tab <- table(seqnames(x))
   chroms <- names(tab)
-  res <- lapply(chroms, function(chr) {
-    L_s <- chrom_lens[[chr]]
-    r <- ranges(x[seqnames(x) == chr])
+  if (within_chrom) {
+    res <- lapply(chroms, function(chr) {
+      L_s <- chrom_lens[[chr]]
+      r <- ranges(x[seqnames(x) == chr])
+      r_prime <- if (type == "bootstrap") {
+                   bootstrap_iranges(r, L_s, L_b)
+                 } else {
+                   permute_blocks_iranges(r, L_s, L_b)
+                 }
+      GRanges(seqnames=chr, ranges=r_prime, seqlengths=chrom_lens)
+    })
+    x_prime <- do.call(c, res)
+  } else {
+    # here we will send the ranges from multiple
+    # chromosomes to a single long chromosome,
+    # then perform block bootstrap / permutation,
+    # then map back to the original chromosomes.
+    
+    # TODO: code assumes sorted 'x'
+    stopifnot(all(x == GenomicRanges::sort(x)))
+
+    # ranges on one long chromosome:
+    r <- map_chroms_to_line(x)
+    L_s <- sum(seqlengths(x))
     r_prime <- if (type == "bootstrap") {
-      bootstrap_iranges(r, L_s, L_b)
-    } else {
-      permute_blocks_iranges(r, L_s, L_b)
-    }
-    GRanges(seqnames=chr, ranges=r_prime, seqlengths=chrom_lens)
-  })
-  do.call(c, res)
+                 bootstrap_iranges(r, L_s, L_b)
+               } else {
+                 permute_blocks_iranges(r, L_s, L_b)
+               }
+    r_prime <- GenomicRanges::sort(r_prime)
+    # map the bootstrapped / permuted ranges back to chromosomes:
+    x_prime <- map_line_to_chroms(r_prime, x)
+  }
+  x_prime
+}
+
+map_chroms_to_line <- function(x) {
+  L_c <- unname(seqlengths(x))
+  chrom_shift <- c(0,cumsum(L_c)[-length(L_c)])
+  shift(ranges(x), rep(chrom_shift, seqnames(x)@lengths))
+}
+
+map_line_to_chroms <- function(r_prime, x) {
+  L_c <- seqlengths(x)
+  chrom_shift <- c(0,cumsum(unname(L_c))[-length(L_c)])
+  chrom_blocks <- successiveIRanges(width=L_c)
+  # need to deal with multiple overlaps...
+  idx <- findOverlaps(r_prime, chrom_blocks, select="first")
+  r_on_chroms <- shift(r_prime, -chrom_shift[idx])
+  chroms <- seqlevels(x)[idx]
+  keep <- start(r_on_chroms) >= 1 & end(r_on_chroms) <= L_c[chroms]
+  GRanges(chroms[keep], r_on_chroms[keep], seqlengths=L_c)
 }
 
 #' Block bootstrap IRanges
