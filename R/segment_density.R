@@ -12,8 +12,7 @@
 #'
 #' @export
 segment_density <- function(x, n, Ls=1e6, type=c("CBS","HMM"),plot_origin=TRUE, boxplot=FALSE) {
-  name<-seqnames(x)
-  query <- tileGenome(seqlengths(x)[name@values], tilewidth=Ls, cut.last.tile.in.chrom=TRUE)
+  query <- tileGenome(seqlengths(x)[seqnames(x)@values], tilewidth=Ls, cut.last.tile.in.chrom=TRUE)
   counts <- countOverlaps(query, x)
   eps <- rnorm(length(counts),0,.2)
   if(plot_origin){
