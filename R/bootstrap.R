@@ -31,6 +31,9 @@ bootstrap_granges <- function(x, type = c("bootstrap", "permute"), within_chrom 
     # TODO: code assumes sorted 'x'
     stopifnot(all(x == GenomicRanges::sort(x)))
 
+    # TODO: code right now assumes these are the same... fix later
+    stopifnot(all(sort(unique(seqnames(x))) == sort(seqlevels(x))))
+
     # ranges on one long chromosome:
     r <- map_chroms_to_line(x)
     L_s <- sum(seqlengths(x))
@@ -48,19 +51,24 @@ bootstrap_granges <- function(x, type = c("bootstrap", "permute"), within_chrom 
 
 map_chroms_to_line <- function(x) {
   L_c <- unname(seqlengths(x))
-  chrom_shift <- c(0, cumsum(L_c)[-length(L_c)])
+  sums <- cumsum(as.numeric(L_c))
+  chrom_shift <- c(0, sums[-length(L_c)])
   shift(ranges(x), rep(chrom_shift, seqnames(x)@lengths))
 }
 
 map_line_to_chroms <- function(r_prime, x) {
   L_c <- seqlengths(x)
-  chrom_shift <- c(0, cumsum(unname(L_c))[-length(L_c)])
+  sums <- unname(cumsum(as.numeric(L_c)))
+  chrom_shift <- c(0, sums[-length(L_c)])
   chrom_blocks <- successiveIRanges(width = L_c)
-  # need to deal with multiple overlaps...
-  idx <- findOverlaps(r_prime, chrom_blocks, select = "first")
+  # this code will discard bootstrapped ranges on chromosome boundary
+  # but this is very unlikely with large chroms and small features
+  idx <- findOverlaps(r_prime, chrom_blocks, select="first")
   r_on_chroms <- shift(r_prime, -chrom_shift[idx])
   chroms <- seqlevels(x)[idx]
   keep <- start(r_on_chroms) >= 1 & end(r_on_chroms) <= L_c[chroms]
+  # browser()
+  # table(keep)
   GRanges(chroms[keep], r_on_chroms[keep], seqlengths = L_c)
 }
 

@@ -14,13 +14,16 @@ vignette: |
 ```{r eval=FALSE}
 library(AnnotationHub)
 ah <- AnnotationHub()
-gr <- query(ah, c("DnaseSeq", "narrowPeak", "A549", "UniPk"))[[1]]
+pks <- query(ah, c("DnaseSeq", "narrowPeak", "A549", "UniPk"))[[1]]
 ```
 
 ```{r eval=FALSE}
 library(GenomeInfoDb)
-gr <- keepStandardChromosomes(gr)
-seqlengths(gr)
+#pks <- keepStandardChromosomes(pks)
+pks <- pks[seqnames(pks) %in% paste0("chr",1:5)]
+seqlevels(pks) <- seqlevels(pks)[1:5]
+seqlengths(pks)
+pks <- sort(pks)
 ```
 
 Code from Herve...
@@ -28,7 +31,9 @@ Code from Herve...
 <https://stat.ethz.ch/pipermail/bioc-devel/2018-August/013912.html>
 
 ```{r eval=FALSE}
-bgr <- bootstrap_granges(gr, L_b=1e6)
+
+boot_pks <- bootstrap_granges(pks, L_b=5e5)
+boot_pks <- bootstrap_granges(pks, within_chrom=FALSE, L_b=5e5)
 ```
 
 # Visualize boot on synthetic data
