@@ -63,7 +63,7 @@ map_line_to_chroms <- function(r_prime, x) {
   chrom_blocks <- successiveIRanges(width = L_c)
   # this code will discard bootstrapped ranges on chromosome boundary
   # but this is very unlikely with large chroms and small features
-  idx <- findOverlaps(r_prime, chrom_blocks, select="first")
+  idx <- findOverlaps(r_prime, chrom_blocks, select = "first")
   r_on_chroms <- shift(r_prime, -chrom_shift[idx])
   chroms <- seqlevels(x)[idx]
   keep <- start(r_on_chroms) >= 1 & end(r_on_chroms) <= L_c[chroms]
