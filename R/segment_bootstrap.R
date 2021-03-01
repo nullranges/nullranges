@@ -20,6 +20,9 @@ seg_bootstrap_granges <- function(seg, x, within_chrom = TRUE, L_b) {
         summarise(Ls = sum(width)) # derive each states length
       L_s <- seg_length$Ls
       x0 <- x[seqnames(x) == chr]
+      # Mike question: the `seg_bootstrap_iranges` doesn't need to call the
+      # `map_chroms...` function in this loop, because all ranges are
+      # on same chrom, right?
       r_prime <- seg_bootstrap_iranges(seg0, x0, L_c, L_s, L_b)
       GRanges(seqnames = chr, ranges = r_prime, seqlengths = chrom_lens)
     })
@@ -47,35 +50,48 @@ seg_bootstrap_granges <- function(seg, x, within_chrom = TRUE, L_b) {
 }
 
 seg_bootstrap_iranges <- function(seg, x, L_c, L_s, L_b) {
+  # number of states
   ns <- length(L_s)
-  L_b0 <- round(L_s * L_b / L_c) # block width for each segmentation state
+  # the block width for each segmentation state is scaled
+  # down to the segmentation state size, e.g. if segmentation state
+  # is half of the chromosome, then the block width is half of L_b
+  L_b0 <- round(L_b * L_s / L_c)
+  # original number of blocks
   n <- ceiling(L_c / L_b)
-  seg <- sort(seg)
+  # to be fast, we shouldn't be doing any sorting inside a bootstrap
+  stopifnot(all(seg == sort(seg)))
+
+  # Mike question: why is this happening for the within_chrom=TRUE case?
   r_seg <- map_chroms_to_line_seg(seg)
   r_x <- map_chroms_to_line_seg(x)
 
-  obj <- lapply(1:ns, function(m) { # loop over segmentation state
+  obj <- lapply(1:ns, function(m) { # loop over segmentation states
+    # the length of the block for this state
     L_bs <- L_b0[m]
+    # the segmentation for this state
     seg2 <- r_seg[seg$state == m]
-
-    p <- seg2@width / sum(seg2@width)
-    times <- ceiling(n * p) # number of block within every piece segmentation
-
-    start <- mapply(function(time, x, y) runif(time, x, y), times, seg2@start, end(seg2))
-    if (is.list(start)) {
-      start <- do.call(c, start)
+    # fraction that each range of the segmentation comprises of the whole
+    p <- width(seg2) / sum(width(seg2))
+    # number of blocks within each range of the segmentation
+    times <- ceiling(n * p) 
+    # create random start positions within each segment
+    random_start <- mapply(function(time, x, y) runif(time, x, y), times, start(seg2), end(seg2))
+    # vectorize (I think this could use `unlist`)
+    if (is.list(random_start)) {
+      random_start <- do.call(c, random_start)
     }
-    start <- sample(start)
-    random_blocks <- IRanges(start = start, width = L_bs)
-
-    start_order <- mapply(function(x, y) seq(x, y, L_bs), seg2@start, end(seg2))
+    # shuffle the blocks
+    random_start <- sample(random_start)
+    # create the random blocks
+    random_blocks <- IRanges(start = random_start, width = L_bs)
+    # the positions of the rearranged blocks in this segmentation state
+    start_order <- mapply(function(x, y) seq(from = x, to = y, by = L_bs), start(seg2), end(seg2))
+    # vectorize (I think this could use `unlist`)
     if (is.list(start_order)) {
       start_order <- do.call(c, start_order)
     }
     rearranged_blocks <- IRanges(start = start_order, width = L_bs)
-
     block_shift <- start(rearranged_blocks) - start(random_blocks)
-
     fo <- findOverlaps(random_blocks, r_x)
     x_prime <- IRanges::shift(r_x[subjectHits(fo)], block_shift[queryHits(fo)])
     # x_prime<-join_overlap_intersect(x_prime,r_seg) # more accurate
