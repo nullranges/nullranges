@@ -27,6 +27,4 @@ package 'MatchIt'.
 \examples{
 
 matchRanges(x = up_ov, univ = ctl_ov, covar = c("peakStrength", "gc"))
-
-
 }

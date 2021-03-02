@@ -5,6 +5,7 @@
 #' @param Ls segment length
 #' @param type the type of segmentation
 #' @param plot_origin plot the gene density of original gene Granges
+#' @param boxplot boxplot of gene density for each state
 #'
 #' @import DNAcopy
 #' @import RcppHMM
@@ -69,5 +70,5 @@ segment_density <- function(x, n, Ls = 1e6, type = c("CBS", "HMM"), plot_origin 
     x
   }))
 
-  return(seg)
+  return(sort(seg))
 }

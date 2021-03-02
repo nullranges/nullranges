@@ -4,7 +4,12 @@
 \alias{bootstrap_granges}
 \title{Bootstrap GRanges}
 \usage{
-bootstrap_granges(x, type = c("bootstrap", "permute"), L_b)
+bootstrap_granges(
+  x,
+  type = c("bootstrap", "permute"),
+  within_chrom = TRUE,
+  L_b
+)
 }
 \arguments{
 \item{x}{the input GRanges}
