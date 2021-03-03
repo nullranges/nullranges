@@ -16,7 +16,7 @@ library(EnsDb.Hsapiens.v86)
 edb <- EnsDb.Hsapiens.v86
 g <- genes(edb, filter=AnnotationFilterList(GeneIdFilter("ENSG", "startsWith")))
 library(GenomeInfoDb)
-# gr <- keepStandardChromosomes(gr,pruning.mode="coarse",species = "Homo_sapiens")
+gr <- keepStandardChromosomes(g,pruning.mode="coarse",species = "Homo_sapiens")
 g1<-keepSeqlevels(g,as.character(seq_len(12)),pruning.mode="coarse")
 ```
 
@@ -116,14 +116,14 @@ ggbio::autoplot(g1)
 ```
 
 ```{r}
-seg<-segment_density(g1,n=4,Ls=1e6,type = "HMM",plot_origin = TRUE)
+seg<-segment_density(gr,n=4,Ls=1e6,type = "HMM",plot_origin = TRUE)
 seg
 L_b<-2e5
-g1<-sort(g1)
+gr<-sort(gr)
 system.time(res<-seg_bootstrap_granges(seg,g1,L_b=L_b))[[3]]
 system.time(res4<-seg_bootstrap_granges2(seg,g1,L_b=L_b))[[3]]
 system.time(res2<-seg_bootstrap_granges_map(seg,g1,L_b=L_b,within_chrom = FALSE))[[3]]
-system.time(res5<-seg_bootstrap_granges(seg,g1,L_b=L_b))[[3]]
+system.time(res5<-seg_bootstrap_granges(seg,gr,L_b=L_b))[[3]]
 
 system.time(res3<-seg_bootstrap_granges(seg,g1,L_b=L_b,within_chrom = FALSE,proportion_length = FALSE))[[3]]
 system.time(res6<-seg_bootstrap_granges(seg,g1,L_b=L_b,within_chrom = FALSE,proportion_length = FALSE,coarse = TRUE))[[3]]

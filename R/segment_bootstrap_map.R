@@ -22,8 +22,8 @@ seg_bootstrap_granges_map <- function(seg, x, within_chrom = TRUE, L_b, proporti
         summarise(Ls = sum(width)) # derive each states length
       L_s <- seg_length$Ls
       x0 <- ranges(x[seqnames(x) == chr])
-      r_prime <- seg_bootstrap_iranges(ranges(seg0), x0, seg0$state, L_c, L_s, L_b)
-      GRanges(seqnames = chr, ranges = r_prime, seqlengths = chrom_lens)
+      r_prime <- seg_bootstrap_iranges_map(ranges(seg0), x0, seg0$state, L_c, L_s, L_b)
+      a<-GRanges(seqnames = chr, ranges = r_prime, seqlengths = chrom_lens)
     })
     x_prime <- do.call(c, res)
   } else {
@@ -54,15 +54,15 @@ seg_bootstrap_granges_map <- function(seg, x, within_chrom = TRUE, L_b, proporti
 seg_bootstrap_iranges_map <- function(seg, x, state, L_c, L_s, L_b, proportion_length = TRUE, coarse = FALSE) {
   if (proportion_length) {
     # number of states
-    ns <- length(L_s)
+    ns <- sort(unique(state)) # some chr may lack some states 
 
     # the block width for each segmentation state is scaled
     # down to the segmentation state size, e.g. if segmentation state
     # is half of the chromosome, then the block width is half of L_b
     L_b0 <- round(L_b * L_s / L_c)
-    obj <- lapply(1:ns, function(m) { # loop over segmentation states
+    obj <- lapply(ns, function(m) { # loop over segmentation states
       # the length of the block for this state
-      L_bs <- L_b0[m]
+      L_bs <- L_b0[which(ns==m)]
       # the segmentation for this state
       seg2 <- seg[state == m]
       # fraction that each range of the segmentation comprises of the whole
@@ -70,10 +70,9 @@ seg_bootstrap_iranges_map <- function(seg, x, state, L_c, L_s, L_b, proportion_l
       # number of blocks within each range of the segmentation
       times <- ceiling(L_c / L_b * p)
       # create random start positions within each segment
-      random_start <- unlist(mapply(function(time, x, y) runif(time, x, y), times, start(seg2), end(seg2)))
-
+      random_start <- unlist(mapply(function(time, x, y) round(runif(time, x, y)), times, start(seg2), end(seg2)))
       # shuffle the blocks
-      random_start <- sample(random_start)
+      if(length(random_start)>1) random_start=sample(random_start)
       # create the random blocks
       random_blocks0 <- IRanges(start = random_start, width = L_bs)
       # the positions of the rearranged blocks in this segmentation state
@@ -100,7 +99,7 @@ seg_bootstrap_iranges_map <- function(seg, x, state, L_c, L_s, L_b, proportion_l
     random_start <- mapply(function(time, x, y) runif(time, x, y), times, start(seg), end(seg))
     # the positions of the rearranged blocks in this segmentation state
     start_order <- mapply(function(x, y) seq(from = x, to = y, by = L_b), start(seg), end(seg))
-    obj <- lapply(1:ns, function(m) {
+    obj <- lapply(ns, function(m) {
       # shuffle the blocks
       random_start0 <- sample(unlist(random_start[state == m]))
       # create the random blocks
