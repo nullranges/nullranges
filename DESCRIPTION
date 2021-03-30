@@ -1,13 +1,25 @@
 Package: nullranges
-Title: Generates null sets of genomic ranges
-Version: 0.0.4
+Title: Generation of null ranges via bootstrapping or covariate matching
+Version: 0.0.5
 Authors@R: c(
     person("Michael", "Love",
       role = c("aut", "cre"),
       email = "michaelisaiahlove@gmail.com",
-      comment = c(ORCID = "0000-0001-8401-0545"))
+      comment = c(ORCID = "0000-0001-8401-0545")),
+    person("Wancen", "Mu",
+      role = c("aut")),
+    person("Eric", "Davis",
+      role = c("aut"),
+      comment = c(ORCID = "0000-0003-4051-3217"))
     )
-Description: What the package does (one paragraph).
+Description: Modular package for generation of sets of ranges
+    representing the null hypothesis. These can take the form
+    of bootstrap samples of ranges (using the block bootstrap
+    framework of Bickel et al 2010), or set of control ranges
+    that are matched across one or more covariates. nullranges
+    is designed to be inter-operable with other packages for
+    analysis of genomic overlap enrichment, including the
+    plyranges Bioconductor package.
 Suggests: AnnotationHub
 Imports: 
     DNAcopy,
@@ -17,7 +29,7 @@ Imports:
     plyranges
 Depends:
     data.table
-License: GPL-3
+License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
