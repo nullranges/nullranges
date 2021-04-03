@@ -4,7 +4,14 @@
 \alias{seg_bootstrap_granges}
 \title{Segmentated bootstrap GRanges}
 \usage{
-seg_bootstrap_granges(seg, x, L_b, proportion_length = TRUE, coarse = FALSE)
+seg_bootstrap_granges(
+  seg,
+  x,
+  L_b,
+  within_chrom = TRUE,
+  proportion_length = TRUE,
+  coarse = FALSE
+)
 }
 \arguments{
 \item{seg}{segmentation GRanges a column("state") indicate segmentation states}
