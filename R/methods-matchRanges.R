@@ -132,7 +132,7 @@ matchRanges.MatchedDataFrame <- function(focal, pool, covar) {
 #' @return a covariate-matched control set of data
 #'
 #' @rdname matchRanges
-#' @rawNamespace import(data.table, except = c(between, shift, first, second))
+#' @rawNamespace import(data.table, except = c(between, shift, first, second, indices))
 #' @importFrom rlang f_lhs
 #' @importFrom rlang f_rhs
 #' @import S4Vectors

@@ -1,5 +1,5 @@
 #' @rdname Matched
-#' @rawNamespace import(data.table, except = c(between, shift, first, second))
+#' @rawNamespace import(data.table, except = c(between, shift, first, second, indices))
 #' @import methods
 #' @export
 Matched <- setClass(Class = "Matched",
@@ -17,7 +17,7 @@ setValidity(Class = "Matched",
 
 #' @rdname MatchedDataFrame
 #' @import S4Vectors
-#' @rawNamespace import(data.table, except = c(between, shift, first, second))
+#' @rawNamespace import(data.table, except = c(between, shift, first, second, indices))
 #' @import methods
 #' @export
 setClassUnion("DF_OR_df_OR_dt", c("DFrame", "data.frame", "data.table"))

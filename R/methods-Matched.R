@@ -99,15 +99,19 @@ plot.propensity <- function(x, type) {
   ## Define jitter and ridge type plots
   jitter <- ggplot(data = md, aes(x = ps, y = group, color = group)) +
     geom_jitter(height = 0.25, width = 0, alpha = 0.7) +
-    labs(x = "Propensity Score", y = "")+
+    scale_color_brewer(palette = "Paired", direction = -1)+
+    labs(main = "Propensity Score", x = "value", y = "")+
     theme_minimal()+
-    theme(legend.position = 'none')
+    theme(legend.position = 'none',
+          panel.border = element_rect(fill = 'transparent'))
   
   ridge  <- ggplot(dat = md, aes(x = ps, y = group, fill = group))+
-    geom_density_ridges(alpha = 0.7)+
-    labs(x = "Propensity Score", y = "")+
+    geom_density_ridges(alpha = 0.7, color = NA)+
+    scale_fill_brewer(palette = "Paired", direction = -1)+
+    labs(main = "Propensity Score", x = "value", y = "")+
     theme_minimal()+
-    theme(legend.position = 'none')
+    theme(legend.position = 'none',
+          panel.border = element_rect(fill = 'transparent'))
   
   if (missing(type)) {
     
@@ -158,16 +162,22 @@ plot.covariates <- function(x, covar = 'all', type, logTransform) {
   jitter <- ggplot(data = mmd, aes(x = value, y = group, color = group)) +
     facet_grid(~variable, scales = "free_x") +
     geom_jitter(height = 0.25, width = 0, alpha = 0.7) +
+    scale_color_brewer(palette = "Paired", direction = -1)+
     labs(y = "")+
     theme_minimal()+
-    theme(legend.position = 'none')
+    theme(legend.position = 'none',
+          panel.grid.minor = element_blank(),
+          panel.border = element_rect(fill = 'transparent'))
   
   ridge  <- ggplot(dat = mmd, aes(x = value, y = group, fill = group))+
     facet_grid(~variable, scales = "free_x") +
-    geom_density_ridges(alpha = 0.7)+
+    geom_density_ridges(alpha = 0.7, color = NA)+
+    scale_fill_brewer(palette = "Paired", direction = -1)+
     labs(y = "")+
     theme_minimal()+
-    theme(legend.position = 'none')
+    theme(legend.position = 'none',
+          panel.grid.minor = element_blank(),
+          panel.border = element_rect(fill = 'transparent'))
   
   if (!missing(logTransform)) {
     if (logTransform) {
@@ -176,17 +186,24 @@ plot.covariates <- function(x, covar = 'all', type, logTransform) {
         facet_grid(~variable, scales = "free_x") +
         scale_x_log10(oob = scales::squish_infinite)+
         geom_jitter(height = 0.25, width = 0, alpha = 0.7) +
+        scale_color_brewer(palette = "Paired", direction = -1)+
         labs(x="log10(value)", y = "")+
         theme_minimal()+
-        theme(legend.position = 'none')
+        theme(legend.position = 'none',
+              panel.grid.minor = element_blank(),
+              panel.border = element_rect(fill = 'transparent'))
       
       ridge <- ggplot(dat = mmd, aes(x = value, y = group, fill = group))+
         facet_grid(~variable, scales = "free_x") +
+        geom_density_ridges(alpha = 0.7, color = NA)+
+        scale_fill_brewer(palette = "Paired", direction = -1)+
         scale_x_log10(oob = scales::squish_infinite)+
-        geom_density_ridges(alpha = 0.7)+
         labs(x="log10(value)", y = "")+
         theme_minimal()+
-        theme(legend.position = 'none')
+        theme(legend.position = 'none',
+              panel.grid.minor.x = element_blank(),
+              panel.border = element_rect(fill = 'transparent'))
+
     }
   }
   
