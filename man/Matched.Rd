@@ -9,7 +9,7 @@
 \alias{indices,Matched-method}
 \alias{overview,Matched-method}
 \alias{plot,Matched,missing-method}
-\alias{plotCovariates,Matched,character-method}
+\alias{plotCovariates,Matched-method}
 \title{Accessor methods for Matched Class}
 \usage{
 \S4method{matchedData}{Matched}(x, ...)
@@ -22,7 +22,7 @@
 
 \S4method{plot}{Matched,missing}(x, type)
 
-\S4method{plotCovariates}{Matched,character}(x, covar = "all", type, logTransform)
+\S4method{plotCovariates}{Matched}(x, covar, type, logTransform, ...)
 }
 \arguments{
 \item{x}{Matched object}

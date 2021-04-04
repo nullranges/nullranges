@@ -182,27 +182,13 @@ plot.covariates <- function(x, covar = 'all', type, logTransform) {
   if (!missing(logTransform)) {
     if (logTransform) {
       
-      jitter <- ggplot(data = mmd, aes(x = value, y = group, color = group)) +
-        facet_grid(~variable, scales = "free_x") +
-        scale_x_log10(oob = scales::squish_infinite)+
-        geom_jitter(height = 0.25, width = 0, alpha = 0.7) +
-        scale_color_brewer(palette = "Paired", direction = -1)+
-        labs(x="log10(value)", y = "")+
-        theme_minimal()+
-        theme(legend.position = 'none',
-              panel.grid.minor = element_blank(),
-              panel.border = element_rect(fill = 'transparent'))
+      jitter <- jitter + 
+        scale_x_log10(oob = scales::oob_squish_infinite) +
+        labs(x="log10(value)", y = "")
       
-      ridge <- ggplot(dat = mmd, aes(x = value, y = group, fill = group))+
-        facet_grid(~variable, scales = "free_x") +
-        geom_density_ridges(alpha = 0.7, color = NA)+
-        scale_fill_brewer(palette = "Paired", direction = -1)+
-        scale_x_log10(oob = scales::squish_infinite)+
-        labs(x="log10(value)", y = "")+
-        theme_minimal()+
-        theme(legend.position = 'none',
-              panel.grid.minor.x = element_blank(),
-              panel.border = element_rect(fill = 'transparent'))
+      ridge <- ridge + 
+        scale_x_log10(oob = scales::oob_squish_infinite) +
+        labs(x="log10(value)", y = "") 
 
     }
   }
@@ -238,4 +224,9 @@ setMethod("plot", signature(x="Matched", y="missing"), plot.propensity)
 #' @import ggplot2 ggridges
 #' @importFrom scales squish_infinite
 #' @export
-setMethod("plotCovariates", signature(x="Matched", covar = 'character'), plot.covariates)
+setMethod("plotCovariates", signature(x="Matched"), function(x, ...) {
+  mc <- match.call()
+  mc[[1]] <- quote(plot.covariates)
+  eval(mc)
+})
+
