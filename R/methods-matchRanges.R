@@ -80,7 +80,6 @@ matchRanges.Core <- function(focal, pool, covar) {
     stop("All variables in covar must be columns in both focal and pool.")
   }
   
-  library(S4Vectors)
   ## Create data table with covariate data
   covarData <- as.data.table(cbind(id = factor(c(rep(1, nrow(focal)),
                                                  rep(0, nrow(pool)))),
