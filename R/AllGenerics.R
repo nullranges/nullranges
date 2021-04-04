@@ -18,7 +18,12 @@ setGeneric("indices", function(x, ...) standardGeneric("indices"))
 
 #' @rdname plot
 #' @export
-setGeneric("plot", function(x, covar, type, log, ...) standardGeneric("plot"))
+setGeneric("plot")
+
+#' @rdname plotCovariates
+#' @export
+setGeneric("plotCovariates", function(x, ..., covar, type, logTransform) standardGeneric("plotCovariates"))
+
 
 ## Generics for matchedGRanges/matchedGInteractions --------------------------------------
 

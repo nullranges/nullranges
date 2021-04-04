@@ -87,7 +87,7 @@ setMethod("overview", signature(x="Matched"), overviewMatched)
 ## Define plot methods for Matched class -------------------------------------------------
 
 ## Define function for plotting propensity scores
-plotPropensity <- function(x, type, log) {
+plot.propensity <- function(x, type) {
   
   ## Extract matchedData
   md <- matchedData(x)
@@ -98,7 +98,7 @@ plotPropensity <- function(x, type, log) {
   
   ## Define jitter and ridge type plots
   jitter <- ggplot(data = md, aes(x = ps, y = group, color = group)) +
-    geom_jitter(height = 0.25, width = 0) +
+    geom_jitter(height = 0.25, width = 0, alpha = 0.7) +
     labs(x = "Propensity Score", y = "")+
     theme_minimal()+
     theme(legend.position = 'none')
@@ -108,24 +108,6 @@ plotPropensity <- function(x, type, log) {
     labs(x = "Propensity Score", y = "")+
     theme_minimal()+
     theme(legend.position = 'none')
-  
-  if (!missing(log)) {
-    if (log) {
-      
-      jitter <- ggplot(data = md, aes(x = log(ps), y = group, color = group)) +
-        geom_jitter(height = 0.25, width = 0) +
-        labs(x = "Propensity Score", y = "")+
-        theme_minimal()+
-        theme(legend.position = 'none')
-      
-      ridge  <- ggplot(dat = md, aes(x = log(ps), y = group, fill = group))+
-        geom_density_ridges(alpha = 0.7)+
-        labs(x = "Propensity Score", y = "")+
-        theme_minimal()+
-        theme(legend.position = 'none')
-      
-    }
-  }
   
   if (missing(type)) {
     
@@ -151,8 +133,8 @@ plotPropensity <- function(x, type, log) {
 }
 
 ## Define function for plotting covariates
-plotCovariates <- function(x, covar, type, log) {
-  
+plot.covariates <- function(x, covar = 'all', type, logTransform) {
+
   ## Extract matchedData
   md <- matchedData(x)
   
@@ -175,7 +157,7 @@ plotCovariates <- function(x, covar, type, log) {
   ## Define jitter and ridge type plots
   jitter <- ggplot(data = mmd, aes(x = value, y = group, color = group)) +
     facet_grid(~variable, scales = "free_x") +
-    geom_jitter(height = 0.25, width = 0) +
+    geom_jitter(height = 0.25, width = 0, alpha = 0.7) +
     labs(y = "")+
     theme_minimal()+
     theme(legend.position = 'none')
@@ -187,20 +169,22 @@ plotCovariates <- function(x, covar, type, log) {
     theme_minimal()+
     theme(legend.position = 'none')
   
-  if (!missing(log)) {
-    if (log) {
+  if (!missing(logTransform)) {
+    if (logTransform) {
       
-      jitter <- ggplot(data = mmd, aes(x = log(value), y = group, color = group)) +
+      jitter <- ggplot(data = mmd, aes(x = value, y = group, color = group)) +
         facet_grid(~variable, scales = "free_x") +
-        geom_jitter(height = 0.25, width = 0) +
-        labs(y = "")+
+        scale_x_log10(oob = scales::squish_infinite)+
+        geom_jitter(height = 0.25, width = 0, alpha = 0.7) +
+        labs(x="log10(value)", y = "")+
         theme_minimal()+
         theme(legend.position = 'none')
       
-      ridge  <- ggplot(dat = mmd, aes(x = log(value), y = group, fill = group))+
+      ridge <- ggplot(dat = mmd, aes(x = value, y = group, fill = group))+
         facet_grid(~variable, scales = "free_x") +
+        scale_x_log10(oob = scales::squish_infinite)+
         geom_density_ridges(alpha = 0.7)+
-        labs(y = "")+
+        labs(x="log10(value)", y = "")+
         theme_minimal()+
         theme(legend.position = 'none')
     }
@@ -231,9 +215,10 @@ plotCovariates <- function(x, covar, type, log) {
 #' @rdname Matched
 #' @import ggplot2 ggridges
 #' @export
-setMethod("plot", signature(x="Matched"), plotPropensity)
+setMethod("plot", signature(x="Matched", y="missing"), plot.propensity)
 
 #' @rdname Matched
 #' @import ggplot2 ggridges
+#' @importFrom scales squish_infinite
 #' @export
-setMethod("plot", signature(x="Matched", covar = 'character'), plotCovariates)
+setMethod("plotCovariates", signature(x="Matched", covar = 'character'), plot.covariates)
