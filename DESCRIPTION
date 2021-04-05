@@ -23,6 +23,7 @@ Description: Modular package for generation of sets of ranges
 Suggests: AnnotationHub
 Imports: 
     DNAcopy,
+    InteractionSet,
     RcppHMM,
     ggplot2,
     MatchIt,
