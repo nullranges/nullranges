@@ -49,9 +49,9 @@ Visualize matching
 ```{r}
 plot(mgi) #plot shows propensity scores
 plot(mgi, type = 'ridge')
-plotCovariates(mgi, covar = 'all', type = 'ridge', logTransform = T)
-plotCovariates(mgi, covar = 'all', type = 'jitter', logTransform = T)
-plotCovariates(mgi, covar = 'contactFreq', type = 'jitter', logTransform = T)
+plotCovariates(mgi, covar = 'all', type = 'ridge', logTransform = TRUE)
+plotCovariates(mgi, covar = 'all', type = 'jitter', logTransform = TRUE)
+plotCovariates(mgi, covar = 'contactFreq', type = 'jitter', logTransform = TRUE)
 ```
 
 Summary and access data
