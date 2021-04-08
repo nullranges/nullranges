@@ -1,0 +1,86 @@
+---
+title: "match ranges"
+date: "`r format(Sys.Date(), '%m/%d/%Y')`"
+author: "Eric Davis"
+output:
+  rmarkdown::html_document:
+    highlight: tango
+vignette: |
+  %\VignetteIndexEntry{nullranges}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r}
+library(nullranges)
+```
+
+Test data
+
+```{r}
+library(nullrangesData)
+data("enhPromContactFreqHg19")
+```
+
+Define parameters
+
+```{r}
+set.seed(123)
+s <- sample(1:length(enhPromContactFreqHg19), 6000)
+x <- enhPromContactFreqHg19[head(s, 1000)]
+u <- enhPromContactFreqHg19[tail(s, 5000)]
+covar = ~ anchor1.peakStrength + contactFreq
+```
+
+Match GInteractions object
+
+```{r}
+mgi <- matchRanges(focal = x, pool = u, covar = covar)
+```
+
+Prints and behaves like a normal GInteractions object
+
+```{r}
+mgi
+```
+
+Visualize matching
+
+```{r}
+plot(mgi) #plot shows propensity scores
+plot(mgi, type = 'ridge')
+plotCovariates(mgi, covar = 'all', type = 'ridge', logTransform = T)
+plotCovariates(mgi, covar = 'all', type = 'jitter', logTransform = T)
+plotCovariates(mgi, covar = 'contactFreq', type = 'jitter', logTransform = T)
+```
+
+Summary and access data
+
+```{r}
+overview(mgi)
+matchedData(mgi)
+covariates(mgi)
+```
+
+Get each type of result as GInteractions objects
+
+```{r}
+focal(mgi)
+pool(mgi)
+matched(mgi)
+unmatched(mgi)
+```
+
+Extract indices by group (default is 'matched')
+
+```{r}
+indices(mgi, group = "unmatched")
+indices(mgi)
+```
+
+Should be `TRUE`:
+
+```{r}
+identical(matchedData(mgi)[group == "pool"][indices(mgi, group = "unmatched"), -c('group')],
+          matchedData(mgi)[group == "unmatched", -c('group')])
+```
