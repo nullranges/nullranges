@@ -24,6 +24,9 @@ parseFormula <- function(f) {
   
 }
 
+## Define sample.vec to handle vectors of varying length
+sample.vec <- function(x, ...) x[sample(length(x), ...)]
+
 ## Helper function that calculates propensity scores
 ## and implements nearest neighbor matching
 propensityMatch <- function(covarData, covars) {
@@ -35,20 +38,40 @@ propensityMatch <- function(covarData, covars) {
   model <- glm(formula = f, data = covarData, family = binomial("logit"))
   
   ## Get propensity scores of focal and pool groups as vectors
-  psData <- data.table(ps = predict(model, type = "link"), id = model$model$id)
+  psData <- data.table(ps = predict(model, type = "response"), id = model$model$id)
   fps <- psData[id == 1, ps]
   pps <- psData[id == 0, ps]
   
   ## Add propensity scores to covarData
   covarData$ps <- psData$ps
   
-  ## Create data table with original ups index and setkey to sort
+  ## Create data table with original pps index and setkey to sort
   dt <- data.table(pps, val = pps, ppsIndex = 1:length(pps))
   setkey(dt, pps)
   
-  ## Find the ups index of the nearest neighbor to each value in xps with a rolling join
-  mdt <- dt[.(fps), .(fps, pps, ppsIndex), roll = 'nearest', mult = 'first']
-  
+  ## Map ids to unique propensity scores
+  fpsMap <- data.table(fps = fps, fpsIndex = seq_along(fps))
+
+  ## Order fpsMap by fps (for to adding index later)
+  fpsMap <- fpsMap[order(fps)]
+
+  ## Create data table with each unique fps and the number of occurrences
+  uniq.fps <- fpsMap[, .(fps, .N), by = fps]
+
+  ## Find all nearest matches for each unique fps
+  amdt <- dt[.(uniq.fps), roll = 'nearest', mult = 'all']
+
+  ## Randomly subsample with replacement among duplicates
+  set.seed(123)
+  mdt <- amdt[, .(ppsIndex = sample.vec(ppsIndex, N, replace = T)), by = fps]
+
+  ## Add fpsIndex to mdt
+  stopifnot(mdt$fps == fpsMap$fps)
+  mdt$fpsIndex <- fpsMap$fpsIndex
+
+  ## Reorder by fpsIndex (to match fps)
+  mdt <- mdt[order(fpsIndex)]
+
   ## Assemble information by group
   matchedData <- rbind(
     covarData[id == 1, c(.SD, group = 'focal')],
