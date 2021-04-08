@@ -105,7 +105,7 @@ plot.propensity <- function(x, type) {
     theme(legend.position = 'none',
           panel.border = element_rect(fill = 'transparent'))
   
-  ridge  <- ggplot(dat = md, aes(x = ps, y = group, fill = group))+
+  ridge <- ggplot(dat = md, aes(x = ps, y = group, fill = group))+
     geom_density_ridges(alpha = 0.7, color = NA)+
     scale_fill_brewer(palette = "Paired", direction = -1)+
     labs(main = "Propensity Score", x = "value", y = "")+

@@ -1,7 +1,7 @@
 ---
-title: "nullranges"
+title: "boot ranges"
 date: "`r format(Sys.Date(), '%m/%d/%Y')`"
-author: "everyond"
+author: "everyone"
 output:
   rmarkdown::html_document:
     highlight: tango
