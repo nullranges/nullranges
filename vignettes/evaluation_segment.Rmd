@@ -17,8 +17,20 @@ edb <- EnsDb.Hsapiens.v86
 g <- genes(edb, filter=AnnotationFilterList(GeneIdFilter("ENSG", "startsWith")))
 library(GenomeInfoDb)
 gr <- keepStandardChromosomes(g,pruning.mode="coarse",species = "Homo_sapiens")
-g1<-keepSeqlevels(g,as.character(seq_len(12)),pruning.mode="coarse")
+seqlevelsStyle(gr) <- "UCSC"
+# g1<-keepSeqlevels(g,as.character(seq_len(9)),pruning.mode="coarse")
 ```
+
+## Import deny region
+
+```{r}
+library(rtracklayer)
+# download from https://www.encodeproject.org/files/ENCFF356LFX/@@download/ENCFF356LFX.bed.gz
+deny <- import("C:/Users/wancenmu/OneDrive - University of North Carolina at Chapel Hill/Lab/project2/data/ENCFF356LFX.bed.gz")
+genome(deny) <- "hg38"
+deny
+```
+
 
 ```{r}
 library(devtools)
@@ -29,10 +41,8 @@ load_all()
 ## CBS segmentation
 ```{r}
 Ls=1e6
-seg<-segment_density(g1,n=3,Ls=Ls,type = "HMM",boxplot = TRUE)
+seg<-segment_density(gr,n=3,Ls=Ls,deny=deny,type = "CBS",boxplot = TRUE)
 ```
-
-
 # Gene density distribution-block-bootstrap
 ```{r}
 L_b=5e5
@@ -46,21 +56,21 @@ plot(sqrt(counts_bts) + eps)
 # Gene density distribution-segmentated blockbootstrap-CBS
 ```{r}
 library(plyranges)
-seg_length<-seg %>% group_by(state) %>% summarise(Ls=sum(width)) # derive each states length
+# seg_length<-seg %>% group_by(state) %>% summarise(Ls=sum(width)) # derive each states length
 
-L_c<-seqlengths(g1)["9"]
-L_s<-seg_length$Ls
-system.time(res<-seg_bootstrap_iranges(seg,g1,L_c,L_s,L_b))[[3]]
-res
-res<-do.call(c,res)  
-res
-res<-sort(res)
-res
-CBS_boot<-GRanges(seqnames="9", ranges=res, seqlengths=L_c)
-counts_cbs_boot <- countOverlaps(query, CBS_boot)
-eps <- rnorm(length(counts_cbs_boot),0,.2)
-hist(counts_cbs_boot,breaks=50)
-plot(sqrt(counts_cbs_boot) + eps)
+L_b=5e5
+# L_c<-seqlengths(g1)
+# L_s<-seg_length$Ls
+system.time(res_wchr <- seg_bootstrap_granges(seg,gr,L_b,within_chrom=TRUE,coarse = TRUE))[[3]]
+system.time(res_ochr <- seg_bootstrap_granges(seg,gr,L_b,within_chrom=FALSE,coarse = TRUE))[[3]]
+
+res_ochr<-sort(res_ochr)
+res_ochr
+# CBS_boot<-GRanges(seqnames="9", ranges=res, seqlengths=L_c)
+# counts_cbs_boot <- countOverlaps(query, CBS_boot)
+# eps <- rnorm(length(counts_cbs_boot),0,.2)
+# hist(counts_cbs_boot,breaks=50)
+# plot(sqrt(counts_cbs_boot) + eps)
 ```
 
 # Gene density distribution-segmentation+block-bootstrap-HMM
@@ -109,10 +119,16 @@ mapply(function(Ls, L_b) {
 ```
 
 #across chromosome
-
 ```{r}
 library(ggbio)
-ggbio::autoplot(g1)
+ggbio::autoplot(gr)
+```
+```{r}
+ggbio::autoplot(res_wchr)
+```
+
+```{r}
+ggbio::autoplot(res_ochr)
 ```
 
 ```{r}

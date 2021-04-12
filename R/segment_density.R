@@ -3,6 +3,7 @@
 #' @param x the input gene GRanges
 #' @param n the number of states
 #' @param Ls segment length
+#' @param deny GRanges of deny region
 #' @param type the type of segmentation
 #' @param plot_origin plot the gene density of original gene Granges
 #' @param boxplot boxplot of gene density for each state
@@ -12,9 +13,11 @@
 #' @import ggplot2
 #'
 #' @export
-segment_density <- function(x, n, Ls = 1e6, type = c("CBS", "HMM"), plot_origin = TRUE, boxplot = FALSE) {
+segment_density <- function(x, n, Ls = 1e6, deny, type = c("CBS", "HMM"), plot_origin = TRUE, boxplot = FALSE) {
   query <- tileGenome(seqlengths(x)[seqnames(x)@values], tilewidth = Ls, cut.last.tile.in.chrom = TRUE)
-  counts <- countOverlaps(query, x)
+  gap <- gaps(deny,end = seqlengths(x)) %>% filter(strand=="*") ## gap will create whole chromosome length ranges
+  query_accept <- join_overlap_intersect(query,gap)
+  counts <- countOverlaps(query_accept, x)
   eps <- rnorm(length(counts), 0, .2)
   if (plot_origin) {
     print(hist(counts, breaks = 50))
@@ -25,8 +28,8 @@ segment_density <- function(x, n, Ls = 1e6, type = c("CBS", "HMM"), plot_origin 
 
   if (type == "CBS") {
     cna <- CNA(matrix(sqrt(counts) + eps, ncol = 1),
-      chrom = as.character(seqnames(query)), # wont work for X,Y,MT
-      maploc = start(query),
+      chrom = as.character(seqnames(query_accept)), # wont work for X,Y,MT
+      maploc = start(query_accept),
       data.type = "logratio",
       presorted = TRUE
     )
@@ -42,7 +45,7 @@ segment_density <- function(x, n, Ls = 1e6, type = c("CBS", "HMM"), plot_origin 
     seq2 <- pmin(seq, q)
     # plot(seq2)
     km <- kmeans(seq2, n)
-    query$states <- km$cluster
+    query_accept$states <- km$cluster
     plot(sqrt(counts) + eps, col = km$cluster)
   } else {
     hmm <- initPHMM(n)
@@ -55,17 +58,17 @@ segment_density <- function(x, n, Ls = 1e6, type = c("CBS", "HMM"), plot_origin 
     hmm
     v <- as.integer(factor(viterbi(hmm, counts), levels = hmm$StateNames))
     plot(sqrt(counts) + eps, col = v)
-    query$states <- v
+    query_accept$states <- v
   }
   if (boxplot) {
-    states <- data.frame(state = query$states, count = counts)
+    states <- data.frame(state = query_accept$states, count = counts)
     p <- ggplot2::ggplot(aes(x = factor(state), y = counts), data = states) +
       geom_boxplot()
     print(p)
   }
   # Combine nearby regions within same states
   seg <- do.call(c, lapply(1:n, function(s) {
-    x <- reduce(query[query$states == s])
+    x <- reduce(query_accept[query_accept$states == s])
     mcols(x)$state <- s
     x
   }))

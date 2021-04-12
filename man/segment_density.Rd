@@ -8,6 +8,7 @@ segment_density(
   x,
   n,
   Ls = 1e+06,
+  deny,
   type = c("CBS", "HMM"),
   plot_origin = TRUE,
   boxplot = FALSE
@@ -19,6 +20,8 @@ segment_density(
 \item{n}{the number of states}
 
 \item{Ls}{segment length}
+
+\item{deny}{GRanges of deny region}
 
 \item{type}{the type of segmentation}
 
