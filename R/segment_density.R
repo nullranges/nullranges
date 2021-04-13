@@ -11,12 +11,13 @@
 #' @import DNAcopy
 #' @import RcppHMM
 #' @import ggplot2
+#' @importFrom plyranges filter join_overlap_intersect
 #'
 #' @export
 segment_density <- function(x, n, Ls = 1e6, deny, type = c("CBS", "HMM"), plot_origin = TRUE, boxplot = FALSE) {
   query <- tileGenome(seqlengths(x)[seqnames(x)@values], tilewidth = Ls, cut.last.tile.in.chrom = TRUE)
-  gap <- gaps(deny,end = seqlengths(x)) %>% filter(strand=="*") ## gap will create whole chromosome length ranges
-  query_accept <- join_overlap_intersect(query,gap)
+  gap <- gaps(deny,end = seqlengths(x)) %>% plyranges::filter(strand=="*") ## gap will create whole chromosome length ranges
+  query_accept <- plyranges::join_overlap_intersect(query,gap)
   counts <- countOverlaps(query_accept, x)
   eps <- rnorm(length(counts), 0, .2)
   if (plot_origin) {

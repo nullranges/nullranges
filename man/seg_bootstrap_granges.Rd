@@ -8,9 +8,11 @@ seg_bootstrap_granges(
   seg,
   x,
   L_b,
+  R,
   within_chrom = TRUE,
   proportion_length = TRUE,
-  coarse = FALSE
+  coarse = FALSE,
+  ncores = NULL
 )
 }
 \arguments{
@@ -20,9 +22,15 @@ seg_bootstrap_granges(
 
 \item{L_b}{the length of the block}
 
+\item{R}{the number time of bootstrap}
+
 \item{proportion_length}{use scaled block length or scaled number of blocks of each segmentation region}
 
-\item{coarse}{simply check the chromosome ranges}
+\item{coarse}{logical indicating if out of bound ranges will be discarded or keep the intersect region.}
+
+\item{ncores}{A cluster object created by \code{\link[parallel]{makeCluster}}.
+Or an integer to indicate number of child-processes
+(integer values are ignored on Windows) for parallel evaluations}
 
 \item{L_c}{the length of the chromosome}
 

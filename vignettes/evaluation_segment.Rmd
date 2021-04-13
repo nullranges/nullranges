@@ -40,8 +40,9 @@ load_all()
 # Gene density distribution-original dataset
 ## CBS segmentation
 ```{r}
+deny2 <- deny %>% filter(width(deny)>1000)
 Ls=1e6
-seg<-segment_density(gr,n=3,Ls=Ls,deny=deny,type = "CBS",boxplot = TRUE)
+seg<-segment_density(gr,n=3,Ls=Ls,deny=deny2,type = "CBS",boxplot = TRUE)
 ```
 # Gene density distribution-block-bootstrap
 ```{r}
@@ -55,22 +56,19 @@ plot(sqrt(counts_bts) + eps)
 
 # Gene density distribution-segmentated blockbootstrap-CBS
 ```{r}
-library(plyranges)
-# seg_length<-seg %>% group_by(state) %>% summarise(Ls=sum(width)) # derive each states length
-
 L_b=5e5
 # L_c<-seqlengths(g1)
 # L_s<-seg_length$Ls
-system.time(res_wchr <- seg_bootstrap_granges(seg,gr,L_b,within_chrom=TRUE,coarse = TRUE))[[3]]
-system.time(res_ochr <- seg_bootstrap_granges(seg,gr,L_b,within_chrom=FALSE,coarse = TRUE))[[3]]
+system.time(res_wchr <- seg_bootstrap_granges(seg,gr,L_b,within_chrom=TRUE,proportion_length = FALSE,coarse = TRUE))[[3]]
+system.time(res_wchr <- seg_bootstrap_granges(seg,gr,L_b,within_chrom=TRUE,proportion_length = TRUE,coarse = TRUE))[[3]]
+system.time(res_wochr <- seg_bootstrap_granges(seg,gr,L_b,within_chrom=FALSE,proportion_length = FALSE,coarse = TRUE))[[3]]
+system.time(res_wochr_propl <- seg_bootstrap_granges(seg,gr,L_b,within_chrom=FALSE,coarse = TRUE))[[3]]
 
-res_ochr<-sort(res_ochr)
-res_ochr
-# CBS_boot<-GRanges(seqnames="9", ranges=res, seqlengths=L_c)
-# counts_cbs_boot <- countOverlaps(query, CBS_boot)
-# eps <- rnorm(length(counts_cbs_boot),0,.2)
-# hist(counts_cbs_boot,breaks=50)
-# plot(sqrt(counts_cbs_boot) + eps)
+```
+
+```{r}
+# Test on 100 times bootstrap
+system.time(res_wochr <- seg_bootstrap_granges(seg,gr,L_b,R=100,within_chrom=FALSE,proportion_length = FALSE,coarse = TRUE))[[3]]
 ```
 
 # Gene density distribution-segmentation+block-bootstrap-HMM
