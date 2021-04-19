@@ -56,8 +56,12 @@ overviewMatched <- function(x) {
   
   ## Define aggregation function
   agg <- function(x) {
-    list(mean = mean(x), sd = sd(x))
+    if (any(is.factor(x)))
+      list(table(x))
+    else
+      list(mean = mean(x), sd = sd(x))
   }
+  
   
   ## Apply aggregation to matchedData
   md.agg <- x@matchedData[, as.list(c(N =.N, unlist(lapply(.SD, agg)))),
@@ -96,7 +100,13 @@ plot.propensity <- function(x, type) {
   md$group <- factor(x = md$group,
                      levels = rev(c('focal', 'matched', 'pool', 'unmatched')))
   
-  ## Define jitter and ridge type plots
+  ## Reverse level order for line plot
+  md2 <- md
+  levels(md2$group) <- rev(levels(md2$group))
+  md2$cols <- md2$group
+  levels(md2$cols) <- c("#1F78B4", "#A6CEE3", "#33A02C", "#B2DF8A")
+  
+  ## Define jitter, ridge, and lines type plots
   jitter <- ggplot(data = md, aes(x = ps, y = group, color = group)) +
     geom_jitter(height = 0.25, width = 0, alpha = 0.7) +
     scale_color_brewer(palette = "Paired", direction = -1)+
@@ -112,6 +122,14 @@ plot.propensity <- function(x, type) {
     theme_minimal()+
     theme(legend.position = 'none',
           panel.border = element_rect(fill = 'transparent'))
+
+  lines <- ggplot(dat = md2, aes(x = ps, color = group)) +
+    geom_density(show.legend = FALSE) +
+    stat_density(geom = 'line', position = 'identity') +
+    scale_color_manual(values = levels(md2$cols)) +
+    labs(x = "Propensity Score", y = "")+
+    theme_minimal()+
+    theme(panel.border = element_rect(fill = 'transparent')) 
   
   if (missing(type)) {
     
@@ -124,13 +142,15 @@ plot.propensity <- function(x, type) {
   } else {
     
     ## Parse type argument
-    type <- match.arg(type, choices = c('jitter', 'ridge'))
+    type <- match.arg(type, choices = c('jitter', 'ridge', 'lines'))
     
     ## Choose plot type by argument
     if (type == 'jitter')
       return(jitter)
     if (type == 'ridge')
       return(ridge)
+    if (type == 'lines')
+      return(lines)
     
   }
   
