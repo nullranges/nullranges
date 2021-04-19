@@ -27,15 +27,136 @@ parseFormula <- function(f) {
 ## Define sample.vec to handle vectors of varying length
 sample.vec <- function(x, ...) x[sample(length(x), ...)]
 
+## Helper function for nearest neighbor matching with replacement
+nnMatch <- function(fps, pps, replace) {
+  
+  ## Create data table with original pps index and setkey to sort
+  dt <- data.table(pps, val = pps, ppsIndex = 1:length(pps))
+  setkey(dt, pps)
+  
+  ## Map ids to unique propensity scores
+  fpsMap <- data.table(fps = fps, fpsIndex = seq_along(fps))
+  
+  ## Order fpsMap by fps (for to adding index later)
+  fpsMap <- fpsMap[order(fps)]
+  
+  ## Create data table with each unique fps and the number of occurrences
+  uniq.fps <- fpsMap[, .(fps, .N), by = fps]
+  
+  ## Find all nearest matches for each unique fps
+  amdt <- dt[.(uniq.fps), roll = 'nearest', mult = 'all']
+  
+  ## Randomly subsample with replacement among duplicates
+  set.seed(123)
+  mdt <- amdt[, .(ppsIndex = sample.vec(ppsIndex, N, replace = replace)), by = fps]
+  
+  ## Add fpsIndex to mdt
+  stopifnot(mdt$fps == fpsMap$fps)
+  mdt$fpsIndex <- fpsMap$fpsIndex
+  
+  ## Reorder by fpsIndex (to match fps)
+  mdt <- mdt[order(fpsIndex)]
+  
+  ## Return matched data table
+  return(mdt)
+  
+}
+
+## Helper function to perform rejection sampling
+rejectSample <- function(fps, pps) {
+  
+  ## Ensure fps <= pps
+  if (length(fps) > length(pps)) {
+    stop("focal must be <= pool for method = 'rejection'.")
+  }
+  
+  ## Kernal density estimates for focal and pool
+  df <- kde(fps)
+  dg <- kde(pps)
+  
+  ## Set scale by finding the highest point of density ratios (focal/pool)
+  ## This ensures that pool covers focal at all points
+  grid <- seq(from=quantile(pps, .001), to=quantile(pps, .999), length=1000)
+  scale <- max(predict(df, x=grid) / predict(dg, x=grid))
+  
+  ## Calculate the probability of accepting each pool
+  thresh <- function(x) ifelse(x > 1e-3, x, 0)
+  accept_prob <- pmin(thresh(predict(df, x=pps))/(scale * predict(dg, x=pps)), 1)
+  
+  ## Randomly select pps according to accept probability
+  set.seed(123)
+  accept <- rbinom(length(pps), size=1, prob=accept_prob)
+  
+  ## Return random selection equal to the length of pps
+  return(accept)
+  
+}
+
+## Helper function for rejection sampling without replacement
+## Not viable for discrete or nearly discrete covariates
+rsMatch <- function(fps, pps, replace) {
+  
+  ## Detect descrete distribution
+  accept <- tryCatch(expr = {
+    
+    ## Rejection sampling
+    rejectSample(fps, pps)
+    
+  }, error = function(e) {
+    
+    ## Introduce random noise to convert discrete into continuous
+    stdev <- seq(1e-06, 0.1, length.out = 100)
+    
+    ## Iterate over possible noise levels
+    for(i in 1:length(stdev)) {
+      
+      ## Add noise to fps and pps
+      set.seed(123)
+      nfps <- fps + (rnorm(length(fps), mean = 0, sd = stdev[i]))
+      npps <- pps + (rnorm(length(pps), mean = 0, sd = stdev[i]))
+      
+      ## Bound by 0 and 1
+      nfps <- pmax(0, pmin(nfps, 1))
+      npps <- pmax(0, pmin(npps, 1))
+      
+      ## Try rejection sampling
+      accept <- suppressWarnings(rejectSample(nfps, npps))
+      
+      ## Keep trying until there are enough options
+      if (any(is.na(accept))) next
+      if (sum(accept) >= length(fps)) break
+      
+    }
+    
+    return(accept)
+    
+  })
+  
+  ## Ensure there are adequate options
+  stopifnot(sum(accept) >= length(fps))
+  
+  ## Select matching indices irrespective of data order
+  set.seed(123)
+  ppsIndex <- sample(which(accept == 1), length(fps), replace = replace)
+  
+  ## Assemble matched data table
+  mdt <- data.table(fps, ppsIndex, fpsIndex = seq_along(fps))
+  
+  ## Return matched data table
+  return(mdt)
+  
+}
+
 ## Helper function that calculates propensity scores
 ## and implements nearest neighbor matching
-propensityMatch <- function(covarData, covars) {
+propensityMatch <- function(covarData, covars, method, replace) {
   
   ## Assemble covariate formula
   f <- as.formula(paste("id ~", paste(covars, collapse = "+")))
   
   ## Run glm model
-  model <- glm(formula = f, data = covarData, family = binomial("logit"))
+  model <- speedglm(formula = f, data = covarData,
+                    family = binomial("logit"), fitted = T, model = T)
   
   ## Get propensity scores of focal and pool groups as vectors
   psData <- data.table(ps = predict(model, type = "response"), id = model$model$id)
@@ -45,32 +166,19 @@ propensityMatch <- function(covarData, covars) {
   ## Add propensity scores to covarData
   covarData$ps <- psData$ps
   
-  ## Create data table with original pps index and setkey to sort
-  dt <- data.table(pps, val = pps, ppsIndex = 1:length(pps))
-  setkey(dt, pps)
+  ## Implement matching method w or w/o replacement
+  if (method == 'nearest' & isTRUE(replace))
+    mdt <- nnMatch(fps, pps, replace = TRUE)
   
-  ## Map ids to unique propensity scores
-  fpsMap <- data.table(fps = fps, fpsIndex = seq_along(fps))
-
-  ## Order fpsMap by fps (for to adding index later)
-  fpsMap <- fpsMap[order(fps)]
-
-  ## Create data table with each unique fps and the number of occurrences
-  uniq.fps <- fpsMap[, .(fps, .N), by = fps]
-
-  ## Find all nearest matches for each unique fps
-  amdt <- dt[.(uniq.fps), roll = 'nearest', mult = 'all']
-
-  ## Randomly subsample with replacement among duplicates
-  set.seed(123)
-  mdt <- amdt[, .(ppsIndex = sample.vec(ppsIndex, N, replace = T)), by = fps]
-
-  ## Add fpsIndex to mdt
-  stopifnot(mdt$fps == fpsMap$fps)
-  mdt$fpsIndex <- fpsMap$fpsIndex
-
-  ## Reorder by fpsIndex (to match fps)
-  mdt <- mdt[order(fpsIndex)]
+  if (method == 'nearest' & isFALSE(replace))
+    stop("nearest neighbor matching without replacement not available.")
+  
+  if (method == 'rejection' & isTRUE(replace))
+    mdt <- rsMatch(fps, pps, replace = TRUE)
+  
+  if (method == 'rejection' & isFALSE(replace))
+    mdt <- rsMatch(fps, pps, replace = FALSE)
+  
 
   ## Assemble information by group
   matchedData <- rbind(
@@ -92,7 +200,7 @@ propensityMatch <- function(covarData, covars) {
 }
 
 ## Helper function - matching core for DataFrames/GRanges/GInteractions
-matchRanges.Core <- function(focal, pool, covar) {
+matchRanges.Core <- function(focal, pool, covar, method, replace) {
   
   ## Extract covariates from formula as character vector
   covars <- parseFormula(covar)
@@ -103,13 +211,22 @@ matchRanges.Core <- function(focal, pool, covar) {
     stop("All variables in covar must be columns in both focal and pool.")
   }
   
+  ## Check method and replace arguments
+  method <- match.arg(method, choices = c('nearest', 'rejection'))
+  
+  if (isFALSE(replace) & nrow(focal) >= nrow(pool)) 
+    stop("focal must be <= pool when replace = FALSE.")
+  
+  if (method == 'nearest' & isFALSE(replace))
+    stop("nearest neighbor matching without replacement not available.")
+
   ## Create data table with covariate data
   covarData <- as.data.table(cbind(id = factor(c(rep(1, nrow(focal)),
                                                  rep(0, nrow(pool)))),
                                    rbind(focal[covars], pool[covars])))
   
   ## Calculate propensity scores and match data
-  md <- propensityMatch(covarData, covars)
+  md <- propensityMatch(covarData, covars, method, replace)
   
   return(md)
 }
@@ -118,14 +235,14 @@ matchRanges.Core <- function(focal, pool, covar) {
 ## Matched subclass methods for matchRanges ----------------------------------------------
 
 ## MatchedDataFrame method for matchRanges
-matchRanges.MatchedDataFrame <- function(focal, pool, covar) {
+matchRanges.MatchedDataFrame <- function(focal, pool, covar, method, replace) {
   
   ## Convert focal and pool to DataFrames
   f <- DataFrame(focal)
   p <- DataFrame(pool)
   
   ## Execute shared GRanges/GInteractions matching code
-  md <- matchRanges.Core(f, p, covar)
+  md <- matchRanges.Core(f, p, covar, method, replace)
   
   ## Combine matched data into MatchedDataFrame class
   obj <- MatchedDataFrame(focal = f,
@@ -150,6 +267,10 @@ matchRanges.MatchedDataFrame <- function(focal, pool, covar) {
 #' @param pool  a DataFrame, GRanges, or GInteractions object containing
 #'              the pool from which to select matches.
 #' @param covar a rhs formula with covariates on which to match.
+#' @param method character describing which matching method to use.
+#'               supported options are either 'nearest' or 'rejection'.
+#' @param replace logical describing whether to select matches with or without
+#'                replacement.
 #' @param ...   additional arguments
 #' 
 #' @return a covariate-matched control set of data
@@ -158,24 +279,28 @@ matchRanges.MatchedDataFrame <- function(focal, pool, covar) {
 #' @rawNamespace import(data.table, except = c(between, shift, first, second, indices))
 #' @importFrom rlang f_lhs
 #' @importFrom rlang f_rhs
+#' @importFrom speedglm speedglm
+#' @importFrom ks kde
 #' @import S4Vectors
 #' @export
 setMethod("matchRanges",
-          signature = signature(focal = "DF_OR_df_OR_dt",
-                                pool  = "DF_OR_df_OR_dt",
-                                covar = "formula"),
+          signature = signature(focal   = "DF_OR_df_OR_dt",
+                                pool    = "DF_OR_df_OR_dt",
+                                covar   = "formula",
+                                method  = "character",
+                                replace = "logical"),
           definition = matchRanges.MatchedDataFrame)
 
 
 ## MatchedGRanges method for matchRanges
-matchRanges.MatchedGRanges <- function(focal, pool, covar) {
+matchRanges.MatchedGRanges <- function(focal, pool, covar, method, replace) {
   
   ## Extract DataFrame from GRanges/GInteractions objects
   f <- mcols(focal)
   p <- mcols(pool)
   
   ## Execute matching code to get a Matched object
-  md <- matchRanges.Core(f, p, covar)
+  md <- matchRanges.Core(f, p, covar, method, replace)
   
   ## Combine matched data into MatchedGRanges class
   obj <- MatchedGRanges(focal = focal,
@@ -192,21 +317,23 @@ matchRanges.MatchedGRanges <- function(focal, pool, covar) {
 #' @rdname matchRanges
 #' @export
 setMethod("matchRanges",
-          signature = signature(focal = "GRanges",
-                                pool  = "GRanges",
-                                covar = "formula"),
+          signature = signature(focal   = "GRanges",
+                                pool    = "GRanges",
+                                covar   = "formula",
+                                method  = 'character',
+                                replace = 'logical'),
           definition = matchRanges.MatchedGRanges)
 
 
 ## MatchedGInteractions method for matchRanges
-matchRanges.MatchedGInteractions <- function(focal, pool, covar) {
+matchRanges.MatchedGInteractions <- function(focal, pool, covar, method, replace) {
   
   ## Extract DataFrame from GRanges/GInteractions objects
   f <- mcols(focal)
   p <- mcols(pool)
   
   ## Execute matching code to get a Matched object
-  md <- matchRanges.Core(f, p, covar)
+  md <- matchRanges.Core(f, p, covar, method, replace)
   
   ## Combine matched data into MatchedGInteractions class
   obj <- MatchedGInteractions(focal = focal,
@@ -223,9 +350,11 @@ matchRanges.MatchedGInteractions <- function(focal, pool, covar) {
 #' @rdname matchRanges
 #' @export
 setMethod("matchRanges",
-          signature = signature(focal = "GInteractions",
-                                pool  = "GInteractions",
-                                covar = "formula"),
+          signature = signature(focal   = "GInteractions",
+                                pool    = "GInteractions",
+                                covar   = "formula",
+                                method  = 'character',
+                                replace = 'logical'),
           definition = matchRanges.MatchedGInteractions)
 
 

@@ -27,7 +27,10 @@ Imports:
     RcppHMM,
     ggplot2,
     MatchIt,
-    plyranges
+    plyranges,
+    ks,
+    speedglm,
+    pbapply
 Depends:
     data.table
 License: GPL (>= 3)

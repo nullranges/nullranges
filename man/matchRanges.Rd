@@ -2,22 +2,22 @@
 % Please edit documentation in R/AllGenerics.R, R/methods-matchRanges.R
 \name{matchRanges}
 \alias{matchRanges}
-\alias{matchRanges,DF_OR_df_OR_dt,DF_OR_df_OR_dt,formula-method}
-\alias{matchRanges,GRanges,GRanges,formula-method}
-\alias{matchRanges,GInteractions,GInteractions,formula-method}
+\alias{matchRanges,DF_OR_df_OR_dt,DF_OR_df_OR_dt,formula,character,logical-method}
+\alias{matchRanges,GRanges,GRanges,formula,character,logical-method}
+\alias{matchRanges,GInteractions,GInteractions,formula,character,logical-method}
 \alias{focal,MDF_OR_MGR_OR_MGI-method}
 \alias{pool,MDF_OR_MGR_OR_MGI-method}
 \alias{matched,MDF_OR_MGR_OR_MGI-method}
 \alias{unmatched,MDF_OR_MGR_OR_MGI-method}
 \title{matchRanges}
 \usage{
-matchRanges(focal, pool, covar, ...)
+matchRanges(focal, pool, covar, method, replace, ...)
 
-\S4method{matchRanges}{DF_OR_df_OR_dt,DF_OR_df_OR_dt,formula}(focal, pool, covar)
+\S4method{matchRanges}{DF_OR_df_OR_dt,DF_OR_df_OR_dt,formula,character,logical}(focal, pool, covar, method, replace)
 
-\S4method{matchRanges}{GRanges,GRanges,formula}(focal, pool, covar)
+\S4method{matchRanges}{GRanges,GRanges,formula,character,logical}(focal, pool, covar, method, replace)
 
-\S4method{matchRanges}{GInteractions,GInteractions,formula}(focal, pool, covar)
+\S4method{matchRanges}{GInteractions,GInteractions,formula,character,logical}(focal, pool, covar, method, replace)
 
 \S4method{focal}{MDF_OR_MGR_OR_MGI}(x, ...)
 
@@ -35,6 +35,12 @@ the focal data to match.}
 the pool from which to select matches.}
 
 \item{covar}{a rhs formula with covariates on which to match.}
+
+\item{method}{character describing which matching method to use.
+supported options are either 'nearest' or 'rejection'.}
+
+\item{replace}{logical describing whether to select matches with or without
+replacement.}
 
 \item{...}{additional arguments}
 

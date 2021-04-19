@@ -22,14 +22,16 @@ setGeneric("plot")
 
 #' @rdname plotCovariates
 #' @export
-setGeneric("plotCovariates", function(x, covar, type, logTransform, ...) standardGeneric("plotCovariates"))
+setGeneric("plotCovariates", function(x, covar, type, logTransform, ...)
+  standardGeneric("plotCovariates"))
 
 
 ## Generics for matchedDataFrame/matchedGRanges/matchedGInteractions ---------------------
 
 #' @rdname matchRanges
 #' @export
-setGeneric("matchRanges", function(focal, pool, covar, ...) standardGeneric("matchRanges"))
+setGeneric("matchRanges", function(focal, pool, covar, method, replace, ...)
+  standardGeneric("matchRanges"))
 
 #' @rdname focal
 #' @export
