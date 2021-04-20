@@ -18,7 +18,9 @@ segment_density <- function(x, n, Ls = 1e6, deny, type = c("CBS", "HMM"), plot_o
   query <- tileGenome(seqlengths(x)[seqnames(x)@values], tilewidth = Ls, cut.last.tile.in.chrom = TRUE)
   gap <- gaps(deny,end = seqlengths(x)) %>% plyranges::filter(strand=="*") ## gap will create whole chromosome length ranges
   query_accept <- plyranges::join_overlap_intersect(query,gap)
-  counts <- countOverlaps(query_accept, x)
+  counts_nostand <- countOverlaps(query_accept, x)
+  counts <- counts_nostand/width(query_accept)*Ls
+  # counts <- log2(counts+1)
   eps <- rnorm(length(counts), 0, .2)
   if (plot_origin) {
     print(hist(counts, breaks = 50))

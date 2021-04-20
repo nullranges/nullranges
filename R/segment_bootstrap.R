@@ -30,7 +30,7 @@ seg_bootstrap_granges <- function(seg, x, L_b, R, within_chrom=TRUE,
         r_prime
       })
       times <- lengths(obj)
-      seqname <- unlist(lapply(seq_len(length(chroms)),function(j) rep(chroms[j],times[j])),use.names = FALSE)
+      seqname <- rep(chroms,times)
       obj <- do.call(c, obj)
       res <- GRanges(seqnames = seqname, ranges = obj, seqlengths = chrom_lens)
     } else {
@@ -93,7 +93,7 @@ seg_bootstrap_iranges_wchr <- function(seg, x, state, L_c, L_b, proportion_lengt
     block_shift <- random_blocks_start - rearranged_blocks_start
     width <- lengths(random_blocks_start0)
     random_blocks <- IRanges(start = random_blocks_start, 
-                             width = unlist(lapply(seq_len(length(L_b0)),function(j) rep(L_b0[j],width[j])),use.names = FALSE))
+                             width = rep(L_b0,width))
   } else {
     ## number of blocks within each range of the segmentation
     times <- ceiling((width(seg)) / L_b)
@@ -187,18 +187,19 @@ seg_bootstrap_iranges <- function(seg, x,state,L_b,chrnames, chrom_lens,
   index <- do.call(c, lapply(obj, `[[`, 4))
   ## deal with different segmentation state index 
   width <- lengths(random_blocks_start0)
-  add <- c(0,cumsum(width)[-3])
-  add <- unlist(lapply(ns, function(j) rep(add[j],width[j])), use.names = FALSE)
+  add <- c(0,cumsum(width)[-length(width)])
+  add2 <- rep(add,width)
   index <- index + add
   
   block_shift <- random_blocks_start[index] - rearranged_blocks_start
   random_blocks_r <- IRanges(start = random_blocks_start[index], 
-                           width = unlist(lapply(seq_len(length(L_b0)),function(j) rep(L_b0[j],width[j])),use.names = FALSE))
+                           width = rep(L_b0, width))
   } else {
     ns <- seq_len(max(state))
     ## number of blocks within each range of the segmentation
     times <- ceiling((width(seg)) / L_b)
-    seqnames = lapply(seq_len(length(as.character(chrnames))),function(t) rep(as.character(chrnames)[t],times[t]))
+    seqnames = rep(as.character(chrnames),times)
+    names(seqnames) <- rep(state,times)
     ## create random start positions within each segment
     random_start <- lapply(seq_len(length(times)), function(j){
       runif(times[j],start(seg)[j],max(start(seg)[j],end(seg)[j]-L_b+1))
@@ -211,7 +212,7 @@ seg_bootstrap_iranges <- function(seg, x,state,L_b,chrnames, chrom_lens,
       random_start0 <-unlist(random_start[state == m],use.names = FALSE)
       index <- sample(length(random_start0))
       start_order0 <- unlist(start_order[state == m],use.names = FALSE)
-      seqnames <- unlist(seqnames[state == m],use.names = FALSE)
+      seqnames <- unname(seqnames[which(names(seqnames)== m)])
       return(list(random_start0, start_order0,index,seqnames))
     })
     
@@ -221,8 +222,8 @@ seg_bootstrap_iranges <- function(seg, x,state,L_b,chrnames, chrom_lens,
     index <- do.call(c, lapply(obj, `[[`, 3))
     ## deal with different segmentation state index 
     width <- lengths(random_blocks_start0)
-    add <- c(0,cumsum(width)[-3])
-    add <- unlist(lapply(ns, function(j) rep(add[j],width[j])), use.names = FALSE)
+    add <- c(0,cumsum(width)[-length(width)])
+    add <- rep(add,width)
     index <- index + add
     seqnames <- do.call(c, lapply(obj, `[[`, 4))
     
