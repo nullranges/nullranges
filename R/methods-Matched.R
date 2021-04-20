@@ -96,40 +96,35 @@ plot.propensity <- function(x, type) {
   ## Extract matchedData
   md <- matchedData(x)
   
-  ## Reverse level order
-  md$group <- factor(x = md$group,
-                     levels = rev(c('focal', 'matched', 'pool', 'unmatched')))
-  
-  ## Reverse level order for line plot
-  md2 <- md
-  levels(md2$group) <- rev(levels(md2$group))
-  md2$cols <- md2$group
-  levels(md2$cols) <- c("#1F78B4", "#A6CEE3", "#33A02C", "#B2DF8A")
+  ## Define colors
+  cols <- c("#1F78B4", "#A6CEE3", "#33A02C", "#B2DF8A")
   
   ## Define jitter, ridge, and lines type plots
   jitter <- ggplot(data = md, aes(x = ps, y = group, color = group)) +
     geom_jitter(height = 0.25, width = 0, alpha = 0.7) +
-    scale_color_brewer(palette = "Paired", direction = -1)+
-    labs(main = "Propensity Score", x = "value", y = "")+
+    scale_y_discrete(limits = rev) + 
+    scale_fill_manual(values = cols) +
+    labs(x = "Propensity Score", y = "")+
     theme_minimal()+
     theme(legend.position = 'none',
           panel.border = element_rect(fill = 'transparent'))
   
   ridge <- ggplot(dat = md, aes(x = ps, y = group, fill = group))+
     geom_density_ridges(alpha = 0.7, color = NA)+
-    scale_fill_brewer(palette = "Paired", direction = -1)+
-    labs(main = "Propensity Score", x = "value", y = "")+
+    scale_y_discrete(limits = rev) + 
+    scale_fill_manual(values = cols) +
+    labs(x = "Propensity Score", y = "")+
     theme_minimal()+
     theme(legend.position = 'none',
           panel.border = element_rect(fill = 'transparent'))
 
-  lines <- ggplot(dat = md2, aes(x = ps, color = group)) +
-    geom_density(show.legend = FALSE) +
-    stat_density(geom = 'line', position = 'identity') +
-    scale_color_manual(values = levels(md2$cols)) +
+  lines <- ggplot(dat = md, aes(x = ps, color = group)) +
+    geom_density(show.legend = FALSE, na.rm = T) +
+    stat_density(geom = 'line', position = 'identity', na.rm = T) +
+    scale_color_manual(values = cols) +
     labs(x = "Propensity Score", y = "")+
     theme_minimal()+
-    theme(panel.border = element_rect(fill = 'transparent')) 
+    theme(panel.border = element_rect(fill = 'transparent'))
   
   if (missing(type)) {
     
@@ -162,9 +157,8 @@ plot.covariates <- function(x, covar = 'all', type, logTransform) {
   ## Extract matchedData
   md <- matchedData(x)
   
-  ## Reverse level order
-  md$group <- factor(x = md$group,
-                     levels = rev(c('focal', 'matched', 'pool', 'unmatched')))
+  ## Define colors
+  cols <- c("#1F78B4", "#A6CEE3", "#33A02C", "#B2DF8A")
   
   ## Parse covariate to plot
   covar <- match.arg(covar, choices = c('all', covariates(x)), several.ok = T)
@@ -182,7 +176,8 @@ plot.covariates <- function(x, covar = 'all', type, logTransform) {
   jitter <- ggplot(data = mmd, aes(x = value, y = group, color = group)) +
     facet_grid(~variable, scales = "free_x") +
     geom_jitter(height = 0.25, width = 0, alpha = 0.7) +
-    scale_color_brewer(palette = "Paired", direction = -1)+
+    scale_y_discrete(limits = rev) + 
+    scale_fill_manual(values = cols) +
     labs(y = "")+
     theme_minimal()+
     theme(legend.position = 'none',
@@ -192,12 +187,21 @@ plot.covariates <- function(x, covar = 'all', type, logTransform) {
   ridge  <- ggplot(dat = mmd, aes(x = value, y = group, fill = group))+
     facet_grid(~variable, scales = "free_x") +
     geom_density_ridges(alpha = 0.7, color = NA)+
-    scale_fill_brewer(palette = "Paired", direction = -1)+
+    scale_y_discrete(limits = rev) + 
+    scale_fill_manual(values = cols) +
     labs(y = "")+
     theme_minimal()+
     theme(legend.position = 'none',
           panel.grid.minor = element_blank(),
           panel.border = element_rect(fill = 'transparent'))
+  
+  lines <- ggplot(dat = mmd, aes(x = value, color = group)) +
+    facet_grid(~variable, scales = 'free') + 
+    geom_density(show.legend = FALSE, na.rm = T) +
+    stat_density(geom = 'line', position = 'identity', na.rm = T) +
+    scale_color_manual(values = cols) +
+    theme_minimal()+
+    theme(panel.border = element_rect(fill = 'transparent'))
   
   if (!missing(logTransform)) {
     if (logTransform) {
@@ -207,6 +211,10 @@ plot.covariates <- function(x, covar = 'all', type, logTransform) {
         labs(x="log10(value)", y = "")
       
       ridge <- ridge + 
+        scale_x_log10(oob = scales::oob_squish_infinite) +
+        labs(x="log10(value)", y = "") 
+      
+      lines <- lines + 
         scale_x_log10(oob = scales::oob_squish_infinite) +
         labs(x="log10(value)", y = "") 
 
@@ -224,13 +232,15 @@ plot.covariates <- function(x, covar = 'all', type, logTransform) {
   } else {
     
     ## Parse type argument
-    type <- match.arg(type, choices = c('jitter', 'ridge'))
+    type <- match.arg(type, choices = c('jitter', 'ridge', 'lines'))
     
     ## Choose plot type by argument
     if (type == 'jitter')
       return(jitter)
     if (type == 'ridge')
       return(ridge)
+    if (type == 'lines')
+      return(lines)
     
   }
 }
