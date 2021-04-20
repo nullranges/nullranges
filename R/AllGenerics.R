@@ -22,7 +22,7 @@ setGeneric("plot")
 
 #' @rdname plotCovariates
 #' @export
-setGeneric("plotCovariates", function(x, covar, type, logTransform, ...)
+setGeneric("plotCovariates", function(x, covar, sets, type, logTransform, ...)
   standardGeneric("plotCovariates"))
 
 

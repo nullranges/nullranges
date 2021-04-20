@@ -152,16 +152,18 @@ plot.propensity <- function(x, type) {
 }
 
 ## Define function for plotting covariates
-plot.covariates <- function(x, covar = 'all', type, logTransform) {
+plot.covariates <- function(x, covar = 'all', sets = 'all', type, logTransform) {
 
   ## Extract matchedData
   md <- matchedData(x)
   
-  ## Define colors
+  ## Define colors & covariates
   cols <- c("#1F78B4", "#A6CEE3", "#33A02C", "#B2DF8A")
+  names(cols) <- c('focal', 'matched', 'pool', 'unmatched')
   
-  ## Parse covariate to plot
-  covar <- match.arg(covar, choices = c('all', covariates(x)), several.ok = T)
+  ## Parse covariate & set to plot
+  covar <- match.arg(covar, choices = c('all', covariates(x)), several.ok = TRUE)
+  sets <- match.arg(sets, choices = c('all', names(cols)), several.ok = TRUE)
   
   if (length(covar) == 1) {
     if (covar == 'all') {
@@ -169,15 +171,24 @@ plot.covariates <- function(x, covar = 'all', type, logTransform) {
     }
   }
   
+  if (length(sets) == 1) {
+    if (sets == 'all') {
+      sets <- names(cols)
+    }
+  }
+  
   ## Melt data for plotting multiple covariates
   mmd <- melt(md, measure.vars = covar)
+  
+  ## Subset group by sets
+  mmd <- mmd[group %in% sets]
   
   ## Define jitter and ridge type plots
   jitter <- ggplot(data = mmd, aes(x = value, y = group, color = group)) +
     facet_grid(~variable, scales = "free_x") +
     geom_jitter(height = 0.25, width = 0, alpha = 0.7) +
     scale_y_discrete(limits = rev) + 
-    scale_fill_manual(values = cols) +
+    scale_fill_manual(values = cols[names(cols) %in% sets]) +
     labs(y = "")+
     theme_minimal()+
     theme(legend.position = 'none',
@@ -188,7 +199,7 @@ plot.covariates <- function(x, covar = 'all', type, logTransform) {
     facet_grid(~variable, scales = "free_x") +
     geom_density_ridges(alpha = 0.7, color = NA)+
     scale_y_discrete(limits = rev) + 
-    scale_fill_manual(values = cols) +
+    scale_fill_manual(values = cols[names(cols) %in% sets]) +
     labs(y = "")+
     theme_minimal()+
     theme(legend.position = 'none',
@@ -199,7 +210,7 @@ plot.covariates <- function(x, covar = 'all', type, logTransform) {
     facet_grid(~variable, scales = 'free') + 
     geom_density(show.legend = FALSE, na.rm = T) +
     stat_density(geom = 'line', position = 'identity', na.rm = T) +
-    scale_color_manual(values = cols) +
+    scale_color_manual(values = cols[names(cols) %in% sets]) +
     theme_minimal()+
     theme(panel.border = element_rect(fill = 'transparent'))
   

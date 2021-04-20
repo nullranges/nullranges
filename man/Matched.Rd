@@ -22,7 +22,7 @@
 
 \S4method{plot}{Matched,missing}(x, type)
 
-\S4method{plotCovariates}{Matched}(x, covar, type, logTransform, ...)
+\S4method{plotCovariates}{Matched}(x, covar, sets, type, logTransform, ...)
 }
 \arguments{
 \item{x}{Matched object}
