@@ -76,10 +76,10 @@ overviewMatched <- function(x) {
   
   ## Display overview
   cat(class(x), "object:", '\n', sep = ' ')
-  print(md.agg, row.names = F)
+  print(md.agg, row.names = FALSE)
   cat('--------\n')
   cat('focal - matched: \n')
-  print(d.agg, row.names = F)
+  print(d.agg, row.names = FALSE)
   
 }
 
@@ -119,8 +119,8 @@ plot.propensity <- function(x, type) {
           panel.border = element_rect(fill = 'transparent'))
 
   lines <- ggplot(dat = md, aes(x = ps, color = group)) +
-    geom_density(show.legend = FALSE, na.rm = T) +
-    stat_density(geom = 'line', position = 'identity', na.rm = T) +
+    geom_density(show.legend = FALSE, na.rm = TRUE) +
+    stat_density(geom = 'line', position = 'identity', na.rm = TRUE) +
     scale_color_manual(values = cols) +
     labs(x = "Propensity Score", y = "")+
     theme_minimal()+
@@ -208,8 +208,8 @@ plot.covariates <- function(x, covar = 'all', sets = 'all', type, logTransform) 
   
   lines <- ggplot(dat = mmd, aes(x = value, color = group)) +
     facet_grid(~variable, scales = 'free') + 
-    geom_density(show.legend = FALSE, na.rm = T) +
-    stat_density(geom = 'line', position = 'identity', na.rm = T) +
+    geom_density(show.legend = FALSE, na.rm = TRUE) +
+    stat_density(geom = 'line', position = 'identity', na.rm = TRUE) +
     scale_color_manual(values = cols[names(cols) %in% sets]) +
     theme_minimal()+
     theme(panel.border = element_rect(fill = 'transparent'))

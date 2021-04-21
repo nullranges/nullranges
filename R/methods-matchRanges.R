@@ -156,7 +156,7 @@ propensityMatch <- function(covarData, covars, method, replace) {
   
   ## Run glm model
   model <- speedglm(formula = f, data = covarData,
-                    family = binomial("logit"), fitted = T, model = T)
+                    family = binomial("logit"), fitted = TRUE, model = TRUE)
   
   ## Get propensity scores of focal and pool groups as vectors
   psData <- data.table(ps = predict(model, type = "response"), id = model$model$id)
