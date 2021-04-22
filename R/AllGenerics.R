@@ -26,6 +26,13 @@ setGeneric("plotCovariates", function(x, covar, sets, type, logTransform, ...)
   standardGeneric("plotCovariates"))
 
 
+## Generics for utils --------------------------------------------------------------------
+
+#' @rdname combnCov
+#' @export
+setGeneric('combnCov', function(x) standardGeneric('combnCov'))
+
+
 ## Generics for matchedDataFrame/matchedGRanges/matchedGInteractions ---------------------
 
 #' @rdname matchRanges
