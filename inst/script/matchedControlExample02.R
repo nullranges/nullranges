@@ -8,7 +8,6 @@ library(nullranges)
 library(nullrangesData)
 library(magrittr)
 library(plyranges)
-library(MatchIt)
 library(BSgenome)
 library(BSgenome.Hsapiens.UCSC.hg38)
 
