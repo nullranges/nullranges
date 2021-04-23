@@ -103,7 +103,7 @@ plot.propensity <- function(x, type) {
   jitter <- ggplot(data = md, aes(x = ps, y = group, color = group)) +
     geom_jitter(height = 0.25, width = 0, alpha = 0.7) +
     scale_y_discrete(limits = rev) + 
-    scale_fill_manual(values = cols) +
+    scale_color_manual(values = cols) +
     labs(x = "Propensity Score", y = "")+
     theme_minimal()+
     theme(legend.position = 'none',
@@ -188,7 +188,7 @@ plot.covariates <- function(x, covar = 'all', sets = 'all', type, logTransform) 
     facet_grid(~variable, scales = "free_x") +
     geom_jitter(height = 0.25, width = 0, alpha = 0.7) +
     scale_y_discrete(limits = rev) + 
-    scale_fill_manual(values = cols[names(cols) %in% sets]) +
+    scale_color_manual(values = cols[names(cols) %in% sets]) +
     labs(y = "")+
     theme_minimal()+
     theme(legend.position = 'none',
