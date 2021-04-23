@@ -84,7 +84,8 @@ ggplot(data = df, aes(x = group, y = log2(peakFC)))+
 ## Covariate matching & visualization ----------------------------------------------------
 
 ## Generate matched control sets
-matched <- matchRanges(x = up_ov, univ = ctl_ov, covar = c("peakStrength", "gc"))
+matched <- matchRanges(x = up_ov, univ = ctl_ov, covar = ~peakStrength + gc,
+                       method = 'nearest', replace = TRUE)
 
 
 ## Assemble into data.frame

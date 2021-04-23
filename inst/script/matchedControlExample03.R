@@ -215,7 +215,8 @@ unLoopedEP <- subsetByOverlaps(enhPromPairs, loopGR, invert = T)
 system.time({
   matched <- matchRanges(x = loopedEP,
                          univ = unLoopedEP,
-                         covar = c("epDistance", "anchor1.peakStrength", "contactFreq"))  
+                         covar = ~epDistance+anchor1.peakStrength+contactFreq,
+                         method = 'nearest', replace = TRUE)  
 })
 
 ## Diagnostic plots: see how well the distributions are matched

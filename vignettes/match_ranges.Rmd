@@ -13,6 +13,7 @@ vignette: |
 
 ```{r}
 library(nullranges)
+library(magrittr)
 ```
 
 Test data
@@ -35,7 +36,8 @@ covar = ~ anchor1.peakStrength + contactFreq
 Match GInteractions object
 
 ```{r}
-mgi <- matchRanges(focal = x, pool = u, covar = covar)
+mgi <- matchRanges(focal = x, pool = u, covar = covar,
+                   method = 'nearest', replace = TRUE)
 ```
 
 Prints and behaves like a normal GInteractions object
@@ -58,7 +60,7 @@ Summary and access data
 
 ```{r}
 overview(mgi)
-matchedData(mgi)
+matchedData(mgi) %>% head()
 covariates(mgi)
 ```
 
@@ -74,8 +76,8 @@ unmatched(mgi)
 Extract indices by group (default is 'matched')
 
 ```{r}
-indices(mgi, group = "unmatched")
-indices(mgi)
+indices(mgi, group = "unmatched") %>% head()
+indices(mgi) %>% head()
 ```
 
 Should be `TRUE`:
