@@ -1,12 +1,12 @@
 ---
-title: "boot ranges"
+title: "Toy data bootstrap ranges"
+author: "Michael Love"
 date: "`r format(Sys.Date(), '%m/%d/%Y')`"
-author: "everyone"
 output:
   rmarkdown::html_document:
     highlight: tango
 vignette: |
-  %\VignetteIndexEntry{nullranges}
+  %\VignetteIndexEntry{Toy data bootstrap ranges}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -39,7 +39,7 @@ boot_pks <- bootstrap_granges(pks, within_chrom=FALSE, L_b=5e5)
 # Visualize boot on synthetic data
 
 ```{r}
-load_all()
+library(nullranges)
 ```
 
 ```{r}

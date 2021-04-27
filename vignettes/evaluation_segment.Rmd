@@ -1,12 +1,12 @@
 ---
-title: "evaluation_segment"
-author: "wancen"
+title: "Evaluation of segmentation"
+author: "Wancen Mu"
 date: "`r format(Sys.Date(), '%m/%d/%Y')`"
 output:
   rmarkdown::html_document:
     highlight: tango
 vignette: |
-  %\VignetteIndexEntry{nullranges}
+  %\VignetteIndexEntry{Evaluation of segmentation}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -33,8 +33,7 @@ deny
 
 
 ```{r}
-library(devtools)
-load_all()
+library(nullranges)
 ```
 
 # Gene density distribution-original dataset

@@ -1,12 +1,12 @@
 ---
 title: "matchRanges: supported methods"
-date: "`r format(Sys.Date(), '%m/%d/%Y')`"
 author: "Eric S. Davis"
+date: "`r format(Sys.Date(), '%m/%d/%Y')`"
 output:
   rmarkdown::html_document:
     highlight: tango
 vignette: |
-  %\VignetteIndexEntry{nullranges}
+  %\VignetteIndexEntry{matchRanges: supported methods}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
