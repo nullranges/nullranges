@@ -30,7 +30,6 @@ Suggests:
 Imports: 
     InteractionSet,
     ggplot2,
-    MatchIt,
     plyranges,
     ks,
     speedglm,

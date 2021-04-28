@@ -32,8 +32,7 @@ bootstrap_granges <- function(x, L_b, type = c("bootstrap", "permute"), within_c
     # TODO: code assumes sorted 'x'
     stopifnot(all(x == GenomicRanges::sort(x)))
 
-    # TODO: code right now assumes these are the same... fix later
-    stopifnot(all(sort(unique(seqnames(x))) == sort(seqlevels(x))))
+    # TODO: do we have to worry about missing seqlevels?
 
     # L_s is now a vector of the chromosome lengths
     L_s <- chrom_lens
