@@ -11,7 +11,7 @@ vignette: |
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r eval=FALSE}
+```{r}
 library(AnnotationHub)
 ah <- AnnotationHub()
 pks <- query(ah, c("DnaseSeq", "narrowPeak", "A549", "UniPk"))[[1]]

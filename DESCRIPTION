@@ -20,11 +20,15 @@ Description: Modular package for generation of sets of ranges
     is designed to be inter-operable with other packages for
     analysis of genomic overlap enrichment, including the
     plyranges Bioconductor package.
-Suggests: testthat, knitr, rmarkdown, AnnotationHub
-Imports: 
+Suggests:
+    testthat,
+    knitr,
+    rmarkdown,
+    AnnotationHub,
     DNAcopy,
+    RcppHMM
+Imports: 
     InteractionSet,
-    RcppHMM,
     ggplot2,
     MatchIt,
     plyranges,
