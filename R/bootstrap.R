@@ -102,12 +102,12 @@ permute_blocks_iranges <- function(x, L_s, L_b) {
   sort(x_prime)
 }
 
-#' Block bootstrap GRanges
-#'
-#' @param x the input ranges
-#' @param L_s the lengths of the chromosomes
-#' @param L_b the length of the blocks
-#'
+# Block bootstrap GRanges
+#
+# @param x the input ranges
+# @param L_s the lengths of the chromosomes
+# @param L_b the length of the blocks
+#
 block_bootstrap_granges <- function(x, L_s, L_b) {
   # blocks allowed to go over L_s
   n_per_chrom  <- ceiling(L_s / L_b)
@@ -132,12 +132,12 @@ block_bootstrap_granges <- function(x, L_s, L_b) {
   shift_and_swap_chrom(x_mult_hits, random_blocks, rearranged_blocks)
 }
 
-#' Permute blocks GRanges
-#'
-#' @param x the input ranges
-#' @param L_s the lengths of the chromosomes
-#' @param L_b the length of the blocks
-#' 
+# Permute blocks GRanges
+#
+# @param x the input ranges
+# @param L_s the lengths of the chromosomes
+# @param L_b the length of the blocks
+# 
 permute_blocks_granges <- function(x, L_s, L_b) {
   blocks <- tileGenome(seqlengths=L_s, tilewidth=L_b, cut.last.tile.in.chrom=TRUE)
   mcols(x)$block <- findOverlaps(x, blocks, select = "first")
