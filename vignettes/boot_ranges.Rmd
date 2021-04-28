@@ -57,10 +57,44 @@ ggbio::autoplot(gr)
 ```
 
 ```{r}
+library(BentoBox)
+library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+
+## Define function for plotting GRanges with BentoBox
+plotGRanges <- function(gr) {
+  
+  ## Shared parameters
+  p <- bb_params(chromstart = 0, chromend = 500,
+                 x = 0.5, width = 4, height = 0.5,
+                 at = seq(0, 500, 50))
+  
+  ## Create page to contain plots
+  bb_pageCreate(width = 5, height = 2, xgrid = 0, ygrid = 0, showGuides = F)
+  
+  ## Plot GRanges for each chromosome
+  p1 <- bb_plotBed(data = gr, params = p, chrom = 'chr1',
+                   y = 0.25, just = c('left', 'bottom'))
+  bb_annoGenomeLabel(plot = p1, params = p, y = 0.30)
+  
+  p2 <- bb_plotBed(data = gr, params = p, chrom = 'chr2',
+                   y = 1.0, just = c('left', 'bottom'))
+  bb_annoGenomeLabel(plot = p2, params = p, y = 1.05)
+  
+  p3 <- bb_plotBed(data = gr, params = p, chrom = 'chr3',
+                   y = 1.75, just = c('left', 'bottom'))
+  bb_annoGenomeLabel(plot = p3, params = p, y = 1.80)
+
+}
+
+plotGRanges(gr)
+
+```
+
+```{r}
 for (s in 1:5) {
   set.seed(s)
   gr_prime <- bootstrap_granges(gr, L_b=100, type="permute")
-  print(ggbio::autoplot(gr_prime))
+  plotGRanges(gr_prime)
 }
 ```
 
@@ -68,7 +102,7 @@ for (s in 1:5) {
 for (s in 1:5) {
   set.seed(s)
   gr_prime <- bootstrap_granges(gr, L_b=100)
-  print(ggbio::autoplot(gr_prime))
+  plotGRanges(gr_prime)
 }
 ```
 
@@ -80,7 +114,7 @@ Simple case, move fixed blocks around:
 for (s in 1:5) {
   set.seed(s)
   gr_prime <- bootstrap_granges(gr, L_b=200, type="permute", within_chrom=FALSE)
-  print(ggbio::autoplot(gr_prime))
+  plotGRanges(gr_prime)
 }
 ```
 
@@ -90,6 +124,6 @@ Now, randomly placed blocks with replacement (default `type="bootstap"`):
 for (s in 1:5) {
   set.seed(s)
   gr_prime <- bootstrap_granges(gr, L_b=200, within_chrom=FALSE)
-  print(ggbio::autoplot(gr_prime))
+  plotGRanges(gr_prime)
 }
 ```
