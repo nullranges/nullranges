@@ -1,5 +1,5 @@
 ---
-title: "Toy data bootstrap ranges"
+title: "Real and toy data un-segmented bootstrap ranges"
 author: "Michael Love"
 date: "`r format(Sys.Date(), '%m/%d/%Y')`"
 output:
@@ -25,6 +25,10 @@ table(seqnames(pks))
 pks <- sort(pks)
 ```
 
+```{r}
+library(nullranges)
+```
+
 Evaluate times:
 
 ```{r}
@@ -38,10 +42,6 @@ microbenchmark(list=alist(
 ```
 
 # Visualize boot on synthetic data
-
-```{r}
-library(nullranges)
-```
 
 ```{r}
 library(GenomicRanges)
