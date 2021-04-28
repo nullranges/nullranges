@@ -27,6 +27,8 @@ First we load our data and add some additional annotations. In this case we add 
 library(nullranges)
 library(nullrangesData)
 library(plyranges)
+# BiocManager::install("PhanstielLab/BentoBox", update = FALSE)
+# BiocManager::install("EricSDavis/hictoolsr", update = FALSE)
 library(hictoolsr)
 library(ggplot2)
 library(patchwork)
@@ -36,7 +38,7 @@ data("enhPromContactFreqHg19")
 epp <- enhPromContactFreqHg19
 
 ## Load loops
-loops <- fread(system.file("extdata/hic/MOMA_SIP_10kbLoops_Merged.txt",
+loops <- data.table::fread(system.file("extdata/hic/MOMA_SIP_10kbLoops_Merged.txt",
                            package = 'nullrangesData')) %>% as_ginteractions()
 
 ## Annotate looped and unlooped enh-prom pairs
