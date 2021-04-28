@@ -6,17 +6,21 @@
 \usage{
 bootstrap_granges(
   x,
+  L_b,
   type = c("bootstrap", "permute"),
-  within_chrom = TRUE,
-  L_b
+  within_chrom = TRUE
 )
 }
 \arguments{
 \item{x}{the input GRanges}
 
+\item{L_b}{the length of the block}
+
 \item{type}{the type of null generation}
 
-\item{L_b}{the length of the block}
+\item{within_chrom}{whether to re-sample (bootstrap) ranges
+only wwithin each chromosome, or whether to allow
+cross-chromosome re-sampling}
 }
 \description{
 Bootstrap GRanges

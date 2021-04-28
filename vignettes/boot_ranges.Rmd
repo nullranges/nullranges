@@ -31,7 +31,6 @@ Code from Herve...
 <https://stat.ethz.ch/pipermail/bioc-devel/2018-August/013912.html>
 
 ```{r eval=FALSE}
-
 boot_pks <- bootstrap_granges(pks, L_b=5e5)
 boot_pks <- bootstrap_granges(pks, within_chrom=FALSE, L_b=5e5)
 ```
@@ -45,32 +44,50 @@ library(nullranges)
 ```{r}
 library(GenomicRanges)
 gr <- GRanges(rep(c("chr1","chr2","chr3"),c(4,5,2)),
-              IRanges(start=c(1,100,120,200,100,200,215,230,400,1 ,100),
+              IRanges(start=c(1,101,121,201,101,201,216,231,401,1 ,101),
                       width=c(20, 5,  5, 30, 20,  5,  5,  5, 30,80,80)),
               seqlengths=c(chr1=300,chr2=450,chr3=200))
 ```
 
 ```{r}
 library(ggbio)
-autoplot(gr)
+ggbio::autoplot(gr)
 ```
 
 ```{r}
-p <- list()
+for (s in 1:5) {
+  set.seed(s)
+  gr_prime <- bootstrap_granges(gr, L_b=100, type="permute")
+  print(ggbio::autoplot(gr_prime))
+}
+```
+
+```{r}
 for (s in 1:5) {
   set.seed(s)
   gr_prime <- bootstrap_granges(gr, L_b=100)
-  print(autoplot(gr_prime))
+  print(ggbio::autoplot(gr_prime))
 }
 ```
 
 # Now across chroms:
 
+Simple case, move fixed blocks around:
+
 ```{r}
-p <- list()
 for (s in 1:5) {
   set.seed(s)
-  gr_prime <- bootstrap_granges(gr, L_b=100, within_chrom=FALSE)
-  print(autoplot(gr_prime))
+  gr_prime <- bootstrap_granges(gr, L_b=200, type="permute", within_chrom=FALSE)
+  print(ggbio::autoplot(gr_prime))
+}
+```
+
+Now, randomly placed blocks with replacement (default `type="bootstap"`):
+
+```{r}
+for (s in 1:5) {
+  set.seed(s)
+  gr_prime <- bootstrap_granges(gr, L_b=200, within_chrom=FALSE)
+  print(ggbio::autoplot(gr_prime))
 }
 ```
