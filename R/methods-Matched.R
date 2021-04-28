@@ -10,6 +10,7 @@
 #' @param x Matched object
 #' @param ... additional arguments
 #'
+#' @name Matched
 #' @rdname Matched
 #' @export
 setMethod("matchedData", "Matched", function(x, ...) {
@@ -24,7 +25,7 @@ setMethod("covariates", "Matched", function(x, ...) {
 
 getIndices <- function(x, group = 'matched') {
   ## Get group argument
-  group <- match.arg(group, choices=c("focal","matched", "pool", "unmatched"))
+  group <- match.arg(group, choices=c("focal","matched","pool","unmatched"))
   
   ## Get the length of each focal and pool
   n.focal <- nrow(x@matchedData[group == 'focal'])

@@ -275,6 +275,7 @@ matchRanges.MatchedDataFrame <- function(focal, pool, covar, method, replace) {
 #' 
 #' @return a covariate-matched control set of data
 #'
+#' @name matchRanges
 #' @rdname matchRanges
 #' @rawNamespace import(data.table, except = c(between, shift, first, second, indices))
 #' @importFrom rlang f_lhs
@@ -362,33 +363,32 @@ setMethod("matchRanges",
 
 #' Accessor methods for matchRanges Class
 #'
-#' @description 
 #' Functions that get data from "matchRanges" subclasses
 #' such as MatchedDataFrame, MatchedGRanges,
 #' and MatchedGInteractions. 
 #'
 #' @param x Matched object
 #' @param ... additional arguments
-#'
-#' @rdname matchRanges
+#' 
+#' @rdname matchRangesAccessors
 #' @export
 setMethod("focal", "MDF_OR_MGR_OR_MGI", function(x, ...) {
   x@focal
 })
 
-#' @rdname matchRanges
+#' @rdname matchRangesAccessors
 #' @export
 setMethod("pool", "MDF_OR_MGR_OR_MGI", function(x, ...) {
   x@pool
 })
 
-#' @rdname matchRanges
+#' @rdname matchRangesAccessors
 #' @export
 setMethod("matched", "MDF_OR_MGR_OR_MGI", function(x, ...) {
   x@delegate
 })
 
-#' @rdname matchRanges
+#' @rdname matchRangesAccessors
 #' @export
 setMethod("unmatched", "MDF_OR_MGR_OR_MGI", function(x, ...) {
   x@pool[indices(x, group = "unmatched"),]
