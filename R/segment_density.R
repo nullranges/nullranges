@@ -16,7 +16,6 @@
 #'
 #' @export
 segment_density <- function(x, n, Ls = 1e6, deny, type = c("cbs", "hmm"), plot_origin = TRUE, boxplot = FALSE) {
-  # TODO: why not seqlengths(x)?
   query <- tileGenome(seqlengths(x)[seqnames(x)@values], tilewidth = Ls, cut.last.tile.in.chrom = TRUE)
   ## gap will create whole chromosome length ranges
   gap <- gaps(deny,end = seqlengths(x)) %>%
@@ -38,9 +37,10 @@ segment_density <- function(x, n, Ls = 1e6, deny, type = c("cbs", "hmm"), plot_o
     if (!requireNamespace("DNAcopy", quietly=TRUE)) {
       stop("type='cbs' requires installing the Bioconductor package 'DNAcopy'")
     }
-    
+
+    # TODO: second line won't work for X,Y,MT
     cna <- DNAcopy::CNA(matrix(sqrt(counts) + eps, ncol = 1),
-      chrom = as.character(seqnames(query_accept)), # wont work for X,Y,MT
+      chrom = as.character(seqnames(query_accept)), 
       maploc = start(query_accept),
       data.type = "logratio",
       presorted = TRUE
