@@ -26,7 +26,15 @@ Suggests:
     rmarkdown,
     AnnotationHub,
     DNAcopy,
-    RcppHMM
+    RcppHMM,
+    nullrangesData,
+    EnsDb.Hsapiens.v86,
+    GenomeInfoDb,
+    ggbio,
+    microbenchmark,
+    patchwork,
+    magrittr,
+    hictoolsr
 Imports: 
     InteractionSet,
     ggplot2,
