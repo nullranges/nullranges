@@ -98,7 +98,6 @@ stratify <- function(fm, pm, n) {
   fm$bin <- .bincode(fm$fps, br, include.lowest = TRUE)
   pm$bin <- .bincode(pm$pps, br, include.lowest = TRUE)
   
-  
   ## Assign indices to bins
   fpsBins <- fm[, .(fpsN = .N, fpsIndices = list(fpsIndex)), by = bin]
   ppsBins <- pm[, .(ppsN = .N, ppsIndices = list(ppsIndex)), by = bin]
