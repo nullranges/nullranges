@@ -14,6 +14,9 @@ bootstrap_granges <- function(x, L_b, type = c("bootstrap", "permute"), within_c
   tab <- table(seqnames(x))
   chroms <- names(tab)
   # first, simple case: sampling or permuting within chrom
+
+  # TODO this loses the metadata columns right now...
+  
   if (within_chrom) {
     res <- lapply(chroms, function(chr) {
       # the length of the chromosomes

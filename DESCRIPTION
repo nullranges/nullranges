@@ -34,7 +34,8 @@ Suggests:
     microbenchmark,
     patchwork,
     magrittr,
-    hictoolsr
+    hictoolsr,
+    BentoBox
 Imports: 
     InteractionSet,
     ggplot2,
