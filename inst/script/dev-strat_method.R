@@ -27,21 +27,21 @@ epp$loopedEP[countOverlaps(epp, loops) > 0] <- TRUE
 sample.vec <- function(x, ...) x[sample(length(x), ...)]
 
 ## Define focal, pool and covar
-focal <- mcols(epp[epp$epDistance <= 40e03])
-pool  <- mcols(epp[epp$epDistance >= 40e03])
+# focal <- mcols(epp[epp$epDistance <= 40e03])
+# pool  <- mcols(epp[epp$epDistance >= 40e03])
 # covar <- ~loopedEP
-covar <- ~contactFreq
+# covar <- ~contactFreq
 # covar <- ~anchor1.peakStrength
 # covar <- ~loopedEP + contactFreq
 # covar <- ~loopedEP + contactFreq + anchor1.peakStrength
 
-# focal <- mcols(epp[epp$loopedEP == TRUE])
-# pool  <- mcols(epp[epp$loopedEP == FALSE])
+focal <- mcols(epp[epp$loopedEP == TRUE])
+pool  <- mcols(epp[epp$loopedEP == FALSE])
 # covar <- ~epDistance
 # covar <- ~contactFreq
 # covar <- ~anchor1.peakStrength
 # covar <- ~epDistance + contactFreq
-# covar <- ~epDistance + contactFreq + anchor1.peakStrength
+covar <- ~epDistance + contactFreq + anchor1.peakStrength
 
 method <- 'stratified'
 replace <- FALSE
@@ -95,8 +95,9 @@ stratify <- function(fm, pm, n) {
   br <- seq(from=mn, to=mx, by=(mx-mn)/n)
   
   ## Assign fps and pps to bin
-  fm$bin <- cut(fm$fps, breaks = br, include.lowest = TRUE)
-  pm$bin <- cut(pm$pps, breaks = br, include.lowest = TRUE)
+  fm$bin <- .bincode(fm$fps, br, include.lowest = TRUE)
+  pm$bin <- .bincode(pm$pps, br, include.lowest = TRUE)
+  
   
   ## Assign indices to bins
   fpsBins <- fm[, .(fpsN = .N, fpsIndices = list(fpsIndex)), by = bin]
@@ -109,65 +110,33 @@ stratify <- function(fm, pm, n) {
   
 }
 
+
 ## Best-fit method ####
 
-## Initialize results, fpsOptions and ppsOptions
-results <- data.table(bin=integer(), fpsIndex=integer(), ppsIndex=integer())
-fpsOptions <- data.table(fps, val = fps, fpsIndex = seq_along(fps))
-ppsOptions <- data.table(pps, val = pps, ppsIndex = seq_along(pps))
-# n <- length(unique(c(fpsOptions$fps, ppsOptions$pps)))
-# grid <- floor(seq(from = n, to = 1, length.out = log2(n)))
-
-i <- 1
-
-repeat {
+system.time({
   
-  if (nrow(results) == nrow(focal)) break
+  ## Initialize results, fpsOptions and ppsOptions
+  results <- data.table(bin=integer(), fpsIndex=integer(), ppsIndex=integer())
+  fpsOptions <- data.table(fps, val = fps, fpsIndex = seq_along(fps))
+  ppsOptions <- data.table(pps, val = pps, ppsIndex = seq_along(pps))
+  i <- 1
   
-  ## Update n
-  n <- length(unique(c(fpsOptions$fps, ppsOptions$pps)))
-  
-  ## Stratify ps by bins and match focal and pool
-  strata <- stratify(fpsOptions, ppsOptions, n)
-  
-  ## Print out step
-  print(sprintf("iteration %s: %s %% complete, %s bin(s)", i,
-                round(nrow(results)/nrow(focal) * 100, 2), n))
-  i <- i + 1
-  
-  if (nrow(strata[!is.na(fpsN) & fpsN <= ppsN]) == 0) break
-  
-  ## Assign indices that can be sampled
-  set.seed(123)
-  result <-
-    strata[!is.na(fpsN) & fpsN <= ppsN,
-           .(fpsIndex = unlist(fpsIndices),
-             ppsIndex = sample.vec(unlist(ppsIndices), fpsN, replace = replace)),
-           by = bin]
-  
-  ## Append to results
-  results <- rbind(results, result)
-  
-  ## Remove assigned indices from options
-  fpsOptions <- fpsOptions[!fpsIndex %in% result$fpsIndex]
-  ppsOptions <- ppsOptions[!ppsIndex %in% result$ppsIndex]
-  
-}
-
-while (nrow(results) != nrow(focal)) {
-  
-  ## Print out step
-  print(sprintf("iteration %s: %s %% complete, %s bin(s)", i,
-                round(nrow(results)/nrow(focal) * 100, 2), n))
-  i <- i + 1
-  
-  ## Update n
-  if(floor(n/2) == 0) n <- 1 else n <- floor(n/2)
-  
-  ## Stratify ps by bins and match focal and pool
-  strata <- stratify(fpsOptions, ppsOptions, n)
-  
-  if (nrow(strata[!is.na(fpsN) & fpsN <= ppsN]) != 0) {
+  repeat {
+    
+    if (nrow(results) == nrow(focal)) break
+    
+    ## Update n
+    n <- length(unique(c(fpsOptions$fps, ppsOptions$pps)))
+    
+    ## Stratify ps by bins and match focal and pool
+    strata <- stratify(fpsOptions, ppsOptions, n)
+    
+    ## Print out step
+    print(sprintf("iteration %s: %s %% complete, %s bin(s)", i,
+                  round(nrow(results)/nrow(focal) * 100, 2), n))
+    i <- i + 1
+    
+    if (nrow(strata[!is.na(fpsN) & fpsN <= ppsN]) == 0) break
     
     ## Assign indices that can be sampled
     set.seed(123)
@@ -185,13 +154,47 @@ while (nrow(results) != nrow(focal)) {
     ppsOptions <- ppsOptions[!ppsIndex %in% result$ppsIndex]
     
   }
-
-}
-
-## Print out step
-print(sprintf("iteration %s: %s %% complete, %s bin(s)", i,
-              round(nrow(results)/nrow(focal) * 100, 2), n))
-i <- i + 1
+  
+  while (nrow(results) != nrow(focal)) {
+    
+    ## Print out step
+    print(sprintf("iteration %s: %s %% complete, %s bin(s)", i,
+                  round(nrow(results)/nrow(focal) * 100, 2), n))
+    i <- i + 1
+    
+    ## Update n
+    if(floor(n/2) == 0) n <- 1 else n <- floor(n/2)
+    
+    ## Stratify ps by bins and match focal and pool
+    strata <- stratify(fpsOptions, ppsOptions, n)
+    
+    if (nrow(strata[!is.na(fpsN) & fpsN <= ppsN]) != 0) {
+      
+      ## Assign indices that can be sampled
+      set.seed(123)
+      result <-
+        strata[!is.na(fpsN) & fpsN <= ppsN,
+               .(fpsIndex = unlist(fpsIndices),
+                 ppsIndex = sample.vec(unlist(ppsIndices), fpsN, replace = replace)),
+               by = bin]
+      
+      ## Append to results
+      results <- rbind(results, result)
+      
+      ## Remove assigned indices from options
+      fpsOptions <- fpsOptions[!fpsIndex %in% result$fpsIndex]
+      ppsOptions <- ppsOptions[!ppsIndex %in% result$ppsIndex]
+      
+    }
+    
+  }
+  
+  ## Print out step
+  print(sprintf("iteration %s: %s %% complete, %s bin(s)", i,
+                round(nrow(results)/nrow(focal) * 100, 2), n))
+  i <- i + 1
+  
+})
 
 
 ## Fixed step-size solution ####
