@@ -375,7 +375,7 @@ matchRanges.MatchedDataFrame <- function(focal, pool, covar, method, replace) {
 #'              the pool from which to select matches.
 #' @param covar a rhs formula with covariates on which to match.
 #' @param method character describing which matching method to use.
-#'               supported options are either 'nearest' or 'rejection'.
+#'               supported options are either 'nearest', 'rejection', or 'stratified'.
 #' @param replace logical describing whether to select matches with or without
 #'                replacement.
 #' @param ...   additional arguments
