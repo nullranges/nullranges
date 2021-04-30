@@ -10,7 +10,7 @@ segment_density(
   Ls = 1e+06,
   deny,
   type = c("cbs", "hmm"),
-  plot_origin = TRUE,
+  plot_segment = TRUE,
   boxplot = FALSE
 )
 }
@@ -28,7 +28,7 @@ use DNAcopy to segment) or "hmm" (which will use RcppHMM).
 The packages are not imported by nullranges, but must be installed
 by the user}
 
-\item{plot_origin}{plot the gene density of original gene Granges}
+\item{plot_segment}{plot the gene density of by segmentation}
 
 \item{boxplot}{boxplot of gene density for each state}
 }
