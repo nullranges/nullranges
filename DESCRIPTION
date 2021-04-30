@@ -30,7 +30,6 @@ Suggests:
     nullrangesData,
     EnsDb.Hsapiens.v86,
     GenomeInfoDb,
-    ggbio,
     microbenchmark,
     patchwork,
     magrittr,
