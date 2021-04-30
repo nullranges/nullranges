@@ -1,21 +1,42 @@
 ---
-title: "Real and toy data un-segmented bootstrap ranges"
+title: "Real and toy data un-segmented block bootstrap"
 author: "Michael Love"
 date: "`r format(Sys.Date(), '%m/%d/%Y')`"
 output:
   rmarkdown::html_document:
     highlight: tango
+    toc: true
+    toc_float: true
 vignette: |
   %\VignetteIndexEntry{Toy data bootstrap ranges}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
+```{r setup, echo=FALSE, results="hide"}
+knitr::opts_chunk$set(tidy=FALSE, cache=TRUE)
+```
+
+In this vignette, we demonstrate the un-segmented block bootstrap
+functionality implemented in *nullranges*. "Un-segmented" refers to
+the fact that this implementation does not consider segmentation of
+the genome for sampling of blocks, see the segmented block bootstrap
+vignette for the alternative implementation.
+
+# Timing on DHS peaks
+
+First download DNase hypersensitivity peaks in A549 from
+*AnnotationHub*:
+
 ```{r}
-library(AnnotationHub)
+suppressPackageStartupMessages(library(AnnotationHub))
 ah <- AnnotationHub()
 pks <- query(ah, c("DnaseSeq", "narrowPeak", "A549", "UniPk"))[[1]]
 ```
+
+We subset to standard chromosomes and remove mitochondria (more work
+needed to handle these cases internally). Finally, we sort the
+features to be bootstrapped.
 
 ```{r}
 library(GenomeInfoDb)
@@ -29,7 +50,8 @@ pks <- sort(pks)
 library(nullranges)
 ```
 
-Evaluate times:
+The following evaluates various types of bootstrap/permutation
+schemes, first within chromosome, and then across chromosome.
 
 ```{r}
 library(microbenchmark)
@@ -41,59 +63,93 @@ microbenchmark(list=alist(
 ), times=10)
 ```
 
-# Visualize boot on synthetic data
+# Visualize on synthetic data
+
+We create some synthetic ranges in order to visualize the different
+options of un-segmented bootstrap.
+`chrom` will be used to color by chromosome of origin.
 
 ```{r}
 library(GenomicRanges)
-gr <- GRanges(rep(c("chr1","chr2","chr3"),c(4,5,2)),
-              IRanges(start=c(1,101,121,201,101,201,216,231,401,1 ,101),
-                      width=c(20, 5,  5, 30, 20,  5,  5,  5, 30,80,80)),
-              seqlengths=c(chr1=300,chr2=450,chr3=200))
-gr$chrom <- as.integer(factor(seqnames(gr)))
+seq_nms <- rep(c("chr1","chr2","chr3"),c(4,5,2))
+gr <- GRanges(seqnames=seq_nms,
+              IRanges(start=c(1,101,121,201,
+                              101,201,216,231,401,
+                              1,101),
+                      width=c(20, 5, 5, 30,
+                              20, 5, 5, 5, 30,
+                              80, 40)),
+              seqlengths=c(chr1=300,chr2=450,chr3=200),
+              chrom=as.integer(factor(seq_nms)))
 ```
 
+The following function uses functionality from *BentoBox* to plot the ranges.
+
 ```{r}
-library(BentoBox)
+suppressPackageStartupMessages(library(BentoBox))
 plotGRanges <- function(gr) {
   p <- bb_params(chromstart = 0, chromend = 500,
                  x = 0.5, width = 4, height = 0.5,
                  at = seq(0, 500, 50),
                  fill = palette()[2:4])
-  bb_pageCreate(width = 5, height = 2, xgrid = 0, ygrid = 0, showGuides = FALSE)  
+  bb_pageCreate(width = 5, height = 2, xgrid = 0,
+                ygrid = 0, showGuides = FALSE)
   for (i in seq_along(seqlevels(gr))) {
-    pbed <- bb_plotBed(data = gr, params = p, chrom = seqlevels(gr)[i],
-                       y = 0.25 + (i-1)*.7, just = c("left", "bottom"),
-                       colorby=colorby("chrom"))
-    bb_annoGenomeLabel(plot = pbed, params = p, y = 0.30 + (i-1)*.7)
+    chrom <- seqlevels(gr)[i]
+    chromend <- seqlengths(gr)[[chrom]]
+    suppressMessages({
+      pbed <- bb_plotBed(data = gr, params = p,
+                         chrom = chrom,
+                         y = 0.25 + (i-1)*.7,
+                         just = c("left", "bottom"),
+                         colorby=colorby("chrom"))
+      bb_annoGenomeLabel(plot = pbed, params = p, y = 0.30 + (i-1)*.7)
+    })
   }
 }
+```
+
+```{r fig.width=5, fig.height=2}
 plotGRanges(gr)
 ```
 
-```{r}
-gr_prime <- bootstrap_granges(gr, L_b=100, type="permute")
-gr_prime$chrom <- as.integer(factor(seqnames(gr_prime)))
-plotGRanges(gr_prime)
+## Within chromosome
+
+Visualize two permutations of blocks within chromosome:
+
+```{r fig.width=5, fig.height=2}
+for (i in 1:2) {
+  gr_prime <- bootstrap_granges(gr, L_b=100, type="permute")
+  plotGRanges(gr_prime)
+}
 ```
 
-```{r}
-gr_prime <- bootstrap_granges(gr, L_b=100)
-gr_prime$chrom <- as.integer(factor(seqnames(gr_prime)))
-plotGRanges(gr_prime)
+Visualize two bootstraps within chromosome:
+
+```{r fig.width=5, fig.height=2}
+for (i in 1:2) {
+  gr_prime <- bootstrap_granges(gr, L_b=100)
+  plotGRanges(gr_prime)
+}
 ```
 
-# Now across chroms:
+## Across chromosome
 
-Simple case, move fixed blocks around:
+Visualize two permutations of blocks across chromosome. Here we use
+larger blocks than previously.
 
-```{r}
-gr_prime <- bootstrap_granges(gr, L_b=200, type="permute", within_chrom=FALSE)
-plotGRanges(gr_prime)
+```{r fig.width=5, fig.height=2}
+for (i in 1:2) {
+  gr_prime <- bootstrap_granges(gr, L_b=200, type="permute", within_chrom=FALSE)
+  plotGRanges(gr_prime)
+}
 ```
 
-Now, randomly placed blocks with replacement (default `type="bootstap"`):
+Visualize two bootstraps across chromosome:
 
-```{r}
-gr_prime <- bootstrap_granges(gr, L_b=200, within_chrom=FALSE)
-plotGRanges(gr_prime)
+```{r fig.width=5, fig.height=2}
+for (i in 1:2) {
+  gr_prime <- bootstrap_granges(gr, L_b=200, within_chrom=FALSE)
+  plotGRanges(gr_prime)
+}
 ```
