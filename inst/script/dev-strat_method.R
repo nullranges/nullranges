@@ -121,6 +121,12 @@ system.time({
   skip <- FALSE
   i <- 1
   
+  ## Start progress bar
+  pb <- progress::progress_bar$new(
+    format = "  :step [:bar] :percent elapsed: :elapsedfull",
+    clear = F, total = nrow(focal) + 1)
+  pb$tick(0)
+  
   while (nrow(results) != nrow(focal)) {
     
     ## Update n
@@ -139,9 +145,9 @@ system.time({
       strata <- stratify(fpsOptions, ppsOptions, n)
     }
     
-    ## Print out step
-    print(sprintf("iteration %s: %s %% complete, %s bin(s)", i,
-                  round(nrow(results)/nrow(focal) * 100, 2), n))
+    ## Update progress
+    pb$update(tokens=list(step=sprintf('Iteration %s, %s bins(s)', i, n)),
+            ratio = nrow(results)/nrow(focal))
     i <- i + 1
     
     ## Assign indices that can be sampled
@@ -161,10 +167,10 @@ system.time({
     
   }
   
-  ## Print out step
-  print(sprintf("iteration %s: %s %% complete, %s bin(s)", i,
-                round(nrow(results)/nrow(focal) * 100, 2), n))
-  i <- i + 1
+  ## Close progress bar
+  pb$update(tokens=list(step=sprintf('Iteration %s, %s bins(s), done!', i, n)),
+            ratio = nrow(results)/nrow(focal))
+  if(pb$finished) pb$terminate()
 })
 
 ## Reorder by fpsIndex
