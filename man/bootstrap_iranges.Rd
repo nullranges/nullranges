@@ -11,7 +11,8 @@ bootstrap_iranges(x, L_s, L_b)
 
 \item{L_s}{the length of the segment}
 
-\item{L_b}{the length of the blocks}
+\item{L_b}{the length of the blocks
+n}
 }
 \description{
 Block bootstrap IRanges

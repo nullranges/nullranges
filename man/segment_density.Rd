@@ -9,8 +9,8 @@ segment_density(
   n,
   Ls = 1e+06,
   deny,
-  type = c("CBS", "HMM"),
-  plot_origin = TRUE,
+  type = c("cbs", "hmm"),
+  plot_segment = TRUE,
   boxplot = FALSE
 )
 }
@@ -23,9 +23,12 @@ segment_density(
 
 \item{deny}{GRanges of deny region}
 
-\item{type}{the type of segmentation}
+\item{type}{the type of segmentation, either "cbs" (which will
+use DNAcopy to segment) or "hmm" (which will use RcppHMM).
+The packages are not imported by nullranges, but must be installed
+by the user}
 
-\item{plot_origin}{plot the gene density of original gene Granges}
+\item{plot_segment}{plot the gene density of by segmentation}
 
 \item{boxplot}{boxplot of gene density for each state}
 }

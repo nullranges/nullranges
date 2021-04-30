@@ -1,180 +1,125 @@
 ---
-title: "evaluation_segment"
-author: "wancen"
+title: "Evaluation of segmentation"
+author: "Wancen Mu"
 date: "`r format(Sys.Date(), '%m/%d/%Y')`"
 output:
   rmarkdown::html_document:
     highlight: tango
 vignette: |
-  %\VignetteIndexEntry{nullranges}
+  %\VignetteIndexEntry{Evaluation of segmentation}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r }
+```{r}
 library(EnsDb.Hsapiens.v86)
 edb <- EnsDb.Hsapiens.v86
-g <- genes(edb, filter=AnnotationFilterList(GeneIdFilter("ENSG", "startsWith")))
+g <- genes(edb, filter = AnnotationFilterList(GeneIdFilter("ENSG", "startsWith")))
 library(GenomeInfoDb)
-gr <- keepStandardChromosomes(g,pruning.mode="coarse",species = "Homo_sapiens")
+gr <- keepStandardChromosomes(g, pruning.mode = "coarse", species = "Homo_sapiens")
 seqlevelsStyle(gr) <- "UCSC"
-g1<-keepSeqlevels(g,as.character(seq_len(9)),pruning.mode="coarse")
+seqlevels(gr)
+gr <- sort(gr)
+# g1 <- keepSeqlevels(g, as.character(seq_len(9)), pruning.mode = "coarse")
 ```
 
 ## Import deny region
 
 ```{r}
-library(rtracklayer)
-# download from https://www.encodeproject.org/files/ENCFF356LFX/@@download/ENCFF356LFX.bed.gz
-deny <- import("C:/Users/wancenmu/OneDrive - University of North Carolina at Chapel Hill/Lab/project2/data/ENCFF356LFX.bed.gz")
-genome(deny) <- "hg38"
-deny
+library(nullrangesData)
+data("deny")
 ```
 
-
 ```{r}
-library(devtools)
-load_all()
+library(nullranges)
+library(plyranges)
 ```
 
 # Gene density distribution-original dataset
+
 ## CBS segmentation
+
 ```{r}
-deny2 <- deny %>% filter(width(deny)>500)
-Ls=1e6
-seg<-segment_density(gr,n=3,Ls=Ls,deny=deny2,type = "CBS",boxplot = TRUE)
-```
-# Gene density distribution-block-bootstrap
-```{r}
-L_b=5e5
-system.time(bgr <- bootstrap_granges(g1, L_b=L_b, within_chrom = FALSE))[[3]]
-counts_bts <- countOverlaps(query, bgr)
-eps <- rnorm(length(counts_bts),0,.2)
-hist(counts_bts,breaks=50)
-plot(sqrt(counts_bts) + eps)
+deny2 <- deny %>% filter(width(deny) > 500)
+Ls <- 1e6
+seg <- segment_density(gr, n = 3, Ls = Ls, deny = deny2, type = "cbs", boxplot = TRUE)
 ```
 
 # Gene density distribution-segmentated blockbootstrap-CBS
-```{r}
-L_b=5e5
-# L_c<-seqlengths(g1)
-# L_s<-seg_length$Ls
-system.time(res_wchr <- seg_bootstrap_granges(seg,gr,L_b,within_chrom=TRUE,proportion_length = FALSE,coarse = TRUE))[[3]]
-system.time(res_wchr <- seg_bootstrap_granges(seg,gr,L_b,within_chrom=TRUE,proportion_length = TRUE,coarse = TRUE))[[3]]
-system.time(res_wochr <- seg_bootstrap_granges(seg,gr,L_b,within_chrom=FALSE,proportion_length = FALSE,coarse = TRUE))[[3]]
-system.time(res_wochr_propl <- seg_bootstrap_granges(seg,gr,L_b,within_chrom=FALSE,coarse = TRUE))[[3]]
-
-```
 
 ```{r}
-# Test on 100 times bootstrap ~19s
-system.time(res_wochr <- seg_bootstrap_granges(seg,gr,L_b,R=100,within_chrom=FALSE,proportion_length = FALSE,coarse = TRUE))[[3]]
-```
-
-# Compare with no segmentation 
-```{r}
-chrom_lens <- seqlengths(g1)[seqnames(g1)@values]
-chr <- GRanges(seqnames = as.character(seqnames(g1)@values),ranges=IRanges(start=1,width=chrom_lens),seqlengths = chrom_lens)
-chr$state <- rep(1,9)
-system.time(res_wochr <- seg_bootstrap_granges(chr,g1,L_b,R=100,within_chrom=FALSE,proportion_length = TRUE,coarse = TRUE))[[3]]
-```
-
-
-# Gene density distribution-segmentation+block-bootstrap-HMM
-```{r}
-seg<-segment_density(g1,n=3,Ls=Ls,type = "HMM",boxplot = TRUE)
-seg_length<-seg %>% group_by(state) %>% summarise(Ls=sum(width)) # derive each states length
-
-L_c<-seqlengths(g1)["9"]
-L_s<-seg_length$Ls
-system.time(res<-seg_bootstrap_iranges(seg,g1,L_c,L_s,L_b))[[3]]
-res
-res<-do.call(c,res)  
-res
-res<-sort(res)
-res
-HMM_boot<-GRanges(seqnames="9", ranges=res, seqlengths=L_c)
-counts_HMM_boot <- countOverlaps(query, HMM_boot)
-eps <- rnorm(length(counts_HMM_boot),0,.2)
-hist(counts_HMM_boot,breaks=50)
-plot(sqrt(counts_HMM_boot) + eps)
+# Test on 100 times bootstrap ~17s
+# L_b <- 5e5
+# system.time(res_wochr <- seg_bootstrap_granges(seg, gr, L_b, R = 100, within_chrom = FALSE, proportion_length = FALSE, coarse = TRUE))[[3]]
+# system.time(res_wochr_propl <- seg_bootstrap_granges(seg, gr, L_b, R = 100, within_chrom = FALSE, coarse = TRUE))[[3]]
+# system.time(res_wchr <- seg_bootstrap_granges(seg, gr, L_b,R = 100, within_chrom = TRUE, proportion_length = FALSE, coarse = TRUE))[[3]]
+# system.time(res_wchr <- seg_bootstrap_granges(seg, gr, L_b,R = 100, within_chrom = TRUE, proportion_length = TRUE, coarse = TRUE))[[3]]
 ```
 
 # Test performance on difference segmentation and block length
-```{r}
-Ls<-c(1e5,1e6,5e6)
-L_b<-c(5e4,5e5,1e6)
-
-mapply(function(Ls, L_b) {
-  seg<-segment_density(g1,n=3,Ls=Ls,type = "CBS",plot_origin = TRUE)
-  seg_length<-seg %>% group_by(state) %>% summarise(Ls=sum(width)) # derive each states length
-  
-  L_c<-seqlengths(g1)["9"]
-  L_s<-seg_length$Ls
-  system.time(res<-seg_bootstrap_iranges(seg,g1,L_c,L_s,L_b))[[3]]
-  res
-  res<-do.call(c,res)  
-  res
-  res<-sort(res)
-  res
-  CBS_boot<-GRanges(seqnames="9", ranges=res, seqlengths=L_c)
-  counts_cbs_boot <- countOverlaps(query, CBS_boot)
-  eps <- rnorm(length(counts_cbs_boot),0,.2)
-  print(hist(counts_cbs_boot,breaks=50,xlab = paste(Ls,"with",L_b,"block size")))
-  print(plot(sqrt(counts_cbs_boot) + eps))
-  },Ls, L_b)
-```
-
-#across chromosome
-```{r}
-library(ggbio)
-ggbio::autoplot(gr)
-```
-```{r}
-ggbio::autoplot(res_wchr)
-```
 
 ```{r}
-ggbio::autoplot(res_ochr)
+# Ls <- c(1e5, 1e6, 5e6)
+# L_b <- c(5e4, 5e5, 1e6)
+# 
+# mapply(function(Ls, L_b) {
+#   seg <- segment_density(g1, n = 3, Ls = Ls, type = "CBS", plot_origin = TRUE)
+#   seg_length <- seg %>%
+#     group_by(state) %>%
+#     summarise(Ls = sum(width)) # derive each states length
+# 
+#   L_c <- seqlengths(g1)["9"]
+#   L_s <- seg_length$Ls
+#   system.time(res <- seg_bootstrap_iranges(seg, g1, L_c, L_s, L_b))[[3]]
+#   res
+#   res <- do.call(c, res)
+#   res
+#   res <- sort(res)
+#   res
+#   CBS_boot <- GRanges(seqnames = "9", ranges = res, seqlengths = L_c)
+#   counts_cbs_boot <- countOverlaps(query, CBS_boot)
+#   eps <- rnorm(length(counts_cbs_boot), 0, .2)
+#   print(hist(counts_cbs_boot, breaks = 50, xlab = paste(Ls, "with", L_b, "block size")))
+#   print(plot(sqrt(counts_cbs_boot) + eps))
+# }, Ls, L_b)
+```
+
+# across chromosome
+
+```{r}
+# library(ggbio)
+# ggbio::autoplot(gr)
 ```
 
 ```{r}
-seg<-segment_density(gr,n=4,Ls=1e6,type = "HMM",plot_origin = TRUE)
-seg
-L_b<-2e5
-gr<-sort(gr)
-system.time(res<-seg_bootstrap_granges(seg,g1,L_b=L_b))[[3]]
-system.time(res4<-seg_bootstrap_granges2(seg,g1,L_b=L_b))[[3]]
-system.time(res2<-seg_bootstrap_granges_map(seg,g1,L_b=L_b,within_chrom = FALSE))[[3]]
-system.time(res5<-seg_bootstrap_granges(seg,gr,L_b=L_b))[[3]]
-
-system.time(res3<-seg_bootstrap_granges(seg,g1,L_b=L_b,within_chrom = FALSE,proportion_length = FALSE))[[3]]
-system.time(res6<-seg_bootstrap_granges(seg,g1,L_b=L_b,within_chrom = FALSE,proportion_length = FALSE,coarse = TRUE))[[3]]
-autoplot(res)
-ggbio::autoplot(res2)
-ggbio::autoplot(res5)
+# ggbio::autoplot(res_wchr)
 ```
+
+```{r}
+# ggbio::autoplot(res_ochr)
+```
+
 
 # Toy example on evalidating block bootstrap according to segmentation region
+
 ```{r}
 library(GenomicRanges)
-seg <- GRanges("1",IRanges(c(1,101,201,301),c(100,200,300,400),state=c(1:3,1)))
-x <- GRanges("1",IRanges(c(21,26,31,36,41,221,231,241),width=4),seqlengths =c("1"=400))
+seg <- GRanges("1", IRanges(c(1, 101, 201, 301), c(100, 200, 300, 400), state = c(1:3, 1)))
+x <- GRanges("1", IRanges(c(21, 26, 31, 36, 41, 221, 231, 241), width = 4), seqlengths = c("1" = 400))
 library(ggbio)
-ggbio::autoplot(x) + xlim(1,400)
-res <- seg_bootstrap_granges(seg,x,L_b=100)
-ggbio::autoplot(res) + xlim(1,400)
+ggbio::autoplot(x) + xlim(1, 400)
+res <- seg_bootstrap_granges(seg, x,R=1, L_b = 100)
+# ggbio::autoplot(res) + xlim(1, 400)
 ```
-
 
 ```{r}
 library(GenomicRanges)
-gr <- GRanges(rep(c("chr1","chr2","chr3"),c(5,10,3)),
-              IRanges(start=c(1,100,120,200,250,50,60,100,150,200,215,230,280,290,400,1,100,130),
-                      width=c(20, 5,  5,30,20, 30,30,40,15,15, 20,  5,  5,  5, 20,30,80,60)),
-              seqlengths=c(chr1=300,chr2=450,chr3=200))
+gr <- GRanges(rep(c("chr1", "chr2", "chr3"), c(5, 10, 3)),
+  IRanges(
+    start = c(1, 100, 120, 200, 250, 50, 60, 100, 150, 200, 215, 230, 280, 290, 400, 1, 100, 130),
+    width = c(20, 5, 5, 30, 20, 30, 30, 40, 15, 15, 20, 5, 5, 5, 20, 30, 80, 60)
+  ),
+  seqlengths = c(chr1 = 300, chr2 = 450, chr3 = 200)
+)
 autoplot(gr)
-
 ```
-
-

@@ -2,13 +2,8 @@
 % Please edit documentation in R/AllGenerics.R, R/methods-matchRanges.R
 \name{matchRanges}
 \alias{matchRanges}
-\alias{matchRanges,DF_OR_df_OR_dt,DF_OR_df_OR_dt,formula,character,logical-method}
 \alias{matchRanges,GRanges,GRanges,formula,character,logical-method}
 \alias{matchRanges,GInteractions,GInteractions,formula,character,logical-method}
-\alias{focal,MDF_OR_MGR_OR_MGI-method}
-\alias{pool,MDF_OR_MGR_OR_MGI-method}
-\alias{matched,MDF_OR_MGR_OR_MGI-method}
-\alias{unmatched,MDF_OR_MGR_OR_MGI-method}
 \title{matchRanges}
 \usage{
 matchRanges(focal, pool, covar, method, replace, ...)
@@ -18,14 +13,6 @@ matchRanges(focal, pool, covar, method, replace, ...)
 \S4method{matchRanges}{GRanges,GRanges,formula,character,logical}(focal, pool, covar, method, replace)
 
 \S4method{matchRanges}{GInteractions,GInteractions,formula,character,logical}(focal, pool, covar, method, replace)
-
-\S4method{focal}{MDF_OR_MGR_OR_MGI}(x, ...)
-
-\S4method{pool}{MDF_OR_MGR_OR_MGI}(x, ...)
-
-\S4method{matched}{MDF_OR_MGR_OR_MGI}(x, ...)
-
-\S4method{unmatched}{MDF_OR_MGR_OR_MGI}(x, ...)
 }
 \arguments{
 \item{focal}{a DataFrame, GRanges, or GInteractions object containing
@@ -43,8 +30,6 @@ supported options are either 'nearest' or 'rejection'.}
 replacement.}
 
 \item{...}{additional arguments}
-
-\item{x}{Matched object}
 }
 \value{
 a covariate-matched control set of data
@@ -52,8 +37,4 @@ a covariate-matched control set of data
 \description{
 A function that generates a covariate-matched control
 set of the same datatype.
-
-Functions that get data from "matchRanges" subclasses
-such as MatchedDataFrame, MatchedGRanges,
-and MatchedGInteractions.
 }

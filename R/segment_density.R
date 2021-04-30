@@ -4,65 +4,68 @@
 #' @param n the number of states
 #' @param Ls segment length
 #' @param deny GRanges of deny region
-#' @param type the type of segmentation
-#' @param plot_origin plot the gene density of original gene Granges
+#' @param type the type of segmentation, either "cbs" (which will
+#' use DNAcopy to segment) or "hmm" (which will use RcppHMM).
+#' The packages are not imported by nullranges, but must be installed
+#' by the user
+#' @param plot_segment plot the gene density of by segmentation
 #' @param boxplot boxplot of gene density for each state
 #'
-#' @import DNAcopy
-#' @import RcppHMM
 #' @import ggplot2
 #' @importFrom plyranges filter join_overlap_intersect
 #'
 #' @export
-segment_density <- function(x, n, Ls = 1e6, deny, type = c("CBS", "HMM"), plot_origin = TRUE, boxplot = FALSE) {
+segment_density <- function(x, n, Ls = 1e6, deny, type = c("cbs", "hmm"), plot_segment = TRUE, boxplot = FALSE) {
   query <- tileGenome(seqlengths(x)[seqnames(x)@values], tilewidth = Ls, cut.last.tile.in.chrom = TRUE)
-  gap <- gaps(deny,end = seqlengths(x)) %>% plyranges::filter(strand=="*") ## gap will create whole chromosome length ranges
-  query_accept <- plyranges::join_overlap_intersect(query,gap)
+  ## gap will create whole chromosome length ranges
+  gap <- gaps(deny,end = seqlengths(x)) %>%
+    plyranges::filter(strand=="*") 
+  query_accept <- plyranges::join_overlap_intersect(query,gap2) %>% filter(width > Ls / 10)
   counts_nostand <- countOverlaps(query_accept, x)
   counts <- counts_nostand/width(query_accept)*Ls
-  # counts <- log2(counts+1)
   eps <- rnorm(length(counts), 0, .2)
-  if (plot_origin) {
-    print(hist(counts, breaks = 50))
-    # a<-seqnames(query)
-    # b<-rep(a@values,a@lengths)
-    print(plot(sqrt(counts) + eps))
-  }
 
-  if (type == "CBS") {
-    cna <- CNA(matrix(sqrt(counts) + eps, ncol = 1),
-      chrom = as.character(seqnames(query_accept)), # wont work for X,Y,MT
+  if (type == "cbs") {
+
+    if (!requireNamespace("DNAcopy", quietly=TRUE)) {
+      stop("type='cbs' requires installing the Bioconductor package 'DNAcopy'")
+    }
+
+    cna <- DNAcopy::CNA(matrix(sqrt(counts) + eps, ncol = 1),
+      chrom = as.character(seqnames(query_accept)), 
       maploc = start(query_accept),
       data.type = "logratio",
       presorted = TRUE
     )
-    scna <- segment(cna,
-      undo.splits = "sdundo",
-      undo.SD = 1.5,
+    scna <- DNAcopy::segment(cna,
       verbose = 1
     )
     seq <- with(scna$output, rep(seg.mean, num.mark))
-    # plot(scna)
-    # plot(seq)
     q <- quantile(seq, .95)
     seq2 <- pmin(seq, q)
-    # plot(seq2)
     km <- kmeans(seq2, n)
-    query_accept$states <- km$cluster
-    plot(sqrt(counts) + eps, col = km$cluster)
-  } else {
-    hmm <- initPHMM(n)
-    hmm <- learnEM(hmm,
+    mcols(query_accept)$states <- km$cluster
+  } else if (type == "hmm") {
+
+    if (!requireNamespace("RcppHMM", quietly=TRUE)) {
+      stop("type='hmm' requires installing the Bioconductor package 'RcppHMM'")
+    }
+    
+    hmm <- RcppHMM::initPHMM(n)
+    hmm <- RcppHMM::learnEM(hmm,
       counts,
       iter = 400,
       delta = 1e-5,
       print = TRUE
     )
-    hmm
-    v <- as.integer(factor(viterbi(hmm, counts), levels = hmm$StateNames))
-    plot(sqrt(counts) + eps, col = v)
-    query_accept$states <- v
+    v <- as.integer(factor(RcppHMM::viterbi(hmm, counts), levels = hmm$StateNames))
+    mcols(query_accept)$states <- v
   }
+  
+  if (plot_segment) {
+    plot(sqrt(counts) + eps, col = query_accept$states)
+  }
+  
   if (boxplot) {
     states <- data.frame(state = query_accept$states, count = counts)
     p <- ggplot2::ggplot(aes(x = factor(state), y = counts), data = states) +

@@ -1,6 +1,6 @@
 Package: nullranges
 Title: Generation of null ranges via bootstrapping or covariate matching
-Version: 0.0.5
+Version: 0.0.8
 Authors@R: c(
     person("Michael", "Love",
       role = c("aut", "cre"),
@@ -20,21 +20,33 @@ Description: Modular package for generation of sets of ranges
     is designed to be inter-operable with other packages for
     analysis of genomic overlap enrichment, including the
     plyranges Bioconductor package.
-Suggests: AnnotationHub
-Imports: 
+Suggests:
+    testthat,
+    knitr,
+    rmarkdown,
+    AnnotationHub,
     DNAcopy,
-    InteractionSet,
     RcppHMM,
+    nullrangesData,
+    EnsDb.Hsapiens.v86,
+    GenomeInfoDb,
+    ggbio,
+    microbenchmark,
+    patchwork,
+    magrittr,
+    hictoolsr,
+    BentoBox
+Imports: 
+    InteractionSet,
     ggplot2,
-    MatchIt,
     plyranges,
     ks,
     speedglm,
-    pbapply
-Depends:
+    pbapply,
     data.table
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
+VignetteBuilder: knitr
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1

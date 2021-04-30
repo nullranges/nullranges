@@ -1,76 +1,99 @@
 ---
-title: "boot ranges"
+title: "Real and toy data un-segmented bootstrap ranges"
+author: "Michael Love"
 date: "`r format(Sys.Date(), '%m/%d/%Y')`"
-author: "everyone"
 output:
   rmarkdown::html_document:
     highlight: tango
 vignette: |
-  %\VignetteIndexEntry{nullranges}
+  %\VignetteIndexEntry{Toy data bootstrap ranges}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r eval=FALSE}
+```{r}
 library(AnnotationHub)
 ah <- AnnotationHub()
 pks <- query(ah, c("DnaseSeq", "narrowPeak", "A549", "UniPk"))[[1]]
 ```
 
-```{r eval=FALSE}
+```{r}
 library(GenomeInfoDb)
-#pks <- keepStandardChromosomes(pks)
-pks <- pks[seqnames(pks) %in% paste0("chr",1:5)]
-seqlevels(pks) <- seqlevels(pks)[1:5]
-seqlengths(pks)
+pks <- keepStandardChromosomes(pks)
+seqlevels(pks) <- setdiff(seqlevels(pks), "chrM")
+table(seqnames(pks))
 pks <- sort(pks)
 ```
 
-Code from Herve...
+```{r}
+library(nullranges)
+```
 
-<https://stat.ethz.ch/pipermail/bioc-devel/2018-August/013912.html>
+Evaluate times:
 
-```{r eval=FALSE}
-
-boot_pks <- bootstrap_granges(pks, L_b=5e5)
-boot_pks <- bootstrap_granges(pks, within_chrom=FALSE, L_b=5e5)
+```{r}
+library(microbenchmark)
+microbenchmark(list=alist(
+                 p_within=bootstrap_granges(pks, L_b=5e5, type="permute"),
+                 b_within=bootstrap_granges(pks, L_b=5e5),
+                 p_across=bootstrap_granges(pks, L_b=5e5, within_chrom=FALSE, type="permute"),
+                 b_across=bootstrap_granges(pks, L_b=5e5, within_chrom=FALSE)
+), times=10)
 ```
 
 # Visualize boot on synthetic data
 
 ```{r}
-load_all()
-```
-
-```{r}
 library(GenomicRanges)
 gr <- GRanges(rep(c("chr1","chr2","chr3"),c(4,5,2)),
-              IRanges(start=c(1,100,120,200,100,200,215,230,400,1 ,100),
+              IRanges(start=c(1,101,121,201,101,201,216,231,401,1 ,101),
                       width=c(20, 5,  5, 30, 20,  5,  5,  5, 30,80,80)),
               seqlengths=c(chr1=300,chr2=450,chr3=200))
+gr$chrom <- as.integer(factor(seqnames(gr)))
 ```
 
 ```{r}
-library(ggbio)
-autoplot(gr)
-```
-
-```{r}
-p <- list()
-for (s in 1:5) {
-  set.seed(s)
-  gr_prime <- bootstrap_granges(gr, L_b=100)
-  print(autoplot(gr_prime))
+library(BentoBox)
+plotGRanges <- function(gr) {
+  p <- bb_params(chromstart = 0, chromend = 500,
+                 x = 0.5, width = 4, height = 0.5,
+                 at = seq(0, 500, 50),
+                 fill = palette()[2:4])
+  bb_pageCreate(width = 5, height = 2, xgrid = 0, ygrid = 0, showGuides = FALSE)  
+  for (i in seq_along(seqlevels(gr))) {
+    pbed <- bb_plotBed(data = gr, params = p, chrom = seqlevels(gr)[i],
+                       y = 0.25 + (i-1)*.7, just = c("left", "bottom"),
+                       colorby=colorby("chrom"))
+    bb_annoGenomeLabel(plot = pbed, params = p, y = 0.30 + (i-1)*.7)
+  }
 }
+plotGRanges(gr)
+```
+
+```{r}
+gr_prime <- bootstrap_granges(gr, L_b=100, type="permute")
+gr_prime$chrom <- as.integer(factor(seqnames(gr_prime)))
+plotGRanges(gr_prime)
+```
+
+```{r}
+gr_prime <- bootstrap_granges(gr, L_b=100)
+gr_prime$chrom <- as.integer(factor(seqnames(gr_prime)))
+plotGRanges(gr_prime)
 ```
 
 # Now across chroms:
 
+Simple case, move fixed blocks around:
+
 ```{r}
-p <- list()
-for (s in 1:5) {
-  set.seed(s)
-  gr_prime <- bootstrap_granges(gr, L_b=100, within_chrom=FALSE)
-  print(autoplot(gr_prime))
-}
+gr_prime <- bootstrap_granges(gr, L_b=200, type="permute", within_chrom=FALSE)
+plotGRanges(gr_prime)
+```
+
+Now, randomly placed blocks with replacement (default `type="bootstap"`):
+
+```{r}
+gr_prime <- bootstrap_granges(gr, L_b=200, within_chrom=FALSE)
+plotGRanges(gr_prime)
 ```
