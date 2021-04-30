@@ -147,6 +147,104 @@ rsMatch <- function(fps, pps, replace) {
   
 }
 
+## Helper function to assign fps and pps to n bins
+stratify <- function(fm, pm, n) {
+  
+  ## Define breaks using fps and pps
+  mn <- min(c(fm$fps, pm$pps))
+  mx <- max(c(fm$fps, pm$pps))
+  br <- seq(from=mn, to=mx, by=(mx-mn)/n)
+  
+  ## Assign fps and pps to bin
+  fm$bin <- .bincode(fm$fps, br, include.lowest = TRUE)
+  pm$bin <- .bincode(pm$pps, br, include.lowest = TRUE)
+  
+  ## Assign indices to bins
+  fpsBins <- fm[, .(fpsN = .N, fpsIndices = list(fpsIndex)), by = bin]
+  ppsBins <- pm[, .(ppsN = .N, ppsIndices = list(ppsIndex)), by = bin]
+  
+  ## Define strata by joining fps and pps on bins
+  strata <- fpsBins[ppsBins, on = 'bin']
+  
+  return(strata)
+  
+}
+
+## Helper function for stratified sampling
+ssMatch <- function(fps, pps, replace) {
+  
+  ## Initialize results, fpsOptions and ppsOptions
+  results <- data.table(bin=integer(), fpsIndex=integer(), ppsIndex=integer())
+  fpsOptions <- data.table(fps, val = fps, fpsIndex = seq_along(fps))
+  ppsOptions <- data.table(pps, val = pps, ppsIndex = seq_along(pps))
+  
+  ## Set flags and iteration count
+  skip <- FALSE
+  i <- 1
+  
+  ## Start progress bar
+  pb <- progress::progress_bar$new(
+    format = "  :step [:bar] :percent elapsed: :elapsedfull",
+    clear = F, total = length(fps) + 1)
+  pb$tick(0)
+  
+  while (nrow(results) != length(fps)) {
+    
+    ## Update n
+    if (skip)  n <- floor(n/2)
+    if (!skip) n <- length(unique(c(fpsOptions$fps, ppsOptions$pps)))
+    
+    ## Stratify ps by bins and match focal and pool
+    strata <- stratify(fpsOptions, ppsOptions, n)
+    
+    while (nrow(strata[!is.na(fpsN) & fpsN <= ppsN]) == 0) {
+      ## Enter faster n searching
+      skip <- TRUE
+      n <- floor(n/2)
+      
+      ## Stratify ps by bins and match focal and pool
+      strata <- stratify(fpsOptions, ppsOptions, n)
+    }
+    
+    ## Update progress
+    pb$update(tokens=list(step=sprintf('Iteration %s, %s bins(s)', i, n)),
+              ratio = nrow(results)/length(fps))
+    i <- i + 1
+    
+    ## Assign indices that can be sampled
+    set.seed(123)
+    result <-
+      strata[!is.na(fpsN) & fpsN <= ppsN,
+             .(fpsIndex = unlist(fpsIndices),
+               ppsIndex = sample.vec(unlist(ppsIndices), fpsN, replace = replace)),
+             by = bin]
+    
+    ## Append to results
+    results <- rbind(results, result)
+    
+    ## Remove assigned indices from options
+    fpsOptions <- fpsOptions[!fpsIndex %in% result$fpsIndex]
+    ppsOptions <- ppsOptions[!ppsIndex %in% result$ppsIndex]
+    
+  }
+  
+  ## Close progress bar
+  pb$update(tokens=list(step=sprintf('Iteration %s, %s bins(s), done!', i, n)),
+            ratio = nrow(results)/length(fps))
+  if(pb$finished) pb$terminate()
+  
+  ## Reorder by fpsIndex
+  results <- results[order(results$fpsIndex)]
+  
+  ## Assemble matched data table
+  mdt <- data.table(fps = fps[results$fpsIndex],
+                    ppsIndex = results$ppsIndex,
+                    fpsIndex = results$fpsIndex)
+  
+  ## Return matched data table
+  return(mdt)
+}
+
 ## Helper function that calculates propensity scores
 ## and implements nearest neighbor matching
 propensityMatch <- function(covarData, covars, method, replace) {
@@ -178,6 +276,12 @@ propensityMatch <- function(covarData, covars, method, replace) {
   
   if (method == 'rejection' & isFALSE(replace))
     mdt <- rsMatch(fps, pps, replace = FALSE)
+  
+  if (method == 'stratified' & isTRUE(replace))
+    mdt <- ssMatch(fps, pps, replace = TRUE)
+  
+  if (method == 'stratified' & isFALSE(replace))
+    mdt <- ssMatch(fps, pps, replace = FALSE)
   
 
   ## Assemble information by group
@@ -212,13 +316,16 @@ matchRanges.Core <- function(focal, pool, covar, method, replace) {
   }
   
   ## Check method and replace arguments
-  method <- match.arg(method, choices = c('nearest', 'rejection'))
+  method <- match.arg(method, choices = c('nearest', 'rejection', 'stratified'))
   
   if (isFALSE(replace) & nrow(focal) >= nrow(pool)) 
     stop("focal must be <= pool when replace = FALSE.")
   
   if (method == 'nearest' & isFALSE(replace))
     stop("nearest neighbor matching without replacement not available.")
+  
+  if (method == 'stratified' & nrow(focal) >= nrow(pool))
+    stop("focal must be <= pool for stratified sampling.")
 
   ## Create data table with covariate data
   covarData <- as.data.table(cbind(id = factor(c(rep(1, nrow(focal)),
@@ -268,7 +375,7 @@ matchRanges.MatchedDataFrame <- function(focal, pool, covar, method, replace) {
 #'              the pool from which to select matches.
 #' @param covar a rhs formula with covariates on which to match.
 #' @param method character describing which matching method to use.
-#'               supported options are either 'nearest' or 'rejection'.
+#'               supported options are either 'nearest', 'rejection', or 'stratified'.
 #' @param replace logical describing whether to select matches with or without
 #'                replacement.
 #' @param ...   additional arguments
