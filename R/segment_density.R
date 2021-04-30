@@ -8,29 +8,22 @@
 #' use DNAcopy to segment) or "hmm" (which will use RcppHMM).
 #' The packages are not imported by nullranges, but must be installed
 #' by the user
-#' @param plot_origin plot the gene density of original gene Granges
+#' @param plot_segment plot the gene density of by segmentation
 #' @param boxplot boxplot of gene density for each state
 #'
 #' @import ggplot2
 #' @importFrom plyranges filter join_overlap_intersect
 #'
 #' @export
-segment_density <- function(x, n, Ls = 1e6, deny, type = c("cbs", "hmm"), plot_origin = TRUE, boxplot = FALSE) {
+segment_density <- function(x, n, Ls = 1e6, deny, type = c("cbs", "hmm"), plot_segment = TRUE, boxplot = FALSE) {
   query <- tileGenome(seqlengths(x)[seqnames(x)@values], tilewidth = Ls, cut.last.tile.in.chrom = TRUE)
   ## gap will create whole chromosome length ranges
   gap <- gaps(deny,end = seqlengths(x)) %>%
     plyranges::filter(strand=="*") 
-  query_accept <- plyranges::join_overlap_intersect(query,gap)
+  query_accept <- plyranges::join_overlap_intersect(query,gap2) %>% filter(width > Ls / 10)
   counts_nostand <- countOverlaps(query_accept, x)
   counts <- counts_nostand/width(query_accept)*Ls
   eps <- rnorm(length(counts), 0, .2)
-
-  if (plot_origin) {
-    print(hist(counts, breaks = 50))
-    # a<-seqnames(query)
-    # b<-rep(a@values,a@lengths)
-    print(plot(sqrt(counts) + eps))
-  }
 
   if (type == "cbs") {
 
@@ -38,7 +31,6 @@ segment_density <- function(x, n, Ls = 1e6, deny, type = c("cbs", "hmm"), plot_o
       stop("type='cbs' requires installing the Bioconductor package 'DNAcopy'")
     }
 
-    # TODO: second line won't work for X,Y,MT
     cna <- DNAcopy::CNA(matrix(sqrt(counts) + eps, ncol = 1),
       chrom = as.character(seqnames(query_accept)), 
       maploc = start(query_accept),
@@ -46,18 +38,13 @@ segment_density <- function(x, n, Ls = 1e6, deny, type = c("cbs", "hmm"), plot_o
       presorted = TRUE
     )
     scna <- DNAcopy::segment(cna,
-      undo.splits = "sdundo",
-      undo.SD = 1.5,
       verbose = 1
     )
     seq <- with(scna$output, rep(seg.mean, num.mark))
     q <- quantile(seq, .95)
     seq2 <- pmin(seq, q)
     km <- kmeans(seq2, n)
-    query_accept$states <- km$cluster
-    # TODO make optional to plot
-    plot(sqrt(counts) + eps, col = km$cluster)
-    
+    mcols(query_accept)$states <- km$cluster
   } else if (type == "hmm") {
 
     if (!requireNamespace("RcppHMM", quietly=TRUE)) {
@@ -72,8 +59,11 @@ segment_density <- function(x, n, Ls = 1e6, deny, type = c("cbs", "hmm"), plot_o
       print = TRUE
     )
     v <- as.integer(factor(RcppHMM::viterbi(hmm, counts), levels = hmm$StateNames))
-    plot(sqrt(counts) + eps, col = v)
-    query_accept$states <- v
+    mcols(query_accept)$states <- v
+  }
+  
+  if (plot_segment) {
+    plot(sqrt(counts) + eps, col = query_accept$states)
   }
   
   if (boxplot) {

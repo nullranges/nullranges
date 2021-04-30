@@ -42,7 +42,7 @@ library(plyranges)
 ```{r}
 deny2 <- deny %>% filter(width(deny) > 500)
 Ls <- 1e6
-# seg <- segment_density(gr, n = 3, Ls = Ls, deny = deny2, type = "CBS", boxplot = TRUE)
+seg <- segment_density(gr, n = 3, Ls = Ls, deny = deny2, type = "cbs", boxplot = TRUE)
 ```
 
 # Gene density distribution-segmentated blockbootstrap-CBS
