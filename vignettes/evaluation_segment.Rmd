@@ -108,6 +108,38 @@ seg <- GRanges("1", IRanges(c(1, 101, 201, 301),
 x <- GRanges("1",
   IRanges(c(21, 26, 31, 36, 41, 221, 231, 241), width = 4),
   seqlengths = c("1" = 400)
-)
+  )
+x$state <- seg$state[ findOverlaps(x, seg, select="first") ]
+```
+
+```{r}
+suppressPackageStartupMessages(library(BentoBox))
+plotGRanges <- function(gr) {
+  p <- bb_params(chromstart = 0, chromend = 500,
+                 x = 0.5, width = 4, height = 0.5,
+                 at = seq(0, 500, 50),
+                 fill = palette()[2:4])
+  bb_pageCreate(width = 5, height = 2, xgrid = 0,
+                ygrid = 0, showGuides = FALSE)
+  for (i in seq_along(seqlevels(gr))) {
+    chrom <- seqlevels(gr)[i]
+    chromend <- seqlengths(gr)[[chrom]]
+    suppressMessages({
+      pbed <- bb_plotBed(data = gr, params = p,
+                         chrom = chrom,
+                         y = 0.25 + (i-1)*.7,
+                         just = c("left", "bottom"),
+                         colorby=colorby("state"))
+      bb_annoGenomeLabel(plot = pbed, params = p, y = 0.30 + (i-1)*.7)
+    })
+  }
+}
+```
+
+```{r}
+plotGRanges(x)
+```
+
+```{r}
 gr_prime <- seg_bootstrap_granges(seg, x, R = 1, L_b = 100)
 ```
