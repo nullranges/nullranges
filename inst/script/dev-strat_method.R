@@ -64,6 +64,9 @@ if (isFALSE(replace) & nrow(focal) >= nrow(pool))
 if (method == 'nearest' & isFALSE(replace))
   stop("nearest neighbor matching without replacement not available.")
 
+if (method == 'stratified' & nrow(focal) >= nrow(pool))
+  stop("focal must be <= pool for stratified sampling.")
+
 ## Create data table with covariate data
 covarData <- as.data.table(cbind(id = factor(c(rep(1, nrow(focal)),
                                                rep(0, nrow(pool)))),
@@ -83,6 +86,7 @@ pps <- psData[id == 0, ps]
 
 ## Add propensity scores to covarData
 covarData$ps <- psData$ps
+
 
 ## Develop new stratified matching method ------------------------------------------------
 
@@ -124,10 +128,10 @@ system.time({
   ## Start progress bar
   pb <- progress::progress_bar$new(
     format = "  :step [:bar] :percent elapsed: :elapsedfull",
-    clear = F, total = nrow(focal) + 1)
+    clear = F, total = length(fps) + 1)
   pb$tick(0)
   
-  while (nrow(results) != nrow(focal)) {
+  while (nrow(results) != length(fps)) {
     
     ## Update n
     if (skip)  n <- floor(n/2)
@@ -147,7 +151,7 @@ system.time({
     
     ## Update progress
     pb$update(tokens=list(step=sprintf('Iteration %s, %s bins(s)', i, n)),
-            ratio = nrow(results)/nrow(focal))
+            ratio = nrow(results)/length(fps))
     i <- i + 1
     
     ## Assign indices that can be sampled
@@ -169,7 +173,7 @@ system.time({
   
   ## Close progress bar
   pb$update(tokens=list(step=sprintf('Iteration %s, %s bins(s), done!', i, n)),
-            ratio = nrow(results)/nrow(focal))
+            ratio = nrow(results)/length(fps))
   if(pb$finished) pb$terminate()
 })
 
