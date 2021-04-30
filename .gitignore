@@ -3,7 +3,6 @@
 .Rhistory
 *.html
 nullranges.Rproj
-inst/extdata/rna/quants
-inst/extdata/rna/hg19/quants
-inst/extdata/rna/mono_macro_diff.tgz
 *.hic
+vignettes/*_cache
+vignettes/*_files
