@@ -27,17 +27,17 @@ epp$loopedEP[countOverlaps(epp, loops) > 0] <- TRUE
 sample.vec <- function(x, ...) x[sample(length(x), ...)]
 
 ## Define focal, pool and covar
-# focal <- mcols(epp[epp$epDistance <= 40e03])
-# pool  <- mcols(epp[epp$epDistance >= 40e03])
+focal <- mcols(epp[epp$epDistance <= 40e03])
+pool  <- mcols(epp[epp$epDistance >= 40e03])
 # covar <- ~loopedEP
 # covar <- ~contactFreq
 # covar <- ~anchor1.peakStrength
 # covar <- ~loopedEP + contactFreq
-# covar <- ~loopedEP + contactFreq + anchor1.peakStrength
+covar <- ~loopedEP + contactFreq + anchor1.peakStrength
 
-focal <- mcols(epp[epp$loopedEP == TRUE])
-pool  <- mcols(epp[epp$loopedEP == FALSE])
-covar <- ~epDistance
+# focal <- mcols(epp[epp$loopedEP == TRUE])
+# pool  <- mcols(epp[epp$loopedEP == FALSE])
+# covar <- ~epDistance
 # covar <- ~contactFreq
 # covar <- ~anchor1.peakStrength
 # covar <- ~epDistance + contactFreq
@@ -109,27 +109,31 @@ stratify <- function(fm, pm, n) {
   
 }
 
-
-## Optimal method ####
+## Rewrite best-fit method ####
 
 system.time({
   ## Initialize results, fpsOptions and ppsOptions
   results <- data.table(bin=integer(), fpsIndex=integer(), ppsIndex=integer())
   fpsOptions <- data.table(fps, val = fps, fpsIndex = seq_along(fps))
   ppsOptions <- data.table(pps, val = pps, ppsIndex = seq_along(pps))
+  
+  ## Set flags and iteration count
+  skip <- FALSE
   i <- 1
   
   while (nrow(results) != nrow(focal)) {
     
     ## Update n
-    n <- length(unique(c(fpsOptions$fps, ppsOptions$pps)))
+    if (skip)  n <- floor(n/2)
+    if (!skip) n <- length(unique(c(fpsOptions$fps, ppsOptions$pps)))
     
     ## Stratify ps by bins and match focal and pool
     strata <- stratify(fpsOptions, ppsOptions, n)
     
     while (nrow(strata[!is.na(fpsN) & fpsN <= ppsN]) == 0) {
-      ## Update n
-      if(floor(n/2) == 0) n <- 1 else n <- floor(n/2)
+      ## Enter faster n searching
+      skip <- TRUE
+      n <- floor(n/2)
       
       ## Stratify ps by bins and match focal and pool
       strata <- stratify(fpsOptions, ppsOptions, n)
@@ -156,7 +160,61 @@ system.time({
     ppsOptions <- ppsOptions[!ppsIndex %in% result$ppsIndex]
     
   }
+  
+  ## Print out step
+  print(sprintf("iteration %s: %s %% complete, %s bin(s)", i,
+                round(nrow(results)/nrow(focal) * 100, 2), n))
+  i <- i + 1
 })
+
+
+# ## Optimal method ####
+# 
+# system.time({
+#   ## Initialize results, fpsOptions and ppsOptions
+#   results <- data.table(bin=integer(), fpsIndex=integer(), ppsIndex=integer())
+#   fpsOptions <- data.table(fps, val = fps, fpsIndex = seq_along(fps))
+#   ppsOptions <- data.table(pps, val = pps, ppsIndex = seq_along(pps))
+#   i <- 1
+# 
+#   while (nrow(results) != nrow(focal)) {
+# 
+#     ## Update n
+#     n <- length(unique(c(fpsOptions$fps, ppsOptions$pps)))
+# 
+#     ## Stratify ps by bins and match focal and pool
+#     strata <- stratify(fpsOptions, ppsOptions, n)
+# 
+#     while (nrow(strata[!is.na(fpsN) & fpsN <= ppsN]) == 0) {
+#       ## Update n
+#       if(floor(n/2) == 0) n <- 1 else n <- floor(n/2)
+# 
+#       ## Stratify ps by bins and match focal and pool
+#       strata <- stratify(fpsOptions, ppsOptions, n)
+#     }
+# 
+#     ## Print out step
+#     print(sprintf("iteration %s: %s %% complete, %s bin(s)", i,
+#                   round(nrow(results)/nrow(focal) * 100, 2), n))
+#     i <- i + 1
+# 
+#     ## Assign indices that can be sampled
+#     set.seed(123)
+#     result <-
+#       strata[!is.na(fpsN) & fpsN <= ppsN,
+#              .(fpsIndex = unlist(fpsIndices),
+#                ppsIndex = sample.vec(unlist(ppsIndices), fpsN, replace = replace)),
+#              by = bin]
+# 
+#     ## Append to results
+#     results <- rbind(results, result)
+# 
+#     ## Remove assigned indices from options
+#     fpsOptions <- fpsOptions[!fpsIndex %in% result$fpsIndex]
+#     ppsOptions <- ppsOptions[!ppsIndex %in% result$ppsIndex]
+# 
+#   }
+# })
 
 
 # ## Best-fit method ####
