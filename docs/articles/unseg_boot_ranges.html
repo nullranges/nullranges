@@ -74,7 +74,14 @@
   <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
-<ul class="nav navbar-nav navbar-right"></ul>
+<ul class="nav navbar-nav navbar-right">
+<li>
+  <a href="https://github.com/nullranges/nullranges/">
+    <span class="fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
 </div>
 <!--/.nav-collapse -->
   </div>
@@ -92,7 +99,7 @@
             
             <h4 class="date">05/01/2021</h4>
       
-      
+      <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/master/vignettes/unseg_boot_ranges.Rmd"><code>vignettes/unseg_boot_ranges.Rmd</code></a></small>
       <div class="hidden name"><code>unseg_boot_ranges.Rmd</code></div>
 
     </div>
@@ -131,7 +138,7 @@
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">pks</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html">sort</a></span><span class="op">(</span><span class="va">pks</span><span class="op">)</span></code></pre></div>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">nullranges</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/nullranges/nullranges">nullranges</a></span><span class="op">)</span></code></pre></div>
 <p>The following evaluates various types of bootstrap/permutation schemes, first within chromosome, and then across chromosome (the default). The default <code>type</code> is bootstrap.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span> <span class="co"># reproducibility</span>
@@ -145,10 +152,10 @@
 <span class="op">)</span>, times<span class="op">=</span><span class="fl">10</span><span class="op">)</span></code></pre></div>
 <pre><code>## Unit: milliseconds
 ##      expr       min        lq      mean    median        uq       max neval
-##  p_within 1596.0517 1613.5154 1627.9386 1618.4812 1636.7071 1706.2518    10
-##  b_within 1529.4028 1564.4082 1742.0974 1580.8780 2142.3939 2149.1865    10
-##  p_across  198.3938  208.2165  268.4369  210.8557  216.9227  786.7567    10
-##  b_across  203.9727  219.6078  403.1380  231.4610  787.8807  795.7665    10</code></pre>
+##  p_within 1700.4002 1709.7677 1837.5539 1744.5466 1843.0700 2437.4648    10
+##  b_within 1622.9035 1674.5622 1787.6310 1726.8734 1821.7636 2273.0798    10
+##  p_across  209.6488  220.6000  352.6931  233.3228  241.9138  860.0132    10
+##  b_across  223.6713  236.7748  320.7118  253.9938  290.7002  855.0051    10</code></pre>
 </div>
 <div id="visualize-on-synthetic-data" class="section level1">
 <h1 class="hasAnchor">
@@ -242,7 +249,7 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by Michael Love, Wancen Mu, Eric Davis.</p>
+  <p>Developed by <a href="https://mikelove.github.io">Michael Love</a>, <a href="https://twitter.com/wancenm">Wancen Mu</a>, Eric Davis, <a href="http://phanstiel-lab.med.unc.edu">Douglas Phanstiel</a>.</p>
 </div>
 
 <div class="pkgdown">

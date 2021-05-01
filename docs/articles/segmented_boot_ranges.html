@@ -74,7 +74,14 @@
   <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
-<ul class="nav navbar-nav navbar-right"></ul>
+<ul class="nav navbar-nav navbar-right">
+<li>
+  <a href="https://github.com/nullranges/nullranges/">
+    <span class="fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
 </div>
 <!--/.nav-collapse -->
   </div>
@@ -92,7 +99,7 @@
             
             <h4 class="date">05/01/2021</h4>
       
-      
+      <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/master/vignettes/segmented_boot_ranges.Rmd"><code>vignettes/segmented_boot_ranges.Rmd</code></a></small>
       <div class="hidden name"><code>segmented_boot_ranges.Rmd</code></div>
 
     </div>
@@ -195,7 +202,7 @@
 ##   -------
 ##   seqinfo: 24 sequences from hg38 genome; no seqlengths</code></pre>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">nullranges</span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/nullranges/nullranges">nullranges</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">plyranges</span><span class="op">)</span></code></pre></div>
 <pre><code>## 
 ## Attaching package: 'plyranges'</code></pre>
@@ -234,7 +241,7 @@
 <code class="sourceCode R"><span class="va">seg_hmm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/segment_density.html">segment_density</a></span><span class="op">(</span><span class="va">g</span>, n <span class="op">=</span> <span class="fl">3</span>, L_s <span class="op">=</span> <span class="va">L_s</span>,
                            deny <span class="op">=</span> <span class="va">deny2</span>, type <span class="op">=</span> <span class="st">"hmm"</span>,
                            boxplot <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
-<pre><code>## Finished at Iteration: 65 with Error: 9.48177e-06</code></pre>
+<pre><code>## Finished at Iteration: 27 with Error: 9.0571e-06</code></pre>
 <p><img src="segmented_boot_ranges_files/figure-html/seg-hmm-1.png"><!-- --><img src="segmented_boot_ranges_files/figure-html/seg-hmm-2.png"><!-- --></p>
 </div>
 </div>
@@ -365,7 +372,7 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by .</p>
+  <p>Developed by <a href="https://mikelove.github.io">Michael Love</a>, <a href="https://twitter.com/wancenm">Wancen Mu</a>, Eric Davis, <a href="http://phanstiel-lab.med.unc.edu">Douglas Phanstiel</a>.</p>
 </div>
 
 <div class="pkgdown">
