@@ -24,7 +24,7 @@ the pool from which to select matches.}
 \item{covar}{a rhs formula with covariates on which to match.}
 
 \item{method}{character describing which matching method to use.
-supported options are either 'nearest' or 'rejection'.}
+supported options are either 'nearest', 'rejection', or 'stratified'.}
 
 \item{replace}{logical describing whether to select matches with or without
 replacement.}

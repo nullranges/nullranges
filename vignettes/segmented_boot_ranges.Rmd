@@ -1,29 +1,48 @@
 ---
-title: "Evaluation of segmentation"
+title: "Segmented block bootstrap"
 author: "Wancen Mu"
 date: "`r format(Sys.Date(), '%m/%d/%Y')`"
 output:
   rmarkdown::html_document:
     highlight: tango
+    toc: true
+    toc_float: true	
 vignette: |
-  %\VignetteIndexEntry{Evaluation of segmentation}
+  %\VignetteIndexEntry{Segmented block bootstrap}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
+
+# Introduction to segmented block bootstrap
+
+cite Bickel et al...
+
+Options:
+
+* Segment genome using feature density, e.g. gene density
+* Use exiting segmentation (e.g. ChromHMM, etc.)
+
+# Segmentation by gene density
+
+First we obtain the Ensembl genes ...
 
 ```{r}
 library(EnsDb.Hsapiens.v86)
 edb <- EnsDb.Hsapiens.v86
 g <- genes(edb, filter = AnnotationFilterList(GeneIdFilter("ENSG", "startsWith")))
+```
+
+```{r}
 library(GenomeInfoDb)
-gr <- keepStandardChromosomes(g, pruning.mode = "coarse", species = "Homo_sapiens")
-seqlevelsStyle(gr) <- "UCSC"
-seqlevels(gr)
-gr <- sort(gr)
-g1 <- keepSeqlevels(g, as.character(seq_len(9)), pruning.mode = "coarse")
+g <- keepStandardChromosomes(g, pruning.mode = "coarse", species = "Homo_sapiens")
+seqlevelsStyle(g) <- "UCSC"
+g <- sort(g)
+g <- keepSeqlevels(g, as.character(seq_len(9)), pruning.mode = "coarse")
 ```
 
 ## Import deny region
+
+Deny regions ... cite Kundaje
 
 ```{r}
 library(nullrangesData)
@@ -35,17 +54,34 @@ library(nullranges)
 library(plyranges)
 ```
 
-# Gene density distribution-original dataset
-
 ## CBS segmentation
 
+We subset the deny ranges to those which are 500 bp or larger.
+
+cite: DNAcopy paper
+
 ```{r}
-deny2 <- deny %>% filter(width(deny) > 500)
-Ls <- 1e6
-seg <- segment_density(gr, n = 3, Ls = Ls, deny = deny2, type = "cbs", boxplot = TRUE)
+deny2 <- deny %>% filter(width(deny) >= 500)
+L_s <- 1e6
+seg <- segment_density(gr, n = 3, L_s = L_s,
+                       deny = deny2, type = "cbs",
+                       boxplot = TRUE)
 ```
 
-# Gene density distribution-segmentated blockbootstrap-CBS
+## Alternatively: HMM segmentation
+
+cite: RcppHMM
+
+```{r}
+seg_hmm <- segment_density(gr, n = 3, L_s = L_s,
+                           deny = deny2, type = "hmm",
+                           boxplot = TRUE)
+```
+
+# Segmented block bootstrap within chromosome
+
+Here we apply a segmented block bootstrap with blocks of size 500kb,
+to the genes...
 
 Test on 100 times bootstrap ~17s
 
@@ -72,9 +108,11 @@ system.time({
   })
 ```
 
-# Test performance on difference segmentation and block length
+# Test performance on grid of segmentation and block lengths
 
-```{r}
+TODO: this may not be ideal for the vignette, but better for a paper
+
+```{r eval=FALSE}
 Ls <- c(1e5, 1e6, 5e6)
 L_b <- c(5e4, 5e5, 1e6)
 mapply(function(Ls, L_b) {
@@ -95,9 +133,9 @@ mapply(function(Ls, L_b) {
 }, Ls, L_b)
 ```
 
-# across chromosome
+# Segmented block bootstrap across chromosome
 
-# Toy example for evaluating segmented block bootstrap
+Toy example for evaluating segmented block bootstrap...
 
 ```{r}
 library(GenomicRanges)
@@ -105,11 +143,11 @@ seg <- GRanges("1", IRanges(c(1, 101, 201, 301),
   c(100, 200, 300, 400),
   state = c(1:3, 1)
 ))
-x <- GRanges("1",
+gr <- GRanges("1",
   IRanges(c(21, 26, 31, 36, 41, 221, 231, 241), width = 4),
   seqlengths = c("1" = 400)
   )
-x$state <- seg$state[ findOverlaps(x, seg, select="first") ]
+gr$state <- seg$state[ findOverlaps(x, seg, select="first") ]
 ```
 
 ```{r}
@@ -138,8 +176,4 @@ plotGRanges <- function(gr) {
 
 ```{r}
 plotGRanges(x)
-```
-
-```{r}
-gr_prime <- seg_bootstrap_granges(seg, x, R = 1, L_b = 100)
 ```

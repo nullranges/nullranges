@@ -2,7 +2,7 @@
 #'
 #' @param x the input gene GRanges
 #' @param n the number of states
-#' @param Ls segment length
+#' @param L_s segment length
 #' @param deny GRanges of deny region
 #' @param type the type of segmentation, either "cbs" (which will
 #' use DNAcopy to segment) or "hmm" (which will use RcppHMM).
@@ -15,14 +15,18 @@
 #' @importFrom plyranges filter join_overlap_intersect
 #'
 #' @export
-segment_density <- function(x, n, Ls = 1e6, deny, type = c("cbs", "hmm"), plot_segment = TRUE, boxplot = FALSE) {
-  query <- tileGenome(seqlengths(x)[seqnames(x)@values], tilewidth = Ls, cut.last.tile.in.chrom = TRUE)
+segment_density <- function(x, n, L_s = 1e6, deny, type = c("cbs", "hmm"),
+                            plot_segment = TRUE, boxplot = FALSE) {
+  query <- tileGenome(seqlengths(x)[seqnames(x)@values],
+                      tilewidth = L_s,
+                      cut.last.tile.in.chrom = TRUE)
   ## gap will create whole chromosome length ranges
   gap <- gaps(deny,end = seqlengths(x)) %>%
     plyranges::filter(strand=="*") 
-  query_accept <- plyranges::join_overlap_intersect(query,gap2) %>% filter(width > Ls / 10)
+  query_accept <- plyranges::join_overlap_intersect(query,gap) %>%
+    filter(width > L_s / 10)
   counts_nostand <- countOverlaps(query_accept, x)
-  counts <- counts_nostand/width(query_accept)*Ls
+  counts <- counts_nostand/width(query_accept) * L_s
   eps <- rnorm(length(counts), 0, .2)
 
   if (type == "cbs") {
@@ -56,7 +60,7 @@ segment_density <- function(x, n, Ls = 1e6, deny, type = c("cbs", "hmm"), plot_s
       counts,
       iter = 400,
       delta = 1e-5,
-      print = TRUE
+      print = FALSE
     )
     v <- as.integer(factor(RcppHMM::viterbi(hmm, counts), levels = hmm$StateNames))
     mcols(query_accept)$states <- v
@@ -72,6 +76,7 @@ segment_density <- function(x, n, Ls = 1e6, deny, type = c("cbs", "hmm"), plot_s
       geom_boxplot()
     print(p)
   }
+  
   # Combine nearby regions within same states
   seg <- do.call(c, lapply(1:n, function(s) {
     x <- reduce(query_accept[query_accept$states == s])
@@ -79,5 +84,5 @@ segment_density <- function(x, n, Ls = 1e6, deny, type = c("cbs", "hmm"), plot_s
     x
   }))
 
-  return(sort(seg))
+  sort(seg)
 }

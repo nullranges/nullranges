@@ -7,7 +7,7 @@
 segment_density(
   x,
   n,
-  Ls = 1e+06,
+  L_s = 1e+06,
   deny,
   type = c("cbs", "hmm"),
   plot_segment = TRUE,
@@ -19,7 +19,7 @@ segment_density(
 
 \item{n}{the number of states}
 
-\item{Ls}{segment length}
+\item{L_s}{segment length}
 
 \item{deny}{GRanges of deny region}
 
