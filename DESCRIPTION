@@ -9,6 +9,7 @@ Authors@R: c(
     person("Eric", "Davis", role = c("aut"),
       comment = c(ORCID = "0000-0003-4051-3217")),
     person("Douglas", "Phanstiel", role = c("aut")),
+    person("Stuart", "Lee", role = c("ctb")),
     person("Mikhail", "Dozmorov", role = c("ctb")),
     person("Tim", "Triche", role = c("ctb"))
     )
