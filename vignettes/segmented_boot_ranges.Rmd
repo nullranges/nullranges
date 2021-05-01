@@ -60,7 +60,7 @@ We subset the deny ranges to those which are 500 bp or larger.
 
 cite: DNAcopy paper
 
-```{r}
+```{r seg-cbs}
 deny2 <- deny %>% filter(width(deny) >= 500)
 L_s <- 1e6
 seg <- segment_density(gr, n = 3, L_s = L_s,
@@ -72,7 +72,7 @@ seg <- segment_density(gr, n = 3, L_s = L_s,
 
 cite: RcppHMM
 
-```{r}
+```{r seg-hmm}
 seg_hmm <- segment_density(gr, n = 3, L_s = L_s,
                            deny = deny2, type = "hmm",
                            boxplot = TRUE)
@@ -85,7 +85,7 @@ to the genes...
 
 Test on 100 times bootstrap ~17s
 
-```{r}
+```{r eval=FALSE}
 L_b <- 5e5
 system.time({
   res_wochr <- seg_bootstrap_granges(seg, gr, L_b, R = 100,
@@ -174,14 +174,14 @@ seg <- GRanges(
 )
 ```
 
-```{r}
+```{r toysegments}
 cols <- c("red","green3","dodgerblue",
           "red3","green4","blue2",
           "darkred")
 plotGRanges(seg)
 ```
 
-```{r}
+```{r toyranges}
 n <- 50
 gr <- GRanges(
   seqnames=sort(sample(c("chr1","chr2"), n, TRUE)),

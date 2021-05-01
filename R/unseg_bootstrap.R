@@ -1,17 +1,21 @@
-#' Bootstrap GRanges
+#' Unsegmented block bootstrap
 #'
-#' @param x the input GRanges
-#' @param L_b the length of the block
+#' @param x the input GRanges to bootstrap
+#' @param L_b the length of the blocks
 #' @param type the type of null generation
 #' @param within_chrom whether to re-sample (bootstrap) ranges
-#' only wwithin each chromosome, or whether to allow
-#' cross-chromosome re-sampling
+#' across chromosomes (default) or only within chromosomes
 #'
+#' @return one iteration of bootstrapped ranges
+#' (TODO fix this)
+#' 
 #' @export
-bootstrap_granges <- function(x, L_b, type = c("bootstrap", "permute"), within_chrom = TRUE) {
+bootstrap_granges <- function(x, L_b,
+                              type = c("bootstrap", "permute"),
+                              within_chrom = FALSE) {
   type <- match.arg(type)
   chrom_lens <- seqlengths(x)
-  # TODO: what kind of solution do we want for this
+  # TODO: what kind of solution do we want for this?
   # it's probably not a good idea to have L_b larger than one of the sequences
   stopifnot(all(chrom_lens >= L_b))
   tab <- table(seqnames(x))
@@ -51,14 +55,12 @@ bootstrap_granges <- function(x, L_b, type = c("bootstrap", "permute"), within_c
   x_prime
 }
 
-#' Block bootstrap GRanges within chromosome
-#'
-#' @param x the input GRanges
-#' @param L_b the length of the blocks
-#' @param L_s the length of the segment (chromosome)
-#' @param chr the name of the chromosome
-#'
-#' @export
+# Block bootstrap GRanges within chromosome
+#
+# @param x the input GRanges
+# @param L_b the length of the blocks
+# @param L_s the length of the segment (chromosome)
+# @param chr the name of the chromosome
 block_bootstrap_granges_within_chrom <- function(x, L_b, L_s, chr) {
   if (missing(chr)) {
     chr <- as.character(seqnames(gr)[1])
@@ -91,14 +93,12 @@ block_bootstrap_granges_within_chrom <- function(x, L_b, L_s, chr) {
   sort(x_prime)
 }
 
-#' Permute blocks of GRanges within chromosome
-#'
-#' @param x the input GRanges
-#' @param L_b the length of the blocks
-#' @param L_s the length of the segment (chromosome)
-#' @param chr the name of the chromosome
-#'
-#' @export
+# Permute blocks of GRanges within chromosome
+#
+# @param x the input GRanges
+# @param L_b the length of the blocks
+# @param L_s the length of the segment (chromosome)
+# @param chr the name of the chromosome
 permute_blocks_granges_within_chrom <- function(x, L_b, L_s, chr) {
   if (missing(chr)) {
     chr <- as.character(seqnames(gr)[1])
@@ -138,8 +138,6 @@ permute_blocks_granges_within_chrom <- function(x, L_b, L_s, chr) {
 # @param x the input GRanges
 # @param L_b the length of the blocks
 # @param L_s the lengths of the chromosomes
-# 
-#
 block_bootstrap_granges <- function(x, L_b, L_s) {
   # blocks allowed to go over L_s
   n_per_chrom  <- ceiling(L_s / L_b)
@@ -169,7 +167,6 @@ block_bootstrap_granges <- function(x, L_b, L_s) {
 # @param x the input GRanges
 # @param L_b the length of the blocks
 # @param L_s the lengths of the chromosomes
-# 
 permute_blocks_granges <- function(x, L_b, L_s) {
   blocks <- tileGenome(seqlengths=L_s, tilewidth=L_b, cut.last.tile.in.chrom=TRUE)
   mcols(x)$block <- findOverlaps(x, blocks, select = "first")

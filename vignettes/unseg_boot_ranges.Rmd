@@ -1,5 +1,5 @@
 ---
-title: "Real and toy data un-segmented block bootstrap"
+title: "Un-segmented block bootstrap"
 author: "Michael Love"
 date: "`r format(Sys.Date(), '%m/%d/%Y')`"
 output:
@@ -51,16 +51,18 @@ library(nullranges)
 ```
 
 The following evaluates various types of bootstrap/permutation
-schemes, first within chromosome, and then across chromosome.
+schemes, first within chromosome, and then across chromosome (the
+default). The default `type` is bootstrap.
 
 ```{r}
 set.seed(1) # reproducibility
 library(microbenchmark)
+L_b <- 5e5
 microbenchmark(list=alist(
-                 p_within=bootstrap_granges(pks, L_b=5e5, type="permute"),
-                 b_within=bootstrap_granges(pks, L_b=5e5),
-                 p_across=bootstrap_granges(pks, L_b=5e5, within_chrom=FALSE, type="permute"),
-                 b_across=bootstrap_granges(pks, L_b=5e5, within_chrom=FALSE)
+                 p_within=bootstrap_granges(pks, L_b=L_b, within_chrom=TRUE, type="permute"),
+                 b_within=bootstrap_granges(pks, L_b=L_b, within_chrom=TRUE),
+                 p_across=bootstrap_granges(pks, L_b=L_b, within_chrom=FALSE, type="permute"),
+                 b_across=bootstrap_granges(pks, L_b=L_b, within_chrom=FALSE)
 ), times=10)
 ```
 
@@ -110,7 +112,7 @@ plotGRanges <- function(gr) {
 }
 ```
 
-```{r fig.width=5, fig.height=2}
+```{r toyranges, fig.width=5, fig.height=2}
 plotGRanges(gr)
 ```
 
@@ -118,18 +120,18 @@ plotGRanges(gr)
 
 Visualize two permutations of blocks within chromosome:
 
-```{r fig.width=5, fig.height=2}
+```{r perm-within, fig.width=5, fig.height=2}
 for (i in 1:2) {
-  gr_prime <- bootstrap_granges(gr, L_b=100, type="permute")
+  gr_prime <- bootstrap_granges(gr, L_b=100, type="permute", within_chrom=TRUE)
   plotGRanges(gr_prime)
 }
 ```
 
 Visualize two bootstraps within chromosome:
 
-```{r fig.width=5, fig.height=2}
+```{r boot-within, fig.width=5, fig.height=2}
 for (i in 1:2) {
-  gr_prime <- bootstrap_granges(gr, L_b=100)
+  gr_prime <- bootstrap_granges(gr, L_b=100, within_chrom=TRUE)
   plotGRanges(gr_prime)
 }
 ```
@@ -139,7 +141,7 @@ for (i in 1:2) {
 Visualize two permutations of blocks across chromosome. Here we use
 larger blocks than previously.
 
-```{r fig.width=5, fig.height=2}
+```{r perm-across, fig.width=5, fig.height=2}
 for (i in 1:2) {
   gr_prime <- bootstrap_granges(gr, L_b=200, type="permute", within_chrom=FALSE)
   plotGRanges(gr_prime)
@@ -148,7 +150,7 @@ for (i in 1:2) {
 
 Visualize two bootstraps across chromosome:
 
-```{r fig.width=5, fig.height=2}
+```{r boot-across, fig.width=5, fig.height=2}
 for (i in 1:2) {
   gr_prime <- bootstrap_granges(gr, L_b=200, within_chrom=FALSE)
   plotGRanges(gr_prime)
