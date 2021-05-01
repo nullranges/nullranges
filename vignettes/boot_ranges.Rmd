@@ -54,6 +54,7 @@ The following evaluates various types of bootstrap/permutation
 schemes, first within chromosome, and then across chromosome.
 
 ```{r}
+set.seed(1) # reproducibility
 library(microbenchmark)
 microbenchmark(list=alist(
                  p_within=bootstrap_granges(pks, L_b=5e5, type="permute"),
@@ -88,16 +89,16 @@ The following function uses functionality from *BentoBox* to plot the ranges.
 ```{r}
 suppressPackageStartupMessages(library(BentoBox))
 plotGRanges <- function(gr) {
-  p <- bb_params(chromstart = 0, chromend = 500,
-                 x = 0.5, width = 4, height = 0.5,
-                 at = seq(0, 500, 50),
-                 fill = palette()[2:4])
   bb_pageCreate(width = 5, height = 2, xgrid = 0,
                 ygrid = 0, showGuides = FALSE)
   for (i in seq_along(seqlevels(gr))) {
     chrom <- seqlevels(gr)[i]
     chromend <- seqlengths(gr)[[chrom]]
     suppressMessages({
+      p <- bb_params(chromstart = 0, chromend = chromend,
+                     x = 0.5, width = 4*chromend/500, height = 0.5,
+                     at = seq(0, chromend, 50),
+                     fill = palette()[2:4])
       pbed <- bb_plotBed(data = gr, params = p,
                          chrom = chrom,
                          y = 0.25 + (i-1)*.7,
