@@ -1,10 +1,12 @@
 ---
 title: "Matching ranges"
-author: "Eric Davis"
+author: "Eric S. Davis"
 date: "`r format(Sys.Date(), '%m/%d/%Y')`"
 output:
   rmarkdown::html_document:
     highlight: tango
+    toc: true
+    toc_float: true	
 vignette: |
   %\VignetteIndexEntry{Matching ranges}
   %\VignetteEngine{knitr::rmarkdown}

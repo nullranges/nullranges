@@ -29,15 +29,16 @@ First we obtain the Ensembl genes ...
 ```{r}
 library(EnsDb.Hsapiens.v86)
 edb <- EnsDb.Hsapiens.v86
-g <- genes(edb, filter = AnnotationFilterList(GeneIdFilter("ENSG", "startsWith")))
+filt <- AnnotationFilterList(GeneIdFilter("ENSG", "startsWith"))
+g <- genes(edb, filter = filt)
 ```
 
 ```{r}
 library(GenomeInfoDb)
-g <- keepStandardChromosomes(g, pruning.mode = "coarse", species = "Homo_sapiens")
+g <- keepStandardChromosomes(g, pruning.mode = "coarse")
 seqlevelsStyle(g) <- "UCSC"
 g <- sort(g)
-g <- keepSeqlevels(g, as.character(seq_len(9)), pruning.mode = "coarse")
+g <- keepSeqlevels(g, paste0("chr",seq_len(9)), pruning.mode = "coarse")
 ```
 
 ## Import deny region
@@ -47,6 +48,7 @@ Deny regions ... cite Kundaje
 ```{r}
 library(nullrangesData)
 data("deny")
+deny
 ```
 
 ```{r}
@@ -63,7 +65,7 @@ cite: DNAcopy paper
 ```{r seg-cbs}
 deny2 <- deny %>% filter(width(deny) >= 500)
 L_s <- 1e6
-seg <- segment_density(gr, n = 3, L_s = L_s,
+seg <- segment_density(g, n = 3, L_s = L_s,
                        deny = deny2, type = "cbs",
                        boxplot = TRUE)
 ```
@@ -73,7 +75,7 @@ seg <- segment_density(gr, n = 3, L_s = L_s,
 cite: RcppHMM
 
 ```{r seg-hmm}
-seg_hmm <- segment_density(gr, n = 3, L_s = L_s,
+seg_hmm <- segment_density(g, n = 3, L_s = L_s,
                            deny = deny2, type = "hmm",
                            boxplot = TRUE)
 ```
