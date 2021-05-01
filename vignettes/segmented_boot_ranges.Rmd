@@ -7,6 +7,8 @@ output:
     highlight: tango
     toc: true
     toc_float: true	
+    fig_width: 5
+    fig_height: 3
 vignette: |
   %\VignetteIndexEntry{Segmented block bootstrap}
   %\VignetteEngine{knitr::rmarkdown}

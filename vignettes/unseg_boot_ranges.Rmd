@@ -59,10 +59,10 @@ set.seed(1) # reproducibility
 library(microbenchmark)
 L_b <- 5e5
 microbenchmark(list=alist(
-                 p_within=bootstrap_granges(pks, L_b=L_b, within_chrom=TRUE, type="permute"),
-                 b_within=bootstrap_granges(pks, L_b=L_b, within_chrom=TRUE),
-                 p_across=bootstrap_granges(pks, L_b=L_b, within_chrom=FALSE, type="permute"),
-                 b_across=bootstrap_granges(pks, L_b=L_b, within_chrom=FALSE)
+                 p_within=bootstrapRanges(pks, L_b=L_b, within_chrom=TRUE, type="permute"),
+                 b_within=bootstrapRanges(pks, L_b=L_b, within_chrom=TRUE),
+                 p_across=bootstrapRanges(pks, L_b=L_b, within_chrom=FALSE, type="permute"),
+                 b_across=bootstrapRanges(pks, L_b=L_b, within_chrom=FALSE)
 ), times=10)
 ```
 
@@ -122,7 +122,7 @@ Visualize two permutations of blocks within chromosome:
 
 ```{r perm-within, fig.width=5, fig.height=2}
 for (i in 1:2) {
-  gr_prime <- bootstrap_granges(gr, L_b=100, type="permute", within_chrom=TRUE)
+  gr_prime <- bootstrapRanges(gr, L_b=100, type="permute", within_chrom=TRUE)
   plotGRanges(gr_prime)
 }
 ```
@@ -131,7 +131,7 @@ Visualize two bootstraps within chromosome:
 
 ```{r boot-within, fig.width=5, fig.height=2}
 for (i in 1:2) {
-  gr_prime <- bootstrap_granges(gr, L_b=100, within_chrom=TRUE)
+  gr_prime <- bootstrapRanges(gr, L_b=100, within_chrom=TRUE)
   plotGRanges(gr_prime)
 }
 ```
@@ -143,7 +143,7 @@ larger blocks than previously.
 
 ```{r perm-across, fig.width=5, fig.height=2}
 for (i in 1:2) {
-  gr_prime <- bootstrap_granges(gr, L_b=200, type="permute", within_chrom=FALSE)
+  gr_prime <- bootstrapRanges(gr, L_b=200, type="permute", within_chrom=FALSE)
   plotGRanges(gr_prime)
 }
 ```
@@ -152,7 +152,7 @@ Visualize two bootstraps across chromosome:
 
 ```{r boot-across, fig.width=5, fig.height=2}
 for (i in 1:2) {
-  gr_prime <- bootstrap_granges(gr, L_b=200, within_chrom=FALSE)
+  gr_prime <- bootstrapRanges(gr, L_b=200, within_chrom=FALSE)
   plotGRanges(gr_prime)
 }
 ```

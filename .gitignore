@@ -1,8 +1,8 @@
 .DS_Store
 .Rproj.user
 .Rhistory
-*.html
 nullranges.Rproj
 *.hic
+vignettes/*.html
 vignettes/*_cache
 vignettes/*_files

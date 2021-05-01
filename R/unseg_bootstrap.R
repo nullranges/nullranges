@@ -10,9 +10,9 @@
 #' (TODO fix this)
 #' 
 #' @export
-bootstrap_granges <- function(x, L_b,
-                              type = c("bootstrap", "permute"),
-                              within_chrom = FALSE) {
+bootstrapRanges <- function(x, L_b,
+                            type = c("bootstrap", "permute"),
+                            within_chrom = FALSE) {
   type <- match.arg(type)
   chrom_lens <- seqlengths(x)
   # TODO: what kind of solution do we want for this?

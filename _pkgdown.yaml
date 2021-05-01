@@ -1,0 +1,13 @@
+articles:
+- title: Articles
+  navbar: ~
+  contents:
+  - intro
+  - match_ranges
+  - match_ranges_methods
+  - segmented_boot_ranges
+  - unseg_boot_ranges
+figures:
+  fig.width: 5
+  fig.height: 3
+  fig.retina: 1
