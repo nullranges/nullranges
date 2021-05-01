@@ -48,7 +48,7 @@ mgi
 
 Visualize matching
 
-```{r}
+```{r vis-match}
 plot(mgi) #plot shows propensity scores
 plot(mgi, type = 'ridge')
 plotCovariates(mgi, covar = 'all', type = 'ridge', logTransform = TRUE)

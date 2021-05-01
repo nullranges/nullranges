@@ -19,9 +19,17 @@ knitr::opts_chunk$set(
 )
 ```
 
-This vignette demonstrates the supported matching methods (rejection sampling with replacement, nearest neighbor matching with replacement, and rejection sampling without replacement) when the covariates are either continuous, binary, categorical, or when the focal group is larger than the pool (bootstrapping).
+This vignette demonstrates the supported matching methods (rejection
+sampling with replacement, nearest neighbor matching with replacement,
+and rejection sampling without replacement) when the covariates are
+either continuous, binary, categorical, or when the focal group is
+larger than the pool (bootstrapping). 
 
-First we load our data and add some additional annotations. In this case we add an indicator that shows whether or not our enhancers and promoters are looped (i.e. `loopedEP`), and we also break down the continuous `epDistance` into categorical groups (i.e. `epDistanceGrouped`).
+First we load our data and add some additional annotations. In this
+case we add an indicator that shows whether or not our enhancers and
+promoters are looped (i.e. `loopedEP`), and we also break down the
+continuous `epDistance` into categorical groups
+(i.e. `epDistanceGrouped`).
 
 ```{r, message=FALSE}
 library(nullranges)
@@ -52,9 +60,11 @@ epp$epDistanceGrouped <-
 
 ## Continuous covariate
 
-Lets see how the matching methods perform when matching on a continuous covariate such as the enhancer-promoter distance (`epDistance`)
+Lets see how the matching methods perform when matching on a
+continuous covariate such as the enhancer-promoter distance
+(`epDistance`) 
 
-```{r, fig.width=11, fig.height=4}
+```{r cont-cov, fig.width=11, fig.height=4}
 ## Define focal, pool and covar
 focal <- epp[epp$loopedEP == 1]
 pool  <- epp[epp$loopedEP == 0]
@@ -119,15 +129,15 @@ p1 + p2 + p3 +
   plot_annotation(
   title = 'Continuous covariate: looped vs. unlooped, covar = ~epDistance'
   )
-
-
 ```
 
 ## Discrete (binary) covariate
 
-Lets see how the matching methods perform when matching on a discrete binary covariate such as whether the enhancer-promoter is looped or not (`loopedEP`).
+Lets see how the matching methods perform when matching on a discrete
+binary covariate such as whether the enhancer-promoter is looped or
+not (`loopedEP`). 
 
-```{r, fig.width=11, fig.height=4}
+```{r disc-bin-cov, fig.width=11, fig.height=4}
 ## Define focal, pool and covar
 focal <- epp[epp$epDistance <= 40e03]
 pool  <- epp[epp$epDistance > 40e03]
@@ -201,9 +211,11 @@ p1 + p2 + p3 +
 
 ## Discrete (non-binary) covariate
 
-Lets see how the matching methods perform when matching on a discrete non-binary covariate (i.e. categorical covariate) such as which group the epDistance fall into (`epDistanceGrouped`).
+Lets see how the matching methods perform when matching on a discrete
+non-binary covariate (i.e. categorical covariate) such as which group
+the epDistance fall into (`epDistanceGrouped`). 
 
-```{r, fig.width=11, fig.height=4}
+```{r disc-cov, fig.width=11, fig.height=4}
 
 ## Define focal, pool and covar
 focal <- epp[epp$loopedEP == 1]
@@ -276,7 +288,7 @@ p1 + p2 + p3 +
 
 Finally, lets see how the matching methods perform when the focal group is larger than the pool. In other words, which matching methods can bootstrap from a small pool.
 
-```{r, fig.width=8, fig.height=4}
+```{r focal-gt-pool, fig.width=8, fig.height=4}
 ## Define focal, pool and covar
 focal <- epp[epp$epDistance >= 40e03]
 pool  <- epp[epp$epDistance <  40e03]
