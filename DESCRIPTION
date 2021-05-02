@@ -11,7 +11,8 @@ Authors@R: c(
     person("Douglas", "Phanstiel", role = c("aut")),
     person("Stuart", "Lee", role = c("ctb")),
     person("Mikhail", "Dozmorov", role = c("ctb")),
-    person("Tim", "Triche", role = c("ctb"))
+    person("Tim", "Triche", role = c("ctb")),
+    person("CZI", role = c("fnd"))
     )
 Description: Modular package for generation of sets of ranges
     representing the null hypothesis. These can take the form

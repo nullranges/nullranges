@@ -241,7 +241,7 @@
 <code class="sourceCode R"><span class="va">seg_hmm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/segment_density.html">segment_density</a></span><span class="op">(</span><span class="va">g</span>, n <span class="op">=</span> <span class="fl">3</span>, L_s <span class="op">=</span> <span class="va">L_s</span>,
                            deny <span class="op">=</span> <span class="va">deny2</span>, type <span class="op">=</span> <span class="st">"hmm"</span>,
                            boxplot <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
-<pre><code>## Finished at Iteration: 64 with Error: 7.62266e-06</code></pre>
+<pre><code>## Finished at Iteration: 72 with Error: 8.12047e-06</code></pre>
 <p><img src="segmented_boot_ranges_files/figure-html/seg-hmm-1.png"><!-- --><img src="segmented_boot_ranges_files/figure-html/seg-hmm-2.png"><!-- --></p>
 </div>
 </div>
@@ -354,9 +354,8 @@
 <span class="va">gr</span><span class="op">$</span><span class="va">state</span> <span class="op">&lt;-</span> <span class="va">seg</span><span class="op">$</span><span class="va">state</span><span class="op">[</span><span class="va">idx</span><span class="op">]</span>
 <span class="va">gr</span><span class="op">$</span><span class="va">state_col</span> <span class="op">&lt;-</span> <span class="va">seg</span><span class="op">$</span><span class="va">state_col</span><span class="op">[</span><span class="va">idx</span><span class="op">]</span>
 <span class="fu">plotGRanges</span><span class="op">(</span><span class="va">gr</span><span class="op">)</span></code></pre></div>
-<pre><code>## Warning: Not enough plotting space for all provided BED elements.</code></pre>
 <p><img src="segmented_boot_ranges_files/figure-html/toyranges-1.png"><!-- --></p>
-<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">gr_prime</span> <span class="op">&lt;-</span> <span class="fu">nullranges</span><span class="fu">::</span><span class="fu"><a href="../reference/seg_bootstrap_granges.html">seg_bootstrap_granges</a></span><span class="op">(</span><span class="va">seg</span>, <span class="va">gr</span>, L_b<span class="op">=</span><span class="fl">100</span>, R<span class="op">=</span><span class="fl">1</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>
 <span class="co"># plotGRanges(gr_prime)</span></code></pre></div>
 </div>
@@ -373,7 +372,7 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by <a href="https://mikelove.github.io">Michael Love</a>, <a href="https://twitter.com/wancenm">Wancen Mu</a>, Eric Davis, <a href="http://phanstiel-lab.med.unc.edu">Douglas Phanstiel</a>.</p>
+  <p>Developed by <a href="https://mikelove.github.io">Michael Love</a>, <a href="https://twitter.com/wancenm">Wancen Mu</a>, Eric Davis, <a href="http://phanstiel-lab.med.unc.edu">Douglas Phanstiel</a>, <a href="https://chanzuckerberg.com">CZI</a>.</p>
 </div>
 
 <div class="pkgdown">

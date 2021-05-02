@@ -156,7 +156,7 @@
 <span class="co">#&gt; Warning in min(x): no non-missing arguments to min; returning Inf</span>
 <span class="co">#&gt; Warning in max(x): no non-missing arguments to max; returning -Inf</span>
 <span class="co">#&gt; Error in seq.default(a, b, length = M): 'from' must be a finite number</span>
-<span class="co">#&gt; Timing stopped at: 7.384 0.332 7.714</span>
+<span class="co">#&gt; Timing stopped at: 6.978 0.336 7.311</span>
 
 <span class="fu"><a href="https://rdrr.io/r/base/system.time.html">system.time</a></span><span class="op">(</span><span class="op">{</span>
   <span class="va">mgi2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/matchRanges.html">matchRanges</a></span><span class="op">(</span><span class="va">focal</span>, <span class="va">pool</span>, <span class="va">covar</span>,
@@ -165,7 +165,7 @@
 <span class="co">#&gt; Warning in speedglm(formula = f, data = covarData, family = binomial("logit"), :</span>
 <span class="co">#&gt; Maximum number of iterations reached without convergence</span>
 <span class="co">#&gt; Error in sample.int(length(x), size, replace, prob): invalid 'size' argument</span>
-<span class="co">#&gt; Timing stopped at: 5.784 0.192 5.921</span>
+<span class="co">#&gt; Timing stopped at: 5.624 0.156 5.718</span>
 
 <span class="fu"><a href="https://rdrr.io/r/base/system.time.html">system.time</a></span><span class="op">(</span><span class="op">{</span>
   <span class="va">mgi3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/matchRanges.html">matchRanges</a></span><span class="op">(</span><span class="va">focal</span>, <span class="va">pool</span>, <span class="va">covar</span>,
@@ -176,7 +176,7 @@
 <span class="co">#&gt; Warning in min(x): no non-missing arguments to min; returning Inf</span>
 <span class="co">#&gt; Warning in max(x): no non-missing arguments to max; returning -Inf</span>
 <span class="co">#&gt; Error in seq.default(a, b, length = M): 'from' must be a finite number</span>
-<span class="co">#&gt; Timing stopped at: 5.682 0.112 5.791</span>
+<span class="co">#&gt; Timing stopped at: 5.477 0.112 5.587</span>
 
 <span class="co">## Should error (method not implemented)</span>
 <span class="fu"><a href="../reference/matchRanges.html">matchRanges</a></span><span class="op">(</span><span class="va">focal</span>, <span class="va">pool</span>, <span class="va">covar</span>,
@@ -259,21 +259,21 @@
                       method <span class="op">=</span> <span class="st">'rejection'</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 <span class="op">}</span><span class="op">)</span>
 <span class="co">#&gt; Error in `contrasts&lt;-`(`*tmp*`, value = contr.funs[1 + isOF[nn]]): contrasts can be applied only to factors with 2 or more levels</span>
-<span class="co">#&gt; Timing stopped at: 0.979 0 0.98</span>
+<span class="co">#&gt; Timing stopped at: 0.943 0 0.944</span>
 
 <span class="fu"><a href="https://rdrr.io/r/base/system.time.html">system.time</a></span><span class="op">(</span><span class="op">{</span>
   <span class="va">mgi2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/matchRanges.html">matchRanges</a></span><span class="op">(</span><span class="va">focal</span>, <span class="va">pool</span>, <span class="va">covar</span>,
                       method <span class="op">=</span> <span class="st">'nearest'</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 <span class="op">}</span><span class="op">)</span>
 <span class="co">#&gt; Error in `contrasts&lt;-`(`*tmp*`, value = contr.funs[1 + isOF[nn]]): contrasts can be applied only to factors with 2 or more levels</span>
-<span class="co">#&gt; Timing stopped at: 1.055 0.004 1.07</span>
+<span class="co">#&gt; Timing stopped at: 0.944 0 0.945</span>
 
 <span class="fu"><a href="https://rdrr.io/r/base/system.time.html">system.time</a></span><span class="op">(</span><span class="op">{</span>
   <span class="va">mgi3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/matchRanges.html">matchRanges</a></span><span class="op">(</span><span class="va">focal</span>, <span class="va">pool</span>, <span class="va">covar</span>,
                       method <span class="op">=</span> <span class="st">'rejection'</span>, replace <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
 <span class="op">}</span><span class="op">)</span>
 <span class="co">#&gt; Error in `contrasts&lt;-`(`*tmp*`, value = contr.funs[1 + isOF[nn]]): contrasts can be applied only to factors with 2 or more levels</span>
-<span class="co">#&gt; Timing stopped at: 0.99 0 0.991</span>
+<span class="co">#&gt; Timing stopped at: 0.945 0 0.945</span>
 
 <span class="co">## Should error (method not implemented)</span>
 <span class="fu"><a href="../reference/matchRanges.html">matchRanges</a></span><span class="op">(</span><span class="va">focal</span>, <span class="va">pool</span>, <span class="va">covar</span>,
@@ -357,7 +357,7 @@
 <span class="co">#&gt; Warning in min(x): no non-missing arguments to min; returning Inf</span>
 <span class="co">#&gt; Warning in max(x): no non-missing arguments to max; returning -Inf</span>
 <span class="co">#&gt; Error in seq.default(a, b, length = M): 'from' must be a finite number</span>
-<span class="co">#&gt; Timing stopped at: 7.028 0.12 7.149</span>
+<span class="co">#&gt; Timing stopped at: 6.919 0.22 7.135</span>
 
 <span class="fu"><a href="https://rdrr.io/r/base/system.time.html">system.time</a></span><span class="op">(</span><span class="op">{</span>
   <span class="va">mgi2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/matchRanges.html">matchRanges</a></span><span class="op">(</span><span class="va">focal</span>, <span class="va">pool</span>, <span class="va">covar</span>,
@@ -366,7 +366,7 @@
 <span class="co">#&gt; Warning in speedglm(formula = f, data = covarData, family = binomial("logit"), :</span>
 <span class="co">#&gt; Maximum number of iterations reached without convergence</span>
 <span class="co">#&gt; Error in sample.int(length(x), size, replace, prob): invalid 'size' argument</span>
-<span class="co">#&gt; Timing stopped at: 7.247 0.136 7.348</span>
+<span class="co">#&gt; Timing stopped at: 7.4 0.2 7.561</span>
 
 <span class="fu"><a href="https://rdrr.io/r/base/system.time.html">system.time</a></span><span class="op">(</span><span class="op">{</span>
   <span class="va">mgi3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/matchRanges.html">matchRanges</a></span><span class="op">(</span><span class="va">focal</span>, <span class="va">pool</span>, <span class="va">covar</span>,
@@ -377,7 +377,7 @@
 <span class="co">#&gt; Warning in min(x): no non-missing arguments to min; returning Inf</span>
 <span class="co">#&gt; Warning in max(x): no non-missing arguments to max; returning -Inf</span>
 <span class="co">#&gt; Error in seq.default(a, b, length = M): 'from' must be a finite number</span>
-<span class="co">#&gt; Timing stopped at: 7.449 0.132 7.641</span>
+<span class="co">#&gt; Timing stopped at: 7.416 0.132 7.545</span>
 
 <span class="co">## Should error (method not implemented)</span>
 <span class="fu"><a href="../reference/matchRanges.html">matchRanges</a></span><span class="op">(</span><span class="va">focal</span>, <span class="va">pool</span>, <span class="va">covar</span>,
@@ -467,7 +467,7 @@
 <span class="co">#&gt; Warning in predict.speedlm(rval, newdata = M): prediction from a rank-deficient</span>
 <span class="co">#&gt; fit may be misleading</span>
 <span class="co">#&gt;    user  system elapsed </span>
-<span class="co">#&gt;   4.393   0.008   4.193</span>
+<span class="co">#&gt;   4.403   0.016   4.217</span>
 
 <span class="co">## Expect error</span>
 <span class="va">mgi3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/matchRanges.html">matchRanges</a></span><span class="op">(</span><span class="va">focal</span>, <span class="va">pool</span>, <span class="va">covar</span>,
@@ -518,7 +518,7 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by <a href="https://mikelove.github.io">Michael Love</a>, <a href="https://twitter.com/wancenm">Wancen Mu</a>, Eric Davis, <a href="http://phanstiel-lab.med.unc.edu">Douglas Phanstiel</a>.</p>
+  <p>Developed by <a href="https://mikelove.github.io">Michael Love</a>, <a href="https://twitter.com/wancenm">Wancen Mu</a>, Eric Davis, <a href="http://phanstiel-lab.med.unc.edu">Douglas Phanstiel</a>, <a href="https://chanzuckerberg.com">CZI</a>.</p>
 </div>
 
 <div class="pkgdown">
