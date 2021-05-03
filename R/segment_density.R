@@ -42,7 +42,7 @@ segment_density <- function(x, n, L_s = 1e6, deny, type = c("cbs", "hmm"),
       data.type = "logratio",
       presorted = TRUE
     )
-    smoothed.CNA.object <- smooth.CNA(cna)
+    smoothed.CNA.object <- DNAcopy::smooth.CNA(cna)
     scna <- DNAcopy::segment(smoothed.CNA.object,
       verbose = 1
     )
