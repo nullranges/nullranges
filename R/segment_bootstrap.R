@@ -34,9 +34,7 @@ seg_bootstrap_granges <- function(seg, x, L_b, R, within_chrom = TRUE,
       obj <- do.call(c, obj)
       res <- GRanges(seqnames = seqname, ranges = obj, seqlengths = chrom_lens)
     } else {
-      # store the gene index for join_overlap_inner
-      x$key.x <- seq_len(length(x)) # or check whether have this column in x
-      res <- seg_bootstrap_iranges(ranges(seg), x, seg$state, L_b, seqnames(seg), chrom_lens, proportion_length, coarse)
+      res <- seg_bootstrap_iranges(ranges(seg), x, seg$state, L_b, seqnames(seg), chrom_lens, proportion_length)
     }
     return(res)
   }, cl = ncores)
@@ -147,7 +145,8 @@ seg_bootstrap_iranges_wchr <- function(seg, x, state, L_c, L_b, proportion_lengt
 #'
 #' @export
 seg_bootstrap_iranges <- function(seg, x, state, L_b, chrnames, chrom_lens,
-                                  proportion_length = TRUE, coarse = FALSE) {
+                                   proportion_length = TRUE) {
+  ns <- seq_len(max(state))
   if (proportion_length) {
     L_c <- sum(chrom_lens)
     ## Derive segmentation state length
@@ -156,7 +155,6 @@ seg_bootstrap_iranges <- function(seg, x, state, L_b, chrnames, chrom_lens,
     ## down to the segmentation state size, e.g. if segmentation state
     ## is half of the chromosome, then the block width is half of L_b
     L_b0 <- round(L_b * L_s / L_c)
-    ns <- seq_len(length(L_s))
     obj <- lapply(ns, function(m) { # loop over segmentation states
       ## the length of the block for this state
       L_bs <- L_b0[which(ns == m)]
@@ -164,110 +162,89 @@ seg_bootstrap_iranges <- function(seg, x, state, L_b, chrnames, chrom_lens,
       seg2 <- seg[state == m]
       ## fraction that each range of the segmentation comprises of the whole
       p <- (width(seg2)) / sum(width(seg2))
-      # number of blocks within each range of the segmentation
+      ## number of blocks within each range of the segmentation
       times <- ceiling(L_c / L_b * p)
-      seqnames <- rep(as.character(chrnames[state == m]), times)
-      j <- which((end(seg2) - L_bs) < start(seg2))
-      width(seg2)[j] <- L_bs
-      # create random start positions within each segment
-      random_start <- round(unlist(lapply(seq_len(length(times)), function(j) {
-        runif(times[j], start(seg2)[j], end(seg2)[j] - L_bs + 1)
-      }), use.names = FALSE))
-
-      # the positions of the rearranged blocks in this segmentation state
+      ## total number of tiling blocks
+      n <- sum(times)
+      index <- seq_len(length(times))
+      ## sample according to segmentation length
+      random_chr <- sample(index, n, replace=TRUE, prob=width(seg2))
+      ## random starts within the tiled regions
+      random_start <- round(runif(n, start(seg2)[random_chr], (times[random_chr] -1 ) * L_bs + start(seg2)[random_chr]))
+      ## record sampled chr name
+      seqnames <- as.character(chrnames[state == m])[random_chr]
+      ## where those blocks will move to
       start_order <- unlist(lapply(seq_len(length(times)), function(j) {
         seq(from = start(seg2)[j], to = end(seg2)[j], by = L_bs)
       }), use.names = FALSE)
-
-      # shuffle the blocks
-      index <- sample(length(random_start))
-
-      return(list(random_start, start_order, seqnames, index))
+      ## record ordered chrname
+      segchrnames <- rep(as.character(chrnames[state == m]), times)
+      return(list(random_start, start_order, seqnames, segchrnames))
     })
     random_blocks_start0 <- lapply(obj, `[[`, 1)
     random_blocks_start <- do.call(c, random_blocks_start0)
     rearranged_blocks_start <- do.call(c, lapply(obj, `[[`, 2))
     seqnames <- do.call(c, lapply(obj, `[[`, 3))
-    index <- do.call(c, lapply(obj, `[[`, 4))
-    ## deal with different segmentation state index
+    segchrnames <- do.call(c, lapply(obj, `[[`, 4))
+    ## number of blocks for each segmentation states
     width <- lengths(random_blocks_start0)
-    add <- c(0, cumsum(width)[-length(width)])
-    add2 <- rep(add, width)
-    index <- index + add
-
-    block_shift <- random_blocks_start[index] - rearranged_blocks_start
-    random_blocks_r <- IRanges(
-      start = random_blocks_start[index],
-      width = rep(L_b0, width)
-    )
+    ## these blocks are the 'bait' for capturing features in 'x'
+    random_blocks <- GRanges(seqnames=seqnames,
+                             ranges=IRanges(start = random_blocks_start, width = rep(L_b0, width)))
   } else {
-    ns <- seq_len(max(state))
     ## number of blocks within each range of the segmentation
     times <- ceiling((width(seg)) / L_b)
-    seqnames <- rep(as.character(chrnames), times)
-    names(seqnames) <- rep(state, times)
-    ## create random start positions within each segment
-    random_start <- lapply(seq_len(length(times)), function(j) {
-      runif(times[j], start(seg)[j], max(start(seg)[j], end(seg)[j] - L_b + 1))
-    })
-    ## the positions of the rearranged blocks in this segmentation state
+    # total number of tiling blocks
+    n <- sum(times)
+    index <- seq_len(length(times))
+    # sample according to segmentation length
+    random_chr <- sample(index, n, replace=TRUE, prob=width(seg))
+    # random starts within the tiled regions
+    random_start <- round(runif(n, start(seg)[random_chr], (times[random_chr] -1 ) * L_b + start(seg)[random_chr]))
+    # where those blocks will move to
     start_order <- lapply(seq_len(length(times)), function(j) {
       seq(from = start(seg)[j], to = end(seg)[j], by = L_b)
     })
+    ## record ordered chrname
+    segchrnames <- rep(as.character(chrnames), times)
     obj <- lapply(ns, function(m) {
-      random_start0 <- unlist(random_start[state == m], use.names = FALSE)
-      index <- sample(length(random_start0))
+      poi <- which(state == m)
+      index <- which(random_chr %in% poi)
+      random_start0 <- random_start[index]
       start_order0 <- unlist(start_order[state == m], use.names = FALSE)
-      seqnames <- unname(seqnames[which(names(seqnames) == m)])
-      return(list(random_start0, start_order0, index, seqnames))
+      ## record sampled chr name
+      seqnames <- chrnames[random_chr[index]]
+      return(list(random_start0, start_order0, seqnames))
     })
-
-    random_blocks_start0 <- lapply(obj, `[[`, 1)
-    random_blocks_start <- do.call(c, random_blocks_start0)
+    random_blocks_start <- do.call(c, lapply(obj, `[[`, 1))
     rearranged_blocks_start <- do.call(c, lapply(obj, `[[`, 2))
-    index <- do.call(c, lapply(obj, `[[`, 3))
     ## deal with different segmentation state index
-    width <- lengths(random_blocks_start0)
-    add <- c(0, cumsum(width)[-length(width)])
-    add <- rep(add, width)
-    index <- index + add
-    seqnames <- do.call(c, lapply(obj, `[[`, 4))
-
-    block_shift <- random_blocks_start[index] - rearranged_blocks_start
-
-    random_blocks_r <- IRanges(
-      start = random_blocks_start[index],
-      width = L_b)
+    seqnames <- do.call(c, lapply(obj, `[[`, 3))
+    random_blocks <- GRanges(seqnames=seqnames,
+                             ranges=IRanges(start = random_blocks_start, width = L_b))
   }
-  ## warning message out-of-bound when end(seg)[j]-L_b+1<0
-  suppressWarnings({
-    random_blocks <- GRanges(
-      seqnames = seqnames[index],
-      ranges = random_blocks_r, seqlengths = chrom_lens
-    )
-  })
-  suppressWarnings({
-    random_blocks$key.random <- seq_len(length(random_blocks))
-  })
-  # Question1: do we want to only select once for each gene?
-  # Question2: Join_overlap_inner or join_overlap_intersect
-  fo <- plyranges::join_overlap_inner(x, random_blocks)
-  x_prime <- IRanges::shift(ranges(x[fo$key.x]), block_shift[fo$key.random])
-  if (coarse) {
-    obj_prime <- start(x_prime) >= 1 & end(x_prime) <=
-      chrom_lens[seqnames[fo$key.random]] # faster
-    res <- GRanges(
-      seqnames = seqnames[fo$key.random][obj_prime],
-      ranges = x_prime[obj_prime], seqlengths = chrom_lens
-    )
-  } else {
-    suppressWarnings({
-      gr_prime <- GRanges(
-        seqnames = seqnames[fo$key.random],
-        ranges = x_prime, seqlengths = chrom_lens
-      )
-    })
-    res <- trim(gr_prime)
-  }
+  ## use the bait to sample features in 'x'
+  fo <- findOverlaps(random_blocks, x)
+  ## x has been sampled multiple times
+  x_mult_hits <- x[subjectHits(fo)]
+  ## label which 'bait' block each feature hit in the re-sampling
+  mcols(x_mult_hits)$block <- queryHits(fo)
+  res <- shift_and_swap_chrom_seg(x_mult_hits, segchrnames,random_blocks_start, rearranged_blocks_start)
   return(res)
+}
+
+shift_and_swap_chrom_seg <- function(x,segchrnames,random_blocks_start, rearranged_blocks_start) {
+  block_shift <- rearranged_blocks_start - random_blocks_start
+  idx <- mcols(x)$block
+  chr_prime <- segchrnames[idx]
+  # this creates out-of-bound ranges
+  # (but wait until we assign new chromosomes)
+  suppressWarnings({
+    x_prime <- GRanges(
+      seqnames = chr_prime,
+      ranges =IRanges::shift(ranges(x), block_shift[idx]), seqlengths = chrom_lens
+    )
+  })
+  x_prime <- trim(x_prime)
+  x_prime
 }

@@ -11,8 +11,7 @@ seg_bootstrap_iranges(
   L_b,
   chrnames,
   chrom_lens,
-  proportion_length = TRUE,
-  coarse = FALSE
+  proportion_length = TRUE
 )
 }
 \arguments{
