@@ -28,7 +28,7 @@ use DNAcopy to segment) or "hmm" (which will use RcppHMM).
 The packages are not imported by nullranges, but must be installed
 by the user}
 
-\item{plot_segment}{plot the gene density of by segmentation}
+\item{plot_segment}{plot the gene density segmentation by chromosome}
 
 \item{boxplot}{boxplot of gene density for each state}
 }

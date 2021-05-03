@@ -8,7 +8,7 @@
 #' use DNAcopy to segment) or "hmm" (which will use RcppHMM).
 #' The packages are not imported by nullranges, but must be installed
 #' by the user
-#' @param plot_segment plot the gene density of by segmentation
+#' @param plot_segment plot the gene density segmentation by chromosome
 #' @param boxplot boxplot of gene density for each state
 #'
 #' @import ggplot2
@@ -23,9 +23,10 @@ segment_density <- function(x, n, L_s = 1e6, deny, type = c("cbs", "hmm"),
   ## gap will create whole chromosome length ranges
   gap <- gaps(deny,end = seqlengths(x)) %>%
     plyranges::filter(strand=="*") 
+  ## the region remove deny regions
   query_accept <- plyranges::join_overlap_intersect(query,gap) %>%
-    filter(width > L_s / 10)
-  counts_nostand <- countOverlaps(query_accept, x)
+    filter(width > L_s / 100)
+  counts_nostand <- countOverlaps(query_accept, x, minoverlap = 8)
   counts <- counts_nostand/width(query_accept) * L_s
   eps <- rnorm(length(counts), 0, .2)
 
@@ -41,7 +42,8 @@ segment_density <- function(x, n, L_s = 1e6, deny, type = c("cbs", "hmm"),
       data.type = "logratio",
       presorted = TRUE
     )
-    scna <- DNAcopy::segment(cna,
+    smoothed.CNA.object <- smooth.CNA(cna)
+    scna <- DNAcopy::segment(smoothed.CNA.object,
       verbose = 1
     )
     seq <- with(scna$output, rep(seg.mean, num.mark))
@@ -54,20 +56,28 @@ segment_density <- function(x, n, L_s = 1e6, deny, type = c("cbs", "hmm"),
     if (!requireNamespace("RcppHMM", quietly=TRUE)) {
       stop("type='hmm' requires installing the Bioconductor package 'RcppHMM'")
     }
-    
-    hmm <- RcppHMM::initPHMM(n)
+    counts2 <- array(counts,dim = c(1,length(counts),1))
+    hmm <- RcppHMM::initGHMM(n)
     hmm <- RcppHMM::learnEM(hmm,
-      counts,
+      counts2,
       iter = 400,
       delta = 1e-5,
       print = FALSE
     )
-    v <- as.integer(factor(RcppHMM::viterbi(hmm, counts), levels = hmm$StateNames))
+    v <- as.integer(factor(RcppHMM::viterbi(hmm, matrix(counts,nrow=1)), levels = hmm$StateNames))
     mcols(query_accept)$states <- v
   }
   
   if (plot_segment) {
-    plot(sqrt(counts) + eps, col = query_accept$states)
+    dat <- data.frame(chr = seqnames(query_accept), counts = sqrt(counts) + eps, 
+                      state = query_accept$states, loc = end(query_accept))
+    p <- ggplot2::ggplot(aes(x = loc, y = counts, col = factor(state)), data = dat) +
+      geom_point() + labs(col = "States") +
+      scale_x_continuous(name = "Location(Mb)",
+                         breaks = c(0.5e8,1e8,1.5e8,2e8,2.5e8),
+                         labels = c("50","100","150","200","250"))+
+      facet_wrap(~chr,ncol = 4)+ theme_bw()+ coord_equal(ratio=2e6) 
+    print(p)
   }
   
   if (boxplot) {

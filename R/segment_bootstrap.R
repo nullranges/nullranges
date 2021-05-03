@@ -18,7 +18,7 @@
 #' @export
 seg_bootstrap_granges <- function(seg, x, L_b, R, within_chrom = TRUE,
                                   proportion_length = TRUE, coarse = FALSE, ncores = NULL) {
-  chrom_lens <- seqlengths(x)[seqnames(x)@values]
+  chrom_lens <- seqlengths(x)
   chroms <- as.character(seqnames(x)@values)
   ans <- pblapply(seq_len(R), function(i) {
     if (within_chrom) {
@@ -237,8 +237,7 @@ seg_bootstrap_iranges <- function(seg, x, state, L_b, chrnames, chrom_lens,
 
     random_blocks_r <- IRanges(
       start = random_blocks_start[index],
-      width = rep(L_b, length(random_blocks_start))
-    )
+      width = L_b)
   }
   ## warning message out-of-bound when end(seg)[j]-L_b+1<0
   suppressWarnings({

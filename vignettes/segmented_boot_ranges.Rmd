@@ -39,8 +39,9 @@ g <- genes(edb, filter = filt)
 library(GenomeInfoDb)
 g <- keepStandardChromosomes(g, pruning.mode = "coarse")
 seqlevelsStyle(g) <- "UCSC"
+seqlevels(g,pruning.mode="coarse") <- setdiff(seqlevels(g), "chrM")
+table(seqnames(g))
 g <- sort(g)
-g <- keepSeqlevels(g, paste0("chr",seq_len(9)), pruning.mode = "coarse")
 ```
 
 ## Import deny region
@@ -65,7 +66,7 @@ We subset the deny ranges to those which are 500 bp or larger.
 cite: DNAcopy paper
 
 ```{r seg-cbs}
-deny2 <- deny %>% filter(width(deny) >= 500)
+deny2 <- deny %>% plyranges::filter(width(deny) >= 500)
 L_s <- 1e6
 seg <- segment_density(g, n = 3, L_s = L_s,
                        deny = deny2, type = "cbs",
@@ -78,7 +79,7 @@ cite: RcppHMM
 
 ```{r seg-hmm}
 seg_hmm <- segment_density(g, n = 3, L_s = L_s,
-                           deny = deny2, type = "hmm",
+                           deny = deny2, type = "hmm",plot_segment = TRUE,
                            boxplot = TRUE)
 ```
 
