@@ -11,7 +11,6 @@ seg_bootstrap_granges(
   R,
   within_chrom = TRUE,
   proportion_length = TRUE,
-  coarse = FALSE,
   ncores = NULL
 )
 }
@@ -25,8 +24,6 @@ seg_bootstrap_granges(
 \item{R}{the number time of bootstrap}
 
 \item{proportion_length}{use scaled block length or scaled number of blocks of each segmentation region}
-
-\item{coarse}{logical indicating if out of bound ranges will be discarded or keep the intersect region.}
 
 \item{ncores}{A cluster object created by \code{\link[parallel]{makeCluster}}.
 Or an integer to indicate number of child-processes

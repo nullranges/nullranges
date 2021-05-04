@@ -71,19 +71,15 @@ block_bootstrap_granges_within_chrom <- function(x, L_b, L_s, chr) {
   # blocks allowed to go over L_s
   n <- ceiling(L_s / L_b)
   # these blocks are the 'bait' to capture features in 'x'
-  random_blocks <- GRanges(
-    seqnames=chr,
-    IRanges(start = round(runif(n, 1, (n - 1) * L_b + 1)), width = L_b)
-  )
+  random_blocks <- IRanges(start = round(runif(n, 1, (n - 1) * L_b + 1)), width = L_b)
+  
   # where those blocks will move to
-  rearranged_blocks <- GRanges(
-    seqnames=chr,
-    successiveIRanges(width(random_blocks))
-  )
+  rearranged_blocks <- successiveIRanges(width(random_blocks))
+  
   # the shift needed to move them
   block_shift <- start(rearranged_blocks) - start(random_blocks)
   # use the bait to sample features in 'x'
-  fo <- findOverlaps(random_blocks, x)
+  fo <- findOverlaps(random_blocks, ranges(x))
   # shift the ranges in those bait blocks
   suppressWarnings({
     x_prime <- shift(x[subjectHits(fo)], block_shift[queryHits(fo)])

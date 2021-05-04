@@ -7,7 +7,6 @@
 #' @param L_b the length of the block
 #' @param R the number time of bootstrap
 #' @param proportion_length use scaled block length or scaled number of blocks of each segmentation region
-#' @param coarse logical indicating if out of bound ranges will be discarded or keep the intersect region.
 #' @param ncores A cluster object created by \code{\link[parallel]{makeCluster}}.
 #' Or an integer to indicate number of child-processes
 #' (integer values are ignored on Windows) for parallel evaluations
@@ -17,7 +16,7 @@
 #'
 #' @export
 seg_bootstrap_granges <- function(seg, x, L_b, R, within_chrom = TRUE,
-                                  proportion_length = TRUE, coarse = FALSE, ncores = NULL) {
+                                  proportion_length = TRUE, ncores = NULL) {
   chrom_lens <- seqlengths(x)
   chroms <- as.character(seqnames(x)@values)
   ans <- pblapply(seq_len(R), function(i) {
@@ -25,14 +24,11 @@ seg_bootstrap_granges <- function(seg, x, L_b, R, within_chrom = TRUE,
       obj <- lapply(chroms, function(chr) {
         L_c <- chrom_lens[[chr]]
         seg0 <- seg[seqnames(seg) == chr]
-        x0 <- ranges(x[seqnames(x) == chr])
-        r_prime <- seg_bootstrap_iranges_wchr(ranges(seg0), x0, seg0$state, L_c, L_b, proportion_length, coarse)
+        x0 <- x[seqnames(x) == chr]
+        r_prime <- seg_bootstrap_iranges_wchr(ranges(seg0), x0, seg0$state, L_c, L_b, proportion_length)
         r_prime
       })
-      times <- lengths(obj)
-      seqname <- rep(chroms, times)
       obj <- do.call(c, obj)
-      res <- GRanges(seqnames = seqname, ranges = obj, seqlengths = chrom_lens)
     } else {
       res <- seg_bootstrap_iranges(ranges(seg), x, seg$state, L_b, seqnames(seg), chrom_lens, proportion_length)
     }
@@ -115,19 +111,13 @@ seg_bootstrap_iranges_wchr <- function(seg, x, state, L_c, L_b, proportion_lengt
     random_blocks_start <- do.call(c, random_blocks_start0)
     rearranged_blocks_start <- do.call(c, lapply(obj, `[[`, 2))
     block_shift <- random_blocks_start - rearranged_blocks_start
-    random_blocks <- IRanges(
-      start = random_blocks_start,
-      width = rep(L_b, length(rearranged_blocks_start))
-    )
+    random_blocks <- IRanges(start = random_blocks_start, width = L_b)
   }
-  fo <- findOverlaps(random_blocks, x)
-  x_prime <- IRanges::shift(x[subjectHits(fo)], block_shift[queryHits(fo)])
-  if (coarse) {
-    obj_prime <- x_prime[start(x_prime) >= 1 & end(x_prime) <= L_c] # faster
-  } else {
-    obj_prime <- join_overlap_intersect(x_prime, seg) # accurate
-  }
-  return(obj_prime)
+  fo <- findOverlaps(random_blocks, ranges(x))
+  # shift the ranges in those bait blocks
+  suppressWarnings({x_prime <- shift(x[subjectHits(fo)], block_shift[queryHits(fo)])})
+  x_prime <- trim(x_prime)
+  return(x_prime)
 }
 
 #' segmentation Block bootstrap IRanges span the whole genome.
@@ -241,8 +231,8 @@ shift_and_swap_chrom_seg <- function(x,segchrnames,random_blocks_start, rearrang
   # (but wait until we assign new chromosomes)
   suppressWarnings({
     x_prime <- GRanges(
-      seqnames = chr_prime,
-      ranges =IRanges::shift(ranges(x), block_shift[idx]), seqlengths = chrom_lens
+      seqnames = chr_prime,ranges =IRanges::shift(ranges(x), block_shift[idx]), 
+      seqlengths = chrom_lens, mcols = mcols(x)
     )
   })
   x_prime <- trim(x_prime)
