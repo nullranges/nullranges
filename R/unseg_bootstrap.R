@@ -71,11 +71,9 @@ block_bootstrap_granges_within_chrom <- function(x, L_b, L_s, chr) {
   # blocks allowed to go over L_s
   n <- ceiling(L_s / L_b)
   # these blocks are the 'bait' to capture features in 'x'
-  random_blocks <- IRanges(start = round(runif(n, 1, (n - 1) * L_b + 1)), width = L_b)
-  
+  random_blocks <- IRanges(start = round(runif(n, 1, (n - 1) * L_b + 1)), width = L_b)  
   # where those blocks will move to
   rearranged_blocks <- successiveIRanges(width(random_blocks))
-  
   # the shift needed to move them
   block_shift <- start(rearranged_blocks) - start(random_blocks)
   # use the bait to sample features in 'x'
@@ -105,19 +103,13 @@ permute_blocks_granges_within_chrom <- function(x, L_b, L_s, chr) {
   # blocks allowed to go over L_s
   n <- ceiling(L_s / L_b)
   # blocks tiling the chromosome
-  blocks <- GRanges(
-    seqnames=chr,
-    successiveIRanges(rep(L_b, n))
-  )
+  blocks <- successiveIRanges(rep(L_b, n))
   # which block do features in 'x' fall into?
-  mcols(x)$block <- findOverlaps(x, blocks, select = "first")
+  mcols(x)$block <- findOverlaps(ranges(x), blocks, select = "first")
   # permutation order
   perm <- sample(n)
   # where those blocks will move to
-  permuted_blocks <- GRanges(
-    seqnames=chr,
-    successiveIRanges(width(blocks))[perm]
-  )
+  permuted_blocks <- successiveIRanges(width(blocks))[perm]
   # the shift needed to move them
   block_shift <- start(permuted_blocks) - start(blocks)
   # shift the features in 'x'
