@@ -140,6 +140,8 @@ block_bootstrap_granges <- function(x, L_b, L_s) {
                            ranges=IRanges(start = random_start, width = L_b))
   # where those blocks will move to
   rearranged_blocks <- tileGenome(seqlengths=L_s, tilewidth=L_b, cut.last.tile.in.chrom=TRUE)
+  # pass along the full seqlengths of 'x'
+  seqlengths(rearranged_blocks) <- seqlengths(x)
   # use the bait to sample features in 'x'
   fo <- findOverlaps(random_blocks, x)
   # x has been sampled multiple times
@@ -157,6 +159,8 @@ block_bootstrap_granges <- function(x, L_b, L_s) {
 # @param L_s the lengths of the chromosomes
 permute_blocks_granges <- function(x, L_b, L_s) {
   blocks <- tileGenome(seqlengths=L_s, tilewidth=L_b, cut.last.tile.in.chrom=TRUE)
+    # pass along the full seqlengths of 'x'
+  seqlengths(blocks) <- seqlengths(x)
   mcols(x)$block <- findOverlaps(x, blocks, select = "first")
   perm <- sample(length(blocks))
   rearranged_blocks <- blocks[perm]
