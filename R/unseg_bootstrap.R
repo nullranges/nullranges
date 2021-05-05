@@ -8,7 +8,7 @@
 #'
 #' @return one iteration of bootstrapped ranges
 #' (TODO fix this)
-#' 
+#'
 #' @export
 bootstrapRanges <- function(x, L_b,
                             type = c("bootstrap", "permute"),
@@ -23,7 +23,7 @@ bootstrapRanges <- function(x, L_b,
   # first, simple case: sampling or permuting within chrom
 
   # TODO this loses the metadata columns right now...
-  
+
   if (within_chrom) {
     r_primes <- lapply(chroms, function(chr) {
       # the length of the chromosomes
@@ -63,15 +63,15 @@ bootstrapRanges <- function(x, L_b,
 # @param chr the name of the chromosome
 block_bootstrap_granges_within_chrom <- function(x, L_b, L_s, chr) {
   if (missing(chr)) {
-    chr <- as.character(seqnames(gr)[1])
+    chr <- as.character(seqnames(x)[1])
   }
   if (missing(L_s)) {
-    L_s <- seqlengths(gr)[[chr]]
+    L_s <- seqlengths(x)[[chr]]
   }
   # blocks allowed to go over L_s
   n <- ceiling(L_s / L_b)
   # these blocks are the 'bait' to capture features in 'x'
-  random_blocks <- IRanges(start = round(runif(n, 1, (n - 1) * L_b + 1)), width = L_b)  
+  random_blocks <- IRanges(start = round(runif(n, 1, (n - 1) * L_b + 1)), width = L_b)
   # where those blocks will move to
   rearranged_blocks <- successiveIRanges(width(random_blocks))
   # the shift needed to move them
@@ -95,11 +95,11 @@ block_bootstrap_granges_within_chrom <- function(x, L_b, L_s, chr) {
 # @param chr the name of the chromosome
 permute_blocks_granges_within_chrom <- function(x, L_b, L_s, chr) {
   if (missing(chr)) {
-    chr <- as.character(seqnames(gr)[1])
+    chr <- as.character(seqnames(x)[1])
   }
   if (missing(L_s)) {
-    L_s <- seqlengths(gr)[[chr]]
-  }  
+    L_s <- seqlengths(x)[[chr]]
+  }
   # blocks allowed to go over L_s
   n <- ceiling(L_s / L_b)
   # blocks tiling the chromosome
