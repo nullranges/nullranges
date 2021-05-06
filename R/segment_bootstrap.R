@@ -2,20 +2,18 @@
 #'
 #' @param seg segmentation GRanges a column("state") indicate segmentation states
 #' @param x the input GRanges
-#' @param L_c the length of the chromosome
-#' @param L_s a vector of the length of each segmentation region
 #' @param L_b the length of the block
+#' @param deny GRanges of deny region
 #' @param R the number time of bootstrap
 #' @param proportion_length use scaled block length or scaled number of blocks of each segmentation region
 #' @param ncores A cluster object created by \code{\link[parallel]{makeCluster}}.
 #' Or an integer to indicate number of child-processes
 #' (integer values are ignored on Windows) for parallel evaluations
 #'
-#' @importFrom dplyr summarise group_by %>%
 #' @importFrom pbapply pblapply
 #'
 #' @export
-seg_bootstrap_granges <- function(seg, x, L_b, R, within_chrom = TRUE,
+segBootstrapRanges <- function(seg, x, L_b, deny, R, within_chrom = FALSE,
                                   proportion_length = TRUE, ncores = NULL) {
   chrom_lens <- seqlengths(x)
   chroms <- as.character(seqnames(x)@values)
@@ -25,29 +23,28 @@ seg_bootstrap_granges <- function(seg, x, L_b, R, within_chrom = TRUE,
         L_c <- chrom_lens[[chr]]
         seg0 <- seg[seqnames(seg) == chr]
         x0 <- x[seqnames(x) == chr]
-        r_prime <- seg_bootstrap_iranges_wchr(ranges(seg0), x0, seg0$state, L_c, L_b, proportion_length)
+        r_prime <- seg_bootstrap_granges_within_chrom(ranges(seg0), x0, seg0$state, L_c, L_b, proportion_length)
         r_prime
       })
-      obj <- do.call(c, obj)
+      res <- do.call(c, obj)
     } else {
-      res <- seg_bootstrap_iranges(ranges(seg), x, seg$state, L_b, seqnames(seg), chrom_lens, proportion_length)
+      res <- seg_bootstrap_granges(ranges(seg), x, seg$state, L_b, seqnames(seg), chrom_lens, proportion_length)
     }
+    res <- setdiff(res,deny) # To do: whether to use ignore.strand=TRUE ? 
     return(res)
   }, cl = ncores)
 }
 
-#' segmentation Block bootstrap IRanges within chromosome
-#'
-#' @param seg the ranges of segmentation GRanges
-#' @param x the ranges of the input GRanges
-#' @param state the segmentation state
-#' @param L_c the chromosome length
-#' @param L_b the length of the block
-#' @param proportion_length use scaled block length or scaled number of blocks of each segmentation region
-#' @param coarse logical indicating if out of bound ranges will be discarded or keep the intersect region.
-#'
-#' @export
-seg_bootstrap_iranges_wchr <- function(seg, x, state, L_c, L_b, proportion_length = TRUE, coarse = FALSE) {
+# segmentation Block bootstrap IRanges within chromosome
+#
+# @param seg the ranges of segmentation GRanges
+# @param x the ranges of the input GRanges
+# @param state the segmentation state
+# @param L_c the chromosome length
+# @param L_b the length of the block
+# @param proportion_length use scaled block length or scaled number of blocks of each segmentation region
+# @param coarse logical indicating if out of bound ranges will be discarded or keep the intersect region.
+seg_bootstrap_granges_within_chrom <- function(seg, x, state, L_c, L_b, proportion_length = TRUE, coarse = FALSE) {
   ## number of states
   ns <- sort(unique(state)) # some chr may lack some states
   if (proportion_length) {
@@ -93,25 +90,27 @@ seg_bootstrap_iranges_wchr <- function(seg, x, state, L_c, L_b, proportion_lengt
   } else {
     ## number of blocks within each range of the segmentation
     times <- ceiling((width(seg)) / L_b)
-    ## create random start positions within each segment
-    random_start <- lapply(seq_len(length(times)), function(j) {
-      runif(times[j], start(seg)[j], max(start(seg)[j], end(seg)[j] - L_b + 1))
-    })
+    n <- sum(times)
+    index <- seq_len(length(times))
+    # sample according to segmentation length
+    random_chr <- sample(index, n, replace=TRUE, prob=width(seg))
+    # random starts within the tiled regions
+    random_start <- round(runif(n, start(seg)[random_chr], (times[random_chr] -1 ) * L_b + start(seg)[random_chr]))
     ## the positions of the rearranged blocks in this segmentation state
     start_order <- lapply(seq_len(length(times)), function(j) {
       seq(from = start(seg)[j], to = end(seg)[j], by = L_b)
     })
     obj <- lapply(ns, function(m) {
-      random_start0 <- sample(unlist(random_start[state == m], use.names = FALSE))
+      poi <- which(state == m)
+      index <- which(random_chr %in% poi)
+      random_start0 <- random_start[index]
       start_order0 <- unlist(start_order[state == m], use.names = FALSE)
       return(list(random_start0, start_order0))
     })
-
-    random_blocks_start0 <- lapply(obj, `[[`, 1)
-    random_blocks_start <- do.call(c, random_blocks_start0)
+    random_blocks_start <- do.call(c,lapply(obj, `[[`, 1))
     rearranged_blocks_start <- do.call(c, lapply(obj, `[[`, 2))
     block_shift <- random_blocks_start - rearranged_blocks_start
-    random_blocks <- IRanges(start = random_blocks_start, width = L_b)
+    random_blocks <- IRanges(start = random_blocks_start,width = L_b)
   }
   fo <- findOverlaps(random_blocks, ranges(x))
   # shift the ranges in those bait blocks
@@ -120,21 +119,17 @@ seg_bootstrap_iranges_wchr <- function(seg, x, state, L_c, L_b, proportion_lengt
   return(x_prime)
 }
 
-#' segmentation Block bootstrap IRanges span the whole genome.
-#'
-#' @param seg the ranges of segmentation GRanges
-#' @param x the input GRanges with a column ("key.x") indicate the index of gene
-#' @param state the segmentation state
-#' @param L_b the length of the block
-#' @param chrnames the seqnames of the input GRanges
-#' @param chrom_lens all chromosome length
-#' @param proportion_length use scaled block length or scaled number of blocks of each segmentation region
-#' @param coarse logical indicating if out of bound ranges will be discarded or keep the intersect region.
-#'
-#' @importFrom plyranges join_overlap_inner
-#'
-#' @export
-seg_bootstrap_iranges <- function(seg, x, state, L_b, chrnames, chrom_lens,
+# segmentation Block bootstrap IRanges span the whole genome.
+#
+# @param seg the ranges of segmentation GRanges
+# @param x the input GRanges with a column ("key.x") indicate the index of gene
+# @param state the segmentation state
+# @param L_b the length of the block
+# @param chrnames the seqnames of the input GRanges
+# @param chrom_lens all chromosome length
+# @param proportion_length use scaled block length or scaled number of blocks of each segmentation region
+# @param coarse logical indicating if out of bound ranges will be discarded or keep the intersect region.
+seg_bootstrap_granges <- function(seg, x, state, L_b, chrnames, chrom_lens,
                                    proportion_length = TRUE) {
   ns <- seq_len(max(state))
   if (proportion_length) {
@@ -213,28 +208,13 @@ seg_bootstrap_iranges <- function(seg, x, state, L_b, chrnames, chrom_lens,
     random_blocks <- GRanges(seqnames=seqnames,
                              ranges=IRanges(start = random_blocks_start, width = L_b))
   }
+  segchrnames <- factor(segchrnames,levels = seqlevels(x))
   ## use the bait to sample features in 'x'
   fo <- findOverlaps(random_blocks, x)
   ## x has been sampled multiple times
   x_mult_hits <- x[subjectHits(fo)]
   ## label which 'bait' block each feature hit in the re-sampling
   mcols(x_mult_hits)$block <- queryHits(fo)
-  res <- shift_and_swap_chrom_seg(x_mult_hits, segchrnames,random_blocks_start, rearranged_blocks_start)
+  res <- shift_and_swap_chrom(x_mult_hits, segchrnames,random_blocks_start, rearranged_blocks_start)
   return(res)
-}
-
-shift_and_swap_chrom_seg <- function(x,segchrnames,random_blocks_start, rearranged_blocks_start) {
-  block_shift <- rearranged_blocks_start - random_blocks_start
-  idx <- mcols(x)$block
-  chr_prime <- segchrnames[idx]
-  # this creates out-of-bound ranges
-  # (but wait until we assign new chromosomes)
-  suppressWarnings({
-    x_prime <- GRanges(
-      seqnames = chr_prime,ranges =IRanges::shift(ranges(x), block_shift[idx]), 
-      seqlengths = chrom_lens, mcols = mcols(x)
-    )
-  })
-  x_prime <- trim(x_prime)
-  x_prime
 }

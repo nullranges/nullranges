@@ -140,8 +140,6 @@ block_bootstrap_granges <- function(x, L_b, L_s) {
                            ranges=IRanges(start = random_start, width = L_b))
   # where those blocks will move to
   rearranged_blocks <- tileGenome(seqlengths=L_s, tilewidth=L_b, cut.last.tile.in.chrom=TRUE)
-  # pass along the full seqlengths of 'x'
-  seqlengths(rearranged_blocks) <- seqlengths(x)
   # use the bait to sample features in 'x'
   fo <- findOverlaps(random_blocks, x)
   # x has been sampled multiple times
@@ -149,7 +147,7 @@ block_bootstrap_granges <- function(x, L_b, L_s) {
   # label which 'bait' block each feature hit in the re-sampling
   mcols(x_mult_hits)$block <- queryHits(fo)
   # shift the ranges in those bait blocks
-  shift_and_swap_chrom(x_mult_hits, random_blocks, rearranged_blocks)
+  shift_and_swap_chrom(x_mult_hits,seqnames(rearranged_blocks),start(random_blocks), start(rearranged_blocks))
 }
 
 # Permute blocks of GRanges across chomosome
@@ -167,7 +165,7 @@ permute_blocks_granges <- function(x, L_b, L_s) {
   # this operation loses some ranges:
   # those that are mapped to permuted blocks that
   # are cut by `cut.last.tile.in.chrom`
-  shift_and_swap_chrom(x, blocks, rearranged_blocks)
+  shift_and_swap_chrom(x,seqnames(rearranged_blocks),start(blocks), start(rearranged_blocks))
 }
 
 # function moves featues in 'x' that fall into 'blocks'
@@ -176,10 +174,10 @@ permute_blocks_granges <- function(x, L_b, L_s) {
 # 'x' in blocks --> 'x_prime' in rearranged_blocks
 #
 # and will also change the seqnames
-shift_and_swap_chrom <- function(x, blocks, rearranged_blocks) {
-  block_shift <- start(rearranged_blocks) - start(blocks)
+shift_and_swap_chrom <- function(x,chrnames,random_blocks_start, rearranged_blocks_start) {
+  block_shift <- rearranged_blocks_start - random_blocks_start
   idx <- mcols(x)$block
-  chr_prime <- seqnames(rearranged_blocks)[idx]
+  chr_prime <- chrnames[idx]
   # this creates out-of-bound ranges
   # (but wait until we assign new chromosomes)
   suppressWarnings({
@@ -187,6 +185,5 @@ shift_and_swap_chrom <- function(x, blocks, rearranged_blocks) {
     seqnames(x_prime) <- chr_prime
   })
   x_prime <- trim(x_prime)
-  x_prime <- x_prime[width(x_prime) > 0]
   x_prime
 }

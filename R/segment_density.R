@@ -15,7 +15,7 @@
 #' @importFrom plyranges filter join_overlap_intersect
 #'
 #' @export
-segment_density <- function(x, n, L_s = 1e6, deny, type = c("cbs", "hmm"),
+segmentDensity <- function(x, n, L_s = 1e6, deny, type = c("cbs", "hmm"),
                             plot_segment = TRUE, boxplot = FALSE) {
   query <- tileGenome(seqlengths(x)[seqnames(x)@values],
                       tilewidth = L_s,
@@ -69,14 +69,18 @@ segment_density <- function(x, n, L_s = 1e6, deny, type = c("cbs", "hmm"),
   }
   
   if (plot_segment) {
-    dat <- data.frame(chr = seqnames(query_accept), counts = sqrt(counts) + eps, 
-                      state = query_accept$states, loc = end(query_accept))
+    mcols(deny)$states <- "black list"
+    full_query <- c(query_accept,deny)
+    q <- quantile(sqrt(counts) + eps, .95)
+    seq2 <- pmin(sqrt(counts) + eps, q)
+    dat <- data.frame(chr = seqnames(full_query), counts = c(seq2,rep(0,length(deny))), 
+                      state = full_query$states, loc = c(end(full_query)))
     p <- ggplot2::ggplot(aes(x = loc, y = counts, col = factor(state)), data = dat) +
       geom_point() + labs(col = "States") +
       scale_x_continuous(name = "Location(Mb)",
                          breaks = c(0.5e8,1e8,1.5e8,2e8,2.5e8),
                          labels = c("50","100","150","200","250"))+
-      facet_wrap(~chr,ncol = 4)+ theme_bw()+ coord_equal(ratio=2e6) 
+      facet_wrap(~chr,ncol = 4)+ theme_bw()+ coord_equal(ratio=6e6) 
     print(p)
   }
   
@@ -94,5 +98,6 @@ segment_density <- function(x, n, L_s = 1e6, deny, type = c("cbs", "hmm"),
     x
   }))
 
-  sort(seg)
+  seg <- sortSeqlevels(seg)
+  seg <- sort(seg)
 }

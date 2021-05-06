@@ -40,8 +40,8 @@ library(GenomeInfoDb)
 g <- keepStandardChromosomes(g, pruning.mode = "coarse")
 seqlevelsStyle(g) <- "UCSC"
 seqlevels(g,pruning.mode="coarse") <- setdiff(seqlevels(g), "chrM")
+g <- sortSeqlevels(g)
 table(seqnames(g))
-g <- sort(g)
 ```
 
 ## Import deny region
@@ -68,7 +68,7 @@ cite: DNAcopy paper
 ```{r seg-cbs}
 deny2 <- deny %>% plyranges::filter(width(deny) >= 500)
 L_s <- 1e6
-seg <- segment_density(g, n = 3, L_s = L_s,
+seg <- segmentDensity(g, n = 3, L_s = L_s,
                        deny = deny2, type = "cbs",
                        boxplot = TRUE)
 ```
@@ -85,31 +85,49 @@ seg_hmm <- segment_density(g, n = 3, L_s = L_s,
 
 # Segmented block bootstrap within chromosome
 
+# Timing on DHS peaks
+
+First download DNase hypersensitivity peaks in A549 from
+*AnnotationHub*:
+
+```{r}
+suppressPackageStartupMessages(library(AnnotationHub))
+ah <- AnnotationHub()
+pks <- query(ah, c("DnaseSeq", "narrowPeak", "A549", "UniPk"))[[1]]
+```
+
+We subset to standard chromosomes and remove mitochondria (more work
+needed to handle these cases internally). Finally, we sort the
+features to be bootstrapped.
+
+```{r}
+library(GenomeInfoDb)
+pks <- keepStandardChromosomes(pks)
+seqlevels(pks) <- setdiff(seqlevels(pks), "chrM")
+table(seqnames(pks))
+pks <- sort(pks)
+```
+
 Here we apply a segmented block bootstrap with blocks of size 500kb,
 to the genes...
 
-Test on 100 times bootstrap ~17s
+Test on 100 times bootstrap ~13s
 
 ```{r eval=FALSE}
 L_b <- 5e5
 system.time({
-  res_wochr <- seg_bootstrap_granges(seg, gr, L_b, R = 100,
-                                     within_chrom = FALSE, proportion_length = FALSE,
-                                     coarse = TRUE)
+  res_wochr <- segBootstrapRanges(seg, pks, L_b, deny, R = 10, proportion_length = FALSE)
 })
 system.time({
-  res_wochr_propl <- seg_bootstrap_granges(seg, gr, L_b, R = 100,
-                                           within_chrom = FALSE, coarse = TRUE)
+  res_wochr_propl <- segBootstrapRanges(seg, pks, L_b, deny, R = 10)
 })
 system.time({
-  res_wchr <- seg_bootstrap_granges(seg, gr, L_b, R = 100,
-                                    within_chrom = TRUE, proportion_length = FALSE,
-                                    coarse = TRUE)
+  res_wchr <- segBootstrapRanges(seg, pks, L_b, deny, R = 10,
+                                    within_chrom = TRUE, proportion_length = FALSE)
 })
 system.time({
-  res_wchr <- seg_bootstrap_granges(seg, gr, L_b, R = 100,
-                                    within_chrom = TRUE, proportion_length = TRUE,
-                                    coarse = TRUE)
+  res_wchr <- segBootstrapRanges(seg, pks, L_b, deny, R = 10,
+                                    within_chrom = TRUE, proportion_length = TRUE)
   })
 ```
 
@@ -118,24 +136,44 @@ system.time({
 TODO: this may not be ideal for the vignette, but better for a paper
 
 ```{r eval=FALSE}
-Ls <- c(1e5, 1e6, 5e6)
-L_b <- c(5e4, 5e5, 1e6)
-mapply(function(Ls, L_b) {
-  seg <- segment_density(g1, n = 3, Ls = Ls, type = "CBS", plot_origin = TRUE)
-  seg_length <- seg %>%
-    group_by(state) %>%
-    summarise(Ls = sum(width)) # derive each states length
-  L_c <- seqlengths(g1)["9"]
-  L_s <- seg_length$Ls
-  system.time(res <- seg_bootstrap_iranges(seg, g1, L_c, L_s, L_b))[[3]]
-  res <- do.call(c, res)
-  res <- sort(res)
-  CBS_boot <- GRanges(seqnames = "9", ranges = res, seqlengths = L_c)
-  counts_cbs_boot <- countOverlaps(query, CBS_boot)
-  eps <- rnorm(length(counts_cbs_boot), 0, .2)
-  print(hist(counts_cbs_boot, breaks = 50, xlab = paste(Ls, "with", L_b, "block size")))
-  print(plot(sqrt(counts_cbs_boot) + eps))
-}, Ls, L_b)
+L_s <- c(5e5, 1e6, 5e6)
+L_b <- c(1e5, 5e5, 1e6)
+mapply(function(L_s, L_b) {
+  seg <- segment_density(g, n = 3, L_s = L_s,deny = deny2, type = "cbs",plot_segment = FALSE)
+  res <- seg_bootstrap_granges(seg, g, L_b, R = 1,
+                                     within_chrom = FALSE, proportion_length = FALSE)
+  res <- res[[1]]
+  ## gene density for origin ranges
+  query <- tileGenome(seqlengths(g)[seqnames(g)@values],
+                      tilewidth = L_s,
+                      cut.last.tile.in.chrom = TRUE)
+  ## gap will create whole chromosome length ranges
+  gap <- gaps(deny2,end = seqlengths(g)) %>%
+    plyranges::filter(strand=="*") 
+  ## the region remove deny regions
+  query_accept <- plyranges::join_overlap_intersect(query,gap) %>%
+    filter(width > L_s / 100)
+  counts_nostand <- countOverlaps(query_accept, g, minoverlap = 8)
+  counts <- counts_nostand/width(query_accept) * L_s
+  eps <- rnorm(length(counts), 0, .2)
+  print(hist(counts, breaks = seq(0,600,30), xlab = paste(L_s, "with", L_b, "block size")))
+  print(plot(sqrt(counts) + eps))
+  ## gene density for bootstraps ranges
+  query <- tileGenome(seqlengths(res)[seqnames(res)@values],
+                      tilewidth = L_s,
+                      cut.last.tile.in.chrom = TRUE)
+  ## gap will create whole chromosome length ranges
+  gap <- gaps(deny2,end = seqlengths(res)) %>%
+    plyranges::filter(strand=="*") 
+  ## the region remove deny regions
+  query_accept <- plyranges::join_overlap_intersect(query,gap) %>%
+    filter(width > L_s / 100)
+  counts_nostand <- countOverlaps(query_accept, res, minoverlap = 8)
+  counts <- counts_nostand/width(query_accept) * L_s
+  eps <- rnorm(length(counts), 0, .2)
+  print(hist(counts, breaks = 50, xlab = paste(L_s, "with", L_b, "block size")))
+  print(plot(sqrt(counts) + eps))
+}, L_s, L_b)
 ```
 
 # Visualizing the segmented block bootstrap
