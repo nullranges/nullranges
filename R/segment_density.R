@@ -21,8 +21,9 @@ segmentDensity <- function(x, n, L_s = 1e6, deny, type = c("cbs", "hmm"),
                       tilewidth = L_s,
                       cut.last.tile.in.chrom = TRUE)
   ## gap will create whole chromosome length ranges
+  ## To do: need to keep the gaps with same deny strand, here is special case that all strand(deny) ="*"
   gap <- gaps(deny,end = seqlengths(x)) %>%
-    plyranges::filter(strand=="*") 
+    plyranges::filter(strand=="*")
   ## the region remove deny regions
   query_accept <- plyranges::join_overlap_intersect(query,gap) %>%
     filter(width > L_s / 100)
