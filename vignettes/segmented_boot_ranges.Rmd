@@ -41,6 +41,7 @@ g <- keepStandardChromosomes(g, pruning.mode = "coarse")
 seqlevelsStyle(g) <- "UCSC"
 seqlevels(g,pruning.mode="coarse") <- setdiff(seqlevels(g), "chrM")
 g <- sortSeqlevels(g)
+g <- sort(g)
 table(seqnames(g))
 ```
 
@@ -51,7 +52,7 @@ Deny regions ... cite Kundaje
 ```{r}
 library(nullrangesData)
 data("deny")
-deny
+table(seqnames(deny))
 ```
 
 ```{r}
@@ -68,9 +69,11 @@ cite: DNAcopy paper
 ```{r seg-cbs}
 deny2 <- deny %>% plyranges::filter(width(deny) >= 500)
 L_s <- 1e6
-seg <- segmentDensity(g, n = 3, L_s = L_s,
-                       deny = deny2, type = "cbs",
-                       boxplot = TRUE)
+out <- segmentDensity(g, n = 3, L_s = L_s,
+                       deny = deny2, type = "cbs", returnPlot = TRUE)
+seg <- out$seg
+print(out$p1)
+print(out$p2)
 ```
 
 ## Alternatively: HMM segmentation
@@ -78,55 +81,48 @@ seg <- segmentDensity(g, n = 3, L_s = L_s,
 cite: RcppHMM
 
 ```{r seg-hmm}
-seg_hmm <- segment_density(g, n = 3, L_s = L_s,
-                           deny = deny2, type = "hmm",plot_segment = TRUE,
-                           boxplot = TRUE)
+out_hmm <- segmentDensity(g, n = 3, L_s = L_s,
+                           deny = deny2, type = "hmm",returnPlot = TRUE)
+print(out_hmm$p1)
+print(out_hmm$p2)
 ```
 
 # Segmented block bootstrap within chromosome
 
 # Timing on DHS peaks
 
-First download DNase hypersensitivity peaks in A549 from
-*AnnotationHub*:
-
-```{r}
-suppressPackageStartupMessages(library(AnnotationHub))
-ah <- AnnotationHub()
-pks <- query(ah, c("DnaseSeq", "narrowPeak", "A549", "UniPk"))[[1]]
-```
-
-We subset to standard chromosomes and remove mitochondria (more work
-needed to handle these cases internally). Finally, we sort the
+*DHSA549Hg38* First download DNase hypersensitivity peaks in A549 from
+*AnnotationHub*, then subset to standard chromosomes and remove mitochondria (more work
+needed to handle these cases internally). We use a "chain file" from UCSC to move the ranges from hg19 to the modern hg38 to be consistent with gene ranges. Finally, we sort the
 features to be bootstrapped.
 
 ```{r}
-library(GenomeInfoDb)
-pks <- keepStandardChromosomes(pks)
-seqlevels(pks) <- setdiff(seqlevels(pks), "chrM")
-table(seqnames(pks))
-pks <- sort(pks)
+data("DHSA549Hg38")
+table(seqnames(DHSA549Hg38))
 ```
 
 Here we apply a segmented block bootstrap with blocks of size 500kb,
-to the genes...
+to the peaks...
 
-Test on 100 times bootstrap ~13s
+Test on 10 times bootstrap ~13s
 
 ```{r eval=FALSE}
 L_b <- 5e5
 system.time({
-  res_wochr <- segBootstrapRanges(seg, pks, L_b, deny, R = 10, proportion_length = FALSE)
+  res_wochr <- segBootstrapRanges(seg, DHSA549Hg38, L_b, deny, R = 10, proportion_length = FALSE)
 })
 system.time({
-  res_wochr_propl <- segBootstrapRanges(seg, pks, L_b, deny, R = 10)
+  res_wochr <- segBootstrapRanges(seg, DHSA549Hg38, L_b, deny, deny_option = "trim", R = 10, proportion_length = FALSE)
 })
 system.time({
-  res_wchr <- segBootstrapRanges(seg, pks, L_b, deny, R = 10,
+  res_wochr_propl <- segBootstrapRanges(seg, DHSA549Hg38, L_b, deny, R = 10)
+})
+system.time({
+  res_wchr <- segBootstrapRanges(seg, DHSA549Hg38, L_b, deny, R = 10,
                                     within_chrom = TRUE, proportion_length = FALSE)
 })
 system.time({
-  res_wchr <- segBootstrapRanges(seg, pks, L_b, deny, R = 10,
+  res_wchr <- segBootstrapRanges(seg, DHSA549Hg38, L_b, deny, R = 10,
                                     within_chrom = TRUE, proportion_length = TRUE)
   })
 ```
@@ -242,6 +238,6 @@ plotGRanges(gr)
 ```
 
 ```{r}
-gr_prime <- nullranges::seg_bootstrap_granges(seg, gr, L_b=100, R=1)[[1]]
+gr_prime <- nullranges::segBootstrapRanges(seg, gr, L_b=100, R=1)[[1]]
 # plotGRanges(gr_prime)
 ```

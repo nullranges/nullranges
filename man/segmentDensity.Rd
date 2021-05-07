@@ -10,8 +10,7 @@ segmentDensity(
   L_s = 1e+06,
   deny,
   type = c("cbs", "hmm"),
-  plot_segment = TRUE,
-  boxplot = FALSE
+  returnPlot = FALSE
 )
 }
 \arguments{
@@ -28,7 +27,8 @@ use DNAcopy to segment) or "hmm" (which will use RcppHMM).
 The packages are not imported by nullranges, but must be installed
 by the user}
 
-\item{plot_segment}{plot the gene density segmentation by chromosome}
+\item{returnPlot}{indicate whether return segmentation by chromosome plot and boxplot.
+If true, plot element will be stored in the result list.}
 
 \item{boxplot}{boxplot of gene density for each state}
 }

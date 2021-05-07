@@ -4,6 +4,8 @@
 #' @param x the input GRanges
 #' @param L_b the length of the block
 #' @param deny GRanges of deny region
+#' @param deny_option Indicate whether toss or trim the overlaps between deny and 
+#' bootstrap ranges. 
 #' @param R the number time of bootstrap
 #' @param proportion_length use scaled block length or scaled number of blocks of each segmentation region
 #' @param ncores A cluster object created by \code{\link[parallel]{makeCluster}}.
@@ -13,10 +15,11 @@
 #' @importFrom pbapply pblapply
 #'
 #' @export
-segBootstrapRanges <- function(seg, x, L_b, deny, R, within_chrom = FALSE,
+segBootstrapRanges <- function(seg, x, L_b, deny, deny_option = c("toss", "trim"), R, within_chrom = FALSE,
                                   proportion_length = TRUE, ncores = NULL) {
   chrom_lens <- seqlengths(x)
   chroms <- as.character(seqnames(x)@values)
+  deny_option <- match.arg(deny_option)
   ans <- pblapply(seq_len(R), function(i) {
     if (within_chrom) {
       obj <- lapply(chroms, function(chr) {
@@ -30,8 +33,18 @@ segBootstrapRanges <- function(seg, x, L_b, deny, R, within_chrom = FALSE,
     } else {
       res <- seg_bootstrap_granges(ranges(seg), x, seg$state, L_b, seqnames(seg), chrom_lens, proportion_length)
     }
-    res <- setdiff(res,deny) # To do: whether to use ignore.strand=TRUE ? 
-    return(res)
+    if(deny_option == "toss") {
+      res_accept <- res[-queryHits(findOverlaps(res, deny, type="any"))] 
+    } else {
+      # res <- setdiff(res,deny) # To do: cannot reserve metadata column and whether to use ignore.strand=TRUE 
+      ## To do: need to keep the gaps with same deny strand, here is special case that all strand(deny) ="*"
+      ## To do: need to place outstide of R, doing gaps once.
+      gap <- gaps(deny,end = seqlengths(x)) %>% 
+        plyranges::filter(strand=="*")
+      ## the region remove deny regions
+      res_accept <- plyranges::join_overlap_intersect(res,gap)
+    }
+    return(res_accept)
   }, cl = ncores)
 }
 

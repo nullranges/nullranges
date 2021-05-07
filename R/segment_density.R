@@ -8,18 +8,20 @@
 #' use DNAcopy to segment) or "hmm" (which will use RcppHMM).
 #' The packages are not imported by nullranges, but must be installed
 #' by the user
-#' @param plot_segment plot the gene density segmentation by chromosome
+#' @param returnPlot indicate whether return segmentation by chromosome plot and boxplot. 
+#' If true, plot element will be stored in the result list.
 #' @param boxplot boxplot of gene density for each state
 #'
 #' @import ggplot2
 #' @importFrom plyranges filter join_overlap_intersect
 #'
 #' @export
-segmentDensity <- function(x, n, L_s = 1e6, deny, type = c("cbs", "hmm"),
-                            plot_segment = TRUE, boxplot = FALSE) {
+segmentDensity <- function(x, n, L_s = 1e6, deny, type = c("cbs", "hmm"), returnPlot=FALSE) {
   query <- tileGenome(seqlengths(x)[seqnames(x)@values],
                       tilewidth = L_s,
                       cut.last.tile.in.chrom = TRUE)
+  # TODO: code assumes sorted 'x'
+  if(any(x != GenomicRanges::sort(x))){ warning( "unsorted x" ) }
   ## gap will create whole chromosome length ranges
   ## To do: need to keep the gaps with same deny strand, here is special case that all strand(deny) ="*"
   gap <- gaps(deny,end = seqlengths(x)) %>%
@@ -29,7 +31,6 @@ segmentDensity <- function(x, n, L_s = 1e6, deny, type = c("cbs", "hmm"),
     filter(width > L_s / 100)
   counts_nostand <- countOverlaps(query_accept, x, minoverlap = 8)
   counts <- counts_nostand/width(query_accept) * L_s
-  eps <- rnorm(length(counts), 0, .2)
 
   if (type == "cbs") {
 
@@ -37,7 +38,7 @@ segmentDensity <- function(x, n, L_s = 1e6, deny, type = c("cbs", "hmm"),
       stop("type='cbs' requires installing the Bioconductor package 'DNAcopy'")
     }
 
-    cna <- DNAcopy::CNA(matrix(sqrt(counts) + eps, ncol = 1),
+    cna <- DNAcopy::CNA(matrix(sqrt(counts), ncol = 1),
       chrom = as.character(seqnames(query_accept)), 
       maploc = start(query_accept),
       data.type = "logratio",
@@ -48,9 +49,9 @@ segmentDensity <- function(x, n, L_s = 1e6, deny, type = c("cbs", "hmm"),
       verbose = 1
     )
     seq <- with(scna$output, rep(seg.mean, num.mark))
-    q <- quantile(seq, .95)
-    seq2 <- pmin(seq, q)
-    km <- kmeans(seq2, n)
+    # q <- quantile(seq, .95)
+    # seq2 <- pmin(seq, q)
+    km <- kmeans(seq, n)
     mcols(query_accept)$states <- km$cluster
   } else if (type == "hmm") {
 
@@ -69,36 +70,38 @@ segmentDensity <- function(x, n, L_s = 1e6, deny, type = c("cbs", "hmm"),
     mcols(query_accept)$states <- v
   }
   
-  if (plot_segment) {
-    mcols(deny)$states <- "black list"
-    full_query <- c(query_accept,deny)
-    q <- quantile(sqrt(counts) + eps, .95)
-    seq2 <- pmin(sqrt(counts) + eps, q)
-    dat <- data.frame(chr = seqnames(full_query), counts = c(seq2,rep(0,length(deny))), 
-                      state = full_query$states, loc = c(end(full_query)))
-    p <- ggplot2::ggplot(aes(x = loc, y = counts, col = factor(state)), data = dat) +
-      geom_point() + labs(col = "States") +
-      scale_x_continuous(name = "Location(Mb)",
-                         breaks = c(0.5e8,1e8,1.5e8,2e8,2.5e8),
-                         labels = c("50","100","150","200","250"))+
-      facet_wrap(~chr,ncol = 4)+ theme_bw()+ coord_equal(ratio=6e6) 
-    print(p)
-  }
-  
-  if (boxplot) {
-    states <- data.frame(state = query_accept$states, count = counts)
-    p <- ggplot2::ggplot(aes(x = factor(state), y = counts), data = states) +
-      geom_boxplot()
-    print(p)
-  }
-  
   # Combine nearby regions within same states
   seg <- do.call(c, lapply(1:n, function(s) {
     x <- reduce(query_accept[query_accept$states == s])
     mcols(x)$state <- s
     x
   }))
-
+  
   seg <- sortSeqlevels(seg)
   seg <- sort(seg)
+  
+  if (returnPlot) {
+    mcols(deny2)$states <- "black list"
+    full_query <- c(query_accept,deny2)
+    q <- quantile(sqrt(counts), .975)
+    seq2 <- pmin(sqrt(counts), q)
+    dat <- data.frame(chr = seqnames(full_query), counts = c(seq2,rep(0,length(deny2))), 
+                      state = full_query$states, loc = mid(full_query))
+    dat2 <- data.frame(chr = seqnames(deny2), start = start(deny2), end = end(deny2))
+    
+    p1 <- ggplot2::ggplot() +
+      labs(col = "States", y= "sqrt(counts)") +geom_point(aes(x = loc, y = counts,col=factor(state)),alpha=0.5, data =dat)+
+      geom_segment(aes(x=start,y=0,xend=end,yend=0),size=5, data = dat2,show.legend=FALSE)+
+      facet_wrap(~chr,ncol = 4)+ theme_bw()+
+      scale_x_continuous(name = "Location(Mb)",
+                         breaks = c(0.5e8,1e8,1.5e8,2e8,2.5e8),
+                         labels = c("50","100","150","200","250"))
+
+    states <- data.frame(state = query_accept$states, count = seq2)
+    p2 <- ggplot2::ggplot(aes(x = factor(state), y = count), data = states) +
+      geom_boxplot()+ theme_bw() + labs( x = "States", y = "sqrt(counts)")
+    return(list(seg = seg, p1 = p1, p2 = p2))
+  } else {
+    return(seg)
+  }
 }

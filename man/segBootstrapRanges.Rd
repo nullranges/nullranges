@@ -8,6 +8,8 @@ segBootstrapRanges(
   seg,
   x,
   L_b,
+  deny,
+  deny_option = c("toss", "trim"),
   R,
   within_chrom = FALSE,
   proportion_length = TRUE,
@@ -21,6 +23,11 @@ segBootstrapRanges(
 
 \item{L_b}{the length of the block}
 
+\item{deny}{GRanges of deny region}
+
+\item{deny_option}{Indicate whether toss or trim the overlaps between deny and
+bootstrap ranges.}
+
 \item{R}{the number time of bootstrap}
 
 \item{proportion_length}{use scaled block length or scaled number of blocks of each segmentation region}
@@ -28,10 +35,6 @@ segBootstrapRanges(
 \item{ncores}{A cluster object created by \code{\link[parallel]{makeCluster}}.
 Or an integer to indicate number of child-processes
 (integer values are ignored on Windows) for parallel evaluations}
-
-\item{L_c}{the length of the chromosome}
-
-\item{L_s}{a vector of the length of each segmentation region}
 }
 \description{
 Segmentated bootstrap GRanges
