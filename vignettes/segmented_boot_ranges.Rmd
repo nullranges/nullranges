@@ -39,7 +39,7 @@ g <- genes(edb, filter = filt)
 library(GenomeInfoDb)
 g <- keepStandardChromosomes(g, pruning.mode = "coarse")
 seqlevelsStyle(g) <- "UCSC"
-seqlevels(g,pruning.mode="coarse") <- setdiff(seqlevels(g), "chrM")
+seqlevels(g, pruning.mode="coarse") <- setdiff(seqlevels(g), "chrM")
 g <- sortSeqlevels(g)
 g <- sort(g)
 table(seqnames(g))

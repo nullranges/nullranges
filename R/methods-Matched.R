@@ -206,7 +206,7 @@ plot_covariates <- function(x, covar = 'all', sets = 'all', type = NULL, logTran
 #' @rdname Matched
 #' @import ggplot2 ggridges
 #' @export
-setMethod("plot", signature(x="Matched", y="missing"), plot.propensity)
+setMethod("plot", signature(x="Matched", y="missing"), plot_propensity)
 
 #' @rdname Matched
 #' @import ggplot2 ggridges

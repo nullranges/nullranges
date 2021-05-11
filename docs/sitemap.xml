@@ -37,9 +37,6 @@
     <loc>https://nullranges.github.io/nullranges/reference/matchRangesAccessors.html</loc>
   </url>
   <url>
-    <loc>https://nullranges.github.io/nullranges/reference/matched.html</loc>
-  </url>
-  <url>
     <loc>https://nullranges.github.io/nullranges/reference/matchedData.html</loc>
   </url>
   <url>
@@ -58,19 +55,10 @@
     <loc>https://nullranges.github.io/nullranges/reference/pool.html</loc>
   </url>
   <url>
-    <loc>https://nullranges.github.io/nullranges/reference/seg_bootstrap_granges.html</loc>
+    <loc>https://nullranges.github.io/nullranges/reference/segBootstrapRanges.html</loc>
   </url>
   <url>
-    <loc>https://nullranges.github.io/nullranges/reference/seg_bootstrap_granges_map.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/reference/seg_bootstrap_iranges.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/reference/seg_bootstrap_iranges_wchr.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/reference/segment_density.html</loc>
+    <loc>https://nullranges.github.io/nullranges/reference/segmentDensity.html</loc>
   </url>
   <url>
     <loc>https://nullranges.github.io/nullranges/reference/unmatched.html</loc>

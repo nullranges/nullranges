@@ -91,13 +91,13 @@
 
       
 
-      </header><div class="row">
+      </header><script src="match_ranges_methods_files/header-attrs-2.7/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Matching ranges: supported methods</h1>
                         <h4 class="author">Eric S. Davis</h4>
             
-            <h4 class="date">05/01/2021</h4>
+            <h4 class="date">05/11/2021</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/master/vignettes/match_ranges_methods.Rmd"><code>vignettes/match_ranges_methods.Rmd</code></a></small>
       <div class="hidden name"><code>match_ranges_methods.Rmd</code></div>
@@ -109,13 +109,14 @@
 <p>This vignette demonstrates the supported matching methods (rejection sampling with replacement, nearest neighbor matching with replacement, and rejection sampling without replacement) when the covariates are either continuous, binary, categorical, or when the focal group is larger than the pool (bootstrapping).</p>
 <p>First we load our data and add some additional annotations. In this case we add an indicator that shows whether or not our enhancers and promoters are looped (i.e. <code>loopedEP</code>), and we also break down the continuous <code>epDistance</code> into categorical groups (i.e. <code>epDistanceGrouped</code>).</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/nullranges/nullranges">nullranges</a></span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">nullranges</span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">nullrangesData</span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">plyranges</span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">hictoolsr</span><span class="op">)</span>
 <span class="co">#&gt; Error in library(hictoolsr): there is no package called 'hictoolsr'</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org">ggplot2</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com">patchwork</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">patchwork</span><span class="op">)</span>
+<span class="co">#&gt; Error in library(patchwork): there is no package called 'patchwork'</span>
 
 <span class="co">## Load enh-prom pairs (and shorten the name)</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"enhPromContactFreqHg19"</span><span class="op">)</span>
@@ -156,7 +157,7 @@
 <span class="co">#&gt; Warning in min(x): no non-missing arguments to min; returning Inf</span>
 <span class="co">#&gt; Warning in max(x): no non-missing arguments to max; returning -Inf</span>
 <span class="co">#&gt; Error in seq.default(a, b, length = M): 'from' must be a finite number</span>
-<span class="co">#&gt; Timing stopped at: 6.978 0.336 7.311</span>
+<span class="co">#&gt; Timing stopped at: 7.578 0.858 8.578</span>
 
 <span class="fu"><a href="https://rdrr.io/r/base/system.time.html">system.time</a></span><span class="op">(</span><span class="op">{</span>
   <span class="va">mgi2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/matchRanges.html">matchRanges</a></span><span class="op">(</span><span class="va">focal</span>, <span class="va">pool</span>, <span class="va">covar</span>,
@@ -165,7 +166,7 @@
 <span class="co">#&gt; Warning in speedglm(formula = f, data = covarData, family = binomial("logit"), :</span>
 <span class="co">#&gt; Maximum number of iterations reached without convergence</span>
 <span class="co">#&gt; Error in sample.int(length(x), size, replace, prob): invalid 'size' argument</span>
-<span class="co">#&gt; Timing stopped at: 5.624 0.156 5.718</span>
+<span class="co">#&gt; Timing stopped at: 6.966 1.198 8.515</span>
 
 <span class="fu"><a href="https://rdrr.io/r/base/system.time.html">system.time</a></span><span class="op">(</span><span class="op">{</span>
   <span class="va">mgi3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/matchRanges.html">matchRanges</a></span><span class="op">(</span><span class="va">focal</span>, <span class="va">pool</span>, <span class="va">covar</span>,
@@ -176,7 +177,7 @@
 <span class="co">#&gt; Warning in min(x): no non-missing arguments to min; returning Inf</span>
 <span class="co">#&gt; Warning in max(x): no non-missing arguments to max; returning -Inf</span>
 <span class="co">#&gt; Error in seq.default(a, b, length = M): 'from' must be a finite number</span>
-<span class="co">#&gt; Timing stopped at: 5.477 0.112 5.587</span>
+<span class="co">#&gt; Timing stopped at: 7.1 1.046 8.275</span>
 
 <span class="co">## Should error (method not implemented)</span>
 <span class="fu"><a href="../reference/matchRanges.html">matchRanges</a></span><span class="op">(</span><span class="va">focal</span>, <span class="va">pool</span>, <span class="va">covar</span>,
@@ -234,7 +235,7 @@
 <span class="co">#&gt; Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'plot': object 'mgi3' not found</span>
 
 <span class="va">p1</span> <span class="op">+</span> <span class="va">p2</span> <span class="op">+</span> <span class="va">p3</span> <span class="op">+</span>
-  <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_annotation.html">plot_annotation</a></span><span class="op">(</span>
+  <span class="fu">plot_annotation</span><span class="op">(</span>
   title <span class="op">=</span> <span class="st">'Continuous covariate: looped vs. unlooped, covar = ~epDistance'</span>
   <span class="op">)</span>
 <span class="co">#&gt; Error in eval(expr, envir, enclos): object 'p1' not found</span></code></pre></div>
@@ -259,21 +260,21 @@
                       method <span class="op">=</span> <span class="st">'rejection'</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 <span class="op">}</span><span class="op">)</span>
 <span class="co">#&gt; Error in `contrasts&lt;-`(`*tmp*`, value = contr.funs[1 + isOF[nn]]): contrasts can be applied only to factors with 2 or more levels</span>
-<span class="co">#&gt; Timing stopped at: 0.943 0 0.944</span>
+<span class="co">#&gt; Timing stopped at: 0.659 0.027 0.716</span>
 
 <span class="fu"><a href="https://rdrr.io/r/base/system.time.html">system.time</a></span><span class="op">(</span><span class="op">{</span>
   <span class="va">mgi2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/matchRanges.html">matchRanges</a></span><span class="op">(</span><span class="va">focal</span>, <span class="va">pool</span>, <span class="va">covar</span>,
                       method <span class="op">=</span> <span class="st">'nearest'</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 <span class="op">}</span><span class="op">)</span>
 <span class="co">#&gt; Error in `contrasts&lt;-`(`*tmp*`, value = contr.funs[1 + isOF[nn]]): contrasts can be applied only to factors with 2 or more levels</span>
-<span class="co">#&gt; Timing stopped at: 0.944 0 0.945</span>
+<span class="co">#&gt; Timing stopped at: 0.629 0.018 0.658</span>
 
 <span class="fu"><a href="https://rdrr.io/r/base/system.time.html">system.time</a></span><span class="op">(</span><span class="op">{</span>
   <span class="va">mgi3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/matchRanges.html">matchRanges</a></span><span class="op">(</span><span class="va">focal</span>, <span class="va">pool</span>, <span class="va">covar</span>,
                       method <span class="op">=</span> <span class="st">'rejection'</span>, replace <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
 <span class="op">}</span><span class="op">)</span>
 <span class="co">#&gt; Error in `contrasts&lt;-`(`*tmp*`, value = contr.funs[1 + isOF[nn]]): contrasts can be applied only to factors with 2 or more levels</span>
-<span class="co">#&gt; Timing stopped at: 0.945 0 0.945</span>
+<span class="co">#&gt; Timing stopped at: 0.624 0.024 0.654</span>
 
 <span class="co">## Should error (method not implemented)</span>
 <span class="fu"><a href="../reference/matchRanges.html">matchRanges</a></span><span class="op">(</span><span class="va">focal</span>, <span class="va">pool</span>, <span class="va">covar</span>,
@@ -331,7 +332,7 @@
 <span class="co">#&gt; Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'plot': object 'mgi3' not found</span>
 
 <span class="va">p1</span> <span class="op">+</span> <span class="va">p2</span> <span class="op">+</span> <span class="va">p3</span> <span class="op">+</span>
-  <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_annotation.html">plot_annotation</a></span><span class="op">(</span>
+  <span class="fu">plot_annotation</span><span class="op">(</span>
     title <span class="op">=</span> <span class="st">'Discrete (binary) covariate: small vs large epDistance, covar = ~loopedEP'</span>
   <span class="op">)</span>
 <span class="co">#&gt; Error in eval(expr, envir, enclos): object 'p1' not found</span></code></pre></div>
@@ -357,7 +358,7 @@
 <span class="co">#&gt; Warning in min(x): no non-missing arguments to min; returning Inf</span>
 <span class="co">#&gt; Warning in max(x): no non-missing arguments to max; returning -Inf</span>
 <span class="co">#&gt; Error in seq.default(a, b, length = M): 'from' must be a finite number</span>
-<span class="co">#&gt; Timing stopped at: 6.919 0.22 7.135</span>
+<span class="co">#&gt; Timing stopped at: 7.578 1.013 8.815</span>
 
 <span class="fu"><a href="https://rdrr.io/r/base/system.time.html">system.time</a></span><span class="op">(</span><span class="op">{</span>
   <span class="va">mgi2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/matchRanges.html">matchRanges</a></span><span class="op">(</span><span class="va">focal</span>, <span class="va">pool</span>, <span class="va">covar</span>,
@@ -366,7 +367,7 @@
 <span class="co">#&gt; Warning in speedglm(formula = f, data = covarData, family = binomial("logit"), :</span>
 <span class="co">#&gt; Maximum number of iterations reached without convergence</span>
 <span class="co">#&gt; Error in sample.int(length(x), size, replace, prob): invalid 'size' argument</span>
-<span class="co">#&gt; Timing stopped at: 7.4 0.2 7.561</span>
+<span class="co">#&gt; Timing stopped at: 7.61 0.984 8.671</span>
 
 <span class="fu"><a href="https://rdrr.io/r/base/system.time.html">system.time</a></span><span class="op">(</span><span class="op">{</span>
   <span class="va">mgi3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/matchRanges.html">matchRanges</a></span><span class="op">(</span><span class="va">focal</span>, <span class="va">pool</span>, <span class="va">covar</span>,
@@ -377,7 +378,7 @@
 <span class="co">#&gt; Warning in min(x): no non-missing arguments to min; returning Inf</span>
 <span class="co">#&gt; Warning in max(x): no non-missing arguments to max; returning -Inf</span>
 <span class="co">#&gt; Error in seq.default(a, b, length = M): 'from' must be a finite number</span>
-<span class="co">#&gt; Timing stopped at: 7.416 0.132 7.545</span>
+<span class="co">#&gt; Timing stopped at: 7.659 0.879 8.558</span>
 
 <span class="co">## Should error (method not implemented)</span>
 <span class="fu"><a href="../reference/matchRanges.html">matchRanges</a></span><span class="op">(</span><span class="va">focal</span>, <span class="va">pool</span>, <span class="va">covar</span>,
@@ -435,7 +436,7 @@
 <span class="co">#&gt; Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'plot': object 'mgi3' not found</span>
 
 <span class="va">p1</span> <span class="op">+</span> <span class="va">p2</span> <span class="op">+</span> <span class="va">p3</span> <span class="op">+</span>
-  <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_annotation.html">plot_annotation</a></span><span class="op">(</span>
+  <span class="fu">plot_annotation</span><span class="op">(</span>
     title <span class="op">=</span> <span class="st">'Discrete (non-binary) covariate: looped vs. unlooped, covar = ~epDistanceGrouped'</span>
   <span class="op">)</span>
 <span class="co">#&gt; Error in eval(expr, envir, enclos): object 'p1' not found</span></code></pre></div>
@@ -456,18 +457,18 @@
 <span class="co">## Expect error</span>
 <span class="fu"><a href="../reference/matchRanges.html">matchRanges</a></span><span class="op">(</span><span class="va">focal</span>, <span class="va">pool</span>, <span class="va">covar</span>,
             method <span class="op">=</span> <span class="st">'rejection'</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-<span class="co">#&gt; Warning in predict.speedlm(rval, newdata = M): prediction from a rank-deficient</span>
-<span class="co">#&gt; fit may be misleading</span>
+<span class="co">#&gt; Warning in predict.speedlm(rval, newdata = data): prediction from a rank-</span>
+<span class="co">#&gt; deficient fit may be misleading</span>
 <span class="co">#&gt; Error in rejectSample(nfps, npps): focal must be &lt;= pool for method = 'rejection'.</span>
 
 <span class="fu"><a href="https://rdrr.io/r/base/system.time.html">system.time</a></span><span class="op">(</span><span class="op">{</span>
   <span class="va">mgi2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/matchRanges.html">matchRanges</a></span><span class="op">(</span><span class="va">focal</span>, <span class="va">pool</span>, <span class="va">covar</span>,
                       method <span class="op">=</span> <span class="st">'nearest'</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 <span class="op">}</span><span class="op">)</span>
-<span class="co">#&gt; Warning in predict.speedlm(rval, newdata = M): prediction from a rank-deficient</span>
-<span class="co">#&gt; fit may be misleading</span>
+<span class="co">#&gt; Warning in predict.speedlm(rval, newdata = data): prediction from a rank-</span>
+<span class="co">#&gt; deficient fit may be misleading</span>
 <span class="co">#&gt;    user  system elapsed </span>
-<span class="co">#&gt;   4.403   0.016   4.217</span>
+<span class="co">#&gt;   4.507   0.428   4.983</span>
 
 <span class="co">## Expect error</span>
 <span class="va">mgi3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/matchRanges.html">matchRanges</a></span><span class="op">(</span><span class="va">focal</span>, <span class="va">pool</span>, <span class="va">covar</span>,
@@ -518,7 +519,7 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by <a href="https://mikelove.github.io">Michael Love</a>, <a href="https://twitter.com/wancenm">Wancen Mu</a>, Eric Davis, <a href="http://phanstiel-lab.med.unc.edu">Douglas Phanstiel</a>, <a href="https://chanzuckerberg.com">CZI</a>.</p>
+  <p>Developed by <a href="https://mikelove.github.io">Michael Love</a>, <a href="https://twitter.com/wancenm">Wancen Mu</a>, <a href="https://ericscottdavis.com">Eric Davis</a>, <a href="http://phanstiel-lab.med.unc.edu">Douglas Phanstiel</a>, <a href="https://chanzuckerberg.com">CZI</a>.</p>
 </div>
 
 <div class="pkgdown">

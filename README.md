@@ -1,4 +1,6 @@
-# Generation of null ranges via bootstrapping or covariate matching
+# nullranges <img id="nullranges_logo" src="man/figures/nullranges.png" align="right" width="125"/>
+
+## Generation of null ranges via bootstrapping or covariate matching
 
 Modular package for generation of sets of ranges
 representing the null hypothesis. These can take the form
