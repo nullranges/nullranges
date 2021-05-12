@@ -176,12 +176,13 @@ jobs:
           remotes::install_local(dependencies = TRUE, repos = BiocManager::repositories(), build_vignettes = FALSE, upgrade = TRUE)
 
           ## add the extra packages
+          BiocManager::install("tidyr")
           BiocManager::install(c("nullranges/nullrangesData", "PhanstielLab/BentoBox", "EricSDavis/hictoolsr"))
 
           ## For running the checks
           message(paste('****', Sys.time(), 'installing rcmdcheck and BiocCheck ****'))
           remotes::install_cran("rcmdcheck")
-          BiocManager::install("BiocCheck")
+          # BiocManager::install("BiocCheck")
         shell: Rscript {0}
 
       - name: Install BiocGenerics
@@ -233,15 +234,15 @@ jobs:
           BiocGenerics:::testPackage()
         shell: Rscript {0}
 
-      - name: Run BiocCheck
-        run: |
-          BiocCheck::BiocCheck(
-              dir('check', 'tar.gz$', full.names = TRUE),
-              `quit-with-status` = TRUE,
-              `no-check-R-ver` = TRUE,
-              `no-check-bioc-help` = TRUE
-          )
-        shell: Rscript {0}
+      # - name: Run BiocCheck
+      #   run: |
+      #     BiocCheck::BiocCheck(
+      #         dir('check', 'tar.gz$', full.names = TRUE),
+      #         `quit-with-status` = TRUE,
+      #         `no-check-R-ver` = TRUE,
+      #         `no-check-bioc-help` = TRUE
+      #     )
+      #   shell: Rscript {0}
 
       - name: Test coverage
         if: github.ref == 'refs/heads/FALSE' && env.run_covr == 'true' && runner.os == 'Linux'
