@@ -38,6 +38,12 @@ Suggests:
     hictoolsr,
     BentoBox
 Imports: 
+    GenomicRanges,
+    magrittr,
+    methods,
+    rlang,
+    S4Vectors,
+    scales,
     InteractionSet,
     ggplot2,
     plyranges,
