@@ -10,6 +10,8 @@ plot(x, y, ...)
 \item{x}{...}
 
 \item{y}{...}
+
+\item{...}{additional arguments}
 }
 \description{
 Plot

@@ -42,6 +42,7 @@ setGeneric("indices", function(x, ...) standardGeneric("indices"))
 #'
 #' @param x ...
 #' @param y ...
+#' @param ... additional arguments
 #' 
 #' @rdname plot
 #' @export
