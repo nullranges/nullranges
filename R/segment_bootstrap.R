@@ -13,8 +13,6 @@
 #' Or an integer to indicate number of child-processes
 #' (integer values are ignored on Windows) for parallel evaluations
 #'
-#' @importFrom pbapply pblapply
-#'
 #' @export
 segBootstrapRanges <- function(x, seg, L_b, R,
                                deny, deny_option = c("toss", "trim"),
@@ -23,7 +21,7 @@ segBootstrapRanges <- function(x, seg, L_b, R,
   chrom_lens <- seqlengths(x)
   chroms <- as.character(seqnames(x)@values)
   deny_option <- match.arg(deny_option)
-  ans <- pblapply(seq_len(R), function(i) {
+  ans <- lapply(seq_len(R), function(i) {
     if (within_chrom) {
       obj <- lapply(chroms, function(chr) {
         L_c <- chrom_lens[[chr]]

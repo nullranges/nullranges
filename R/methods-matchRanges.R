@@ -45,9 +45,10 @@ nnMatch <- function(fps, pps, replace) {
   
   ## Find all nearest matches for each unique fps
   amdt <- dt[.(uniq.fps), roll = 'nearest', mult = 'all']
+
+  # TODO we have warnings here: 'no visible binding for global variable'
   
   ## Randomly subsample with replacement among duplicates
-  set.seed(123)
   mdt <- amdt[, .(ppsIndex = sample.vec(ppsIndex, N, replace = replace)), by = fps]
   
   ## Add fpsIndex to mdt
@@ -84,7 +85,6 @@ rejectSample <- function(fps, pps) {
   accept_prob <- pmin(thresh(predict(df, x=pps))/(scale * predict(dg, x=pps)), 1)
   
   ## Randomly select pps according to accept probability
-  set.seed(123)
   accept <- rbinom(length(pps), size=1, prob=accept_prob)
   
   ## Return random selection equal to the length of pps
@@ -111,7 +111,6 @@ rsMatch <- function(fps, pps, replace) {
     for(i in 1:length(stdev)) {
       
       ## Add noise to fps and pps
-      set.seed(123)
       nfps <- fps + (rnorm(length(fps), mean = 0, sd = stdev[i]))
       npps <- pps + (rnorm(length(pps), mean = 0, sd = stdev[i]))
       
@@ -136,7 +135,6 @@ rsMatch <- function(fps, pps, replace) {
   stopifnot(sum(accept) >= length(fps))
   
   ## Select matching indices irrespective of data order
-  set.seed(123)
   ppsIndex <- sample(which(accept == 1), length(fps), replace = replace)
   
   ## Assemble matched data table
@@ -212,7 +210,6 @@ ssMatch <- function(fps, pps, replace) {
     i <- i + 1
     
     ## Assign indices that can be sampled
-    set.seed(123)
     result <-
       strata[!is.na(fpsN) & fpsN <= ppsN,
              .(fpsIndex = unlist(fpsIndices),

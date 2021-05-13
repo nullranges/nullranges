@@ -178,6 +178,8 @@ plot_covariates <- function(x, covar = 'all', sets = 'all', type = NULL, logTran
   ## Subset group by sets
   mmd <- mmd[group %in% sets]
 
+  # TODO this leads to 'no visible binding for global variable'
+  # warnings during package check
   ans <- set_matched_plot(data,
                           type,
                           cols = cols[names(cols) %in% sets],

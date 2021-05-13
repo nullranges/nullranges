@@ -31,14 +31,16 @@ Suggests:
     RcppHMM,
     nullrangesData,
     EnsDb.Hsapiens.v86,
-    GenomeInfoDb,
     microbenchmark,
     patchwork,
     magrittr,
     hictoolsr,
     BentoBox
-Imports: 
+Imports:
+    stats,
+    IRanges,
     GenomicRanges,
+    GenomeInfoDb,
     magrittr,
     methods,
     rlang,
@@ -49,7 +51,6 @@ Imports:
     plyranges,
     ks,
     speedglm,
-    pbapply,
     data.table,
     progress,
     ggridges
