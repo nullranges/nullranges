@@ -33,7 +33,6 @@ Suggests:
     EnsDb.Hsapiens.v86,
     microbenchmark,
     patchwork,
-    magrittr,
     hictoolsr,
     BentoBox
 Imports:

@@ -46,7 +46,7 @@ nnMatch <- function(fps, pps, replace) {
   ## Find all nearest matches for each unique fps
   amdt <- dt[.(uniq.fps), roll = 'nearest', mult = 'all']
 
-  # TODO we have warnings here: 'no visible binding for global variable'
+  # TODO we have NOTE here during pkg check: 'no visible binding for global variable'
   
   ## Randomly subsample with replacement among duplicates
   mdt <- amdt[, .(ppsIndex = sample.vec(ppsIndex, N, replace = replace)), by = fps]
@@ -362,31 +362,32 @@ matchRanges.MatchedDataFrame <- function(focal, pool, covar, method, replace) {
 
 #' matchRanges
 #'
-#' @description 
 #' A function that generates a covariate-matched control
 #' set of the same datatype.
 #'
 #' @param focal a DataFrame, GRanges, or GInteractions object containing
-#'              the focal data to match.
-#' @param pool  a DataFrame, GRanges, or GInteractions object containing
-#'              the pool from which to select matches.
+#' the focal data to match.
+#' @param pool a DataFrame, GRanges, or GInteractions object containing
+#' the pool from which to select matches.
 #' @param covar a rhs formula with covariates on which to match.
 #' @param method character describing which matching method to use.
-#'               supported options are either 'nearest', 'rejection', or 'stratified'.
+#' supported options are either 'nearest', 'rejection', or 'stratified'.
 #' @param replace logical describing whether to select matches with or without
-#'                replacement.
-#' @param ...   additional arguments
+#' replacement.
+#' @param ... additional arguments
 #' 
 #' @return a covariate-matched control set of data
 #'
 #' @name matchRanges
 #' @rdname matchRanges
+#' 
 #' @rawNamespace import(data.table, except = c(between, shift, first, second, indices))
-#' @importFrom rlang f_lhs
-#' @importFrom rlang f_rhs
+#'
+#' @importFrom rlang f_lhs f_rhs
 #' @importFrom speedglm speedglm
 #' @importFrom ks kde
 #' @import S4Vectors
+#' 
 #' @export
 setMethod("matchRanges",
           signature = signature(focal   = "DF_OR_df_OR_dt",
@@ -395,7 +396,6 @@ setMethod("matchRanges",
                                 method  = "character",
                                 replace = "logical"),
           definition = matchRanges.MatchedDataFrame)
-
 
 ## MatchedGRanges method for matchRanges
 matchRanges.MatchedGRanges <- function(focal, pool, covar, method, replace) {
@@ -429,7 +429,6 @@ setMethod("matchRanges",
                                 replace = 'logical'),
           definition = matchRanges.MatchedGRanges)
 
-
 ## MatchedGInteractions method for matchRanges
 matchRanges.MatchedGInteractions <- function(focal, pool, covar, method, replace) {
   
@@ -461,7 +460,6 @@ setMethod("matchRanges",
                                 method  = 'character',
                                 replace = 'logical'),
           definition = matchRanges.MatchedGInteractions)
-
 
 ## Define accessor functions for matchGRanges class --------------------------------------
 

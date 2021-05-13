@@ -91,8 +91,10 @@ segmentDensity <- function(x, n, L_s = 1e6, deny,
     q <- quantile(sqrt(counts), .975)
     seq2 <- pmin(sqrt(counts), q)
     dat <- data.frame(
-      chr = seqnames(full_query), counts = c(seq2, rep(0, length(deny2))),
-      state = factor(full_query$states, loc = IRanges::mid(full_query))
+      chr = seqnames(full_query),
+      counts = c(seq2, rep(0, length(deny2))),
+      state = factor(full_query$states),
+      loc = IRanges::mid(full_query)
     )
     dat2 <- data.frame(chr = seqnames(deny2),
                        start = start(deny2),

@@ -179,7 +179,7 @@ plot_covariates <- function(x, covar = 'all', sets = 'all', type = NULL, logTran
   mmd <- mmd[group %in% sets]
 
   # TODO this leads to 'no visible binding for global variable'
-  # warnings during package check
+  # produces NOTE during package check
   ans <- set_matched_plot(data,
                           type,
                           cols = cols[names(cols) %in% sets],
@@ -208,11 +208,19 @@ plot_covariates <- function(x, covar = 'all', sets = 'all', type = NULL, logTran
 
 }
 
+#' @param x
+#' @param y
+#' 
 #' @rdname matched
 #' @import ggplot2 ggridges
 #' @export
 setMethod("plot", signature(x="Matched", y="missing"), plot_propensity)
 
+#' @param covar ...
+#' @param sets ...
+#' @param type ...
+#' @param logTransform ...
+#'
 #' @rdname matched
 #' @import ggplot2 ggridges
 #' @importFrom scales squish_infinite
