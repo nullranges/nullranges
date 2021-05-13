@@ -21,6 +21,9 @@ knitr::opts_chunk$set(
 )
 ```
 
+(Note this vignette takes ~100 seconds, prob want to have them down to
+~30 seconds per vignette)
+
 This vignette demonstrates the supported matching methods (rejection
 sampling with replacement, nearest neighbor matching with replacement,
 and rejection sampling without replacement) when the covariates are

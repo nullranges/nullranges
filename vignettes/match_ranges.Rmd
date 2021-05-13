@@ -52,7 +52,8 @@ mgi
 
 Visualize matching
 
-```{r vis-match}
+```{r vis-match, eval=FALSE}
+# I get error: EXPR must be a length 1 vector...
 plot(mgi) #plot shows propensity scores
 plot(mgi, type = 'ridge')
 plotCovariates(mgi, covar = 'all', type = 'ridge', logTransform = TRUE)

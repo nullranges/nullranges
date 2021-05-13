@@ -21,7 +21,7 @@ segBootstrapRanges <- function(x, seg, L_b, R,
   chrom_lens <- seqlengths(x)
   chroms <- as.character(seqnames(x)@values)
   deny_option <- match.arg(deny_option)
-  ans <- lapply(seq_len(R), function(i) {
+  ans <- replicate(R, {
     if (within_chrom) {
       obj <- lapply(chroms, function(chr) {
         L_c <- chrom_lens[[chr]]
@@ -45,8 +45,8 @@ segBootstrapRanges <- function(x, seg, L_b, R,
       ## the region remove deny regions
       res_accept <- plyranges::join_overlap_intersect(res,gap)
     }
-    return(res_accept)
-  }, cl = ncores)
+    res_accept
+  })
 }
 
 # segmentation Block bootstrap IRanges within chromosome
