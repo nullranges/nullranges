@@ -7,7 +7,7 @@ articles:
   match_ranges_methods: match_ranges_methods.html
   segmented_boot_ranges: segmented_boot_ranges.html
   unseg_boot_ranges: unseg_boot_ranges.html
-last_built: 2021-05-11T09:02Z
+last_built: 2021-05-13T17:33Z
 urls:
   reference: https://nullranges.github.io/nullranges/reference
   article: https://nullranges.github.io/nullranges/articles

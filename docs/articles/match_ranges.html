@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.8</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.10</span>
       </span>
     </div>
 
@@ -97,7 +97,7 @@
       <h1 data-toc-skip>Matching ranges</h1>
                         <h4 class="author">Eric S. Davis</h4>
             
-            <h4 class="date">05/11/2021</h4>
+            <h4 class="date">05/13/2021</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/master/vignettes/match_ranges.Rmd"><code>vignettes/match_ranges.Rmd</code></a></small>
       <div class="hidden name"><code>match_ranges.Rmd</code></div>
@@ -107,7 +107,7 @@
     
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">nullranges</span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/nullranges/nullranges">nullranges</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://magrittr.tidyverse.org">magrittr</a></span><span class="op">)</span></code></pre></div>
 <p>Test data</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
@@ -130,141 +130,127 @@
 <pre><code>## MatchedGInteractions object with 1000 interactions and 20 metadata columns:
 ##          seqnames1             ranges1     seqnames2             ranges2 |
 ##              &lt;Rle&gt;           &lt;IRanges&gt;         &lt;Rle&gt;           &lt;IRanges&gt; |
-##      [1]     chr20   36024848-36025253 ---     chr20   36661671-36663870 |
-##      [2]      chr1 178923208-178923638 ---      chr1 178992939-178995138 |
-##      [3]      chr1 142625893-142626130 ---      chr1 143467433-143469632 |
-##      [4]      chr6     4318998-4319206 ---      chr6     3912014-3914213 |
-##      [5]     chr10   15331787-15332845 ---     chr10   14816697-14818896 |
+##      [1]     chr14   70151286-70151980 ---     chr14   69445958-69448157 |
+##      [2]      chr1 149636178-149636421 ---      chr1 150519884-150522083 |
+##      [3]      chr5 131406750-131407010 ---      chr5 132142734-132144933 |
+##      [4]      chr7   80792138-80792478 ---      chr7   79996891-79999090 |
+##      [5]      chr1 167035752-167036452 ---      chr1 167522805-167525004 |
 ##      ...       ...                 ... ...       ...                 ... .
-##    [996]     chr12   53955996-53956252 ---     chr12   54867187-54869386 |
-##    [997]     chr16   53552358-53552827 ---     chr16   53405405-53407604 |
-##    [998]      chr3   33091032-33091250 ---      chr3   33153471-33155670 |
-##    [999]      chr8   82019415-82020072 ---      chr8   81451171-81453370 |
-##   [1000]      chr5   32508621-32508990 ---      chr5   32529739-32531938 |
+##    [996]     chr10 120973315-120973731 ---     chr10 120861598-120863797 |
+##    [997]     chr16   83760136-83760433 ---     chr16   84651484-84653683 |
+##    [998]     chr17   16948243-16948570 ---     chr17   16590851-16593050 |
+##    [999]     chr11   65695179-65696318 ---     chr11   64877317-64879516 |
+##   [1000]     chr17   55828093-55828300 ---     chr17   56160366-56162565 |
 ##          anchor1.NON_1 anchor1.NON_2 anchor1.PMA_1 anchor1.PMA_2 anchor1.peakFC
 ##              &lt;numeric&gt;     &lt;numeric&gt;     &lt;numeric&gt;     &lt;numeric&gt;      &lt;numeric&gt;
-##      [1]       120.125         87.75         25.75         11.25       0.177992
-##      [2]        61.750         37.50         81.75         63.50       1.463476
-##      [3]        32.500         26.75         35.75         23.50       1.000000
-##      [4]         6.000         12.75         42.50         47.75       4.813333
-##      [5]       187.750        172.75         49.25         32.25       0.226075
+##      [1]         71.25         74.50         58.75         67.50       0.866209
+##      [2]         29.25         15.25         30.50         29.00       1.337079
+##      [3]         20.25         16.50         23.25         56.25       2.163265
+##      [4]         18.50         12.75         40.00         29.00       2.208000
+##      [5]        222.25        177.50        140.75         93.75       0.586617
 ##      ...           ...           ...           ...           ...            ...
-##    [996]         13.75         10.00         33.75         28.25       2.610526
-##    [997]         47.00         57.50        151.00         61.00       2.028708
-##    [998]         34.75         24.00          9.75          8.75       0.314894
-##    [999]        205.50        207.00        279.00        240.00       1.258182
-##   [1000]         38.50         18.75         23.25         58.75       1.432314
+##    [996]         45.75         56.00         13.75          9.50       0.228501
+##    [997]         19.25         20.25         25.00         33.75       1.487342
+##    [998]         21.50         40.50         83.25         37.50       1.947581
+##    [999]        445.50        341.75        251.00        130.00       0.483963
+##   [1000]         37.50         34.75         30.50         15.75       0.640138
 ##          anchor1.peakStrength    anchor2.gene_id anchor2.baseMean
 ##                     &lt;numeric&gt;        &lt;character&gt;        &lt;numeric&gt;
-##      [1]              244.875  ENSG00000101407.8         164.6493
-##      [2]              244.500  ENSG00000116199.7         394.5394
-##      [3]              118.500 ENSG00000185044.10          46.8398
-##      [4]              109.000  ENSG00000260604.1          21.8578
-##      [5]              442.000  ENSG00000065809.9         320.8469
+##      [1]               272.00  ENSG00000072110.9        1580.1100
+##      [2]               104.00  ENSG00000143382.9          86.0793
+##      [3]               116.25  ENSG00000164402.9         162.3499
+##      [4]               100.25 ENSG00000135218.13        5440.1005
+##      [5]               634.25  ENSG00000143162.7         568.8651
 ##      ...                  ...                ...              ...
-##    [996]                85.75  ENSG00000170627.5         137.6348
-##    [997]               316.50  ENSG00000261804.1          26.9274
-##    [998]                77.25 ENSG00000170275.10         546.2223
-##    [999]               931.50  ENSG00000254162.1          79.8906
-##   [1000]               139.25  ENSG00000113387.7         353.3488
+##    [996]               125.00 ENSG00000119979.11         144.1389
+##    [997]                98.25  ENSG00000103187.6         390.8869
+##    [998]               182.75 ENSG00000170160.12         663.1595
+##    [999]              1168.25 ENSG00000149809.10          29.8553
+##   [1000]               118.50  ENSG00000266290.1          26.9937
 ##          anchor2.log2FoldChange anchor2.lfcSE anchor2.stat anchor2.pvalue
 ##                       &lt;numeric&gt;     &lt;numeric&gt;    &lt;numeric&gt;      &lt;numeric&gt;
-##      [1]             -0.1454280      0.312574   -0.4652588      0.6417462
-##      [2]              0.3122067      0.214390    1.4562559      0.1453219
-##      [3]              0.2954868      0.556053    0.5314001      0.5951416
-##      [4]             -0.0480307      0.803309   -0.0597911      0.9523220
-##      [5]             -0.4424236      0.239811   -1.8448874      0.0650539
+##      [1]               0.586034      0.137777     4.253501    2.10454e-05
+##      [2]              -2.062102      0.427637    -4.822079    1.42070e-06
+##      [3]              -0.220708      0.311691    -0.708098    4.78884e-01
+##      [4]               7.015805      0.166814    42.057682    0.00000e+00
+##      [5]               0.820177      0.187677     4.370159    1.24156e-05
 ##      ...                    ...           ...          ...            ...
-##    [996]              -1.690081      0.343143    -4.925297    8.42322e-07
-##    [997]               1.243130      0.741035     1.677560    9.34331e-02
-##    [998]               0.591946      0.197002     3.004780    2.65773e-03
-##    [999]              -0.416716      0.433257    -0.961821    3.36140e-01
-##   [1000]              -0.942013      0.224958    -4.187504    2.82039e-05
+##    [996]              -0.786372      0.330658    -2.378202     0.01739729
+##    [997]               0.496587      0.217255     2.285728     0.02227018
+##    [998]              -0.461926      0.176371    -2.619060     0.00881725
+##    [999]              -1.098777      0.695175    -1.580577     0.11397489
+##   [1000]              -0.531793      0.726676    -0.731816     0.46428114
 ##          anchor2.padj anchor2.gene_symbol epDistance NON_1_hic NON_2_hic
 ##             &lt;numeric&gt;         &lt;character&gt;  &lt;integer&gt; &lt;numeric&gt; &lt;numeric&gt;
-##      [1]     0.765474                TTI1     636417        12        19
-##      [2]     0.265124              FAM20B      69300        97        99
-##      [3]     0.729549                &lt;NA&gt;     841302         0         0
-##      [4]     0.973309                &lt;NA&gt;     404784        38        55
-##      [5]     0.139518             FAM107B     512890        10         9
+##      [1]  1.02997e-04               ACTN1     703128   10.5013  14.77657
+##      [2]  8.12207e-06            ADAMTSL4     883462    0.0000   0.00000
+##      [3]  6.32443e-01             SEPTIN8     735723   10.0341   3.21852
+##      [4]  0.00000e+00                CD36     793047   31.5128  22.13091
+##      [5]  6.29412e-05               CREG1     486352   49.4995  55.29706
 ##      ...          ...                 ...        ...       ...       ...
-##    [996]  4.95479e-06               GTSF1     910934       145       145
-##    [997]  1.87060e-01                &lt;NA&gt;     144753        25        28
-##    [998]  8.77634e-03               CRTAP      62220        28        41
-##    [999]  4.94878e-01                &lt;NA&gt;     566044        32        52
-##   [1000]  1.35514e-04                SUB1      20748        19        14
+##    [996]    0.0457794             DENND10     109517 101.15479 113.89800
+##    [997]    0.0564867               COTL1     891050   6.66761   4.71508
+##    [998]    0.0253603            CCDC144A     355192  43.35870  35.14936
+##    [999]    0.2187065              TM7SF2     815662  80.76094  84.91550
+##   [1000]    0.6189608        LOC101927666     332065   8.20808   9.27269
 ##          PMA_1_hic PMA_2_hic contactFreq
 ##          &lt;numeric&gt; &lt;numeric&gt;   &lt;numeric&gt;
-##      [1]        19        16          66
-##      [2]        68        58         322
-##      [3]         0         0           0
-##      [4]        34        26         153
-##      [5]         5         1          25
+##      [1]   4.23851  10.90246     40.4189
+##      [2]   0.00000   0.00000      0.0000
+##      [3]   1.58597   7.88044     22.7190
+##      [4]  12.17618   8.13824     73.9581
+##      [5]  50.68728  39.42405    194.9078
 ##      ...       ...       ...         ...
-##    [996]        82        66         438
-##    [997]        17        19          89
-##    [998]        15        14          98
-##    [999]        18        14         116
-##   [1000]        21        17          71
+##    [996]  66.85407  66.90730    348.8142
+##    [997]   2.46348   2.85292     16.6991
+##    [998]  34.89470  32.43983    145.8426
+##    [999]  56.03211  54.21453    275.9231
+##   [1000]   6.42369   5.24159     29.1460
 ##   -------
 ##   regions: 113671 ranges and 0 metadata columns
 ##   seqinfo: 25 sequences (1 circular) from hg19 genome</code></pre>
 <p>Visualize matching</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span> <span class="co">#plot shows propensity scores</span></code></pre></div>
-<p><img src="match_ranges_files/figure-html/vis-match-1.png"><!-- --></p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="va">mgi</span>, type <span class="op">=</span> <span class="st">'ridge'</span><span class="op">)</span></code></pre></div>
-<pre><code>## Picking joint bandwidth of 0.000935</code></pre>
-<p><img src="match_ranges_files/figure-html/vis-match-2.png"><!-- --></p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/plotCovariates.html">plotCovariates</a></span><span class="op">(</span><span class="va">mgi</span>, covar <span class="op">=</span> <span class="st">'all'</span>, type <span class="op">=</span> <span class="st">'ridge'</span>, logTransform <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
-<pre><code>## Warning: Transformation introduced infinite values in continuous x-axis</code></pre>
-<pre><code>## Picking joint bandwidth of 0.0874</code></pre>
-<pre><code>## Picking joint bandwidth of 0.106</code></pre>
-<p><img src="match_ranges_files/figure-html/vis-match-3.png"><!-- --></p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/plotCovariates.html">plotCovariates</a></span><span class="op">(</span><span class="va">mgi</span>, covar <span class="op">=</span> <span class="st">'all'</span>, type <span class="op">=</span> <span class="st">'jitter'</span>, logTransform <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
-<pre><code>## Warning: Transformation introduced infinite values in continuous x-axis</code></pre>
-<p><img src="match_ranges_files/figure-html/vis-match-4.png"><!-- --></p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/plotCovariates.html">plotCovariates</a></span><span class="op">(</span><span class="va">mgi</span>, covar <span class="op">=</span> <span class="st">'contactFreq'</span>, type <span class="op">=</span> <span class="st">'jitter'</span>, logTransform <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
-<pre><code>## Warning: Transformation introduced infinite values in continuous x-axis</code></pre>
-<p><img src="match_ranges_files/figure-html/vis-match-5.png"><!-- --></p>
+<code class="sourceCode R"><span class="co"># I get error: EXPR must be a length 1 vector...</span>
+<span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span> <span class="co">#plot shows propensity scores</span>
+<span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="va">mgi</span>, type <span class="op">=</span> <span class="st">'ridge'</span><span class="op">)</span>
+<span class="fu"><a href="../reference/plotCovariates.html">plotCovariates</a></span><span class="op">(</span><span class="va">mgi</span>, covar <span class="op">=</span> <span class="st">'all'</span>, type <span class="op">=</span> <span class="st">'ridge'</span>, logTransform <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
+<span class="fu"><a href="../reference/plotCovariates.html">plotCovariates</a></span><span class="op">(</span><span class="va">mgi</span>, covar <span class="op">=</span> <span class="st">'all'</span>, type <span class="op">=</span> <span class="st">'jitter'</span>, logTransform <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
+<span class="fu"><a href="../reference/plotCovariates.html">plotCovariates</a></span><span class="op">(</span><span class="va">mgi</span>, covar <span class="op">=</span> <span class="st">'contactFreq'</span>, type <span class="op">=</span> <span class="st">'jitter'</span>, logTransform <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 <p>Summary and access data</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/overview.html">overview</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span></code></pre></div>
 <pre><code>## MatchedGInteractions object: 
 ##      group    N anchor1.peakStrength.mean anchor1.peakStrength.sd
 ##      focal 1000                  486.2919                814.5577
-##    matched 1000                  479.8914                793.6664
+##    matched 1000                  480.9038                793.9768
 ##       pool 5000                  582.2479               1088.8064
-##  unmatched 4145                  601.5482               1136.5901
+##  unmatched 4122                  601.0466               1135.9089
 ##  contactFreq.mean contactFreq.sd   ps.mean      ps.sd
-##          228.1590       735.0110 0.1677381 0.01112244
-##          200.5470       617.0608 0.1677377 0.01110152
-##          220.7288       758.0230 0.1664524 0.01361780
-##          224.5339       782.7601 0.1662114 0.01403542
+##          146.6587       452.2163 0.1679906 0.01322368
+##          141.2774       456.2981 0.1679799 0.01309822
+##          127.2755       380.4621 0.1664019 0.01526854
+##          125.6364       375.6084 0.1661302 0.01569888
 ## --------
 ## focal - matched: 
 ##  anchor1.peakStrength.mean anchor1.peakStrength.sd contactFreq.mean
-##                     6.4005                123.1882           27.612
+##                   5.388125                245.6603         5.381319
 ##  contactFreq.sd      ps.mean        ps.sd
-##        540.9647 4.040506e-07 7.781897e-05</code></pre>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+##        233.5443 1.067993e-05 0.0002356949</code></pre>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/matchedData.html">matchedData</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span> <span class="op">%&gt;%</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
 <pre><code>##    id anchor1.peakStrength contactFreq        ps group
-## 1:  1               230.00           0 0.1706503 focal
-## 2:  1               197.25         114 0.1716030 focal
-## 3:  1               139.50          92 0.1724636 focal
-## 4:  1                86.50          54 0.1731901 focal
-## 5:  1               438.25           8 0.1673301 focal
-## 6:  1               317.00           0 0.1692447 focal</code></pre>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+## 1:  1               230.00    0.000000 0.1691996 focal
+## 2:  1               197.25   89.648797 0.1712493 focal
+## 3:  1               139.50   45.126913 0.1714369 focal
+## 4:  1                86.50   60.687366 0.1725721 focal
+## 5:  1               438.25    6.348281 0.1659584 focal
+## 6:  1               317.00    0.000000 0.1677951 focal</code></pre>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/covariates.html">covariates</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span></code></pre></div>
 <pre><code>## [1] "anchor1.peakStrength" "contactFreq"</code></pre>
 <p>Get each type of result as GInteractions objects</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/focal.html">focal</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span></code></pre></div>
 <pre><code>## GInteractions object with 1000 interactions and 20 metadata columns:
 ##          seqnames1             ranges1     seqnames2             ranges2 |
@@ -321,34 +307,34 @@
 ##   [1000]              -1.156775      0.461305    -2.507612      0.0121550
 ##          anchor2.padj anchor2.gene_symbol epDistance NON_1_hic NON_2_hic
 ##             &lt;numeric&gt;         &lt;character&gt;  &lt;integer&gt; &lt;numeric&gt; &lt;numeric&gt;
-##      [1]  1.52213e-06              CSF2RA     341001         0         0
-##      [2]           NA              TMEM79     228250        29        47
-##      [3]  1.52810e-09                 MYC     297586        34        28
-##      [4]  1.38797e-05                LIG1     340270        19        19
-##      [5]  4.03543e-01               USP11     564377         2         0
+##      [1]  1.52213e-06              CSF2RA     341001   0.00000    0.0000
+##      [2]           NA              TMEM79     228250  22.12889   36.3579
+##      [3]  1.52810e-09                 MYC     297586  17.35548   14.0513
+##      [4]  1.38797e-05                LIG1     340270  19.85207   20.4917
+##      [5]  4.03543e-01               USP11     564377   1.67169    0.0000
 ##      ...          ...                 ...        ...       ...       ...
-##    [996]    0.5865907              ZNF644     149269       126       128
-##    [997]    0.9247842              PARP16     394620        72        66
-##    [998]    0.1788118                &lt;NA&gt;     962553        14        19
-##    [999]    0.5902808                DNM1     632282        14        14
-##   [1000]    0.0335696               UQCC2     891294        14        11
+##    [996]    0.5865907              ZNF644     149269  96.72985   97.6138
+##    [997]    0.9247842              PARP16     394620  82.28621   75.9260
+##    [998]    0.1788118                &lt;NA&gt;     962553   8.83417   12.1315
+##    [999]    0.5902808                DNM1     632282  11.24678   12.1321
+##   [1000]    0.0335696               UQCC2     891294  14.06074   11.2795
 ##          PMA_1_hic PMA_2_hic contactFreq
 ##          &lt;numeric&gt; &lt;numeric&gt;   &lt;numeric&gt;
-##      [1]         0         0           0
-##      [2]        23        15         114
-##      [3]        14        16          92
-##      [4]         7         9          54
-##      [5]         2         4           8
+##      [1]   0.00000   0.00000     0.00000
+##      [2]  18.40749  12.75452    89.64880
+##      [3]   6.43887   7.28128    45.12691
+##      [4]   8.15914  12.18446    60.68737
+##      [5]   1.52533   3.15126     6.34828
 ##      ...       ...       ...         ...
-##    [996]        58        62         374
-##    [997]        46        36         220
-##    [998]        17         8          58
-##    [999]         6         3          37
-##   [1000]         8        16          49
+##    [996]  48.51284  53.07026    295.9268
+##    [997]  53.64521  43.49969    255.3571
+##    [998]   9.98315   4.80209     35.7509
+##    [999]   4.69202   2.14885     30.2197
+##   [1000]   6.49484  12.42724     44.2623
 ##   -------
 ##   regions: 113671 ranges and 0 metadata columns
 ##   seqinfo: 25 sequences (1 circular) from hg19 genome</code></pre>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/pool.html">pool</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span></code></pre></div>
 <pre><code>## GInteractions object with 5000 interactions and 20 metadata columns:
 ##          seqnames1             ranges1     seqnames2             ranges2 |
@@ -405,120 +391,120 @@
 ##   [5000]               4.837488      0.147660    32.760941   2.12103e-235
 ##          anchor2.padj anchor2.gene_symbol epDistance NON_1_hic NON_2_hic
 ##             &lt;numeric&gt;         &lt;character&gt;  &lt;integer&gt; &lt;numeric&gt; &lt;numeric&gt;
-##      [1]  5.73874e-01              GRPEL1     644940         0         0
-##      [2]  1.98143e-01                &lt;NA&gt;     200768        76        66
-##      [3]           NA                &lt;NA&gt;     828593        61        52
-##      [4]  7.80011e-01                &lt;NA&gt;     200891         8         8
-##      [5]  4.31340e-23                AGRN     287178         0         0
+##      [1]  5.73874e-01              GRPEL1     644940   0.00000   0.00000
+##      [2]  1.98143e-01                &lt;NA&gt;     200768  88.00812  82.16042
+##      [3]           NA                &lt;NA&gt;     828593  43.50183  38.18980
+##      [4]  7.80011e-01                &lt;NA&gt;     200891   4.38676   4.22435
+##      [5]  4.31340e-23                AGRN     287178   0.00000   0.00000
 ##      ...          ...                 ...        ...       ...       ...
-##   [4996]  5.86533e-01              SH2D4A     418630        42        32
-##   [4997]  2.94943e-04                PSD4     314508       213       229
-##   [4998]  6.73706e-01               USP30     399939        91        97
-##   [4999]  4.07355e-01                NUB1     140285         5         8
-##   [5000] 1.29427e-232               CD109     171850        14        18
+##   [4996]  5.86533e-01              SH2D4A     418630  25.49399   19.5188
+##   [4997]  2.94943e-04                PSD4     314508 100.47053  112.5067
+##   [4998]  6.73706e-01               USP30     399939  56.43787   62.0633
+##   [4999]  4.07355e-01                NUB1     140285   5.23712    8.3983
+##   [5000] 1.29427e-232               CD109     171850  16.84662   21.5782
 ##          PMA_1_hic PMA_2_hic contactFreq
 ##          &lt;numeric&gt; &lt;numeric&gt;   &lt;numeric&gt;
-##      [1]         0         0           0
-##      [2]        69        47         258
-##      [3]        44        33         190
-##      [4]         2         4          22
-##      [5]         0         0           0
+##      [1]  0.000000   0.00000      0.0000
+##      [2] 98.609375  76.00762    344.7855
+##      [3] 30.270422  23.96742    135.9295
+##      [4]  0.952703   1.99985     11.5637
+##      [5]  0.000000   0.00000      0.0000
 ##      ...       ...       ...         ...
-##   [4996]        17        19         110
-##   [4997]       131       111         684
-##   [4998]        25        26         239
-##   [4999]         0         4          17
-##   [5000]         6         7          45
+##   [4996]  10.20634  11.97106     67.1902
+##   [4997]  65.00336  57.71630    335.6969
+##   [4998]  18.59111  20.92406    158.0164
+##   [4999]   0.00000   3.44108     17.0765
+##   [5000]   7.23127   8.97113     54.6272
 ##   -------
 ##   regions: 113671 ranges and 0 metadata columns
 ##   seqinfo: 25 sequences (1 circular) from hg19 genome</code></pre>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/matched.html">matched</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/Matched-class.html">matched</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span></code></pre></div>
 <pre><code>## GInteractions object with 1000 interactions and 20 metadata columns:
 ##          seqnames1             ranges1     seqnames2             ranges2 |
 ##              &lt;Rle&gt;           &lt;IRanges&gt;         &lt;Rle&gt;           &lt;IRanges&gt; |
-##      [1]     chr20   36024848-36025253 ---     chr20   36661671-36663870 |
-##      [2]      chr1 178923208-178923638 ---      chr1 178992939-178995138 |
-##      [3]      chr1 142625893-142626130 ---      chr1 143467433-143469632 |
-##      [4]      chr6     4318998-4319206 ---      chr6     3912014-3914213 |
-##      [5]     chr10   15331787-15332845 ---     chr10   14816697-14818896 |
+##      [1]     chr14   70151286-70151980 ---     chr14   69445958-69448157 |
+##      [2]      chr1 149636178-149636421 ---      chr1 150519884-150522083 |
+##      [3]      chr5 131406750-131407010 ---      chr5 132142734-132144933 |
+##      [4]      chr7   80792138-80792478 ---      chr7   79996891-79999090 |
+##      [5]      chr1 167035752-167036452 ---      chr1 167522805-167525004 |
 ##      ...       ...                 ... ...       ...                 ... .
-##    [996]     chr12   53955996-53956252 ---     chr12   54867187-54869386 |
-##    [997]     chr16   53552358-53552827 ---     chr16   53405405-53407604 |
-##    [998]      chr3   33091032-33091250 ---      chr3   33153471-33155670 |
-##    [999]      chr8   82019415-82020072 ---      chr8   81451171-81453370 |
-##   [1000]      chr5   32508621-32508990 ---      chr5   32529739-32531938 |
+##    [996]     chr10 120973315-120973731 ---     chr10 120861598-120863797 |
+##    [997]     chr16   83760136-83760433 ---     chr16   84651484-84653683 |
+##    [998]     chr17   16948243-16948570 ---     chr17   16590851-16593050 |
+##    [999]     chr11   65695179-65696318 ---     chr11   64877317-64879516 |
+##   [1000]     chr17   55828093-55828300 ---     chr17   56160366-56162565 |
 ##          anchor1.NON_1 anchor1.NON_2 anchor1.PMA_1 anchor1.PMA_2 anchor1.peakFC
 ##              &lt;numeric&gt;     &lt;numeric&gt;     &lt;numeric&gt;     &lt;numeric&gt;      &lt;numeric&gt;
-##      [1]       120.125         87.75         25.75         11.25       0.177992
-##      [2]        61.750         37.50         81.75         63.50       1.463476
-##      [3]        32.500         26.75         35.75         23.50       1.000000
-##      [4]         6.000         12.75         42.50         47.75       4.813333
-##      [5]       187.750        172.75         49.25         32.25       0.226075
+##      [1]         71.25         74.50         58.75         67.50       0.866209
+##      [2]         29.25         15.25         30.50         29.00       1.337079
+##      [3]         20.25         16.50         23.25         56.25       2.163265
+##      [4]         18.50         12.75         40.00         29.00       2.208000
+##      [5]        222.25        177.50        140.75         93.75       0.586617
 ##      ...           ...           ...           ...           ...            ...
-##    [996]         13.75         10.00         33.75         28.25       2.610526
-##    [997]         47.00         57.50        151.00         61.00       2.028708
-##    [998]         34.75         24.00          9.75          8.75       0.314894
-##    [999]        205.50        207.00        279.00        240.00       1.258182
-##   [1000]         38.50         18.75         23.25         58.75       1.432314
+##    [996]         45.75         56.00         13.75          9.50       0.228501
+##    [997]         19.25         20.25         25.00         33.75       1.487342
+##    [998]         21.50         40.50         83.25         37.50       1.947581
+##    [999]        445.50        341.75        251.00        130.00       0.483963
+##   [1000]         37.50         34.75         30.50         15.75       0.640138
 ##          anchor1.peakStrength    anchor2.gene_id anchor2.baseMean
 ##                     &lt;numeric&gt;        &lt;character&gt;        &lt;numeric&gt;
-##      [1]              244.875  ENSG00000101407.8         164.6493
-##      [2]              244.500  ENSG00000116199.7         394.5394
-##      [3]              118.500 ENSG00000185044.10          46.8398
-##      [4]              109.000  ENSG00000260604.1          21.8578
-##      [5]              442.000  ENSG00000065809.9         320.8469
+##      [1]               272.00  ENSG00000072110.9        1580.1100
+##      [2]               104.00  ENSG00000143382.9          86.0793
+##      [3]               116.25  ENSG00000164402.9         162.3499
+##      [4]               100.25 ENSG00000135218.13        5440.1005
+##      [5]               634.25  ENSG00000143162.7         568.8651
 ##      ...                  ...                ...              ...
-##    [996]                85.75  ENSG00000170627.5         137.6348
-##    [997]               316.50  ENSG00000261804.1          26.9274
-##    [998]                77.25 ENSG00000170275.10         546.2223
-##    [999]               931.50  ENSG00000254162.1          79.8906
-##   [1000]               139.25  ENSG00000113387.7         353.3488
+##    [996]               125.00 ENSG00000119979.11         144.1389
+##    [997]                98.25  ENSG00000103187.6         390.8869
+##    [998]               182.75 ENSG00000170160.12         663.1595
+##    [999]              1168.25 ENSG00000149809.10          29.8553
+##   [1000]               118.50  ENSG00000266290.1          26.9937
 ##          anchor2.log2FoldChange anchor2.lfcSE anchor2.stat anchor2.pvalue
 ##                       &lt;numeric&gt;     &lt;numeric&gt;    &lt;numeric&gt;      &lt;numeric&gt;
-##      [1]             -0.1454280      0.312574   -0.4652588      0.6417462
-##      [2]              0.3122067      0.214390    1.4562559      0.1453219
-##      [3]              0.2954868      0.556053    0.5314001      0.5951416
-##      [4]             -0.0480307      0.803309   -0.0597911      0.9523220
-##      [5]             -0.4424236      0.239811   -1.8448874      0.0650539
+##      [1]               0.586034      0.137777     4.253501    2.10454e-05
+##      [2]              -2.062102      0.427637    -4.822079    1.42070e-06
+##      [3]              -0.220708      0.311691    -0.708098    4.78884e-01
+##      [4]               7.015805      0.166814    42.057682    0.00000e+00
+##      [5]               0.820177      0.187677     4.370159    1.24156e-05
 ##      ...                    ...           ...          ...            ...
-##    [996]              -1.690081      0.343143    -4.925297    8.42322e-07
-##    [997]               1.243130      0.741035     1.677560    9.34331e-02
-##    [998]               0.591946      0.197002     3.004780    2.65773e-03
-##    [999]              -0.416716      0.433257    -0.961821    3.36140e-01
-##   [1000]              -0.942013      0.224958    -4.187504    2.82039e-05
+##    [996]              -0.786372      0.330658    -2.378202     0.01739729
+##    [997]               0.496587      0.217255     2.285728     0.02227018
+##    [998]              -0.461926      0.176371    -2.619060     0.00881725
+##    [999]              -1.098777      0.695175    -1.580577     0.11397489
+##   [1000]              -0.531793      0.726676    -0.731816     0.46428114
 ##          anchor2.padj anchor2.gene_symbol epDistance NON_1_hic NON_2_hic
 ##             &lt;numeric&gt;         &lt;character&gt;  &lt;integer&gt; &lt;numeric&gt; &lt;numeric&gt;
-##      [1]     0.765474                TTI1     636417        12        19
-##      [2]     0.265124              FAM20B      69300        97        99
-##      [3]     0.729549                &lt;NA&gt;     841302         0         0
-##      [4]     0.973309                &lt;NA&gt;     404784        38        55
-##      [5]     0.139518             FAM107B     512890        10         9
+##      [1]  1.02997e-04               ACTN1     703128   10.5013  14.77657
+##      [2]  8.12207e-06            ADAMTSL4     883462    0.0000   0.00000
+##      [3]  6.32443e-01             SEPTIN8     735723   10.0341   3.21852
+##      [4]  0.00000e+00                CD36     793047   31.5128  22.13091
+##      [5]  6.29412e-05               CREG1     486352   49.4995  55.29706
 ##      ...          ...                 ...        ...       ...       ...
-##    [996]  4.95479e-06               GTSF1     910934       145       145
-##    [997]  1.87060e-01                &lt;NA&gt;     144753        25        28
-##    [998]  8.77634e-03               CRTAP      62220        28        41
-##    [999]  4.94878e-01                &lt;NA&gt;     566044        32        52
-##   [1000]  1.35514e-04                SUB1      20748        19        14
+##    [996]    0.0457794             DENND10     109517 101.15479 113.89800
+##    [997]    0.0564867               COTL1     891050   6.66761   4.71508
+##    [998]    0.0253603            CCDC144A     355192  43.35870  35.14936
+##    [999]    0.2187065              TM7SF2     815662  80.76094  84.91550
+##   [1000]    0.6189608        LOC101927666     332065   8.20808   9.27269
 ##          PMA_1_hic PMA_2_hic contactFreq
 ##          &lt;numeric&gt; &lt;numeric&gt;   &lt;numeric&gt;
-##      [1]        19        16          66
-##      [2]        68        58         322
-##      [3]         0         0           0
-##      [4]        34        26         153
-##      [5]         5         1          25
+##      [1]   4.23851  10.90246     40.4189
+##      [2]   0.00000   0.00000      0.0000
+##      [3]   1.58597   7.88044     22.7190
+##      [4]  12.17618   8.13824     73.9581
+##      [5]  50.68728  39.42405    194.9078
 ##      ...       ...       ...         ...
-##    [996]        82        66         438
-##    [997]        17        19          89
-##    [998]        15        14          98
-##    [999]        18        14         116
-##   [1000]        21        17          71
+##    [996]  66.85407  66.90730    348.8142
+##    [997]   2.46348   2.85292     16.6991
+##    [998]  34.89470  32.43983    145.8426
+##    [999]  56.03211  54.21453    275.9231
+##   [1000]   6.42369   5.24159     29.1460
 ##   -------
 ##   regions: 113671 ranges and 0 metadata columns
 ##   seqinfo: 25 sequences (1 circular) from hg19 genome</code></pre>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/unmatched.html">unmatched</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span></code></pre></div>
-<pre><code>## GInteractions object with 4145 interactions and 20 metadata columns:
+<pre><code>## GInteractions object with 4122 interactions and 20 metadata columns:
 ##          seqnames1             ranges1     seqnames2             ranges2 |
 ##              &lt;Rle&gt;           &lt;IRanges&gt;         &lt;Rle&gt;           &lt;IRanges&gt; |
 ##      [1]      chr4     7716865-7717064 ---      chr4     7069725-7071924 |
@@ -527,11 +513,11 @@
 ##      [4]      chr4   48049248-48049499 ---      chr4   47846157-47848356 |
 ##      [5]      chr1       665847-666324 ---      chr1       953503-955702 |
 ##      ...       ...                 ... ...       ...                 ... .
-##   [4141]     chr19   37784250-37785243 ---     chr19   37406994-37409193 |
-##   [4142]      chr2 113598095-113598393 ---      chr2 113912902-113915101 |
-##   [4143]     chr12 109058259-109058954 ---     chr12 109458894-109461093 |
-##   [4144]      chr7 151179270-151179494 ---      chr7 151036785-151038984 |
-##   [4145]      chr6   74231012-74231657 ---      chr6   74403508-74405707 |
+##   [4118]     chr19   37784250-37785243 ---     chr19   37406994-37409193 |
+##   [4119]      chr8   18749982-18750497 ---      chr8   19169128-19171327 |
+##   [4120]     chr12 109058259-109058954 ---     chr12 109458894-109461093 |
+##   [4121]      chr7 151179270-151179494 ---      chr7 151036785-151038984 |
+##   [4122]      chr6   74231012-74231657 ---      chr6   74403508-74405707 |
 ##          anchor1.NON_1 anchor1.NON_2 anchor1.PMA_1 anchor1.PMA_2 anchor1.peakFC
 ##              &lt;numeric&gt;     &lt;numeric&gt;     &lt;numeric&gt;     &lt;numeric&gt;      &lt;numeric&gt;
 ##      [1]         18.50          7.75         35.75         37.50       2.790476
@@ -540,11 +526,11 @@
 ##      [4]         38.50         30.50         25.00         18.50       0.630435
 ##      [5]         20.25         20.25         93.00        729.00      20.296296
 ##      ...           ...           ...           ...           ...            ...
-##   [4141]        419.25        468.50        577.50        424.75       1.128978
-##   [4142]         30.50         53.25         97.00        164.50       3.122388
-##   [4143]         89.50        102.75        140.75        146.75       1.495449
-##   [4144]         28.00         24.00          6.00         10.50       0.317308
-##   [4145]       1121.50       1220.75       1555.25       1599.38       1.346835
+##   [4118]        419.25        468.50        577.50        424.75       1.128978
+##   [4119]         13.75         25.25         39.00         48.50       2.243590
+##   [4120]         89.50        102.75        140.75        146.75       1.495449
+##   [4121]         28.00         24.00          6.00         10.50       0.317308
+##   [4122]       1121.50       1220.75       1555.25       1599.38       1.346835
 ##          anchor1.peakStrength    anchor2.gene_id anchor2.baseMean
 ##                     &lt;numeric&gt;        &lt;character&gt;        &lt;numeric&gt;
 ##      [1]                 99.5  ENSG00000109519.8          84.0308
@@ -553,11 +539,11 @@
 ##      [4]                112.5  ENSG00000259959.1          22.6240
 ##      [5]                862.5  ENSG00000188157.9         271.4053
 ##      ...                  ...                ...              ...
-##   [4141]              1890.00  ENSG00000185869.9          32.5202
-##   [4142]               345.25 ENSG00000125637.11         721.9310
-##   [4143]               479.75  ENSG00000135093.8          30.2861
-##   [4144]                68.50 ENSG00000013374.11         186.8016
-##   [4145]              5496.88  ENSG00000156535.9        3006.9170
+##   [4118]              1890.00  ENSG00000185869.9          32.5202
+##   [4119]               126.50  ENSG00000104611.7          50.2278
+##   [4120]               479.75  ENSG00000135093.8          30.2861
+##   [4121]                68.50 ENSG00000013374.11         186.8016
+##   [4122]              5496.88  ENSG00000156535.9        3006.9170
 ##          anchor2.log2FoldChange anchor2.lfcSE anchor2.stat anchor2.pvalue
 ##                       &lt;numeric&gt;     &lt;numeric&gt;    &lt;numeric&gt;      &lt;numeric&gt;
 ##      [1]               0.343152      0.421461     0.814198    4.15531e-01
@@ -566,49 +552,49 @@
 ##      [4]               0.360820      0.818219     0.440981    6.59226e-01
 ##      [5]               3.098394      0.304014    10.191610    2.16153e-24
 ##      ...                    ...           ...          ...            ...
-##   [4141]              -1.819906      0.717977    -2.534768    1.12522e-02
-##   [4142]               0.698398      0.174813     3.995101    6.46665e-05
-##   [4143]               0.452297      0.713955     0.633509    5.26401e-01
-##   [4144]               0.335016      0.295499     1.133732    2.56907e-01
-##   [4145]               4.837488      0.147660    32.760941   2.12103e-235
+##   [4118]              -1.819906      0.717977    -2.534768    1.12522e-02
+##   [4119]              -0.442870      0.559767    -0.791168    4.28846e-01
+##   [4120]               0.452297      0.713955     0.633509    5.26401e-01
+##   [4121]               0.335016      0.295499     1.133732    2.56907e-01
+##   [4122]               4.837488      0.147660    32.760941   2.12103e-235
 ##          anchor2.padj anchor2.gene_symbol epDistance NON_1_hic NON_2_hic
 ##             &lt;numeric&gt;         &lt;character&gt;  &lt;integer&gt; &lt;numeric&gt; &lt;numeric&gt;
-##      [1]  5.73874e-01              GRPEL1     644940         0         0
-##      [2]  1.98143e-01                &lt;NA&gt;     200768        76        66
-##      [3]           NA                &lt;NA&gt;     828593        61        52
-##      [4]  7.80011e-01                &lt;NA&gt;     200891         8         8
-##      [5]  4.31340e-23                AGRN     287178         0         0
+##      [1]  5.73874e-01              GRPEL1     644940   0.00000   0.00000
+##      [2]  1.98143e-01                &lt;NA&gt;     200768  88.00812  82.16042
+##      [3]           NA                &lt;NA&gt;     828593  43.50183  38.18980
+##      [4]  7.80011e-01                &lt;NA&gt;     200891   4.38676   4.22435
+##      [5]  4.31340e-23                AGRN     287178   0.00000   0.00000
 ##      ...          ...                 ...        ...       ...       ...
-##   [4141]  3.14604e-02              ZNF829     375056        18        23
-##   [4142]  2.94943e-04                PSD4     314508       213       229
-##   [4143]  6.73706e-01               USP30     399939        91        97
-##   [4144]  4.07355e-01                NUB1     140285         5         8
-##   [4145] 1.29427e-232               CD109     171850        14        18
+##   [4118]  3.14604e-02              ZNF829     375056  10.53937   13.2211
+##   [4119]  5.86533e-01              SH2D4A     418630  25.49399   19.5188
+##   [4120]  6.73706e-01               USP30     399939  56.43787   62.0633
+##   [4121]  4.07355e-01                NUB1     140285   5.23712    8.3983
+##   [4122] 1.29427e-232               CD109     171850  16.84662   21.5782
 ##          PMA_1_hic PMA_2_hic contactFreq
 ##          &lt;numeric&gt; &lt;numeric&gt;   &lt;numeric&gt;
-##      [1]         0         0           0
-##      [2]        69        47         258
-##      [3]        44        33         190
-##      [4]         2         4          22
-##      [5]         0         0           0
+##      [1]  0.000000   0.00000      0.0000
+##      [2] 98.609375  76.00762    344.7855
+##      [3] 30.270422  23.96742    135.9295
+##      [4]  0.952703   1.99985     11.5637
+##      [5]  0.000000   0.00000      0.0000
 ##      ...       ...       ...         ...
-##   [4141]        13        18          72
-##   [4142]       131       111         684
-##   [4143]        25        26         239
-##   [4144]         0         4          17
-##   [4145]         6         7          45
+##   [4118]   6.54851   8.33100     38.6400
+##   [4119]  10.20634  11.97106     67.1902
+##   [4120]  18.59111  20.92406    158.0164
+##   [4121]   0.00000   3.44108     17.0765
+##   [4122]   7.23127   8.97113     54.6272
 ##   -------
 ##   regions: 113671 ranges and 0 metadata columns
 ##   seqinfo: 25 sequences (1 circular) from hg19 genome</code></pre>
 <p>Extract indices by group (default is ‘matched’)</p>
-<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/indices.html">indices</a></span><span class="op">(</span><span class="va">mgi</span>, group <span class="op">=</span> <span class="st">"unmatched"</span><span class="op">)</span> <span class="op">%&gt;%</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
 <pre><code>## [1] 1 2 3 4 5 6</code></pre>
-<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/indices.html">indices</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span> <span class="op">%&gt;%</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
-<pre><code>## [1] 4047 2005 4001 2318 3823 2433</code></pre>
+<pre><code>## [1] 1409 1555 2152 1132 1324 3954</code></pre>
 <p>Should be <code>TRUE</code>:</p>
-<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/identical.html">identical</a></span><span class="op">(</span><span class="fu"><a href="../reference/matchedData.html">matchedData</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span><span class="op">[</span><span class="va">group</span> <span class="op">==</span> <span class="st">"pool"</span><span class="op">]</span><span class="op">[</span><span class="fu"><a href="../reference/indices.html">indices</a></span><span class="op">(</span><span class="va">mgi</span>, group <span class="op">=</span> <span class="st">"unmatched"</span><span class="op">)</span>, <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'group'</span><span class="op">)</span><span class="op">]</span>,
           <span class="fu"><a href="../reference/matchedData.html">matchedData</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span><span class="op">[</span><span class="va">group</span> <span class="op">==</span> <span class="st">"unmatched"</span>, <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'group'</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></code></pre></div>
 <pre><code>## [1] TRUE</code></pre>

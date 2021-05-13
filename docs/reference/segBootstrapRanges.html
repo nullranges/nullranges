@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Segmentated bootstrap GRanges — segBootstrapRanges • nullranges</title>
+<title>Segmentated block bootstrap — segBootstrapRanges • nullranges</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Segmentated bootstrap GRanges — segBootstrapRanges" />
-<meta property="og:description" content="Segmentated bootstrap GRanges" />
+<meta property="og:title" content="Segmentated block bootstrap — segBootstrapRanges" />
+<meta property="og:description" content="Segmentated block bootstrap" />
 
 
 
@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.9</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.10</span>
       </span>
     </div>
 
@@ -135,22 +135,22 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Segmentated bootstrap GRanges</h1>
+    <h1>Segmentated block bootstrap</h1>
     <small class="dont-index">Source: <a href='https://github.com/nullranges/nullranges/blob/master/R/segment_bootstrap.R'><code>R/segment_bootstrap.R</code></a></small>
     <div class="hidden name"><code>segBootstrapRanges.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Segmentated bootstrap GRanges</p>
+    <p>Segmentated block bootstrap</p>
     </div>
 
     <pre class="usage"><span class='fu'>segBootstrapRanges</span><span class='op'>(</span>
-  <span class='va'>seg</span>,
   <span class='va'>x</span>,
+  <span class='va'>seg</span>,
   <span class='va'>L_b</span>,
+  <span class='va'>R</span>,
   <span class='va'>deny</span>,
   deny_option <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"toss"</span>, <span class='st'>"trim"</span><span class='op'>)</span>,
-  <span class='va'>R</span>,
   within_chrom <span class='op'>=</span> <span class='cn'>FALSE</span>,
   proportion_length <span class='op'>=</span> <span class='cn'>TRUE</span>,
   ncores <span class='op'>=</span> <span class='cn'>NULL</span>
@@ -160,16 +160,20 @@
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>seg</th>
-      <td><p>segmentation GRanges a column("state") indicate segmentation states</p></td>
-    </tr>
-    <tr>
       <th>x</th>
       <td><p>the input GRanges</p></td>
     </tr>
     <tr>
+      <th>seg</th>
+      <td><p>segmentation GRanges a column("state") indicate segmentation states</p></td>
+    </tr>
+    <tr>
       <th>L_b</th>
       <td><p>the length of the block</p></td>
+    </tr>
+    <tr>
+      <th>R</th>
+      <td><p>the number of bootstrap samples to generate</p></td>
     </tr>
     <tr>
       <th>deny</th>
@@ -181,8 +185,8 @@
 bootstrap ranges.</p></td>
     </tr>
     <tr>
-      <th>R</th>
-      <td><p>the number time of bootstrap</p></td>
+      <th>within_chrom</th>
+      <td><p>whether to perform bootstrapping within chromosome (default FALSE)</p></td>
     </tr>
     <tr>
       <th>proportion_length</th>

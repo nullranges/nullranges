@@ -1,0 +1,45 @@
+---
+title: "Introduction to nullranges"
+output:
+  rmarkdown::html_document
+vignette: |
+  %\VignetteIndexEntry{Introduction to null ranges}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+The *nullranges* package contains functions for generation of feature
+sets for exploring the null hypothesis of overlap or colocalization of
+two observed feature sets.
+
+The package has two branches of functionality: matching and
+bootstrapping. Suppose we want to examine the significance of overlaps
+of genomic sets of features $x$ and $y$. To test the significance of
+this overlap, we calculate the overlap expected under the null by
+generating a null feature set $y'$ (potentially many times). The null
+features in $y'$ may be characterized by:
+
+1. Drawing from a larger pool $z$ ($y' \subset z$), such that $y$ and
+   $y'$ have a similar distribution over one or more covariates. This
+   is the "matching" case. Note that the features in $y'$ are original
+   features, just drawn from a different pool than y.
+2. Generating new a set of genomic features $y'$, constructing them
+   from the original set y by drawing blocks of the genome with
+   replacement (i.e. features can be sampled more than once). This is
+   the "bootstrapping" case. Note that, in this case, $y'$ is an
+   artificial feature set, although the re-sampled features can retain
+   covariates such as score from the original feature set $y$.
+
+We provide a number of vignettes to describe the different matching
+and bootstrapping use cases. In the matching case, we have implemented
+a number of options, including nearest neighbor matching or
+rejection-sampling based matching. In the bootstrapping case, we have
+implemented options for bootstrapping across or within chromosome, and
+bootstrapping only within states of a segmented genome. We also
+provide a function to segment the genome by density of features. For
+example, supposing that $x$ is a subset of genes, we may want to
+generate $y'$ from $y$ such that features are re-sampled in blocks
+from segments across the genome with similar gene density.  
+
+In both cases, we provide a number of functions for performing quality
+control via visual inspection of diagnostic plots.
