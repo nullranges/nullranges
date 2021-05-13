@@ -6,6 +6,11 @@
 \usage{
 pool(x, ...)
 }
+\arguments{
+\item{x}{an object}
+
+\item{...}{additional arguments}
+}
 \description{
 Pool
 }

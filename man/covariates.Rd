@@ -6,6 +6,11 @@
 \usage{
 covariates(x, ...)
 }
+\arguments{
+\item{x}{an object}
+
+\item{...}{additional arguments}
+}
 \description{
 Covariates
 }

@@ -6,6 +6,11 @@
 \usage{
 focal(x, ...)
 }
+\arguments{
+\item{x}{an object}
+
+\item{...}{additional arguments}
+}
 \description{
 Focal
 }

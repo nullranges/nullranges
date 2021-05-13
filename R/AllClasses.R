@@ -1,4 +1,4 @@
-#' @rdname Matched
+#' @rdname matched
 #' @rawNamespace import(data.table, except = c(between, shift, first, second, indices))
 #' @import methods
 #' @export
@@ -17,7 +17,7 @@ setValidity(Class = "Matched",
 
 #' MatchedDataFrame
 #' 
-#' @rdname MatchedDataFrame
+#' @rdname matchedDataFrame
 #' @import S4Vectors
 #' @rawNamespace import(data.table, except = c(between, shift, first, second, indices))
 #' @import methods
@@ -54,7 +54,7 @@ setMethod("initialize", "MatchedDataFrame",
 
 #' MatchedGRanges
 #' 
-#' @rdname MatchedGRanges
+#' @rdname matchedGRanges
 #' @import GenomicRanges
 #' @import methods
 #' @export
@@ -80,7 +80,7 @@ setMethod("initialize", "MatchedGRanges",
 
 #' MatchedGInteractions
 #' 
-#' @rdname MatchedGInteractions
+#' @rdname matchedGInteractions
 #' @import InteractionSet
 #' @import methods
 #' @export

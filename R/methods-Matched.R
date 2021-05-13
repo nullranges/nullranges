@@ -11,13 +11,16 @@
 #' @param ... additional arguments
 #'
 #' @name Matched
-#' @rdname Matched
+#' @rdname matched
 #' @export
 setMethod("matchedData", "Matched", function(x, ...) {
   x@matchedData
 })
 
-#' @rdname Matched
+#' @param x an object
+#' @param ... additional arguments
+#' 
+#' @rdname matched
 #' @export
 setMethod("covariates", "Matched", function(x, ...) {
   x@covar
@@ -46,7 +49,7 @@ getIndices <- function(x, group = 'matched') {
 
 #' @param group a character string describing from which group to extract indices.
 #'              can be one of 'focal', 'matched', 'pool', or 'unmatched'.
-#' @rdname Matched
+#' @rdname matched
 #' @export
 setMethod("indices", "Matched", getIndices)
 
@@ -84,7 +87,7 @@ overviewMatched <- function(x) {
 
 }
 
-#' @rdname Matched
+#' @rdname matched
 #' @export
 setMethod("overview", signature(x="Matched"), overviewMatched)
 
@@ -203,12 +206,12 @@ plot_covariates <- function(x, covar = 'all', sets = 'all', type = NULL, logTran
 
 }
 
-#' @rdname Matched
+#' @rdname matched
 #' @import ggplot2 ggridges
 #' @export
 setMethod("plot", signature(x="Matched", y="missing"), plot_propensity)
 
-#' @rdname Matched
+#' @rdname matched
 #' @import ggplot2 ggridges
 #' @importFrom scales squish_infinite
 #' @export
@@ -218,4 +221,3 @@ setMethod("plotCovariates", signature(x="Matched"), function(x, ...) {
   mc[[1]] <- quote(plot_covariates)
   eval(mc)
 })
-

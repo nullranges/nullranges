@@ -2,33 +2,35 @@
 % Please edit documentation in R/segment_bootstrap.R
 \name{segBootstrapRanges}
 \alias{segBootstrapRanges}
-\title{Segmentated bootstrap GRanges}
+\title{Segmentated block bootstrap}
 \usage{
 segBootstrapRanges(
-  seg,
   x,
+  seg,
   L_b,
+  R,
   deny,
   deny_option = c("toss", "trim"),
-  R,
   within_chrom = FALSE,
   proportion_length = TRUE,
   ncores = NULL
 )
 }
 \arguments{
-\item{seg}{segmentation GRanges a column("state") indicate segmentation states}
-
 \item{x}{the input GRanges}
 
+\item{seg}{segmentation GRanges a column("state") indicate segmentation states}
+
 \item{L_b}{the length of the block}
+
+\item{R}{the number of bootstrap samples to generate}
 
 \item{deny}{GRanges of deny region}
 
 \item{deny_option}{Indicate whether toss or trim the overlaps between deny and
 bootstrap ranges.}
 
-\item{R}{the number time of bootstrap}
+\item{within_chrom}{whether to perform bootstrapping within chromosome (default FALSE)}
 
 \item{proportion_length}{use scaled block length or scaled number of blocks of each segmentation region}
 
@@ -37,5 +39,5 @@ Or an integer to indicate number of child-processes
 (integer values are ignored on Windows) for parallel evaluations}
 }
 \description{
-Segmentated bootstrap GRanges
+Segmentated block bootstrap
 }

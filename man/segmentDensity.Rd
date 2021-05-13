@@ -29,8 +29,6 @@ by the user}
 
 \item{returnPlot}{indicate whether return segmentation by chromosome plot and boxplot.
 If true, plot element will be stored in the result list.}
-
-\item{boxplot}{boxplot of gene density for each state}
 }
 \description{
 Segmentation based on gene density

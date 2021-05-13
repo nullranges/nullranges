@@ -1,12 +1,13 @@
-#' Segmentated bootstrap GRanges
+#' Segmentated block bootstrap
 #'
-#' @param seg segmentation GRanges a column("state") indicate segmentation states
 #' @param x the input GRanges
+#' @param seg segmentation GRanges a column("state") indicate segmentation states
 #' @param L_b the length of the block
+#' @param R the number of bootstrap samples to generate
 #' @param deny GRanges of deny region
 #' @param deny_option Indicate whether toss or trim the overlaps between deny and 
 #' bootstrap ranges. 
-#' @param R the number time of bootstrap
+#' @param within_chrom whether to perform bootstrapping within chromosome (default FALSE)
 #' @param proportion_length use scaled block length or scaled number of blocks of each segmentation region
 #' @param ncores A cluster object created by \code{\link[parallel]{makeCluster}}.
 #' Or an integer to indicate number of child-processes
@@ -15,8 +16,10 @@
 #' @importFrom pbapply pblapply
 #'
 #' @export
-segBootstrapRanges <- function(seg, x, L_b, deny, deny_option = c("toss", "trim"), R, within_chrom = FALSE,
-                                  proportion_length = TRUE, ncores = NULL) {
+segBootstrapRanges <- function(x, seg, L_b, R,
+                               deny, deny_option = c("toss", "trim"),
+                               within_chrom = FALSE, proportion_length = TRUE,
+                               ncores = NULL) {
   chrom_lens <- seqlengths(x)
   chroms <- as.character(seqnames(x)@values)
   deny_option <- match.arg(deny_option)

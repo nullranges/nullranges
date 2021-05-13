@@ -6,6 +6,11 @@
 \usage{
 matchedData(x, ...)
 }
+\arguments{
+\item{x}{an object}
+
+\item{...}{additional arguments}
+}
 \description{
 matchedData
 }

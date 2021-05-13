@@ -6,6 +6,19 @@
 \usage{
 plotCovariates(x, covar, sets, type, logTransform, ...)
 }
+\arguments{
+\item{x}{an object}
+
+\item{covar}{...}
+
+\item{sets}{...}
+
+\item{type}{...}
+
+\item{logTransform}{...}
+
+\item{...}{additional arguments}
+}
 \description{
 plotCovariates
 }
