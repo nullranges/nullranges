@@ -39,6 +39,9 @@ setGeneric("indices", function(x, ...) standardGeneric("indices"))
 # TODO: I think we can use the S3 plot method, I will look into this
 
 #' Plot
+#'
+#' @param x ...
+#' @param y ...
 #' 
 #' @rdname plot
 #' @export

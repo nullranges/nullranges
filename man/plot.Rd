@@ -6,6 +6,11 @@
 \usage{
 plot(x, y, ...)
 }
+\arguments{
+\item{x}{...}
+
+\item{y}{...}
+}
 \description{
 Plot
 }

@@ -208,8 +208,8 @@ plot_covariates <- function(x, covar = 'all', sets = 'all', type = NULL, logTran
 
 }
 
-#' @param x
-#' @param y
+#' @param x ...
+#' @param y ...
 #' 
 #' @rdname matched
 #' @import ggplot2 ggridges

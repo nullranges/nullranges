@@ -28,12 +28,22 @@ matched(x, ...)
 \S4method{plotCovariates}{Matched}(x, covar, sets, type, logTransform, ...)
 }
 \arguments{
-\item{x}{an object}
+\item{x}{...}
 
 \item{...}{additional arguments}
 
 \item{group}{a character string describing from which group to extract indices.
 can be one of 'focal', 'matched', 'pool', or 'unmatched'.}
+
+\item{type}{...}
+
+\item{covar}{...}
+
+\item{sets}{...}
+
+\item{logTransform}{...}
+
+\item{y}{...}
 }
 \description{
 Functions that get data from Matched subclasses
