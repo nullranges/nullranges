@@ -2,7 +2,6 @@
 
 #' Accessor methods for Matched Class
 #'
-#' @description
 #' Functions that get data from Matched subclasses
 #' such as Matched, MatchedDataFrame, MatchedGRanges,
 #' and MatchedGInteractions.
@@ -11,6 +10,9 @@
 #' @param ... additional arguments
 #'
 #' @name Matched
+#' @rdname matched
+NULL
+
 #' @rdname matched
 #' @export
 setMethod("matchedData", "Matched", function(x, ...) {
@@ -208,21 +210,23 @@ plot_covariates <- function(x, covar = 'all', sets = 'all', type = NULL, logTran
 
 }
 
-#' @param x ...
-#' @param y ...
-#' 
-#' @rdname matched
+#' @title Plotting functions for Matched objects
+#'
+#' @rdname matched-plotting
+#' @importFrom graphics plot
 #' @import ggplot2 ggridges
+#' @method plot Matched
 #' @export
 setMethod("plot", signature(x="Matched", y="missing"), plot_propensity)
 
+#' @param x ...
 #' @param covar ...
 #' @param sets ...
 #' @param type ...
 #' @param logTransform ...
+#' @param ... additional arguments
 #'
-#' @rdname matched
-#' @import ggplot2 ggridges
+#' @rdname matched-plotting
 #' @importFrom scales squish_infinite
 #' @export
 setMethod("plotCovariates", signature(x="Matched"), function(x, ...) {

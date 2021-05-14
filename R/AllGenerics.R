@@ -36,32 +36,10 @@ setGeneric("covariates", function(x, ...) standardGeneric("covariates"))
 #' @export
 setGeneric("indices", function(x, ...) standardGeneric("indices"))
 
-# TODO: I think we can use the S3 plot method, I will look into this
-
-#' Plot
-#'
-#' @param x ...
-#' @param y ...
-#' @param ... additional arguments
-#' 
-#' @rdname plot
-#' @export
-setGeneric("plot")
-
-#' plotCovariates
-#'
-#' @param x an object
-#' @param covar ...
-#' @param sets ...
-#' @param type ...
-#' @param logTransform ...
-#' @param ... additional arguments
-#' 
-#' @rdname plotCovariates
+#' @rdname matched-plotting
 #' @export
 setGeneric("plotCovariates", function(x, covar, sets, type, logTransform, ...)
   standardGeneric("plotCovariates"))
-
 
 ## Generics for utils --------------------------------------------------------------------
 

@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.10</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.11</span>
       </span>
     </div>
 
@@ -97,7 +97,7 @@
       <h1 data-toc-skip>Matching ranges: supported methods</h1>
                         <h4 class="author">Eric S. Davis</h4>
             
-            <h4 class="date">05/13/2021</h4>
+            <h4 class="date">05/14/2021</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/master/vignettes/match_ranges_methods.Rmd"><code>vignettes/match_ranges_methods.Rmd</code></a></small>
       <div class="hidden name"><code>match_ranges_methods.Rmd</code></div>
@@ -124,12 +124,10 @@
 <span class="co">## Load loops</span>
 <span class="va">loops</span> <span class="op">&lt;-</span> <span class="fu">fread</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span><span class="op">(</span><span class="st">"extdata/hic/MOMA_SIP_10kbLoops_Merged.txt"</span>,
                            package <span class="op">=</span> <span class="st">'nullrangesData'</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span> <span class="fu"><a href="https://rdrr.io/pkg/hictoolsr/man/makeGInteractionsFromDataFrame.html">as_ginteractions</a></span><span class="op">(</span><span class="op">)</span>
-<span class="co">#&gt; Error in fread(system.file("extdata/hic/MOMA_SIP_10kbLoops_Merged.txt", : could not find function "fread"</span>
 
 <span class="co">## Annotate looped and unlooped enh-prom pairs</span>
 <span class="va">epp</span><span class="op">$</span><span class="va">loopedEP</span> <span class="op">&lt;-</span> <span class="fl">0</span>
 <span class="va">epp</span><span class="op">$</span><span class="va">loopedEP</span><span class="op">[</span><span class="fu">countOverlaps</span><span class="op">(</span><span class="va">epp</span>, <span class="va">loops</span><span class="op">)</span> <span class="op">&gt;</span><span class="fl">0</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1</span>
-<span class="co">#&gt; Error in h(simpleError(msg, call)): error in evaluating the argument 'subject' in selecting a method for function 'countOverlaps': object 'loops' not found</span>
 
 <span class="co">## Cut enh-prom distance into groups</span>
 <span class="va">epp</span><span class="op">$</span><span class="va">epDistanceGrouped</span> <span class="op">&lt;-</span>
@@ -151,93 +149,60 @@
   <span class="va">mgi1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/matchRanges.html">matchRanges</a></span><span class="op">(</span><span class="va">focal</span>, <span class="va">pool</span>, <span class="va">covar</span>,
                       method <span class="op">=</span> <span class="st">'rejection'</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 <span class="op">}</span><span class="op">)</span>
-<span class="co">#&gt; Warning in speedglm(formula = f, data = covarData, family = binomial("logit"), :</span>
-<span class="co">#&gt; Maximum number of iterations reached without convergence</span>
-<span class="co">#&gt; Warning in min(x): no non-missing arguments to min; returning Inf</span>
-<span class="co">#&gt; Warning in max(x): no non-missing arguments to max; returning -Inf</span>
-<span class="co">#&gt; Error in seq.default(a, b, length = M): 'from' must be a finite number</span>
-<span class="co">#&gt; Timing stopped at: 7.82 1.032 9.086</span>
 
 <span class="fu"><a href="https://rdrr.io/r/base/system.time.html">system.time</a></span><span class="op">(</span><span class="op">{</span>
   <span class="va">mgi2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/matchRanges.html">matchRanges</a></span><span class="op">(</span><span class="va">focal</span>, <span class="va">pool</span>, <span class="va">covar</span>,
                       method <span class="op">=</span> <span class="st">'nearest'</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 <span class="op">}</span><span class="op">)</span>
-<span class="co">#&gt; Warning in speedglm(formula = f, data = covarData, family = binomial("logit"), :</span>
-<span class="co">#&gt; Maximum number of iterations reached without convergence</span>
-<span class="co">#&gt; Error in sample.int(length(x), size, replace, prob): invalid 'size' argument</span>
-<span class="co">#&gt; Timing stopped at: 6.849 1.004 7.891</span>
 
 <span class="fu"><a href="https://rdrr.io/r/base/system.time.html">system.time</a></span><span class="op">(</span><span class="op">{</span>
   <span class="va">mgi3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/matchRanges.html">matchRanges</a></span><span class="op">(</span><span class="va">focal</span>, <span class="va">pool</span>, <span class="va">covar</span>,
                       method <span class="op">=</span> <span class="st">'rejection'</span>, replace <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
 <span class="op">}</span><span class="op">)</span>
-<span class="co">#&gt; Warning in speedglm(formula = f, data = covarData, family = binomial("logit"), :</span>
-<span class="co">#&gt; Maximum number of iterations reached without convergence</span>
-<span class="co">#&gt; Warning in min(x): no non-missing arguments to min; returning Inf</span>
-<span class="co">#&gt; Warning in max(x): no non-missing arguments to max; returning -Inf</span>
-<span class="co">#&gt; Error in seq.default(a, b, length = M): 'from' must be a finite number</span>
-<span class="co">#&gt; Timing stopped at: 7.117 1.025 8.163</span>
 
 <span class="co">## Should error (method not implemented)</span>
 <span class="fu"><a href="../reference/matchRanges.html">matchRanges</a></span><span class="op">(</span><span class="va">focal</span>, <span class="va">pool</span>, <span class="va">covar</span>,
             method <span class="op">=</span> <span class="st">'nearest'</span>, replace <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
-<span class="co">#&gt; Error in matchRanges.Core(f, p, covar, method, replace): nearest neighbor matching without replacement not available.</span>
 
 
 <span class="co">## Overviews for each method</span>
 <span class="fu"><a href="../reference/overview.html">overview</a></span><span class="op">(</span><span class="va">mgi1</span><span class="op">)</span>
-<span class="co">#&gt; Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'overview': object 'mgi1' not found</span>
 <span class="fu"><a href="../reference/overview.html">overview</a></span><span class="op">(</span><span class="va">mgi2</span><span class="op">)</span>
-<span class="co">#&gt; Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'overview': object 'mgi2' not found</span>
 <span class="fu"><a href="../reference/overview.html">overview</a></span><span class="op">(</span><span class="va">mgi3</span><span class="op">)</span>
-<span class="co">#&gt; Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'overview': object 'mgi3' not found</span>
 
 <span class="co">## Number of duplicated samples</span>
 <span class="va">n1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/duplicated.html">duplicated</a></span><span class="op">(</span><span class="fu"><a href="../reference/indices.html">indices</a></span><span class="op">(</span><span class="va">mgi1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
-<span class="co">#&gt; Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'which': error in evaluating the argument 'x' in selecting a method for function 'duplicated': error in evaluating the argument 'x' in selecting a method for function 'indices': object 'mgi1' not found</span>
 <span class="va">n2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/duplicated.html">duplicated</a></span><span class="op">(</span><span class="fu"><a href="../reference/indices.html">indices</a></span><span class="op">(</span><span class="va">mgi2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
-<span class="co">#&gt; Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'which': error in evaluating the argument 'x' in selecting a method for function 'duplicated': error in evaluating the argument 'x' in selecting a method for function 'indices': object 'mgi2' not found</span>
 <span class="va">n3</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/duplicated.html">duplicated</a></span><span class="op">(</span><span class="fu"><a href="../reference/indices.html">indices</a></span><span class="op">(</span><span class="va">mgi3</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
-<span class="co">#&gt; Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'which': error in evaluating the argument 'x' in selecting a method for function 'duplicated': error in evaluating the argument 'x' in selecting a method for function 'indices': object 'mgi3' not found</span>
 
 <span class="co">## Duplicated as a percentage of pool</span>
 <span class="va">np1</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">n1</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="../reference/pool.html">pool</a></span><span class="op">(</span><span class="va">mgi1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span>
-<span class="co">#&gt; Error in eval(expr, envir, enclos): object 'n1' not found</span>
 <span class="va">np2</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">n2</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="../reference/pool.html">pool</a></span><span class="op">(</span><span class="va">mgi2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span>
-<span class="co">#&gt; Error in eval(expr, envir, enclos): object 'n2' not found</span>
 <span class="va">np3</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">n3</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="../reference/pool.html">pool</a></span><span class="op">(</span><span class="va">mgi3</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span>
-<span class="co">#&gt; Error in eval(expr, envir, enclos): object 'n3' not found</span>
 
 <span class="co">## Duplicated as a percentage of focal</span>
 <span class="va">nf1</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">n1</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="../reference/focal.html">focal</a></span><span class="op">(</span><span class="va">mgi1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span>
-<span class="co">#&gt; Error in eval(expr, envir, enclos): object 'n1' not found</span>
 <span class="va">nf2</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">n2</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="../reference/focal.html">focal</a></span><span class="op">(</span><span class="va">mgi2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span>
-<span class="co">#&gt; Error in eval(expr, envir, enclos): object 'n2' not found</span>
 <span class="va">nf3</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">n3</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="../reference/focal.html">focal</a></span><span class="op">(</span><span class="va">mgi3</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span>
-<span class="co">#&gt; Error in eval(expr, envir, enclos): object 'n3' not found</span>
 
 <span class="co">## Plots for each</span>
-<span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="va">mgi1</span>, type <span class="op">=</span> <span class="st">'lines'</span><span class="op">)</span> <span class="op">+</span> 
+<span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">mgi1</span>, type <span class="op">=</span> <span class="st">'lines'</span><span class="op">)</span> <span class="op">+</span> 
   <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">ggtitle</a></span><span class="op">(</span>label <span class="op">=</span> <span class="st">'Rejection matching with replacement'</span>,
           subtitle <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html">sprintf</a></span><span class="op">(</span><span class="st">'%s duplicates; %s%% of pool, %s%% of focal'</span>,
                              <span class="va">n1</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html">signif</a></span><span class="op">(</span><span class="va">np1</span>,<span class="fl">2</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html">signif</a></span><span class="op">(</span><span class="va">nf1</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
-<span class="co">#&gt; Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'plot': object 'mgi1' not found</span>
-<span class="va">p2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="va">mgi2</span>, type <span class="op">=</span> <span class="st">'lines'</span><span class="op">)</span> <span class="op">+</span> 
+<span class="va">p2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">mgi2</span>, type <span class="op">=</span> <span class="st">'lines'</span><span class="op">)</span> <span class="op">+</span> 
   <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">ggtitle</a></span><span class="op">(</span>label <span class="op">=</span> <span class="st">'Nearest matching with replacement'</span>,
           subtitle <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html">sprintf</a></span><span class="op">(</span><span class="st">'%s duplicates; %s%% of pool, %s%% of focal'</span>,
                              <span class="va">n2</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html">signif</a></span><span class="op">(</span><span class="va">np2</span>,<span class="fl">2</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html">signif</a></span><span class="op">(</span><span class="va">nf2</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
-<span class="co">#&gt; Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'plot': object 'mgi2' not found</span>
-<span class="va">p3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="va">mgi3</span>, type <span class="op">=</span> <span class="st">'lines'</span><span class="op">)</span> <span class="op">+</span> 
+<span class="va">p3</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">mgi3</span>, type <span class="op">=</span> <span class="st">'lines'</span><span class="op">)</span> <span class="op">+</span> 
   <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">ggtitle</a></span><span class="op">(</span>label <span class="op">=</span> <span class="st">'Rejection matching without replacement'</span>,
           subtitle <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html">sprintf</a></span><span class="op">(</span><span class="st">'%s duplicates; %s%% of pool, %s%% of focal'</span>,
                              <span class="va">n3</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html">signif</a></span><span class="op">(</span><span class="va">np3</span>,<span class="fl">2</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html">signif</a></span><span class="op">(</span><span class="va">nf3</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
-<span class="co">#&gt; Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'plot': object 'mgi3' not found</span>
 
 <span class="va">p1</span> <span class="op">+</span> <span class="va">p2</span> <span class="op">+</span> <span class="va">p3</span> <span class="op">+</span>
   <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_annotation.html">plot_annotation</a></span><span class="op">(</span>
   title <span class="op">=</span> <span class="st">'Continuous covariate: looped vs. unlooped, covar = ~epDistance'</span>
-  <span class="op">)</span>
-<span class="co">#&gt; Error in eval(expr, envir, enclos): object 'p1' not found</span></code></pre></div>
+  <span class="op">)</span></code></pre></div>
 </div>
 <div id="discrete-binary-covariate" class="section level2">
 <h2 class="hasAnchor">
@@ -258,83 +223,60 @@
   <span class="va">mgi1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/matchRanges.html">matchRanges</a></span><span class="op">(</span><span class="va">focal</span>, <span class="va">pool</span>, <span class="va">covar</span>,
                       method <span class="op">=</span> <span class="st">'rejection'</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 <span class="op">}</span><span class="op">)</span>
-<span class="co">#&gt; Error in `contrasts&lt;-`(`*tmp*`, value = contr.funs[1 + isOF[nn]]): contrasts can be applied only to factors with 2 or more levels</span>
-<span class="co">#&gt; Timing stopped at: 0.634 0.026 0.661</span>
 
 <span class="fu"><a href="https://rdrr.io/r/base/system.time.html">system.time</a></span><span class="op">(</span><span class="op">{</span>
   <span class="va">mgi2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/matchRanges.html">matchRanges</a></span><span class="op">(</span><span class="va">focal</span>, <span class="va">pool</span>, <span class="va">covar</span>,
                       method <span class="op">=</span> <span class="st">'nearest'</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 <span class="op">}</span><span class="op">)</span>
-<span class="co">#&gt; Error in `contrasts&lt;-`(`*tmp*`, value = contr.funs[1 + isOF[nn]]): contrasts can be applied only to factors with 2 or more levels</span>
-<span class="co">#&gt; Timing stopped at: 0.626 0.012 0.638</span>
 
 <span class="fu"><a href="https://rdrr.io/r/base/system.time.html">system.time</a></span><span class="op">(</span><span class="op">{</span>
   <span class="va">mgi3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/matchRanges.html">matchRanges</a></span><span class="op">(</span><span class="va">focal</span>, <span class="va">pool</span>, <span class="va">covar</span>,
                       method <span class="op">=</span> <span class="st">'rejection'</span>, replace <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
 <span class="op">}</span><span class="op">)</span>
-<span class="co">#&gt; Error in `contrasts&lt;-`(`*tmp*`, value = contr.funs[1 + isOF[nn]]): contrasts can be applied only to factors with 2 or more levels</span>
-<span class="co">#&gt; Timing stopped at: 0.628 0.006 0.635</span>
 
 <span class="co">## Should error (method not implemented)</span>
 <span class="fu"><a href="../reference/matchRanges.html">matchRanges</a></span><span class="op">(</span><span class="va">focal</span>, <span class="va">pool</span>, <span class="va">covar</span>,
             method <span class="op">=</span> <span class="st">'nearest'</span>, replace <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
-<span class="co">#&gt; Error in matchRanges.Core(f, p, covar, method, replace): nearest neighbor matching without replacement not available.</span>
 
 
 <span class="co">## Overviews for each method</span>
 <span class="fu"><a href="../reference/overview.html">overview</a></span><span class="op">(</span><span class="va">mgi1</span><span class="op">)</span> <span class="co"># Rejection matching with replacement</span>
-<span class="co">#&gt; Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'overview': object 'mgi1' not found</span>
 <span class="fu"><a href="../reference/overview.html">overview</a></span><span class="op">(</span><span class="va">mgi2</span><span class="op">)</span> <span class="co"># Nearest matching with replacement</span>
-<span class="co">#&gt; Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'overview': object 'mgi2' not found</span>
 <span class="fu"><a href="../reference/overview.html">overview</a></span><span class="op">(</span><span class="va">mgi3</span><span class="op">)</span> <span class="co"># Rejection matching without replacement</span>
-<span class="co">#&gt; Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'overview': object 'mgi3' not found</span>
 
 <span class="co">## Number of duplicated samples</span>
 <span class="va">n1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/duplicated.html">duplicated</a></span><span class="op">(</span><span class="fu"><a href="../reference/indices.html">indices</a></span><span class="op">(</span><span class="va">mgi1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
-<span class="co">#&gt; Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'which': error in evaluating the argument 'x' in selecting a method for function 'duplicated': error in evaluating the argument 'x' in selecting a method for function 'indices': object 'mgi1' not found</span>
 <span class="va">n2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/duplicated.html">duplicated</a></span><span class="op">(</span><span class="fu"><a href="../reference/indices.html">indices</a></span><span class="op">(</span><span class="va">mgi2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
-<span class="co">#&gt; Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'which': error in evaluating the argument 'x' in selecting a method for function 'duplicated': error in evaluating the argument 'x' in selecting a method for function 'indices': object 'mgi2' not found</span>
 <span class="va">n3</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/duplicated.html">duplicated</a></span><span class="op">(</span><span class="fu"><a href="../reference/indices.html">indices</a></span><span class="op">(</span><span class="va">mgi3</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
-<span class="co">#&gt; Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'which': error in evaluating the argument 'x' in selecting a method for function 'duplicated': error in evaluating the argument 'x' in selecting a method for function 'indices': object 'mgi3' not found</span>
 
 <span class="co">## Duplicated as a percentage of pool</span>
 <span class="va">np1</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">n1</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="../reference/pool.html">pool</a></span><span class="op">(</span><span class="va">mgi1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span>
-<span class="co">#&gt; Error in eval(expr, envir, enclos): object 'n1' not found</span>
 <span class="va">np2</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">n2</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="../reference/pool.html">pool</a></span><span class="op">(</span><span class="va">mgi2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span>
-<span class="co">#&gt; Error in eval(expr, envir, enclos): object 'n2' not found</span>
 <span class="va">np3</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">n3</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="../reference/pool.html">pool</a></span><span class="op">(</span><span class="va">mgi3</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span>
-<span class="co">#&gt; Error in eval(expr, envir, enclos): object 'n3' not found</span>
 
 <span class="co">## Duplicated as a percentage of focal</span>
 <span class="va">nf1</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">n1</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="../reference/focal.html">focal</a></span><span class="op">(</span><span class="va">mgi1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span>
-<span class="co">#&gt; Error in eval(expr, envir, enclos): object 'n1' not found</span>
 <span class="va">nf2</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">n2</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="../reference/focal.html">focal</a></span><span class="op">(</span><span class="va">mgi2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span>
-<span class="co">#&gt; Error in eval(expr, envir, enclos): object 'n2' not found</span>
 <span class="va">nf3</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">n3</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="../reference/focal.html">focal</a></span><span class="op">(</span><span class="va">mgi3</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span>
-<span class="co">#&gt; Error in eval(expr, envir, enclos): object 'n3' not found</span>
 
 <span class="co">## Plots for each</span>
-<span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="va">mgi1</span>, type <span class="op">=</span> <span class="st">'lines'</span><span class="op">)</span> <span class="op">+</span> 
+<span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">mgi1</span>, type <span class="op">=</span> <span class="st">'lines'</span><span class="op">)</span> <span class="op">+</span> 
   <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">ggtitle</a></span><span class="op">(</span>label <span class="op">=</span> <span class="st">'Rejection matching with replacement'</span>,
           subtitle <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html">sprintf</a></span><span class="op">(</span><span class="st">'%s duplicates; %s%% of pool, %s%% of focal'</span>,
                              <span class="va">n1</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html">signif</a></span><span class="op">(</span><span class="va">np1</span>,<span class="fl">2</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html">signif</a></span><span class="op">(</span><span class="va">nf1</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
-<span class="co">#&gt; Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'plot': object 'mgi1' not found</span>
-<span class="va">p2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="va">mgi2</span>, type <span class="op">=</span> <span class="st">'lines'</span><span class="op">)</span> <span class="op">+</span> 
+<span class="va">p2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">mgi2</span>, type <span class="op">=</span> <span class="st">'lines'</span><span class="op">)</span> <span class="op">+</span> 
   <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">ggtitle</a></span><span class="op">(</span>label <span class="op">=</span> <span class="st">'Nearest matching with replacement'</span>,
           subtitle <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html">sprintf</a></span><span class="op">(</span><span class="st">'%s duplicates; %s%% of pool, %s%% of focal'</span>,
                              <span class="va">n2</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html">signif</a></span><span class="op">(</span><span class="va">np2</span>,<span class="fl">2</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html">signif</a></span><span class="op">(</span><span class="va">nf2</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
-<span class="co">#&gt; Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'plot': object 'mgi2' not found</span>
-<span class="va">p3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="va">mgi3</span>, type <span class="op">=</span> <span class="st">'lines'</span><span class="op">)</span> <span class="op">+</span> 
+<span class="va">p3</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">mgi3</span>, type <span class="op">=</span> <span class="st">'lines'</span><span class="op">)</span> <span class="op">+</span> 
   <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">ggtitle</a></span><span class="op">(</span>label <span class="op">=</span> <span class="st">'Rejection matching without replacement'</span>,
           subtitle <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html">sprintf</a></span><span class="op">(</span><span class="st">'%s duplicates; %s%% of pool, %s%% of focal'</span>,
                              <span class="va">n3</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html">signif</a></span><span class="op">(</span><span class="va">np3</span>,<span class="fl">2</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html">signif</a></span><span class="op">(</span><span class="va">nf3</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
-<span class="co">#&gt; Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'plot': object 'mgi3' not found</span>
 
 <span class="va">p1</span> <span class="op">+</span> <span class="va">p2</span> <span class="op">+</span> <span class="va">p3</span> <span class="op">+</span>
   <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_annotation.html">plot_annotation</a></span><span class="op">(</span>
     title <span class="op">=</span> <span class="st">'Discrete (binary) covariate: small vs large epDistance, covar = ~loopedEP'</span>
-  <span class="op">)</span>
-<span class="co">#&gt; Error in eval(expr, envir, enclos): object 'p1' not found</span></code></pre></div>
+  <span class="op">)</span></code></pre></div>
 </div>
 <div id="discrete-non-binary-covariate" class="section level2">
 <h2 class="hasAnchor">
@@ -352,97 +294,64 @@
   <span class="va">mgi1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/matchRanges.html">matchRanges</a></span><span class="op">(</span><span class="va">focal</span>, <span class="va">pool</span>, <span class="va">covar</span>,
                       method <span class="op">=</span> <span class="st">'rejection'</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 <span class="op">}</span><span class="op">)</span>
-<span class="co">#&gt; Warning in speedglm(formula = f, data = covarData, family = binomial("logit"), :</span>
-<span class="co">#&gt; Maximum number of iterations reached without convergence</span>
-<span class="co">#&gt; Warning in min(x): no non-missing arguments to min; returning Inf</span>
-<span class="co">#&gt; Warning in max(x): no non-missing arguments to max; returning -Inf</span>
-<span class="co">#&gt; Error in seq.default(a, b, length = M): 'from' must be a finite number</span>
-<span class="co">#&gt; Timing stopped at: 7.629 0.997 8.649</span>
 
 <span class="fu"><a href="https://rdrr.io/r/base/system.time.html">system.time</a></span><span class="op">(</span><span class="op">{</span>
   <span class="va">mgi2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/matchRanges.html">matchRanges</a></span><span class="op">(</span><span class="va">focal</span>, <span class="va">pool</span>, <span class="va">covar</span>,
                       method <span class="op">=</span> <span class="st">'nearest'</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 <span class="op">}</span><span class="op">)</span>
-<span class="co">#&gt; Warning in speedglm(formula = f, data = covarData, family = binomial("logit"), :</span>
-<span class="co">#&gt; Maximum number of iterations reached without convergence</span>
-<span class="co">#&gt; Error in sample.int(length(x), size, replace, prob): invalid 'size' argument</span>
-<span class="co">#&gt; Timing stopped at: 7.848 0.985 8.877</span>
 
 <span class="fu"><a href="https://rdrr.io/r/base/system.time.html">system.time</a></span><span class="op">(</span><span class="op">{</span>
   <span class="va">mgi3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/matchRanges.html">matchRanges</a></span><span class="op">(</span><span class="va">focal</span>, <span class="va">pool</span>, <span class="va">covar</span>,
                       method <span class="op">=</span> <span class="st">'rejection'</span>, replace <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
 <span class="op">}</span><span class="op">)</span>
-<span class="co">#&gt; Warning in speedglm(formula = f, data = covarData, family = binomial("logit"), :</span>
-<span class="co">#&gt; Maximum number of iterations reached without convergence</span>
-<span class="co">#&gt; Warning in min(x): no non-missing arguments to min; returning Inf</span>
-<span class="co">#&gt; Warning in max(x): no non-missing arguments to max; returning -Inf</span>
-<span class="co">#&gt; Error in seq.default(a, b, length = M): 'from' must be a finite number</span>
-<span class="co">#&gt; Timing stopped at: 7.957 1.037 9.048</span>
 
 <span class="co">## Should error (method not implemented)</span>
 <span class="fu"><a href="../reference/matchRanges.html">matchRanges</a></span><span class="op">(</span><span class="va">focal</span>, <span class="va">pool</span>, <span class="va">covar</span>,
             method <span class="op">=</span> <span class="st">'nearest'</span>, replace <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
-<span class="co">#&gt; Error in matchRanges.Core(f, p, covar, method, replace): nearest neighbor matching without replacement not available.</span>
 
 
 <span class="co">## Overviews for each method</span>
 <span class="fu"><a href="../reference/overview.html">overview</a></span><span class="op">(</span><span class="va">mgi1</span><span class="op">)</span> <span class="co"># Rejection matching with replacement</span>
-<span class="co">#&gt; Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'overview': object 'mgi1' not found</span>
 <span class="fu"><a href="../reference/overview.html">overview</a></span><span class="op">(</span><span class="va">mgi2</span><span class="op">)</span> <span class="co"># Nearest matching with replacement</span>
-<span class="co">#&gt; Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'overview': object 'mgi2' not found</span>
 <span class="fu"><a href="../reference/overview.html">overview</a></span><span class="op">(</span><span class="va">mgi3</span><span class="op">)</span> <span class="co"># Rejection matching without replacement</span>
-<span class="co">#&gt; Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'overview': object 'mgi3' not found</span>
 
 <span class="co">## Number of duplicated samples</span>
 <span class="va">n1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/duplicated.html">duplicated</a></span><span class="op">(</span><span class="fu"><a href="../reference/indices.html">indices</a></span><span class="op">(</span><span class="va">mgi1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
-<span class="co">#&gt; Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'which': error in evaluating the argument 'x' in selecting a method for function 'duplicated': error in evaluating the argument 'x' in selecting a method for function 'indices': object 'mgi1' not found</span>
 <span class="va">n2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/duplicated.html">duplicated</a></span><span class="op">(</span><span class="fu"><a href="../reference/indices.html">indices</a></span><span class="op">(</span><span class="va">mgi2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
-<span class="co">#&gt; Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'which': error in evaluating the argument 'x' in selecting a method for function 'duplicated': error in evaluating the argument 'x' in selecting a method for function 'indices': object 'mgi2' not found</span>
 <span class="va">n3</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/duplicated.html">duplicated</a></span><span class="op">(</span><span class="fu"><a href="../reference/indices.html">indices</a></span><span class="op">(</span><span class="va">mgi3</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
-<span class="co">#&gt; Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'which': error in evaluating the argument 'x' in selecting a method for function 'duplicated': error in evaluating the argument 'x' in selecting a method for function 'indices': object 'mgi3' not found</span>
 
 <span class="co">## Duplicated as a percentage of pool</span>
 <span class="va">np1</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">n1</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="../reference/pool.html">pool</a></span><span class="op">(</span><span class="va">mgi1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span>
-<span class="co">#&gt; Error in eval(expr, envir, enclos): object 'n1' not found</span>
 <span class="va">np2</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">n2</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="../reference/pool.html">pool</a></span><span class="op">(</span><span class="va">mgi2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span>
-<span class="co">#&gt; Error in eval(expr, envir, enclos): object 'n2' not found</span>
 <span class="va">np3</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">n3</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="../reference/pool.html">pool</a></span><span class="op">(</span><span class="va">mgi3</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span>
-<span class="co">#&gt; Error in eval(expr, envir, enclos): object 'n3' not found</span>
 
 <span class="co">## Duplicated as a percentage of focal</span>
 <span class="va">nf1</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">n1</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="../reference/focal.html">focal</a></span><span class="op">(</span><span class="va">mgi1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span>
-<span class="co">#&gt; Error in eval(expr, envir, enclos): object 'n1' not found</span>
 <span class="va">nf2</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">n2</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="../reference/focal.html">focal</a></span><span class="op">(</span><span class="va">mgi2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span>
-<span class="co">#&gt; Error in eval(expr, envir, enclos): object 'n2' not found</span>
 <span class="va">nf3</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">n3</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="../reference/focal.html">focal</a></span><span class="op">(</span><span class="va">mgi3</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span>
-<span class="co">#&gt; Error in eval(expr, envir, enclos): object 'n3' not found</span>
 
 <span class="co">## Plots for each</span>
-<span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="va">mgi1</span>, type <span class="op">=</span> <span class="st">'lines'</span><span class="op">)</span> <span class="op">+</span> 
+<span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">mgi1</span>, type <span class="op">=</span> <span class="st">'lines'</span><span class="op">)</span> <span class="op">+</span> 
   <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">ggtitle</a></span><span class="op">(</span>label <span class="op">=</span> <span class="st">'Rejection matching with replacement'</span>,
           subtitle <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html">sprintf</a></span><span class="op">(</span><span class="st">'%s duplicates; %s%% of pool, %s%% of focal'</span>,
                              <span class="va">n1</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html">signif</a></span><span class="op">(</span><span class="va">np1</span>,<span class="fl">2</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html">signif</a></span><span class="op">(</span><span class="va">nf1</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
-<span class="co">#&gt; Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'plot': object 'mgi1' not found</span>
-<span class="va">p2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="va">mgi2</span>, type <span class="op">=</span> <span class="st">'lines'</span><span class="op">)</span> <span class="op">+</span> 
+<span class="va">p2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">mgi2</span>, type <span class="op">=</span> <span class="st">'lines'</span><span class="op">)</span> <span class="op">+</span> 
   <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">ggtitle</a></span><span class="op">(</span>label <span class="op">=</span> <span class="st">'Nearest matching with replacement'</span>,
           subtitle <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html">sprintf</a></span><span class="op">(</span><span class="st">'%s duplicates; %s%% of pool, %s%% of focal'</span>,
                              <span class="va">n2</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html">signif</a></span><span class="op">(</span><span class="va">np2</span>,<span class="fl">2</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html">signif</a></span><span class="op">(</span><span class="va">nf2</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
-<span class="co">#&gt; Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'plot': object 'mgi2' not found</span>
-<span class="va">p3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="va">mgi3</span>, type <span class="op">=</span> <span class="st">'lines'</span><span class="op">)</span> <span class="op">+</span> 
+<span class="va">p3</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">mgi3</span>, type <span class="op">=</span> <span class="st">'lines'</span><span class="op">)</span> <span class="op">+</span> 
   <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">ggtitle</a></span><span class="op">(</span>label <span class="op">=</span> <span class="st">'Rejection matching without replacement'</span>,
           subtitle <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html">sprintf</a></span><span class="op">(</span><span class="st">'%s duplicates; %s%% of pool, %s%% of focal'</span>,
                              <span class="va">n3</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html">signif</a></span><span class="op">(</span><span class="va">np3</span>,<span class="fl">2</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html">signif</a></span><span class="op">(</span><span class="va">nf3</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
-<span class="co">#&gt; Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'plot': object 'mgi3' not found</span>
 
 <span class="va">p1</span> <span class="op">+</span> <span class="va">p2</span> <span class="op">+</span> <span class="va">p3</span> <span class="op">+</span>
   <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_annotation.html">plot_annotation</a></span><span class="op">(</span>
     title <span class="op">=</span> <span class="st">'Discrete (non-binary) covariate: looped vs. unlooped, covar = ~epDistanceGrouped'</span>
-  <span class="op">)</span>
-<span class="co">#&gt; Error in eval(expr, envir, enclos): object 'p1' not found</span></code></pre></div>
+  <span class="op">)</span></code></pre></div>
 </div>
-<div id="case-where-focal-pool" class="section level2">
+<div id="case-where-focal-is-larger-than-pool" class="section level2">
 <h2 class="hasAnchor">
-<a href="#case-where-focal-pool" class="anchor"></a>Case where focal &gt; pool</h2>
+<a href="#case-where-focal-is-larger-than-pool" class="anchor"></a>Case where focal is larger than pool</h2>
 <p>Finally, lets see how the matching methods perform when the focal group is larger than the pool. In other words, which matching methods can bootstrap from a small pool.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">## Define focal, pool and covar</span>
@@ -456,53 +365,26 @@
 <span class="co">## Expect error</span>
 <span class="fu"><a href="../reference/matchRanges.html">matchRanges</a></span><span class="op">(</span><span class="va">focal</span>, <span class="va">pool</span>, <span class="va">covar</span>,
             method <span class="op">=</span> <span class="st">'rejection'</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-<span class="co">#&gt; Warning in predict.speedlm(rval, newdata = data): prediction from a rank-</span>
-<span class="co">#&gt; deficient fit may be misleading</span>
-<span class="co">#&gt; Error in rejectSample(nfps, npps): focal must be &lt;= pool for method = 'rejection'.</span>
 
 <span class="fu"><a href="https://rdrr.io/r/base/system.time.html">system.time</a></span><span class="op">(</span><span class="op">{</span>
   <span class="va">mgi2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/matchRanges.html">matchRanges</a></span><span class="op">(</span><span class="va">focal</span>, <span class="va">pool</span>, <span class="va">covar</span>,
                       method <span class="op">=</span> <span class="st">'nearest'</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 <span class="op">}</span><span class="op">)</span>
-<span class="co">#&gt; Warning in predict.speedlm(rval, newdata = data): prediction from a rank-</span>
-<span class="co">#&gt; deficient fit may be misleading</span>
-<span class="co">#&gt;    user  system elapsed </span>
-<span class="co">#&gt;   7.774   0.658   8.486</span>
 
 <span class="co">## Expect error</span>
 <span class="va">mgi3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/matchRanges.html">matchRanges</a></span><span class="op">(</span><span class="va">focal</span>, <span class="va">pool</span>, <span class="va">covar</span>,
                     method <span class="op">=</span> <span class="st">'rejection'</span>, replace <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
-<span class="co">#&gt; Error in matchRanges.Core(f, p, covar, method, replace): focal must be &lt;= pool when replace = FALSE.</span>
 
 <span class="co">## Expect error (method not implemented)</span>
 <span class="fu"><a href="../reference/matchRanges.html">matchRanges</a></span><span class="op">(</span><span class="va">focal</span>, <span class="va">pool</span>, <span class="va">covar</span>,
             method <span class="op">=</span> <span class="st">'nearest'</span>, replace <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
-<span class="co">#&gt; Error in matchRanges.Core(f, p, covar, method, replace): focal must be &lt;= pool when replace = FALSE.</span>
 
 
 <span class="co">## Overviews for each method</span>
 <span class="fu"><a href="../reference/overview.html">overview</a></span><span class="op">(</span><span class="va">mgi2</span><span class="op">)</span> <span class="co"># Nearest matching with replacement</span>
-<span class="co">#&gt; MatchedGInteractions object: </span>
-<span class="co">#&gt;      group       N loopedEP.mean loopedEP.sd contactFreq.mean contactFreq.sd</span>
-<span class="co">#&gt;      focal 1199205             0           0         119.3143       317.8115</span>
-<span class="co">#&gt;    matched 1199205             0           0         119.3133       317.8117</span>
-<span class="co">#&gt;       pool   56946             0           0         369.3768       951.3502</span>
-<span class="co">#&gt;  unmatched    5814             0           0        1550.0504      1903.6704</span>
-<span class="co">#&gt;    ps.mean      ps.sd</span>
-<span class="co">#&gt;  0.9553829 0.02562549</span>
-<span class="co">#&gt;  0.9553830 0.02562404</span>
-<span class="co">#&gt;  0.9395753 0.08401001</span>
-<span class="co">#&gt;  0.8625912 0.18437489</span>
-<span class="co">#&gt; --------</span>
-<span class="co">#&gt; focal - matched: </span>
-<span class="co">#&gt;  loopedEP.mean loopedEP.sd contactFreq.mean contactFreq.sd       ps.mean</span>
-<span class="co">#&gt;              0           0     0.0009203398      0.9225902 -1.204789e-07</span>
-<span class="co">#&gt;         ps.sd</span>
-<span class="co">#&gt;  5.044257e-05</span>
 
-<span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="va">mgi2</span>, type <span class="op">=</span> <span class="st">'ridge'</span><span class="op">)</span> <span class="op">+</span> 
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">ggtitle</a></span><span class="op">(</span>label <span class="op">=</span> <span class="st">'Nearest matching with replacement (bootstrapping)'</span><span class="op">)</span>
-<span class="co">#&gt; Error in switch(type, jitter = ggplot(data, aes = aes(x = !!x, y = group, : EXPR must be a length 1 vector</span></code></pre></div>
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">mgi2</span>, type <span class="op">=</span> <span class="st">'ridge'</span><span class="op">)</span> <span class="op">+</span> 
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">ggtitle</a></span><span class="op">(</span>label <span class="op">=</span> <span class="st">'Nearest matching with replacement (bootstrapping)'</span><span class="op">)</span></code></pre></div>
 </div>
   </div>
 

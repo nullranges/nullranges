@@ -387,7 +387,9 @@ matchRanges.MatchedDataFrame <- function(focal, pool, covar, method, replace) {
 #' @importFrom speedglm speedglm
 #' @importFrom ks kde
 #' @import S4Vectors
-#' 
+NULL
+
+#' @rdname matchRanges
 #' @export
 setMethod("matchRanges",
           signature = signature(focal   = "DF_OR_df_OR_dt",

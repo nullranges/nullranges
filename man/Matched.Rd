@@ -6,11 +6,10 @@
 \alias{Matched-class}
 \alias{Matched}
 \alias{matched}
+\alias{matchedData,Matched-method}
 \alias{covariates,Matched-method}
 \alias{indices,Matched-method}
 \alias{overview,Matched-method}
-\alias{plot,Matched,missing-method}
-\alias{plotCovariates,Matched-method}
 \title{Matched}
 \usage{
 matched(x, ...)
@@ -22,28 +21,14 @@ matched(x, ...)
 \S4method{indices}{Matched}(x, group = "matched")
 
 \S4method{overview}{Matched}(x)
-
-\S4method{plot}{Matched,missing}(x, type = NULL)
-
-\S4method{plotCovariates}{Matched}(x, covar, sets, type, logTransform, ...)
 }
 \arguments{
-\item{x}{...}
+\item{x}{an object}
 
 \item{...}{additional arguments}
 
 \item{group}{a character string describing from which group to extract indices.
 can be one of 'focal', 'matched', 'pool', or 'unmatched'.}
-
-\item{type}{...}
-
-\item{covar}{...}
-
-\item{sets}{...}
-
-\item{logTransform}{...}
-
-\item{y}{...}
 }
 \description{
 Functions that get data from Matched subclasses

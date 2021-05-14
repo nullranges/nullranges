@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.10</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.11</span>
       </span>
     </div>
 
@@ -97,7 +97,7 @@
       <h1 data-toc-skip>Segmented block bootstrap</h1>
                         <h4 class="author">Wancen Mu</h4>
             
-            <h4 class="date">05/13/2021</h4>
+            <h4 class="date">05/14/2021</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/master/vignettes/segmented_boot_ranges.Rmd"><code>vignettes/segmented_boot_ranges.Rmd</code></a></small>
       <div class="hidden name"><code>segmented_boot_ranges.Rmd</code></div>
@@ -243,7 +243,7 @@
 <div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">out_hmm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/segmentDensity.html">segmentDensity</a></span><span class="op">(</span><span class="va">g</span>, n <span class="op">=</span> <span class="fl">3</span>, L_s <span class="op">=</span> <span class="va">L_s</span>,
                            deny <span class="op">=</span> <span class="va">deny2</span>, type <span class="op">=</span> <span class="st">"hmm"</span>,returnPlot <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
-<pre><code>## Finished at Iteration: 220 with Error: 8.69942e-06</code></pre>
+<pre><code>## Finished at Iteration: 176 with Error: 8.69565e-06</code></pre>
 <div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="va">out_hmm</span><span class="op">$</span><span class="va">p1</span><span class="op">)</span></code></pre></div>
 <p><img src="segmented_boot_ranges_files/figure-html/seg-hmm-1.png"><!-- --></p>
@@ -278,7 +278,7 @@
                                   deny <span class="op">=</span> <span class="va">deny</span>, proportion_length <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
 <span class="op">}</span><span class="op">)</span></code></pre></div>
 <pre><code>##    user  system elapsed 
-##   1.675   0.071   1.746</code></pre>
+##   1.641   0.079   1.733</code></pre>
 <div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/system.time.html">system.time</a></span><span class="op">(</span><span class="op">{</span>
   <span class="va">res_wochr</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/segBootstrapRanges.html">segBootstrapRanges</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">seg</span>, <span class="va">L_b</span>, R <span class="op">=</span> <span class="fl">10</span>, 
@@ -286,7 +286,7 @@
                                   proportion_length <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
 <span class="op">}</span><span class="op">)</span></code></pre></div>
 <pre><code>##    user  system elapsed 
-##   1.568   0.090   1.665</code></pre>
+##   1.519   0.040   1.560</code></pre>
 <div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">## system.time({</span>
 <span class="co">##   res_wochr_propl &lt;- segBootstrapRanges(x, seg, L_b, R = 10, deny = deny)</span>
@@ -296,7 +296,7 @@
                                  within_chrom <span class="op">=</span> <span class="cn">TRUE</span>, proportion_length <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
 <span class="op">}</span><span class="op">)</span></code></pre></div>
 <pre><code>##    user  system elapsed 
-##   4.856   0.067   4.944</code></pre>
+##   4.797   0.131   4.965</code></pre>
 <div class="sourceCode" id="cb50"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">## system.time({</span>
 <span class="co">##   res_wchr &lt;- segBootstrapRanges(x, seg, L_b, R = 10, deny = deny,</span>

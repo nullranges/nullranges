@@ -11,7 +11,6 @@
 #' @param returnPlot indicate whether return segmentation by chromosome
 #' plot and boxplot. If true, plot element will be stored in the result list.
 #'
-#' @import ggplot2
 #' @importFrom plyranges filter join_overlap_intersect
 #'
 #' @export

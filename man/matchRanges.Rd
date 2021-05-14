@@ -2,6 +2,7 @@
 % Please edit documentation in R/AllGenerics.R, R/methods-matchRanges.R
 \name{matchRanges}
 \alias{matchRanges}
+\alias{matchRanges,DF_OR_df_OR_dt,DF_OR_df_OR_dt,formula,character,logical-method}
 \alias{matchRanges,GRanges,GRanges,formula,character,logical-method}
 \alias{matchRanges,GInteractions,GInteractions,formula,character,logical-method}
 \title{matchRanges}
