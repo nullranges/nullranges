@@ -150,12 +150,12 @@ plotGRanges <- function(gr) {
                      x = 0.5, width = 4*chromend/500, height = 0.6,
                      at = seq(0, chromend, 50),
                      fill = cols)
-      pbed <- bb_plotBed(data = gr, params = p,
-                         chrom = chrom,
-                         y = 0.6 + (i-1),
-                         just = c("left", "bottom"),
-                         colorby=colorby("state_col"))
-      bb_annoGenomeLabel(plot = pbed, params = p, y = 0.7 + (i-1))
+      prngs <- bb_plotRanges(data = gr, params = p,
+                             chrom = chrom,
+                             y = 0.6 + (i-1),
+                             just = c("left", "bottom"),
+                             colorby=colorby("state_col"))
+      bb_annoGenomeLabel(plot = prngs, params = p, y = 0.7 + (i-1))
     })
   }
 }
