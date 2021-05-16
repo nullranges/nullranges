@@ -137,17 +137,20 @@ seg_bootstrap_granges_within_chrom <- function(x, seg, state, L_c, L_b, proporti
 
 # Segmentation block bootstrap IRanges spanning the whole genome
 #
-# @param x the input GRanges with a column ("key.x") indicating the index of feature
+# @param x the input GRanges 
 # @param seg the ranges of segmentation GRanges
 # @param state the segmentation state
 # @param L_b the length of the block
-# @param chrnames the seqnames of the input GRanges
+# @param chr_names the seqnames of the input GRanges
 # @param chrom_lens all chromosome length
 # @param proportion_length use scaled block length or scaled number of blocks of each segmentation region
 # @param coarse logical indicating if out of bound ranges will be discarded or keep the intersect region.
-seg_bootstrap_granges <- function(x, seg, state, L_b, chrnames, chrom_lens,
+seg_bootstrap_granges <- function(x, seg, state, L_b, chr_names, chrom_lens,
                                   proportion_length = TRUE) {
+
+  # sequence along the states
   ns <- seq_len(max(state))
+  
   if (proportion_length) {
     L_c <- sum(chrom_lens)
     ## Derive segmentation state length
@@ -173,14 +176,14 @@ seg_bootstrap_granges <- function(x, seg, state, L_b, chrnames, chrom_lens,
       ## random starts within the tiled regions
       random_start <- round(runif(n, start(seg2)[random_chr], (times[random_chr] -1 ) * L_bs + start(seg2)[random_chr]))
       ## record sampled chr name
-      seqnames <- as.character(chrnames[state == m])[random_chr]
+      seqnames <- as.character(chr_names[state == m])[random_chr]
       ## where those blocks will move to
       start_order <- unlist(lapply(seq_len(length(times)), function(j) {
         seq(from = start(seg2)[j], to = end(seg2)[j], by = L_bs)
       }), use.names = FALSE)
       ## record ordered chrname
-      segchrnames <- rep(as.character(chrnames[state == m]), times)
-      return(list(random_start, start_order, seqnames, segchrnames))
+      segchr_names <- rep(as.character(chr_names[state == m]), times)
+      return(list(random_start, start_order, seqnames, segchr_names))
     })
     random_blocks_start <- do.call(c, lapply(obj, `[[`, 1))
     rearranged_blocks_start <- do.call(c, lapply(obj, `[[`, 2))
@@ -189,51 +192,81 @@ seg_bootstrap_granges <- function(x, seg, state, L_b, chrnames, chrom_lens,
     stopifnot(length(random_blocks_start) != length(rearranged_blocks_start))
     
     seqnames <- do.call(c, lapply(obj, `[[`, 3))
-    segchrnames <- do.call(c, lapply(obj, `[[`, 4))
+    rearr_blocks_chr_names <- do.call(c, lapply(obj, `[[`, 4))
     ## number of blocks for each segmentation states
     width <- lengths(random_blocks_start0)
     ## these blocks are the 'bait' for capturing features in 'x'
     random_blocks <- GRanges(seqnames=seqnames,
-                             ranges=IRanges(start = random_blocks_start, width = rep(L_b0, width)))
+                             ranges=IRanges(start = random_blocks_start,
+                                            width = rep(L_b0, width)))
   } else {
-    ## number of blocks within each range of the segmentation
+
+    # number of rearranged blocks within each range of the segmentation
     times <- ceiling(width(seg) / L_b)
     # total number of tiling blocks
     n <- sum(times)
-    index <- seq_len(length(times))
-    # sample according to segmentation length
-    random_chr <- sample(index, n, replace=TRUE, prob=width(seg))
-    # random starts within the tiled regions
-    random_start <- round(runif(n, start(seg)[random_chr], (times[random_chr] -1 ) * L_b + start(seg)[random_chr]))
-    # where those blocks will move to
-    start_order <- lapply(seq_len(length(times)), function(j) {
+    # sample segments according to segmentation length
+    random_seg <- sample(length(seg), n, replace=TRUE, prob=width(seg))
+    # random starts within the segments, as many as specified in 'times'
+    rmin <- start(seg)[random_seg]
+    rmax <- (times[random_seg] - 1) * L_b + start(seg)[random_seg]
+    random_start <- round(runif(n,rmin,rmax))
+    # start positions of rearranged blocks tiling the segments
+    rearranged_blocks_start_list <- lapply(seq_along(seg), function(j) {
       seq(from = start(seg)[j], to = end(seg)[j], by = L_b)
     })
-    ## record ordered chrname
-    segchrnames <- rep(as.character(chrnames), times)
-    obj <- lapply(ns, function(m) {
-      poi <- which(state == m)
-      index <- which(random_chr %in% poi)
-      random_start0 <- random_start[index]
-      start_order0 <- unlist(start_order[state == m], use.names = FALSE)
-      ## record sampled chr name
-      seqnames <- chrnames[random_chr[index]]
-      return(list(random_start0, start_order0, seqnames))
+    
+    # loop over states 's', splitting out the random segments for 's'
+    obj <- lapply(ns, function(s) {
+      # index of those random segments chosen that are state 's'
+      idx <- which(state[random_seg] == s)
+      # random starts for state s
+      random_start_s <- random_start[idx]
+      # names of chromosomes for random segments that are state 's'
+      random_chr_names_s <- chr_names[random_seg[idx]]
+      # start positions of blocks tiling segment for state 's'
+      rearr_blocks_start_s <- unlist(rearranged_blocks_start_list[state == s],
+                                     use.names = FALSE)
+      # names of chromosomes for blocks tilings segment for state 's'
+      rearr_blocks_chr_names_s <- rep(as.character(chr_names)[state == s],
+                                      times[state == s])
+      # see if we have too few or too many blocks for this state
+      rand_n <- length(random_start_s)
+      rearr_n <- length(rearr_blocks_start_s)
+      # if we have too few random blocks, up-sample them
+      if (rand_n < rearr_n) {
+        rand_idx <- sample(rand_n, rearr_n, replace=TRUE)
+      } else {
+        # otherwise down-sample to the number of re-arranged blocks (or stay)
+        rand_idx <- seq_len(rearr_n)
+      }
+      return(list(random_start_s[rand_idx],
+                  random_chr_names_s[rand_idx],
+                  rearr_blocks_start_s,
+                  rearr_blocks_chr_names_s))
     })
-    random_blocks_start <- do.call(c, lapply(obj, `[[`, 1))
-    rearranged_blocks_start <- do.call(c, lapply(obj, `[[`, 2))
-    ## deal with different segmentation state index
-    seqnames <- do.call(c, lapply(obj, `[[`, 3))
-    random_blocks <- GRanges(seqnames=seqnames,
-                             ranges=IRanges(start = random_blocks_start, width = L_b))
+
+    # unlist the results in 'obj'
+    random_blocks_start <- unlist(lapply(obj, `[[`, 1))
+    random_blocks_chr_names <- do.call(c, lapply(obj, `[[`, 2))
+    rearranged_blocks_start <- unlist(lapply(obj, `[[`, 3))
+    rearr_blocks_chr_names <- do.call(c, lapply(obj, `[[`, 4))
+
+    # construct the random blocks
+    random_blocks <- GRanges(seqnames = random_blocks_chr_names,
+                             ranges = IRanges(start = random_blocks_start,
+                                              width = L_b))
   }
-  segchrnames <- factor(segchrnames,levels = seqlevels(x))
-  ## use the bait to sample features in 'x'
+    
+  rearr_blocks_chr_names <- factor(rearr_blocks_chr_names, levels = seqlevels(x))
+
+  # use the bait to sample features in 'x'
   fo <- findOverlaps(random_blocks, x)
-  ## x has been sampled multiple times
+  # x has been sampled multiple times
   x_mult_hits <- x[subjectHits(fo)]
-  ## label which 'bait' block each feature hit in the re-sampling
+  # label which 'bait' block each feature hit in the re-sampling
   mcols(x_mult_hits)$block <- queryHits(fo)
-  shift_and_swap_chrom(x_mult_hits, segchrnames,
+  shift_and_swap_chrom(x_mult_hits, rearr_blocks_chr_names,
                        random_blocks_start, rearranged_blocks_start)
+  
 }

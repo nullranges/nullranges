@@ -185,7 +185,7 @@ permute_blocks_granges <- function(x, L_b, L_s) {
 #
 # 'x' in blocks --> 'x_prime' in rearranged_blocks
 #
-# and will also change the seqnames
+# and will also change the seqnames to 'chr_names'
 shift_and_swap_chrom <- function(x, chr_names,
                                  random_blocks_start,
                                  rearranged_blocks_start) {
