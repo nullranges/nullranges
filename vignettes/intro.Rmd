@@ -9,8 +9,8 @@ vignette: |
 ---
 
 The *nullranges* package contains functions for generation of feature
-sets for exploring the null hypothesis of overlap or colocalization of
-two observed feature sets.
+sets (genomic regions) for exploring the null hypothesis of overlap or 
+colocalization of two observed feature sets.
 
 The package has two branches of functionality: matching and
 bootstrapping. Suppose we want to examine the significance of overlaps
