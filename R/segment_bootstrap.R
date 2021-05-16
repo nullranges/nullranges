@@ -21,20 +21,22 @@ segBootstrapRanges <- function(x, seg, L_b, R,
   chrom_lens <- seqlengths(x)
   chroms <- as.character(seqnames(x)@values)
   deny_option <- match.arg(deny_option)
-  ans <- replicate(R, {
+  replicate(R, {
     if (within_chrom) {
+      # loop over chromosomes
       obj <- lapply(chroms, function(chr) {
         L_c <- chrom_lens[[chr]]
         seg0 <- seg[seqnames(seg) == chr]
         x0 <- x[seqnames(x) == chr]
-        r_prime <- seg_bootstrap_granges_within_chrom(ranges(seg0), x0, seg0$state, L_c, L_b, proportion_length)
+        r_prime <- seg_bootstrap_granges_within_chrom(x0, ranges(seg0), seg0$state, L_c, L_b, proportion_length)
         r_prime
       })
       res <- do.call(c, obj)
     } else {
-      res <- seg_bootstrap_granges(ranges(seg), x, seg$state, L_b, seqnames(seg), chrom_lens, proportion_length)
+      res <- seg_bootstrap_granges(x, ranges(seg), seg$state, L_b, seqnames(seg), chrom_lens, proportion_length)
     }
-    if(deny_option == "toss") {
+    if (deny_option == "toss") {
+      # TODO I think this could just be an overlapsAny() call rather than queryHits(findOverlaps())
       res_accept <- res[-queryHits(findOverlaps(res, deny, type="any"))] 
     } else {
       # res <- setdiff(res,deny) # To do: cannot reserve metadata column and whether to use ignore.strand=TRUE 
@@ -49,16 +51,16 @@ segBootstrapRanges <- function(x, seg, L_b, R,
   })
 }
 
-# segmentation Block bootstrap IRanges within chromosome
+# Segmentation block bootstrap IRanges within chromosomes
 #
-# @param seg the ranges of segmentation GRanges
 # @param x the ranges of the input GRanges
+# @param seg the ranges of segmentation GRanges
 # @param state the segmentation state
 # @param L_c the chromosome length
 # @param L_b the length of the block
 # @param proportion_length use scaled block length or scaled number of blocks of each segmentation region
 # @param coarse logical indicating if out of bound ranges will be discarded or keep the intersect region.
-seg_bootstrap_granges_within_chrom <- function(seg, x, state, L_c, L_b, proportion_length = TRUE, coarse = FALSE) {
+seg_bootstrap_granges_within_chrom <- function(x, seg, state, L_c, L_b, proportion_length = TRUE, coarse = FALSE) {
   ## number of states
   ns <- sort(unique(state)) # some chr may lack some states
   if (proportion_length) {
@@ -133,18 +135,18 @@ seg_bootstrap_granges_within_chrom <- function(seg, x, state, L_c, L_b, proporti
   return(x_prime)
 }
 
-# segmentation Block bootstrap IRanges span the whole genome.
+# Segmentation block bootstrap IRanges spanning the whole genome
 #
+# @param x the input GRanges with a column ("key.x") indicating the index of feature
 # @param seg the ranges of segmentation GRanges
-# @param x the input GRanges with a column ("key.x") indicate the index of gene
 # @param state the segmentation state
 # @param L_b the length of the block
 # @param chrnames the seqnames of the input GRanges
 # @param chrom_lens all chromosome length
 # @param proportion_length use scaled block length or scaled number of blocks of each segmentation region
 # @param coarse logical indicating if out of bound ranges will be discarded or keep the intersect region.
-seg_bootstrap_granges <- function(seg, x, state, L_b, chrnames, chrom_lens,
-                                   proportion_length = TRUE) {
+seg_bootstrap_granges <- function(x, seg, state, L_b, chrnames, chrom_lens,
+                                  proportion_length = TRUE) {
   ns <- seq_len(max(state))
   if (proportion_length) {
     L_c <- sum(chrom_lens)
@@ -180,9 +182,12 @@ seg_bootstrap_granges <- function(seg, x, state, L_b, chrnames, chrom_lens,
       segchrnames <- rep(as.character(chrnames[state == m]), times)
       return(list(random_start, start_order, seqnames, segchrnames))
     })
-    random_blocks_start0 <- lapply(obj, `[[`, 1)
-    random_blocks_start <- do.call(c, random_blocks_start0)
+    random_blocks_start <- do.call(c, lapply(obj, `[[`, 1))
     rearranged_blocks_start <- do.call(c, lapply(obj, `[[`, 2))
+
+    # TODO this test fails for me on the toy dataset
+    stopifnot(length(random_blocks_start) != length(rearranged_blocks_start))
+    
     seqnames <- do.call(c, lapply(obj, `[[`, 3))
     segchrnames <- do.call(c, lapply(obj, `[[`, 4))
     ## number of blocks for each segmentation states
@@ -192,7 +197,7 @@ seg_bootstrap_granges <- function(seg, x, state, L_b, chrnames, chrom_lens,
                              ranges=IRanges(start = random_blocks_start, width = rep(L_b0, width)))
   } else {
     ## number of blocks within each range of the segmentation
-    times <- ceiling((width(seg)) / L_b)
+    times <- ceiling(width(seg) / L_b)
     # total number of tiling blocks
     n <- sum(times)
     index <- seq_len(length(times))
@@ -229,6 +234,6 @@ seg_bootstrap_granges <- function(seg, x, state, L_b, chrnames, chrom_lens,
   x_mult_hits <- x[subjectHits(fo)]
   ## label which 'bait' block each feature hit in the re-sampling
   mcols(x_mult_hits)$block <- queryHits(fo)
-  res <- shift_and_swap_chrom(x_mult_hits, segchrnames,random_blocks_start, rearranged_blocks_start)
-  return(res)
+  shift_and_swap_chrom(x_mult_hits, segchrnames,
+                       random_blocks_start, rearranged_blocks_start)
 }

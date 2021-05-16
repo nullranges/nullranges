@@ -29,7 +29,7 @@ Options:
 First we obtain the Ensembl genes ...
 
 ```{r}
-library(EnsDb.Hsapiens.v86)
+suppressPackageStartupMessages(library(EnsDb.Hsapiens.v86))
 edb <- EnsDb.Hsapiens.v86
 filt <- AnnotationFilterList(GeneIdFilter("ENSG", "startsWith"))
 g <- genes(edb, filter = filt)
@@ -59,7 +59,7 @@ table(seqnames(deny))
 
 ```{r}
 library(nullranges)
-library(plyranges)
+suppressPackageStartupMessages(library(plyranges))
 ```
 
 ## CBS segmentation
@@ -112,24 +112,25 @@ Test on 10 times bootstrap ~13s
 L_b <- 5e5
 x <- DHSA549Hg38
 system.time({
-  res_wochr <- segBootstrapRanges(x, seg, L_b, R = 10,
-                                  deny = deny, proportion_length = FALSE)
+  x_prime <- segBootstrapRanges(x, seg, L_b, R = 10,
+                                deny = deny, proportion_length = FALSE)
 })
 system.time({
-  res_wochr <- segBootstrapRanges(x, seg, L_b, R = 10, 
-                                  deny = deny, deny_option = "trim",
-                                  proportion_length = FALSE)
+  x_prime <- segBootstrapRanges(x, seg, L_b, R = 10, 
+                                deny = deny, deny_option = "trim",
+                                proportion_length = FALSE)
 })
 ## system.time({
-##   res_wochr_propl <- segBootstrapRanges(x, seg, L_b, R = 10, deny = deny)
+##   x_prime <- segBootstrapRanges(x, seg, L_b, R = 10, deny = deny)
 ## })
 system.time({
-  res_wchr <- segBootstrapRanges(x, seg, L_b, R = 10, deny = deny,
+  x_prime <- segBootstrapRanges(x, seg, L_b, R = 10, deny = deny,
                                  within_chrom = TRUE, proportion_length = FALSE)
 })
 ## system.time({
-##   res_wchr <- segBootstrapRanges(x, seg, L_b, R = 10, deny = deny,
-##                                  within_chrom = TRUE, proportion_length = TRUE)
+##   x_prime <- segBootstrapRanges(x, seg, L_b, R = 10, deny = deny,
+##                                  within_chrom = TRUE,
+##                                  proportion_length = TRUE)
 ## })
 ```
 
@@ -170,14 +171,13 @@ seg <- GRanges(
           width = c(100, 100, 200, 100, 200, 100, 100)),
   seqlengths=c(chr1=500,chr2=400),
   state = c(1,2,1,3,3,2,1),
-  state_col = c(1,2,4,3,6,5,7)
+  state_col = factor(1:7)
 )
 ```
 
 ```{r toysegments}
-cols <- c("red","green3","dodgerblue",
-          "red3","green4","blue2",
-          "darkred")
+cols <- c("red","green3","red3","dodgerblue",
+          "blue2","green4","darkred")
 plotGRanges(seg)
 ```
 
@@ -199,10 +199,11 @@ plotGRanges(gr)
 ```
 
 ```{r}
-deny <- GRanges("chr1", IRanges(21,40), seqlengths=seqlengths(gr))
-# why warning?
-suppressWarnings({ 
-  gr_prime <- nullranges::segBootstrapRanges(gr, seg, L_b=100, R=1, deny=deny)[[1]]
-})
-# plotGRanges(gr_prime)
+deny <- GRanges(c("chr1","chr2"), IRanges(c(21,32),c(40,50)), seqlengths=seqlengths(gr))
+# this gives me an error if proportion_length=TRUE
+gr_prime <- nullranges::segBootstrapRanges(gr, seg, L_b = 100,
+                                           R = 1, deny = deny,
+                                           within_chrom = FALSE,
+                                           proportion_length = FALSE)[[1]]
+plotGRanges(gr_prime)
 ```

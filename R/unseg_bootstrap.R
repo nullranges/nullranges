@@ -189,6 +189,7 @@ permute_blocks_granges <- function(x, L_b, L_s) {
 shift_and_swap_chrom <- function(x, chr_names,
                                  random_blocks_start,
                                  rearranged_blocks_start) {
+  stopifnot(length(rearranged_blocks_start) == length(random_blocks_start))
   block_shift <- rearranged_blocks_start - random_blocks_start
   idx <- mcols(x)$block
   chr_prime <- chr_names[idx]
