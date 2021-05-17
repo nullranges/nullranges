@@ -5,8 +5,8 @@
 #' @param L_b the length of the block
 #' @param R the number of bootstrap samples to generate
 #' @param deny GRanges of deny region
-#' @param deny_option Indicate whether toss or trim the overlaps between deny and 
-#' bootstrap ranges. 
+#' @param deny_option Indicate whether toss or trim the overlaps between deny and
+#' bootstrap ranges.
 #' @param within_chrom whether to perform bootstrapping within chromosome (default FALSE)
 #' @param proportion_length use scaled block length or scaled number of blocks of each segmentation region
 #' @param ncores A cluster object created by \code{\link[parallel]{makeCluster}}.
@@ -37,12 +37,12 @@ segBootstrapRanges <- function(x, seg, L_b, R,
     }
     if (deny_option == "toss") {
       # TODO I think this could just be an overlapsAny() call rather than queryHits(findOverlaps())
-      res_accept <- res[-queryHits(findOverlaps(res, deny, type="any"))] 
+      res_accept <- res[-queryHits(findOverlaps(res, deny, type="any"))]
     } else {
-      # res <- setdiff(res,deny) # To do: cannot reserve metadata column and whether to use ignore.strand=TRUE 
+      # res <- setdiff(res,deny) # To do: cannot reserve metadata column and whether to use ignore.strand=TRUE
       ## To do: need to keep the gaps with same deny strand, here is special case that all strand(deny) ="*"
       ## To do: need to place outstide of R, doing gaps once.
-      gap <- gaps(deny,end = seqlengths(x)) %>% 
+      gap <- gaps(deny,end = seqlengths(x)) %>%
         plyranges::filter(strand=="*")
       ## the region remove deny regions
       res_accept <- plyranges::join_overlap_intersect(res,gap)
@@ -137,7 +137,7 @@ seg_bootstrap_granges_within_chrom <- function(x, seg, state, L_c, L_b, proporti
 
 # Segmentation block bootstrap IRanges spanning the whole genome
 #
-# @param x the input GRanges 
+# @param x the input GRanges
 # @param seg the ranges of segmentation GRanges
 # @param state the segmentation state
 # @param L_b the length of the block
@@ -150,7 +150,7 @@ seg_bootstrap_granges <- function(x, seg, state, L_b, chr_names, chrom_lens,
 
   # sequence along the states
   ns <- seq_len(max(state))
-  
+
   if (proportion_length) {
     L_c <- sum(chrom_lens)
     ## Derive segmentation state length
@@ -190,11 +190,11 @@ seg_bootstrap_granges <- function(x, seg, state, L_b, chr_names, chrom_lens,
 
     # TODO this test fails for me on the toy dataset
     stopifnot(length(random_blocks_start) != length(rearranged_blocks_start))
-    
+
     seqnames <- do.call(c, lapply(obj, `[[`, 3))
     rearr_blocks_chr_names <- do.call(c, lapply(obj, `[[`, 4))
     ## number of blocks for each segmentation states
-    width <- lengths(random_blocks_start0)
+    width <- lengths(random_blocks_start)
     ## these blocks are the 'bait' for capturing features in 'x'
     random_blocks <- GRanges(seqnames=seqnames,
                              ranges=IRanges(start = random_blocks_start,
@@ -215,7 +215,7 @@ seg_bootstrap_granges <- function(x, seg, state, L_b, chr_names, chrom_lens,
     rearranged_blocks_start_list <- lapply(seq_along(seg), function(j) {
       seq(from = start(seg)[j], to = end(seg)[j], by = L_b)
     })
-    
+
     # loop over states 's', splitting out the random segments for 's'
     obj <- lapply(ns, function(s) {
       # index of those random segments chosen that are state 's'
@@ -257,7 +257,7 @@ seg_bootstrap_granges <- function(x, seg, state, L_b, chr_names, chrom_lens,
                              ranges = IRanges(start = random_blocks_start,
                                               width = L_b))
   }
-    
+
   rearr_blocks_chr_names <- factor(rearr_blocks_chr_names, levels = seqlevels(x))
 
   # use the bait to sample features in 'x'
@@ -268,5 +268,5 @@ seg_bootstrap_granges <- function(x, seg, state, L_b, chr_names, chrom_lens,
   mcols(x_mult_hits)$block <- queryHits(fo)
   shift_and_swap_chrom(x_mult_hits, rearr_blocks_chr_names,
                        random_blocks_start, rearranged_blocks_start)
-  
+
 }
