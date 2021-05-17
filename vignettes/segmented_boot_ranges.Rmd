@@ -75,8 +75,8 @@ seg_fit <- segmentDensity(g, n = 3, L_s = L_s,
                           deny = deny2, type = "cbs",
                           returnPlot = TRUE)
 seg <- seg_fit$seg
-print(out$p1)
-print(out$p2)
+print(seg_fit$p1)
+print(seg_fit$p2)
 ```
 
 ## Alternatively: HMM segmentation
