@@ -27,12 +27,12 @@ segmentDensity <- function(x, n, L_s = 1e6, deny,
   ## gap will create whole chromosome length ranges
   ## TODO: need to keep the gaps with same deny strand,
   ## here is special case that all strand(deny) ="*"
-  gap <- gaps(deny, end = seqlengths(x)) %>%
-    plyranges::filter(strand == "*")
+  gap <- gaps(deny, end = seqlengths(x))
+  gap <- plyranges::filter(gap, strand == "*")
 
   ## the region remove deny regions
-  query_accept <- plyranges::join_overlap_intersect(query, gap) %>%
-    filter(width > L_s / 100)
+  query_accept <- filter(plyranges::join_overlap_intersect(query, gap),
+                         width > L_s / 100)
 
   # TODO what does "nostand" mean?
   counts_nostand <- GenomicRanges::countOverlaps(query_accept, x, minoverlap = 8)

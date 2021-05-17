@@ -4,7 +4,7 @@
 #'
 #' @param x an object
 #' @param ... additional arguments
-#' 
+#'
 #' @rdname overview
 #' @export
 setGeneric("overview", function(x, ...) standardGeneric("overview"))
@@ -13,7 +13,7 @@ setGeneric("overview", function(x, ...) standardGeneric("overview"))
 #'
 #' @param x an object
 #' @param ... additional arguments
-#' 
+#'
 #' @rdname matchedData
 #' @export
 setGeneric("matchedData", function(x, ...) standardGeneric("matchedData"))
@@ -22,7 +22,7 @@ setGeneric("matchedData", function(x, ...) standardGeneric("matchedData"))
 #'
 #' @param x an object
 #' @param ... additional arguments
-#' 
+#'
 #' @rdname covariates
 #' @export
 setGeneric("covariates", function(x, ...) standardGeneric("covariates"))
@@ -31,20 +31,25 @@ setGeneric("covariates", function(x, ...) standardGeneric("covariates"))
 #'
 #' @param x an object
 #' @param ... additional arguments
-#' 
+#'
 #' @rdname indices
 #' @export
 setGeneric("indices", function(x, ...) standardGeneric("indices"))
 
 #' @rdname matched-plotting
 #' @export
-setGeneric("plotCovariates", function(x, covar, sets, type, logTransform, ...)
+setGeneric("plotPropensity", function(x, ...)
+  standardGeneric("plotPropensity"))
+
+#' @rdname matched-plotting
+#' @export
+setGeneric("plotCovariates", function(x, ...)
   standardGeneric("plotCovariates"))
 
 ## Generics for utils --------------------------------------------------------------------
 
 #' @param x an object
-#' 
+#'
 #' @rdname combnCov
 #' @export
 setGeneric("combnCov", function(x) standardGeneric("combnCov"))
@@ -60,7 +65,7 @@ setGeneric("matchRanges", function(focal, pool, covar, method, replace, ...)
 #'
 #' @param x an object
 #' @param ... additional arguments
-#' 
+#'
 #' @rdname focal
 #' @export
 setGeneric("focal", function(x, ...) standardGeneric("focal"))
@@ -69,7 +74,7 @@ setGeneric("focal", function(x, ...) standardGeneric("focal"))
 #'
 #' @param x an object
 #' @param ... additional arguments
-#' 
+#'
 #' @rdname pool
 #' @export
 setGeneric("pool", function(x, ...) standardGeneric("pool"))
@@ -78,7 +83,7 @@ setGeneric("pool", function(x, ...) standardGeneric("pool"))
 #'
 #' @param x an object
 #' @param ... additional arguments
-#' 
+#'
 #' @rdname matched
 #' @export
 setGeneric("matched", function(x, ...) standardGeneric("matched"))
@@ -87,7 +92,7 @@ setGeneric("matched", function(x, ...) standardGeneric("matched"))
 #'
 #' @param x an object
 #' @param ... additional arguments
-#' 
+#'
 #' @rdname unmatched
 #' @export
 setGeneric("unmatched", function(x, ...) standardGeneric("unmatched"))

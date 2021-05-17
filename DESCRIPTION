@@ -35,13 +35,13 @@ Suggests:
     microbenchmark,
     patchwork,
     hictoolsr,
-    BentoBox
+    BentoBox,
+    magrittr
 Imports:
     stats,
     IRanges,
     GenomicRanges,
     GenomeInfoDb,
-    magrittr,
     methods,
     rlang,
     S4Vectors,
