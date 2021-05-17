@@ -46,6 +46,8 @@ library(ggplot2)
 library(patchwork)
 library(data.table)
 
+set.seed(123)
+
 ## Load enh-prom pairs (and shorten the name)
 data("enhPromContactFreqHg19")
 epp <- enhPromContactFreqHg19
