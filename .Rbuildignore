@@ -2,3 +2,6 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^\.github$
+^CODE\_OF\_CONDUCT\.md$
+^.*\.yaml$
+^.*\.yml$
