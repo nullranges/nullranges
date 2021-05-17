@@ -6,3 +6,4 @@ nullranges.Rproj
 vignettes/*.html
 vignettes/*_cache
 vignettes/*_files
+docs

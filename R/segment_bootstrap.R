@@ -12,6 +12,8 @@
 #' @param proportion_length whether to use scaled block length,
 #' (scaling by the proportion of the segmentation state
 #' out of the total genome length)
+#'
+#' @importFrom IRanges overlapsAny
 #' 
 #' @export
 segBootstrapRanges <- function(x, seg, L_b, R,
@@ -39,8 +41,8 @@ segBootstrapRanges <- function(x, seg, L_b, R,
         # TODO: need to keep the gaps with same deny strand,
         # here is special case that all strand(deny) ="*"
         # TODO: need to place outstide of R, doing gaps once!
-        gap <- gaps(deny, end = seqlengths(x)) %>% 
-          plyranges::filter(strand=="*")
+        gap <- gaps(deny, end = seqlengths(x))
+        gap <- plyranges::filter(gap, strand=="*")
         x_prime <- plyranges::join_overlap_intersect(x_prime, gap)
       }
     }
