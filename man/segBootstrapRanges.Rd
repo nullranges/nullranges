@@ -9,34 +9,30 @@ segBootstrapRanges(
   seg,
   L_b,
   R,
-  deny,
-  deny_option = c("toss", "trim"),
-  within_chrom = FALSE,
-  proportion_length = TRUE,
-  ncores = NULL
+  deny = NULL,
+  deny_option = c("drop", "trim"),
+  proportion_length = TRUE
 )
 }
 \arguments{
 \item{x}{the input GRanges}
 
-\item{seg}{segmentation GRanges a column("state") indicate segmentation states}
+\item{seg}{the segmentation GRanges, with a column ("state")
+indicating segmentation state}
 
-\item{L_b}{the length of the block}
+\item{L_b}{the length of the blocks (for proportional blocks, this
+is the maximal length of block)}
 
 \item{R}{the number of bootstrap samples to generate}
 
-\item{deny}{GRanges of deny region}
+\item{deny}{the GRanges of deny regions (optional)}
 
-\item{deny_option}{Indicate whether toss or trim the overlaps between deny and
-bootstrap ranges.}
+\item{deny_option}{whether to "drop" or "trim" bootstrap
+ranges that overlap a deny region}
 
-\item{within_chrom}{whether to perform bootstrapping within chromosome (default FALSE)}
-
-\item{proportion_length}{use scaled block length or scaled number of blocks of each segmentation region}
-
-\item{ncores}{A cluster object created by \code{\link[parallel]{makeCluster}}.
-Or an integer to indicate number of child-processes
-(integer values are ignored on Windows) for parallel evaluations}
+\item{proportion_length}{whether to use scaled block length,
+(scaling by the proportion of the segmentation state
+out of the total genome length)}
 }
 \description{
 Segmentated block bootstrap
