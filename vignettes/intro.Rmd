@@ -9,8 +9,8 @@ vignette: |
 ---
 
 The *nullranges* package contains functions for generation of feature
-sets for exploring the null hypothesis of overlap or colocalization of
-two observed feature sets.
+sets (genomic regions) for exploring the null hypothesis of overlap or 
+colocalization of two observed feature sets.
 
 The package has two branches of functionality: matching and
 bootstrapping. Suppose we want to examine the significance of overlaps
@@ -23,7 +23,7 @@ features in $y'$ may be characterized by:
    $y'$ have a similar distribution over one or more covariates. This
    is the "matching" case. Note that the features in $y'$ are original
    features, just drawn from a different pool than y.
-2. Generating new a set of genomic features $y'$, constructing them
+2. Generating a new set of genomic features $y'$, constructing them
    from the original set $y$ by drawing blocks of the genome with
    replacement (i.e. features can be sampled more than once). This is
    the "bootstrapping" case. Note that, in this case, $y'$ is an
@@ -34,7 +34,7 @@ We provide a number of vignettes to describe the different matching
 and bootstrapping use cases. In the matching case, we have implemented
 a number of options, including nearest neighbor matching or
 rejection sampling based matching. In the bootstrapping case, we have
-implemented options for bootstrapping across or within chromosome, and
+implemented options for bootstrapping across or within chromosomes, and
 bootstrapping only within states of a segmented genome. We also
 provide a function to segment the genome by density of features. For
 example, supposing that $x$ is a subset of genes, we may want to
