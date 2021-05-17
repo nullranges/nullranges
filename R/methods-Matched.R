@@ -224,7 +224,6 @@ plot_covariates <- function(x, covar = 'all', sets = 'all', type = NULL, logTran
 #'
 #' @rdname matched-plotting
 #' @import ggplot2 ggridges
-#' @method plot Matched
 #' @export
 setMethod("plotPropensity", signature(x="Matched"),
           function(x, type = NULL) plot_propensity(x, type))

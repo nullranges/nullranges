@@ -34,7 +34,7 @@ set.seed(123)
 s <- sample(1:length(enhPromContactFreqHg19), 6000)
 x <- enhPromContactFreqHg19[head(s, 1000)]
 u <- enhPromContactFreqHg19[tail(s, 5000)]
-covar = ~ anchor1.peakStrength + contactFreq
+covar <- ~ anchor1.peakStrength + contactFreq
 ```
 
 Match GInteractions object
