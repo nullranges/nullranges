@@ -91,7 +91,7 @@
 
       
 
-      </header><script src="segmented_boot_ranges_files/header-attrs-2.7/header-attrs.js"></script><div class="row">
+      </header><script src="segmented_boot_ranges_files/header-attrs-2.6/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Segmented block bootstrap</h1>
@@ -163,7 +163,8 @@
 <p>We subset the deny ranges to those which are 500 bp or larger.</p>
 <p>cite: DNAcopy paper</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">deny2</span> <span class="op">&lt;-</span> <span class="va">deny</span> <span class="op">%&gt;%</span> <span class="fu">plyranges</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">filter</a></span><span class="op">(</span><span class="fu">width</span><span class="op">(</span><span class="va">deny</span><span class="op">)</span> <span class="op">&gt;=</span> <span class="fl">500</span><span class="op">)</span>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span>
+<span class="va">deny2</span> <span class="op">&lt;-</span> <span class="va">deny</span> <span class="op">%&gt;%</span> <span class="fu">plyranges</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">filter</a></span><span class="op">(</span><span class="fu">width</span><span class="op">(</span><span class="va">deny</span><span class="op">)</span> <span class="op">&gt;=</span> <span class="fl">500</span><span class="op">)</span>
 <span class="va">L_s</span> <span class="op">&lt;-</span> <span class="fl">1e6</span>
 <span class="va">seg_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/segmentDensity.html">segmentDensity</a></span><span class="op">(</span><span class="va">g</span>, n <span class="op">=</span> <span class="fl">3</span>, L_s <span class="op">=</span> <span class="va">L_s</span>,
                           deny <span class="op">=</span> <span class="va">deny2</span>, type <span class="op">=</span> <span class="st">"cbs"</span>,
@@ -185,7 +186,7 @@
 <code class="sourceCode R"><span class="va">seg_hmm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/segmentDensity.html">segmentDensity</a></span><span class="op">(</span><span class="va">g</span>, n <span class="op">=</span> <span class="fl">3</span>, L_s <span class="op">=</span> <span class="va">L_s</span>,
                           deny <span class="op">=</span> <span class="va">deny2</span>, type <span class="op">=</span> <span class="st">"hmm"</span>,
                           returnPlot <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
-<pre><code>## Finished at Iteration: 67 with Error: 9.49963e-06</code></pre>
+<pre><code>## Finished at Iteration: 73 with Error: 9.78676e-06</code></pre>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="va">seg_hmm</span><span class="op">$</span><span class="va">p1</span><span class="op">)</span></code></pre></div>
 <p><img src="segmented_boot_ranges_files/figure-html/seg-hmm-1.png"><!-- --></p>
@@ -225,8 +226,8 @@
 <span class="op">)</span>, times<span class="op">=</span><span class="fl">10</span><span class="op">)</span></code></pre></div>
 <pre><code>## Unit: milliseconds
 ##     expr      min       lq     mean   median       uq      max neval
-##     prop 129.2226 142.1649 272.1519 152.7035 449.0137 497.2538    10
-##  no_prop 126.0484 128.3655 167.8252 134.7498 143.7327 448.8146    10</code></pre>
+##     prop 229.8682 230.9663 381.0534 240.1265 293.5229 937.7751    10
+##  no_prop 208.2976 220.9521 432.8549 227.4058 920.8518 927.1077    10</code></pre>
 </div>
 <div id="visualizing-the-segmented-block-bootstrap" class="section level1">
 <h1 class="hasAnchor">
@@ -294,24 +295,25 @@
 <span class="va">gr</span><span class="op">$</span><span class="va">state</span> <span class="op">&lt;-</span> <span class="va">seg</span><span class="op">$</span><span class="va">state</span><span class="op">[</span><span class="va">idx</span><span class="op">]</span>
 <span class="va">gr</span><span class="op">$</span><span class="va">state_col</span> <span class="op">&lt;-</span> <span class="va">seg</span><span class="op">$</span><span class="va">state_col</span><span class="op">[</span><span class="va">idx</span><span class="op">]</span>
 <span class="fu">plotGRanges</span><span class="op">(</span><span class="fu">fixBBPlots</span><span class="op">(</span><span class="va">gr</span><span class="op">)</span><span class="op">)</span></code></pre></div>
-<pre><code>## Warning: Not enough plotting space for all provided range elements.</code></pre>
 <p><img src="segmented_boot_ranges_files/figure-html/toyranges-1.png"><!-- --></p>
 <p>Not scaling blocks to segmentation length:</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">gr_prime</span> <span class="op">&lt;-</span> <span class="fu">nullranges</span><span class="fu">::</span><span class="fu"><a href="../reference/segBootstrapRanges.html">segBootstrapRanges</a></span><span class="op">(</span><span class="va">gr</span>, <span class="va">seg</span>, L_b <span class="op">=</span> <span class="fl">25</span>, R <span class="op">=</span> <span class="fl">1</span>, 
                                            proportion_length <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>
 <span class="fu">plotGRanges</span><span class="op">(</span><span class="fu">fixBBPlots</span><span class="op">(</span><span class="va">gr_prime</span><span class="op">)</span><span class="op">)</span></code></pre></div>
-<pre><code>## Warning: Not enough plotting space for all provided range elements.</code></pre>
-<p><img src="segmented_boot_ranges_files/figure-html/unnamed-chunk-11-1.png"><!-- --></p>
+<pre><code>## Warning: Not enough plotting space for all provided range elements.
+
+## Warning: Not enough plotting space for all provided range elements.</code></pre>
+<p><img src="segmented_boot_ranges_files/figure-html/toy-no-prop-1.png"><!-- --></p>
 <p>Scaling blocks to segmentation length:</p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">gr_prime</span> <span class="op">&lt;-</span> <span class="fu">nullranges</span><span class="fu">::</span><span class="fu"><a href="../reference/segBootstrapRanges.html">segBootstrapRanges</a></span><span class="op">(</span><span class="va">gr</span>, <span class="va">seg</span>, L_b <span class="op">=</span> <span class="fl">50</span>, R <span class="op">=</span> <span class="fl">1</span>, 
                                            proportion_length <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>
 <span class="fu">plotGRanges</span><span class="op">(</span><span class="fu">fixBBPlots</span><span class="op">(</span><span class="va">gr_prime</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code>## Warning: Not enough plotting space for all provided range elements.
 
 ## Warning: Not enough plotting space for all provided range elements.</code></pre>
-<p><img src="segmented_boot_ranges_files/figure-html/unnamed-chunk-12-1.png"><!-- --></p>
+<p><img src="segmented_boot_ranges_files/figure-html/toy-prop-1.png"><!-- --></p>
 </div>
   </div>
 
