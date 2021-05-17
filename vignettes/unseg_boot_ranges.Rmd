@@ -55,7 +55,7 @@ schemes, first within chromosome, and then across chromosome (the
 default). The default `type` is bootstrap.
 
 ```{r}
-set.seed(1) # reproducibility
+set.seed(5) # reproducibility
 library(microbenchmark)
 L_b <- 5e5
 microbenchmark(list=alist(
@@ -101,12 +101,12 @@ plotGRanges <- function(gr) {
                      x = 0.5, width = 4*chromend/500, height = 0.5,
                      at = seq(0, chromend, 50),
                      fill = palette()[2:4])
-      pbed <- bb_plotBed(data = gr, params = p,
-                         chrom = chrom,
-                         y = 0.25 + (i-1)*.7,
-                         just = c("left", "bottom"),
-                         colorby=colorby("chrom"))
-      bb_annoGenomeLabel(plot = pbed, params = p, y = 0.30 + (i-1)*.7)
+      prngs <- bb_plotRanges(data = gr, params = p,
+                             chrom = chrom,
+                             y = 0.25 + (i-1)*.7,
+                             just = c("left", "bottom"),
+                             colorby=colorby("chrom"))
+      bb_annoGenomeLabel(plot = prngs, params = p, y = 0.30 + (i-1)*.7)
     })
   }
 }

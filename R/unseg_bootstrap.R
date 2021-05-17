@@ -9,6 +9,12 @@
 #' @return one iteration of bootstrapped ranges
 #' (TODO fix this)
 #'
+#' @importFrom stats as.formula binomial kmeans predict
+#' quantile rbinom rnorm runif terms
+#' @importFrom IRanges IRanges successiveIRanges mid
+#' @importFrom GenomicRanges tileGenome sort
+#' @importFrom GenomeInfoDb seqlengths seqlengths<- seqlevels sortSeqlevels
+#' 
 #' @export
 bootstrapRanges <- function(x, L_b,
                             type = c("bootstrap", "permute"),
@@ -71,13 +77,14 @@ block_bootstrap_granges_within_chrom <- function(x, L_b, L_s, chr) {
   # blocks allowed to go over L_s
   n <- ceiling(L_s / L_b)
   # these blocks are the 'bait' to capture features in 'x'
-  random_blocks <- IRanges(start = round(runif(n, 1, (n - 1) * L_b + 1)), width = L_b)
+  random_blocks <- IRanges::IRanges(start = round(runif(n, 1, (n - 1) * L_b + 1)),
+                                    width = L_b)
   # where those blocks will move to
-  rearranged_blocks <- successiveIRanges(width(random_blocks))
+  rearranged_blocks <- IRanges::successiveIRanges(width(random_blocks))
   # the shift needed to move them
   block_shift <- start(rearranged_blocks) - start(random_blocks)
   # use the bait to sample features in 'x'
-  fo <- findOverlaps(random_blocks, ranges(x))
+  fo <- IRanges::findOverlaps(random_blocks, ranges(x))
   # shift the ranges in those bait blocks
   suppressWarnings({
     x_prime <- shift(x[subjectHits(fo)], block_shift[queryHits(fo)])
@@ -103,13 +110,13 @@ permute_blocks_granges_within_chrom <- function(x, L_b, L_s, chr) {
   # blocks allowed to go over L_s
   n <- ceiling(L_s / L_b)
   # blocks tiling the chromosome
-  blocks <- successiveIRanges(rep(L_b, n))
+  blocks <- IRanges::successiveIRanges(rep(L_b, n))
   # which block do features in 'x' fall into?
-  mcols(x)$block <- findOverlaps(ranges(x), blocks, select = "first")
+  mcols(x)$block <- IRanges::findOverlaps(ranges(x), blocks, select = "first")
   # permutation order
   perm <- sample(n)
   # where those blocks will move to
-  permuted_blocks <- successiveIRanges(width(blocks))[perm]
+  permuted_blocks <- IRanges::successiveIRanges(width(blocks))[perm]
   # the shift needed to move them
   block_shift <- start(permuted_blocks) - start(blocks)
   # shift the features in 'x'
@@ -118,7 +125,7 @@ permute_blocks_granges_within_chrom <- function(x, L_b, L_s, chr) {
   })
   x_prime <- trim(x_prime)
   # sort outgoing ranges?
-  sort(x_prime)
+  GenomicRanges::sort(x_prime)
 }
 
 # Block bootstrap GRanges across chromosome
@@ -136,18 +143,21 @@ block_bootstrap_granges <- function(x, L_b, L_s) {
   # random starts within the tiled regions
   random_start <- round(runif(n, 1, (n_per_chrom[random_chr] - 1) * L_b + 1))
   # these blocks are the 'bait' for capturing features in 'x'
-  random_blocks <- GRanges(seqnames=random_chr,
-                           ranges=IRanges(start = random_start, width = L_b))
+  random_blocks <- GenomicRanges::GRanges(seqnames=random_chr,
+                           ranges=IRanges::IRanges(start = random_start, width = L_b))
   # where those blocks will move to
-  rearranged_blocks <- tileGenome(seqlengths=L_s, tilewidth=L_b, cut.last.tile.in.chrom=TRUE)
+  rearranged_blocks <- GenomicRanges::tileGenome(seqlengths=L_s,
+                                                 tilewidth=L_b,
+                                                 cut.last.tile.in.chrom=TRUE)
   # use the bait to sample features in 'x'
-  fo <- findOverlaps(random_blocks, x)
+  fo <- GenomicRanges::findOverlaps(random_blocks, x)
   # x has been sampled multiple times
   x_mult_hits <- x[subjectHits(fo)]
   # label which 'bait' block each feature hit in the re-sampling
   mcols(x_mult_hits)$block <- queryHits(fo)
   # shift the ranges in those bait blocks
-  shift_and_swap_chrom(x_mult_hits,seqnames(rearranged_blocks),start(random_blocks), start(rearranged_blocks))
+  shift_and_swap_chrom(x_mult_hits, seqnames(rearranged_blocks),
+                       start(random_blocks), start(rearranged_blocks))
 }
 
 # Permute blocks of GRanges across chomosome
@@ -156,16 +166,18 @@ block_bootstrap_granges <- function(x, L_b, L_s) {
 # @param L_b the length of the blocks
 # @param L_s the lengths of the chromosomes
 permute_blocks_granges <- function(x, L_b, L_s) {
-  blocks <- tileGenome(seqlengths=L_s, tilewidth=L_b, cut.last.tile.in.chrom=TRUE)
+  blocks <- GenomicRanges::tileGenome(seqlengths=L_s, tilewidth=L_b,
+                       cut.last.tile.in.chrom=TRUE)
     # pass along the full seqlengths of 'x'
   seqlengths(blocks) <- seqlengths(x)
-  mcols(x)$block <- findOverlaps(x, blocks, select = "first")
+  mcols(x)$block <- GenomicRanges::findOverlaps(x, blocks, select = "first")
   perm <- sample(length(blocks))
   rearranged_blocks <- blocks[perm]
   # this operation loses some ranges:
   # those that are mapped to permuted blocks that
   # are cut by `cut.last.tile.in.chrom`
-  shift_and_swap_chrom(x,seqnames(rearranged_blocks),start(blocks), start(rearranged_blocks))
+  shift_and_swap_chrom(x, seqnames(rearranged_blocks),
+                       start(blocks), start(rearranged_blocks))
 }
 
 # function moves featues in 'x' that fall into 'blocks'
@@ -173,11 +185,14 @@ permute_blocks_granges <- function(x, L_b, L_s) {
 #
 # 'x' in blocks --> 'x_prime' in rearranged_blocks
 #
-# and will also change the seqnames
-shift_and_swap_chrom <- function(x,chrnames,random_blocks_start, rearranged_blocks_start) {
+# and will also change the seqnames to 'chr_names'
+shift_and_swap_chrom <- function(x, chr_names,
+                                 random_blocks_start,
+                                 rearranged_blocks_start) {
+  stopifnot(length(rearranged_blocks_start) == length(random_blocks_start))
   block_shift <- rearranged_blocks_start - random_blocks_start
   idx <- mcols(x)$block
-  chr_prime <- chrnames[idx]
+  chr_prime <- chr_names[idx]
   # this creates out-of-bound ranges
   # (but wait until we assign new chromosomes)
   suppressWarnings({

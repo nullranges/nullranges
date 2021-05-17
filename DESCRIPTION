@@ -1,11 +1,12 @@
 Package: nullranges
 Title: Generation of null ranges via bootstrapping or covariate matching
-Version: 0.0.8
+Version: 0.0.13
 Authors@R: c(
     person("Michael", "Love", role = c("aut", "cre"),
       email = "michaelisaiahlove@gmail.com",
       comment = c(ORCID = "0000-0001-8401-0545")),
-    person("Wancen", "Mu", role = c("aut")),
+    person("Wancen", "Mu", role = c("aut"),
+      comment = c(ORCID = "0000-0002-5061-7581")),
     person("Eric", "Davis", role = c("aut"),
       comment = c(ORCID = "0000-0003-4051-3217")),
     person("Douglas", "Phanstiel", role = c("aut")),
@@ -31,19 +32,25 @@ Suggests:
     RcppHMM,
     nullrangesData,
     EnsDb.Hsapiens.v86,
-    GenomeInfoDb,
     microbenchmark,
     patchwork,
-    magrittr,
     hictoolsr,
-    BentoBox
-Imports: 
+    BentoBox,
+    magrittr
+Imports:
+    stats,
+    IRanges,
+    GenomicRanges,
+    GenomeInfoDb,
+    methods,
+    rlang,
+    S4Vectors,
+    scales,
     InteractionSet,
     ggplot2,
     plyranges,
     ks,
     speedglm,
-    pbapply,
     data.table,
     progress,
     ggridges

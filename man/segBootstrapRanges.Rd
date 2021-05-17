@@ -2,40 +2,38 @@
 % Please edit documentation in R/segment_bootstrap.R
 \name{segBootstrapRanges}
 \alias{segBootstrapRanges}
-\title{Segmentated bootstrap GRanges}
+\title{Segmentated block bootstrap}
 \usage{
 segBootstrapRanges(
-  seg,
   x,
+  seg,
   L_b,
-  deny,
-  deny_option = c("toss", "trim"),
   R,
-  within_chrom = FALSE,
-  proportion_length = TRUE,
-  ncores = NULL
+  deny = NULL,
+  deny_option = c("drop", "trim"),
+  proportion_length = TRUE
 )
 }
 \arguments{
-\item{seg}{segmentation GRanges a column("state") indicate segmentation states}
-
 \item{x}{the input GRanges}
 
-\item{L_b}{the length of the block}
+\item{seg}{the segmentation GRanges, with a column ("state")
+indicating segmentation state}
 
-\item{deny}{GRanges of deny region}
+\item{L_b}{the length of the blocks (for proportional blocks, this
+is the maximal length of block)}
 
-\item{deny_option}{Indicate whether toss or trim the overlaps between deny and
-bootstrap ranges.}
+\item{R}{the number of bootstrap samples to generate}
 
-\item{R}{the number time of bootstrap}
+\item{deny}{the GRanges of deny regions (optional)}
 
-\item{proportion_length}{use scaled block length or scaled number of blocks of each segmentation region}
+\item{deny_option}{whether to "drop" or "trim" bootstrap
+ranges that overlap a deny region}
 
-\item{ncores}{A cluster object created by \code{\link[parallel]{makeCluster}}.
-Or an integer to indicate number of child-processes
-(integer values are ignored on Windows) for parallel evaluations}
+\item{proportion_length}{whether to use scaled block length,
+(scaling by the proportion of the segmentation state
+out of the total genome length)}
 }
 \description{
-Segmentated bootstrap GRanges
+Segmentated block bootstrap
 }

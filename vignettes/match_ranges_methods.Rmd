@@ -17,9 +17,13 @@ vignette: |
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  error = TRUE
+  error = TRUE,
+  eval = FALSE
 )
 ```
+
+(Note this vignette takes ~100 seconds, prob want to have them down to
+~30 seconds per vignette)
 
 This vignette demonstrates the supported matching methods (rejection
 sampling with replacement, nearest neighbor matching with replacement,
@@ -33,13 +37,16 @@ promoters are looped (i.e. `loopedEP`), and we also break down the
 continuous `epDistance` into categorical groups
 (i.e. `epDistanceGrouped`).
 
-```{r, message=FALSE}
+```{r message=FALSE}
 library(nullranges)
 library(nullrangesData)
 library(plyranges)
 library(hictoolsr)
 library(ggplot2)
 library(patchwork)
+library(data.table)
+
+set.seed(123)
 
 ## Load enh-prom pairs (and shorten the name)
 data("enhPromContactFreqHg19")
@@ -286,7 +293,7 @@ p1 + p2 + p3 +
 
 ```
 
-## Case where focal \> pool
+## Case where focal is larger than pool
 
 Finally, lets see how the matching methods perform when the focal group is larger than the pool. In other words, which matching methods can bootstrap from a small pool.
 

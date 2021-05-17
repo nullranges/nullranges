@@ -1,4 +1,4 @@
-#' @rdname Matched
+#' @rdname matched
 #' @rawNamespace import(data.table, except = c(between, shift, first, second, indices))
 #' @import methods
 #' @export
@@ -17,10 +17,8 @@ setValidity(Class = "Matched",
 
 #' MatchedDataFrame
 #' 
-#' @rdname MatchedDataFrame
-#' @import S4Vectors
+#' @rdname matchedDataFrame
 #' @rawNamespace import(data.table, except = c(between, shift, first, second, indices))
-#' @import methods
 #' @export
 setClassUnion("DF_OR_df_OR_dt", c("DFrame", "data.frame", "data.table"))
 
@@ -51,12 +49,10 @@ setMethod("initialize", "MatchedDataFrame",
             
           })
 
-
 #' MatchedGRanges
 #' 
-#' @rdname MatchedGRanges
+#' @rdname matchedGRanges
 #' @import GenomicRanges
-#' @import methods
 #' @export
 MatchedGRanges <- setClass(Class = "MatchedGRanges",
                            contains = c("Matched", "DelegatingGenomicRanges"),
@@ -80,9 +76,8 @@ setMethod("initialize", "MatchedGRanges",
 
 #' MatchedGInteractions
 #' 
-#' @rdname MatchedGInteractions
+#' @rdname matchedGInteractions
 #' @import InteractionSet
-#' @import methods
 #' @export
 MatchedGInteractions <- setClass(Class = "MatchedGInteractions",
                                  contains = c("Matched", "GInteractions"),

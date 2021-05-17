@@ -34,7 +34,7 @@ set.seed(123)
 s <- sample(1:length(enhPromContactFreqHg19), 6000)
 x <- enhPromContactFreqHg19[head(s, 1000)]
 u <- enhPromContactFreqHg19[tail(s, 5000)]
-covar = ~ anchor1.peakStrength + contactFreq
+covar <- ~ anchor1.peakStrength + contactFreq
 ```
 
 Match GInteractions object
@@ -53,8 +53,8 @@ mgi
 Visualize matching
 
 ```{r vis-match}
-plot(mgi) #plot shows propensity scores
-plot(mgi, type = 'ridge')
+plotPropensity(mgi) #plot shows propensity scores
+plotPropensity(mgi, type = 'ridge')
 plotCovariates(mgi, covar = 'all', type = 'ridge', logTransform = TRUE)
 plotCovariates(mgi, covar = 'all', type = 'jitter', logTransform = TRUE)
 plotCovariates(mgi, covar = 'contactFreq', type = 'jitter', logTransform = TRUE)

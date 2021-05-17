@@ -4,7 +4,12 @@
 \alias{overview}
 \title{Overview}
 \usage{
-overview(x)
+overview(x, ...)
+}
+\arguments{
+\item{x}{an object}
+
+\item{...}{additional arguments}
 }
 \description{
 Overview

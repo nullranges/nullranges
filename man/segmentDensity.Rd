@@ -2,7 +2,7 @@
 % Please edit documentation in R/segment_density.R
 \name{segmentDensity}
 \alias{segmentDensity}
-\title{Segmentation based on gene density}
+\title{Genomic segmentation based on gene density}
 \usage{
 segmentDensity(
   x,
@@ -27,11 +27,9 @@ use DNAcopy to segment) or "hmm" (which will use RcppHMM).
 The packages are not imported by nullranges, but must be installed
 by the user}
 
-\item{returnPlot}{indicate whether return segmentation by chromosome plot and boxplot.
-If true, plot element will be stored in the result list.}
-
-\item{boxplot}{boxplot of gene density for each state}
+\item{returnPlot}{indicate whether return segmentation by chromosome
+plot and boxplot. If true, plot element will be stored in the result list.}
 }
 \description{
-Segmentation based on gene density
+Genomic segmentation based on gene density
 }

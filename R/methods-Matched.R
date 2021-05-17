@@ -2,7 +2,6 @@
 
 #' Accessor methods for Matched Class
 #'
-#' @description
 #' Functions that get data from Matched subclasses
 #' such as Matched, MatchedDataFrame, MatchedGRanges,
 #' and MatchedGInteractions.
@@ -11,13 +10,19 @@
 #' @param ... additional arguments
 #'
 #' @name Matched
-#' @rdname Matched
+#' @rdname matched
+NULL
+
+#' @rdname matched
 #' @export
 setMethod("matchedData", "Matched", function(x, ...) {
   x@matchedData
 })
 
-#' @rdname Matched
+#' @param x an object
+#' @param ... additional arguments
+#'
+#' @rdname matched
 #' @export
 setMethod("covariates", "Matched", function(x, ...) {
   x@covar
@@ -46,7 +51,7 @@ getIndices <- function(x, group = 'matched') {
 
 #' @param group a character string describing from which group to extract indices.
 #'              can be one of 'focal', 'matched', 'pool', or 'unmatched'.
-#' @rdname Matched
+#' @rdname matched
 #' @export
 setMethod("indices", "Matched", getIndices)
 
@@ -62,15 +67,16 @@ overviewMatched <- function(x) {
     else
       list(mean = mean(x), sd = sd(x))
   }
+  group <- NULL
 
-
+  md <- matchedData(x)
   ## Apply aggregation to matchedData
-  md.agg <- x@matchedData[, as.list(c(N =.N, unlist(lapply(.SD, agg)))),
+  md.agg <- md[, as.list(c(N =.N, unlist(lapply(.SD, agg)))),
                           .SDcols = -c('id'), by = group]
 
   ## Calculate distances between focal and matched
-  d <- x@matchedData[group == 'focal', -c('id', 'group')] -
-    x@matchedData[group == 'matched', -c('id', 'group')]
+  d <- md[group == 'focal', -c('id', 'group')] -
+    md[group == 'matched', -c('id', 'group')]
 
   ## Apply aggregation to distances
   d.agg <- d[, as.list(unlist(lapply(.SD, agg)))]
@@ -84,7 +90,7 @@ overviewMatched <- function(x) {
 
 }
 
-#' @rdname Matched
+#' @rdname matched
 #' @export
 setMethod("overview", signature(x="Matched"), overviewMatched)
 
@@ -93,24 +99,33 @@ setMethod("overview", signature(x="Matched"), overviewMatched)
 
 #' @importFrom rlang !! enquo
 # internal function for covariate plotting
-set_matched_plot <- function(type, data, cols, x) {
-  x <- enquo(x)
-  switch(type,
-         "jitter" =
-           ggplot(data, aes = aes(x = !!x, y = group, color = group)) +
-            geom_jitter(height = 0.25, width = 0, alpha = 0.7) +
-            scale_color_manual(values = cols),
-         "ridge" =
-           ggplot(data,  aes = aes(x = !!x, y = group, fill = group)) +
-            geom_density_ridges(alpha = 0.7, color = NA) +
-            scale_fill_manual(values = cols),
-         "lines" =
-           ggplot(data, aes = aes(x = !!x, color = group)) +
-            geom_density(show.legend = FALSE, na.rm = TRUE) +
-            stat_density(geom = 'line', position = 'identity', na.rm = TRUE) +
-            scale_color_manual(values = cols)
-  )
+set_matched_plot <- function(data, type, cols, x) {
+  x <- rlang::ensym(x)
+  y <- rlang::sym("group")
+  color <- rlang::sym("group")
 
+  if (identical(type, "jitter")) {
+    ans <- ggplot(data, mapping = aes(x = !!x, y = !!y, color = !!color)) +
+      geom_jitter(height = 0.25, width = 0, alpha = 0.7) +
+      scale_color_manual(values = cols)
+  }
+
+  if (identical(type, "ridge")) {
+    fill <- rlang::sym("group")
+    ans <-
+      ggplot(data,  mapping = aes(x = !!x, y = !!y, fill = !!fill)) +
+      geom_density_ridges(alpha = 0.7, color = NA) +
+      scale_fill_manual(values = cols)
+  }
+
+  if (identical(type, "line")) {
+    ans <- ggplot(data, mapping = aes(x = !!x, color = !!color)) +
+      geom_density(show.legend = FALSE, na.rm = TRUE) +
+      stat_density(geom = 'line', position = 'identity', na.rm = TRUE) +
+      scale_color_manual(values = cols)
+  }
+
+  ans
 }
 
 ## Define function for plotting propensity scores
@@ -122,11 +137,13 @@ plot_propensity <- function(x, type = NULL) {
   ## Define colors
   cols <- c("#1F78B4", "#A6CEE3", "#33A02C", "#B2DF8A")
 
+
+
   if (is.null(type)) {
-    type <- ifelse(nrow(md[group == "pool"]) <= 10000, "jitter", "ridge")
+    type <- ifelse(sum(md[["group"]] == "pool") <= 10000, "jitter", "ridge")
   }
 
-  ans <-set_matched_plot(md, type, cols, x = ps)
+  ans <- set_matched_plot(md, type, cols, x = "ps")
 
   ans +
     scale_y_discrete(limits = rev) +
@@ -146,7 +163,7 @@ plot_covariates <- function(x, covar = 'all', sets = 'all', type = NULL, logTran
 
   ## Chose plot type by data size
   if (is.null(type)) {
-    type <- ifelse(nrow(md[group == "pool"]) <= 10000, "jitter", "ridge")
+    type <- ifelse(sum(md[["group"]] == "pool") <= 10000, "jitter", "ridge")
   }
 
   ## Define colors & covariates
@@ -173,12 +190,12 @@ plot_covariates <- function(x, covar = 'all', sets = 'all', type = NULL, logTran
   mmd <- melt(md, measure.vars = covar)
 
   ## Subset group by sets
-  mmd <- mmd[group %in% sets]
+  mmd <- mmd[mmd[["group"]] %in% sets]
 
-  ans <- set_matched_plot(data,
+  ans <- set_matched_plot(mmd,
                           type,
                           cols = cols[names(cols) %in% sets],
-                          x = value)
+                          x = "value")
 
   ans <- ans +
     scale_y_discrete(limits = rev) +
@@ -203,19 +220,25 @@ plot_covariates <- function(x, covar = 'all', sets = 'all', type = NULL, logTran
 
 }
 
-#' @rdname Matched
+#' @title Plotting functions for Matched objects
+#'
+#' @rdname matched-plotting
 #' @import ggplot2 ggridges
 #' @export
-setMethod("plot", signature(x="Matched", y="missing"), plot.propensity)
+setMethod("plotPropensity", signature(x="Matched"),
+          function(x, type = NULL) plot_propensity(x, type))
 
-#' @rdname Matched
-#' @import ggplot2 ggridges
+#' @param x ...
+#' @param covar ...
+#' @param sets ...
+#' @param type ...
+#' @param logTransform ...
+#' @param ... additional arguments
+#'
+#' @rdname matched-plotting
 #' @importFrom scales squish_infinite
 #' @export
-setMethod("plotCovariates", signature(x="Matched"), function(x, ...) {
+setMethod("plotCovariates", signature(x="Matched"), function(x, covar = 'all', sets = 'all', type = NULL, logTransform = FALSE) {
   # not sure why you need NSE here?
-  mc <- match.call()
-  mc[[1]] <- quote(plot_covariates)
-  eval(mc)
+  plot_covariates(x, covar, sets, type, logTransform)
 })
-
