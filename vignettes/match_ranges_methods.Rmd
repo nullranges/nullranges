@@ -17,7 +17,8 @@ vignette: |
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  error = TRUE
+  error = TRUE,
+  eval = FALSE
 )
 ```
 
@@ -36,7 +37,7 @@ promoters are looped (i.e. `loopedEP`), and we also break down the
 continuous `epDistance` into categorical groups
 (i.e. `epDistanceGrouped`).
 
-```{r eval=FALSE, message=FALSE}
+```{r message=FALSE}
 library(nullranges)
 library(nullrangesData)
 library(plyranges)
@@ -69,7 +70,7 @@ Lets see how the matching methods perform when matching on a
 continuous covariate such as the enhancer-promoter distance
 (`epDistance`) 
 
-```{r cont-cov, eval=FALSE, fig.width=11, fig.height=4}
+```{r cont-cov, fig.width=11, fig.height=4}
 ## Define focal, pool and covar
 focal <- epp[epp$loopedEP == 1]
 pool  <- epp[epp$loopedEP == 0]
@@ -142,7 +143,7 @@ Lets see how the matching methods perform when matching on a discrete
 binary covariate such as whether the enhancer-promoter is looped or
 not (`loopedEP`). 
 
-```{r disc-bin-cov, eval=FALSE, fig.width=11, fig.height=4}
+```{r disc-bin-cov, fig.width=11, fig.height=4}
 ## Define focal, pool and covar
 focal <- epp[epp$epDistance <= 40e03]
 pool  <- epp[epp$epDistance > 40e03]
@@ -220,7 +221,7 @@ Lets see how the matching methods perform when matching on a discrete
 non-binary covariate (i.e. categorical covariate) such as which group
 the epDistance fall into (`epDistanceGrouped`). 
 
-```{r disc-cov, eval=FALSE, fig.width=11, fig.height=4}
+```{r disc-cov, fig.width=11, fig.height=4}
 
 ## Define focal, pool and covar
 focal <- epp[epp$loopedEP == 1]
@@ -293,7 +294,7 @@ p1 + p2 + p3 +
 
 Finally, lets see how the matching methods perform when the focal group is larger than the pool. In other words, which matching methods can bootstrap from a small pool.
 
-```{r focal-gt-pool, eval=FALSE, fig.width=8, fig.height=4}
+```{r focal-gt-pool, fig.width=8, fig.height=4}
 ## Define focal, pool and covar
 focal <- epp[epp$epDistance >= 40e03]
 pool  <- epp[epp$epDistance <  40e03]
