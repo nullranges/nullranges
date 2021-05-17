@@ -71,7 +71,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.13</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.14</span>
       </span>
     </div>
 
@@ -148,8 +148,8 @@
     <tbody>
       <tr>
         <th colspan="2">
-          <h2 id="section-all-functions" class="hasAnchor"><a href="#section-all-functions" class="anchor"></a>All functions</h2>
-          <p class="section-desc"></p>
+          <h2 id="section-matchranges" class="hasAnchor"><a href="#section-matchranges" class="anchor"></a>matchRanges</h2>
+          <p class="section-desc"><p>Matching ranges by one or more covariates</p></p>
         </th>
       </tr>
       
@@ -160,15 +160,21 @@
       <tr>
         
         <td>
-          <p><code><a href="Matched.html">matched()</a></code> <code><a href="Matched.html">matchedData(<i>&lt;Matched&gt;</i>)</a></code> <code><a href="Matched.html">covariates(<i>&lt;Matched&gt;</i>)</a></code> <code><a href="Matched.html">indices(<i>&lt;Matched&gt;</i>)</a></code> <code><a href="Matched.html">overview(<i>&lt;Matched&gt;</i>)</a></code> </p>
+          <p><code><a href="matchRanges.html">matchRanges()</a></code> </p>
         </td>
-        <td><p>Matched</p></td>
+        <td><p>matchRanges</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="MatchedDataFrame.html">DF_OR_df_OR_dt-class</a></code> </p>
+          <p><code><a href="matched-plotting.html">plotPropensity()</a></code> <code><a href="matched-plotting.html">plotCovariates()</a></code> </p>
         </td>
-        <td><p>MatchedDataFrame</p></td>
+        <td><p>Plotting functions for Matched objects</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="Matched.html">matched()</a></code> <code><a href="Matched.html">matchedData(<i>&lt;Matched&gt;</i>)</a></code> <code><a href="Matched.html">covariates(<i>&lt;Matched&gt;</i>)</a></code> <code><a href="Matched.html">indices(<i>&lt;Matched&gt;</i>)</a></code> <code><a href="Matched.html">overview(<i>&lt;Matched&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>Matched</p></td>
       </tr><tr>
         
         <td>
@@ -184,9 +190,21 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="bootstrapRanges.html">bootstrapRanges()</a></code> </p>
+          <p><code><a href="matchRangesAccessors.html">focal(<i>&lt;MDF_OR_MGR_OR_MGI&gt;</i>)</a></code> <code><a href="matchRangesAccessors.html">pool(<i>&lt;MDF_OR_MGR_OR_MGI&gt;</i>)</a></code> <code><a href="matchRangesAccessors.html">matched(<i>&lt;MDF_OR_MGR_OR_MGI&gt;</i>)</a></code> <code><a href="matchRangesAccessors.html">unmatched(<i>&lt;MDF_OR_MGR_OR_MGI&gt;</i>)</a></code> </p>
         </td>
-        <td><p>Unsegmented block bootstrap</p></td>
+        <td><p>Accessor methods for matchRanges Class</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="matchedData.html">matchedData()</a></code> </p>
+        </td>
+        <td><p>matchedData</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="MatchedDataFrame.html">DF_OR_df_OR_dt-class</a></code> </p>
+        </td>
+        <td><p>MatchedDataFrame</p></td>
       </tr><tr>
         
         <td>
@@ -214,30 +232,6 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="matchRanges.html">matchRanges()</a></code> </p>
-        </td>
-        <td><p>matchRanges</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="matchRangesAccessors.html">focal(<i>&lt;MDF_OR_MGR_OR_MGI&gt;</i>)</a></code> <code><a href="matchRangesAccessors.html">pool(<i>&lt;MDF_OR_MGR_OR_MGI&gt;</i>)</a></code> <code><a href="matchRangesAccessors.html">matched(<i>&lt;MDF_OR_MGR_OR_MGI&gt;</i>)</a></code> <code><a href="matchRangesAccessors.html">unmatched(<i>&lt;MDF_OR_MGR_OR_MGI&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Accessor methods for matchRanges Class</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="matched-plotting.html">plotPropensity()</a></code> <code><a href="matched-plotting.html">plotCovariates()</a></code> </p>
-        </td>
-        <td><p>Plotting functions for Matched objects</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="matchedData.html">matchedData()</a></code> </p>
-        </td>
-        <td><p>matchedData</p></td>
-      </tr><tr>
-        
-        <td>
           <p><code><a href="overview.html">overview()</a></code> </p>
         </td>
         <td><p>Overview</p></td>
@@ -250,9 +244,28 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="segBootstrapRanges.html">segBootstrapRanges()</a></code> </p>
+          <p><code><a href="unmatched.html">unmatched()</a></code> </p>
         </td>
-        <td><p>Segmentated block bootstrap</p></td>
+        <td><p>Unmatched</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-bootranges" class="hasAnchor"><a href="#section-bootranges" class="anchor"></a>bootRanges</h2>
+          <p class="section-desc"><p>Block bootstrap ranges optionally within segmentation</p></p>
+        </th>
+      </tr>
+      
+      
+    </tbody><tbody>
+      
+      
+      <tr>
+        
+        <td>
+          <p><code><a href="bootstrapRanges.html">bootstrapRanges()</a></code> </p>
+        </td>
+        <td><p>Unsegmented block bootstrap</p></td>
       </tr><tr>
         
         <td>
@@ -262,9 +275,9 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="unmatched.html">unmatched()</a></code> </p>
+          <p><code><a href="segBootstrapRanges.html">segBootstrapRanges()</a></code> </p>
         </td>
-        <td><p>Unmatched</p></td>
+        <td><p>Segmentated block bootstrap</p></td>
       </tr>
     </tbody>
     </table>
