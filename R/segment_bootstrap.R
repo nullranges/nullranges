@@ -42,8 +42,9 @@ segBootstrapRanges <- function(x, seg, L_b, R,
       # res <- setdiff(res,deny) # To do: cannot reserve metadata column and whether to use ignore.strand=TRUE
       ## To do: need to keep the gaps with same deny strand, here is special case that all strand(deny) ="*"
       ## To do: need to place outstide of R, doing gaps once.
-      gap <- gaps(deny,end = seqlengths(x)) %>%
-        plyranges::filter(strand=="*")
+      gap <- gaps(deny,end = seqlengths(x))
+      gap <- plyranges::filter(gap, strand=="*")
+
       ## the region remove deny regions
       res_accept <- plyranges::join_overlap_intersect(res,gap)
     }
