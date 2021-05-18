@@ -1,6 +1,6 @@
 Package: nullranges
 Title: Generation of null ranges via bootstrapping or covariate matching
-Version: 0.0.14
+Version: 0.0.15
 Authors@R: c(
     person("Michael", "Love", role = c("aut", "cre"),
       email = "michaelisaiahlove@gmail.com",
@@ -9,8 +9,10 @@ Authors@R: c(
       comment = c(ORCID = "0000-0002-5061-7581")),
     person("Eric", "Davis", role = c("aut"),
       comment = c(ORCID = "0000-0003-4051-3217")),
-    person("Douglas", "Phanstiel", role = c("aut")),
-    person("Stuart", "Lee", role = c("ctb")),
+    person("Douglas", "Phanstiel", role = c("aut"),
+      comment = c(ORCID = "0000-0003-2123-0051")),
+    person("Stuart", "Lee", role = c("aut"),
+      comment = c(ORCID = "0000-0003-1179-8436")),
     person("Mikhail", "Dozmorov", role = c("ctb")),
     person("Tim", "Triche", role = c("ctb")),
     person("CZI", role = c("fnd"))
