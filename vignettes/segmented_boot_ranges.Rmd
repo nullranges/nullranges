@@ -17,16 +17,31 @@ vignette: |
 
 # Introduction to segmented block bootstrap
 
-cite Bickel et al...
+As proposed by Bickel et al (2010), *nullranges* contains an
+implementation of a block bootstrap, such that features are sampled
+from the genome in blocks. Blocks are sampled and placed within
+regions of a genomic segmentation. That is, for a genome segmented
+into states 1,2,...,S, blocks from state $s$ will be used to tile the
+ranges of state $s$ in each bootstrap sample.
 
-Options:
+The segmented block bootstrap has two options, either to:
 
-* Segment genome using feature density, e.g. gene density
-* Use exiting segmentation (e.g. ChromHMM, etc.)
+* Segment the genome using feature density, e.g. gene density
+* Use exiting segmentation (e.g. ChromHMM, etc.) downloaded from
+  AnnotationHub or external to Bioconductor (BED files imported with
+  *rtracklayer*)
+
+In this vignette, we give an example of segmenting the hg38 genome by
+Ensembl gene density, then we profile the time to generate a single
+block bootstrap sample. Finally, we use a toy dataset to visualize
+what a segmented block bootstrap sample looks like with respect to a
+genome segmentation. Future versions of this vignette will demonstrate
+the functions use within an overlap analysis. See also the unsegmented
+block bootstrap vignette in *nullranges*.
 
 # Segmentation by gene density
 
-First we obtain the Ensembl genes ...
+First we obtain the Ensembl genes for segmenting by gene density.
 
 ```{r}
 suppressPackageStartupMessages(library(EnsDb.Hsapiens.v86))
@@ -34,6 +49,9 @@ edb <- EnsDb.Hsapiens.v86
 filt <- AnnotationFilterList(GeneIdFilter("ENSG", "startsWith"))
 g <- genes(edb, filter = filt)
 ```
+
+Some processing to align these features with our deny regions and our
+features of interest (DHS, defined below).
 
 ```{r}
 library(GenomeInfoDb)
@@ -49,7 +67,9 @@ table(seqnames(g))
 
 ## Import deny region
 
-Deny regions ... cite Kundaje
+Here we import deny regions (as created by Kundaje et al). 
+
+TODO: here instead use Mikhail's *denyranges* package, once it is available.
 
 ```{r}
 library(nullrangesData)
@@ -57,16 +77,20 @@ data("deny")
 table(seqnames(deny))
 ```
 
+## CBS segmentation
+
+We load *nullranges* and *plyranges* packages:
+
 ```{r}
 library(nullranges)
 suppressPackageStartupMessages(library(plyranges))
 ```
 
-## CBS segmentation
+We subset the deny ranges to those which are 500 bp or larger. 
 
-We subset the deny ranges to those which are 500 bp or larger.
+TODO: discuss motivation for this.
 
-cite: DNAcopy paper
+We use a CBS segmentation as implemented in *DNAcopy* (cite).
 
 ```{r seg-cbs}
 set.seed(5)
@@ -82,7 +106,7 @@ print(seg_fit$p2)
 
 ## Alternatively: HMM segmentation
 
-cite: RcppHMM
+Here we use an alternative segmentation implemented in *RcppHMM* (cite).
 
 ```{r seg-hmm}
 seg_hmm <- segmentDensity(g, n = 3, L_s = L_s,
@@ -96,20 +120,27 @@ print(seg_hmm$p2)
 
 # Timing on DHS peaks
 
-*DHSA549Hg38* First download DNase hypersensitivity peaks in A549 from
-*AnnotationHub*, then subset to standard chromosomes and remove mitochondria (more work
-needed to handle these cases internally). We use a "chain file" from UCSC to move the ranges from hg19 to the modern hg38 to be consistent with gene ranges. Finally, we sort the
-features to be bootstrapped.
+Here, we use a set of DNase hypersensitivity sites (DHS) from the
+ENCODE project in A549 cell line. Here, for speed, we load an existing
+data object which has been processed with the following steps:
+
+* Download DNase hypersensitivity peaks in A549 from *AnnotationHub* 
+# Subset to standard chromosomes and remove mitochondria (more work
+needed to handle these cases internally). 
+* Use a chain file from UCSC to lift ranges from hg19 to hg38
+* Sort the DHS features to be bootstrapped
 
 ```{r}
 data("DHSA549Hg38")
 table(seqnames(DHSA549Hg38))
 ```
 
-Here we apply a segmented block bootstrap with blocks of size 500kb,
-to the peaks...
+Now e apply a segmented block bootstrap with blocks of size 500kb,
+to the peaks. We are currently interested in profiling the speed of
+this operation (future vignette iterations will also demonstrate its
+use in a workflow).
 
-Test on 10 times bootstrap ~13s
+Testing the segmented block bootstrap:
 
 ```{r}
 L_b <- 5e5
@@ -128,7 +159,8 @@ microbenchmark(list=alist(
 
 # Visualizing the segmented block bootstrap
 
-Toy example for evaluating segmented block bootstrap...
+Below we present a toy example for visualizing the segmented block
+bootstrap.
 
 ```{r}
 suppressPackageStartupMessages(library(BentoBox))
@@ -200,7 +232,7 @@ gr$state_col <- seg$state_col[idx]
 plotGRanges(fixBBPlots(gr))
 ```
 
-Not scaling blocks to segmentation length:
+## Not scaling blocks to segmentation length
 
 ```{r toy-no-prop}
 gr_prime <- nullranges::segBootstrapRanges(gr, seg, L_b = 25, R = 1, 
@@ -208,7 +240,7 @@ gr_prime <- nullranges::segBootstrapRanges(gr, seg, L_b = 25, R = 1,
 plotGRanges(fixBBPlots(gr_prime))
 ```
 
-Scaling blocks to segmentation length:
+## Scaling blocks to segmentation length
 
 ```{r toy-prop}
 gr_prime <- nullranges::segBootstrapRanges(gr, seg, L_b = 50, R = 1, 
