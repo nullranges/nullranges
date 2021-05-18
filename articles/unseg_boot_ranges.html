@@ -97,7 +97,7 @@
       <h1 data-toc-skip>Un-segmented block bootstrap</h1>
                         <h4 class="author">Michael Love</h4>
             
-            <h4 class="date">05/17/2021</h4>
+            <h4 class="date">05/18/2021</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/master/vignettes/unseg_boot_ranges.Rmd"><code>vignettes/unseg_boot_ranges.Rmd</code></a></small>
       <div class="hidden name"><code>unseg_boot_ranges.Rmd</code></div>
@@ -114,7 +114,7 @@
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">AnnotationHub</span><span class="op">)</span><span class="op">)</span>
 <span class="va">ah</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/AnnotationHub/man/AnnotationHub-class.html">AnnotationHub</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
-<pre><code>## using temporary cache /tmp/RtmpBQYNQz/BiocFileCache</code></pre>
+<pre><code>## using temporary cache /tmp/RtmpC08B0Q/BiocFileCache</code></pre>
 <pre><code>## snapshotDate(): 2020-10-27</code></pre>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">pks</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/AnnotationHub/man/AnnotationHub-class.html">query</a></span><span class="op">(</span><span class="va">ah</span>, <span class="fu"><a href="https://rdrr.io/pkg/BentoBox/man/c.html">c</a></span><span class="op">(</span><span class="st">"DnaseSeq"</span>, <span class="st">"narrowPeak"</span>, <span class="st">"A549"</span>, <span class="st">"UniPk"</span><span class="op">)</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></code></pre></div>
@@ -149,11 +149,11 @@
                  b_across<span class="op">=</span><span class="fu"><a href="../reference/bootstrapRanges.html">bootstrapRanges</a></span><span class="op">(</span><span class="va">pks</span>, L_b<span class="op">=</span><span class="va">L_b</span>, within_chrom<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span>
 <span class="op">)</span>, times<span class="op">=</span><span class="fl">10</span><span class="op">)</span></code></pre></div>
 <pre><code>## Unit: milliseconds
-##      expr      min       lq      mean   median        uq       max neval
-##  p_within 913.4141 955.5347 1029.1863 959.8351  981.8515 1666.6575    10
-##  b_within 910.9352 921.9707 1095.7911 927.9506 1143.2694 1658.3071    10
-##  p_across 182.7820 198.2553  283.7957 202.6675  233.1440  936.0458    10
-##  b_across 210.5836 213.5478  290.2518 224.7096  228.8789  915.1760    10</code></pre>
+##      expr       min        lq      mean    median        uq       max neval
+##  p_within 1010.6610 1029.0864 1113.1004 1041.0075 1056.2569 1761.6284    10
+##  b_within  992.0500  999.1240 1174.6430 1019.5630 1215.4448 1713.4242    10
+##  p_across  197.3970  212.0379  298.6004  218.3871  249.1933  951.7038    10
+##  b_across  226.4931  230.8729  305.5500  239.7516  245.1426  928.3141    10</code></pre>
 </div>
 <div id="visualize-on-synthetic-data" class="section level1">
 <h1 class="hasAnchor">
