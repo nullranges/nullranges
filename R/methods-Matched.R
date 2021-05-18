@@ -104,9 +104,12 @@ set_matched_plot <- function(data, type, cols, x) {
   y <- rlang::sym("group")
   color <- rlang::sym("group")
 
+  type <- match.arg(type, c("jitter", "ridges", "lines"))
+  
   if (identical(type, "jitter")) {
     ans <- ggplot(data, mapping = aes(x = !!x, y = !!y, color = !!color)) +
       geom_jitter(height = 0.25, width = 0, alpha = 0.7) +
+      scale_y_discrete(limits = rev) +
       scale_color_manual(values = cols)
   }
 
@@ -115,10 +118,11 @@ set_matched_plot <- function(data, type, cols, x) {
     ans <-
       ggplot(data,  mapping = aes(x = !!x, y = !!y, fill = !!fill)) +
       geom_density_ridges(alpha = 0.7, color = NA) +
+      scale_y_discrete(limits = rev) +
       scale_fill_manual(values = cols)
   }
 
-  if (identical(type, "line")) {
+  if (identical(type, "lines")) {
     ans <- ggplot(data, mapping = aes(x = !!x, color = !!color)) +
       geom_density(show.legend = FALSE, na.rm = TRUE) +
       stat_density(geom = 'line', position = 'identity', na.rm = TRUE) +
@@ -146,7 +150,6 @@ plot_propensity <- function(x, type = NULL) {
   ans <- set_matched_plot(md, type, cols, x = "ps")
 
   ans +
-    scale_y_discrete(limits = rev) +
     labs(x = "Propensity Score", y = NULL) +
     theme_minimal() +
     theme(legend.position = 'none',
@@ -198,7 +201,6 @@ plot_covariates <- function(x, covar = 'all', sets = 'all', type = NULL, logTran
                           x = "value")
 
   ans <- ans +
-    scale_y_discrete(limits = rev) +
     labs(y = "") +
     facet_grid(~variable, scales = "free_x")+
     theme_minimal()+
