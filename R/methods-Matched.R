@@ -104,7 +104,7 @@ set_matched_plot <- function(data, type, cols, x) {
   y <- rlang::sym("group")
   color <- rlang::sym("group")
 
-  type <- match.arg(type, c("jitter", "ridges", "lines"))
+  type <- match.arg(type, c("jitter", "ridge", "lines"))
   
   if (identical(type, "jitter")) {
     ans <- ggplot(data, mapping = aes(x = !!x, y = !!y, color = !!color)) +
