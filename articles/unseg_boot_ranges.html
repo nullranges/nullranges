@@ -114,7 +114,7 @@
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">AnnotationHub</span><span class="op">)</span><span class="op">)</span>
 <span class="va">ah</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/AnnotationHub/man/AnnotationHub-class.html">AnnotationHub</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
-<pre><code>## using temporary cache /tmp/RtmpC08B0Q/BiocFileCache</code></pre>
+<pre><code>## using temporary cache /tmp/RtmpCZZgKO/BiocFileCache</code></pre>
 <pre><code>## snapshotDate(): 2020-10-27</code></pre>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">pks</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/AnnotationHub/man/AnnotationHub-class.html">query</a></span><span class="op">(</span><span class="va">ah</span>, <span class="fu"><a href="https://rdrr.io/pkg/BentoBox/man/c.html">c</a></span><span class="op">(</span><span class="st">"DnaseSeq"</span>, <span class="st">"narrowPeak"</span>, <span class="st">"A549"</span>, <span class="st">"UniPk"</span><span class="op">)</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></code></pre></div>
@@ -149,11 +149,11 @@
                  b_across<span class="op">=</span><span class="fu"><a href="../reference/bootstrapRanges.html">bootstrapRanges</a></span><span class="op">(</span><span class="va">pks</span>, L_b<span class="op">=</span><span class="va">L_b</span>, within_chrom<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span>
 <span class="op">)</span>, times<span class="op">=</span><span class="fl">10</span><span class="op">)</span></code></pre></div>
 <pre><code>## Unit: milliseconds
-##      expr       min        lq      mean    median        uq       max neval
-##  p_within 1010.6610 1029.0864 1113.1004 1041.0075 1056.2569 1761.6284    10
-##  b_within  992.0500  999.1240 1174.6430 1019.5630 1215.4448 1713.4242    10
-##  p_across  197.3970  212.0379  298.6004  218.3871  249.1933  951.7038    10
-##  b_across  226.4931  230.8729  305.5500  239.7516  245.1426  928.3141    10</code></pre>
+##      expr       min        lq      mean    median        uq      max neval
+##  p_within 1114.6689 1118.3721 1244.4136 1157.0680 1190.5381 2053.037    10
+##  b_within 1085.3151 1104.3179 1323.4879 1151.7126 1300.5141 2016.392    10
+##  p_across  195.5471  196.0387  306.3159  209.1902  243.0219 1108.152    10
+##  b_across  218.5638  228.4845  317.5649  231.5084  252.6397 1064.159    10</code></pre>
 </div>
 <div id="visualize-on-synthetic-data" class="section level1">
 <h1 class="hasAnchor">
