@@ -8,6 +8,13 @@
 
 <title>Function reference • nullranges</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
@@ -40,6 +47,7 @@
 
 
 <meta property="og:title" content="Function reference" />
+<meta property="og:image" content="/logo.png" />
 
 
 
@@ -148,8 +156,8 @@
     <tbody>
       <tr>
         <th colspan="2">
-          <h2 id="section-matchranges" class="hasAnchor"><a href="#section-matchranges" class="anchor"></a>matchRanges</h2>
-          <p class="section-desc"><p>Matching ranges by one or more covariates</p></p>
+          <h2 id="section-all-functions" class="hasAnchor"><a href="#section-all-functions" class="anchor"></a>All functions</h2>
+          <p class="section-desc"></p>
         </th>
       </tr>
       
@@ -160,21 +168,15 @@
       <tr>
         
         <td>
-          <p><code><a href="matchRanges.html">matchRanges()</a></code> </p>
-        </td>
-        <td><p>matchRanges</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="matched-plotting.html">plotPropensity()</a></code> <code><a href="matched-plotting.html">plotCovariates()</a></code> </p>
-        </td>
-        <td><p>Plotting functions for Matched objects</p></td>
-      </tr><tr>
-        
-        <td>
           <p><code><a href="Matched.html">matched()</a></code> <code><a href="Matched.html">matchedData(<i>&lt;Matched&gt;</i>)</a></code> <code><a href="Matched.html">covariates(<i>&lt;Matched&gt;</i>)</a></code> <code><a href="Matched.html">indices(<i>&lt;Matched&gt;</i>)</a></code> <code><a href="Matched.html">overview(<i>&lt;Matched&gt;</i>)</a></code> </p>
         </td>
         <td><p>Matched</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="MatchedDataFrame.html">DF_OR_df_OR_dt-class</a></code> </p>
+        </td>
+        <td><p>MatchedDataFrame</p></td>
       </tr><tr>
         
         <td>
@@ -190,21 +192,9 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="matchRangesAccessors.html">focal(<i>&lt;MDF_OR_MGR_OR_MGI&gt;</i>)</a></code> <code><a href="matchRangesAccessors.html">pool(<i>&lt;MDF_OR_MGR_OR_MGI&gt;</i>)</a></code> <code><a href="matchRangesAccessors.html">matched(<i>&lt;MDF_OR_MGR_OR_MGI&gt;</i>)</a></code> <code><a href="matchRangesAccessors.html">unmatched(<i>&lt;MDF_OR_MGR_OR_MGI&gt;</i>)</a></code> </p>
+          <p><code><a href="bootstrapRanges.html">bootstrapRanges()</a></code> </p>
         </td>
-        <td><p>Accessor methods for matchRanges Class</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="matchedData.html">matchedData()</a></code> </p>
-        </td>
-        <td><p>matchedData</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="MatchedDataFrame.html">DF_OR_df_OR_dt-class</a></code> </p>
-        </td>
-        <td><p>MatchedDataFrame</p></td>
+        <td><p>Unsegmented block bootstrap</p></td>
       </tr><tr>
         
         <td>
@@ -232,6 +222,30 @@
       </tr><tr>
         
         <td>
+          <p><code><a href="matchRanges.html">matchRanges()</a></code> </p>
+        </td>
+        <td><p>matchRanges</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="matchRangesAccessors.html">focal(<i>&lt;MDF_OR_MGR_OR_MGI&gt;</i>)</a></code> <code><a href="matchRangesAccessors.html">pool(<i>&lt;MDF_OR_MGR_OR_MGI&gt;</i>)</a></code> <code><a href="matchRangesAccessors.html">matched(<i>&lt;MDF_OR_MGR_OR_MGI&gt;</i>)</a></code> <code><a href="matchRangesAccessors.html">unmatched(<i>&lt;MDF_OR_MGR_OR_MGI&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>Accessor methods for matchRanges Class</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="matched-plotting.html">plotPropensity()</a></code> <code><a href="matched-plotting.html">plotCovariates()</a></code> </p>
+        </td>
+        <td><p>Plotting functions for Matched objects</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="matchedData.html">matchedData()</a></code> </p>
+        </td>
+        <td><p>matchedData</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="overview.html">overview()</a></code> </p>
         </td>
         <td><p>Overview</p></td>
@@ -244,28 +258,9 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="unmatched.html">unmatched()</a></code> </p>
+          <p><code><a href="segBootstrapRanges.html">segBootstrapRanges()</a></code> </p>
         </td>
-        <td><p>Unmatched</p></td>
-      </tr>
-    </tbody><tbody>
-      <tr>
-        <th colspan="2">
-          <h2 id="section-bootranges" class="hasAnchor"><a href="#section-bootranges" class="anchor"></a>bootRanges</h2>
-          <p class="section-desc"><p>Block bootstrap ranges optionally within segmentation</p></p>
-        </th>
-      </tr>
-      
-      
-    </tbody><tbody>
-      
-      
-      <tr>
-        
-        <td>
-          <p><code><a href="bootstrapRanges.html">bootstrapRanges()</a></code> </p>
-        </td>
-        <td><p>Unsegmented block bootstrap</p></td>
+        <td><p>Segmentated block bootstrap</p></td>
       </tr><tr>
         
         <td>
@@ -275,9 +270,9 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="segBootstrapRanges.html">segBootstrapRanges()</a></code> </p>
+          <p><code><a href="unmatched.html">unmatched()</a></code> </p>
         </td>
-        <td><p>Segmentated block bootstrap</p></td>
+        <td><p>Unmatched</p></td>
       </tr>
     </tbody>
     </table>
@@ -293,7 +288,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://mikelove.github.io'>Michael Love</a>, <a href='https://twitter.com/wancenm'>Wancen Mu</a>, <a href='https://ericscottdavis.com'>Eric Davis</a>, <a href='http://phanstiel-lab.med.unc.edu'>Douglas Phanstiel</a>, <a href='https://stuartlee.org'>Stuart Lee</a>, <a href='https://chanzuckerberg.com'>CZI</a>.</p>
+  <p>Developed by Michael Love, Wancen Mu, Eric Davis, Douglas Phanstiel, Stuart Lee, CZI.</p>
 </div>
 
 <div class="pkgdown">
