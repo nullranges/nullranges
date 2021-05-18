@@ -1,4 +1,4 @@
-# nullranges <img id="nullranges_logo" src="man/figures/nullranges.png" align="right" width="125"/>
+# nullranges <img id="nullranges_logo" src="man/figures/logo.png" align="right" width="125"/>
 
 [![R build status](https://github.com/nullranges/nullranges/actions/workflows/check-bioc.yml/badge.svg)](https://github.com/nullranges/nullranges/actions/workflows/check-bioc.yml)
 
