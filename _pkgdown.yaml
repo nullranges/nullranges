@@ -30,3 +30,26 @@ figures:
   fig.width: 5
   fig.height: 3
   fig.retina: 1
+reference:
+- title: "matchRanges"
+  desc: "Matching ranges by one or more covariates"
+- contents:
+  - starts_with("matchRanges")
+  - starts_with("plotPropensity")
+  - starts_with("plotCovariates")  
+  - starts_with("Matched")
+  - starts_with("matched")
+  - starts_with("DF_OR_df_OR_dt")
+  - starts_with("combnCov")
+  - starts_with("covariates")
+  - starts_with("focal")
+  - starts_with("indices")
+  - starts_with("overview")
+  - starts_with("pool")
+  - starts_with("unmatched")
+- title: "bootRanges"
+  desc: "Block bootstrap ranges optionally within segmentation"
+- contents:
+  - bootstrapRanges
+  - segmentDensity
+  - segBootstrapRanges
