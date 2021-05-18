@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.13</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.15</span>
       </span>
     </div>
 
@@ -91,13 +91,13 @@
 
       
 
-      </header><script src="segmented_boot_ranges_files/header-attrs-2.7/header-attrs.js"></script><div class="row">
+      </header><script src="segmented_boot_ranges_files/header-attrs-2.6/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Segmented block bootstrap</h1>
                         <h4 class="author">Wancen Mu</h4>
             
-            <h4 class="date">05/17/2021</h4>
+            <h4 class="date">05/18/2021</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/master/vignettes/segmented_boot_ranges.Rmd"><code>vignettes/segmented_boot_ranges.Rmd</code></a></small>
       <div class="hidden name"><code>segmented_boot_ranges.Rmd</code></div>
@@ -109,22 +109,24 @@
 <div id="introduction-to-segmented-block-bootstrap" class="section level1">
 <h1 class="hasAnchor">
 <a href="#introduction-to-segmented-block-bootstrap" class="anchor"></a>Introduction to segmented block bootstrap</h1>
-<p>cite Bickel et al…</p>
-<p>Options:</p>
+<p>As proposed by Bickel et al (2010), <em>nullranges</em> contains an implementation of a block bootstrap, such that features are sampled from the genome in blocks. Blocks are sampled and placed within regions of a genomic segmentation. That is, for a genome segmented into states 1,2,…,S, blocks from state <span class="math inline">\(s\)</span> will be used to tile the ranges of state <span class="math inline">\(s\)</span> in each bootstrap sample.</p>
+<p>The segmented block bootstrap has two options, either to:</p>
 <ul>
-<li>Segment genome using feature density, e.g. gene density</li>
-<li>Use exiting segmentation (e.g. ChromHMM, etc.)</li>
+<li>Segment the genome using feature density, e.g. gene density</li>
+<li>Use exiting segmentation (e.g. ChromHMM, etc.) downloaded from AnnotationHub or external to Bioconductor (BED files imported with <em>rtracklayer</em>)</li>
 </ul>
+<p>In this vignette, we give an example of segmenting the hg38 genome by Ensembl gene density, then we profile the time to generate a single block bootstrap sample. Finally, we use a toy dataset to visualize what a segmented block bootstrap sample looks like with respect to a genome segmentation. Future versions of this vignette will demonstrate the functions use within an overlap analysis. See also the unsegmented block bootstrap vignette in <em>nullranges</em>.</p>
 </div>
 <div id="segmentation-by-gene-density" class="section level1">
 <h1 class="hasAnchor">
 <a href="#segmentation-by-gene-density" class="anchor"></a>Segmentation by gene density</h1>
-<p>First we obtain the Ensembl genes …</p>
+<p>First we obtain the Ensembl genes for segmenting by gene density.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">EnsDb.Hsapiens.v86</span><span class="op">)</span><span class="op">)</span>
 <span class="va">edb</span> <span class="op">&lt;-</span> <span class="va">EnsDb.Hsapiens.v86</span>
 <span class="va">filt</span> <span class="op">&lt;-</span> <span class="fu">AnnotationFilterList</span><span class="op">(</span><span class="fu">GeneIdFilter</span><span class="op">(</span><span class="st">"ENSG"</span>, <span class="st">"startsWith"</span><span class="op">)</span><span class="op">)</span>
 <span class="va">g</span> <span class="op">&lt;-</span> <span class="fu">genes</span><span class="op">(</span><span class="va">edb</span>, filter <span class="op">=</span> <span class="va">filt</span><span class="op">)</span></code></pre></div>
+<p>Some processing to align these features with our deny regions and our features of interest (DHS, defined below).</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://bioconductor.org/packages/GenomeInfoDb">GenomeInfoDb</a></span><span class="op">)</span>
 <span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqlevels-wrappers.html">keepStandardChromosomes</a></span><span class="op">(</span><span class="va">g</span>, pruning.mode <span class="op">=</span> <span class="st">"coarse"</span><span class="op">)</span>
@@ -143,7 +145,8 @@
 <div id="import-deny-region" class="section level2">
 <h2 class="hasAnchor">
 <a href="#import-deny-region" class="anchor"></a>Import deny region</h2>
-<p>Deny regions … cite Kundaje</p>
+<p>Here we import deny regions (as created by Kundaje et al).</p>
+<p>TODO: here instead use Mikhail’s <em>denyranges</em> package, once it is available.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">nullrangesData</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"deny"</span><span class="op">)</span>
@@ -153,17 +156,20 @@
 ##    54   141    47    69    41    32    68    51    45    38    31    23    22 
 ## chr14 chr15 chr16 chr17 chr18 chr19 chr20 chr21 chr22  chrX  chrY 
 ##    18    14    34    35    10    13    22    24    19    47    12</code></pre>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/nullranges/nullranges">nullranges</a></span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">plyranges</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 </div>
 <div id="cbs-segmentation" class="section level2">
 <h2 class="hasAnchor">
 <a href="#cbs-segmentation" class="anchor"></a>CBS segmentation</h2>
+<p>We load <em>nullranges</em> and <em>plyranges</em> packages:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/nullranges/nullranges">nullranges</a></span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">plyranges</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p>We subset the deny ranges to those which are 500 bp or larger.</p>
-<p>cite: DNAcopy paper</p>
+<p>TODO: discuss motivation for this.</p>
+<p>We use a CBS segmentation as implemented in <em>DNAcopy</em> (cite).</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">deny2</span> <span class="op">&lt;-</span> <span class="va">deny</span> <span class="op">%&gt;%</span> <span class="fu">plyranges</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">filter</a></span><span class="op">(</span><span class="fu">width</span><span class="op">(</span><span class="va">deny</span><span class="op">)</span> <span class="op">&gt;=</span> <span class="fl">500</span><span class="op">)</span>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span>
+<span class="va">deny2</span> <span class="op">&lt;-</span> <span class="va">deny</span> <span class="op">%&gt;%</span> <span class="fu">plyranges</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">filter</a></span><span class="op">(</span><span class="fu">width</span><span class="op">(</span><span class="va">deny</span><span class="op">)</span> <span class="op">&gt;=</span> <span class="fl">500</span><span class="op">)</span>
 <span class="va">L_s</span> <span class="op">&lt;-</span> <span class="fl">1e6</span>
 <span class="va">seg_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/segmentDensity.html">segmentDensity</a></span><span class="op">(</span><span class="va">g</span>, n <span class="op">=</span> <span class="fl">3</span>, L_s <span class="op">=</span> <span class="va">L_s</span>,
                           deny <span class="op">=</span> <span class="va">deny2</span>, type <span class="op">=</span> <span class="st">"cbs"</span>,
@@ -180,12 +186,12 @@
 <div id="alternatively-hmm-segmentation" class="section level2">
 <h2 class="hasAnchor">
 <a href="#alternatively-hmm-segmentation" class="anchor"></a>Alternatively: HMM segmentation</h2>
-<p>cite: RcppHMM</p>
+<p>Here we use an alternative segmentation implemented in <em>RcppHMM</em> (cite).</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">seg_hmm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/segmentDensity.html">segmentDensity</a></span><span class="op">(</span><span class="va">g</span>, n <span class="op">=</span> <span class="fl">3</span>, L_s <span class="op">=</span> <span class="va">L_s</span>,
                           deny <span class="op">=</span> <span class="va">deny2</span>, type <span class="op">=</span> <span class="st">"hmm"</span>,
                           returnPlot <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
-<pre><code>## Finished at Iteration: 67 with Error: 9.49963e-06</code></pre>
+<pre><code>## Finished at Iteration: 73 with Error: 9.78676e-06</code></pre>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="va">seg_hmm</span><span class="op">$</span><span class="va">p1</span><span class="op">)</span></code></pre></div>
 <p><img src="segmented_boot_ranges_files/figure-html/seg-hmm-1.png"><!-- --></p>
@@ -201,7 +207,12 @@
 <div id="timing-on-dhs-peaks" class="section level1">
 <h1 class="hasAnchor">
 <a href="#timing-on-dhs-peaks" class="anchor"></a>Timing on DHS peaks</h1>
-<p><em>DHSA549Hg38</em> First download DNase hypersensitivity peaks in A549 from <em>AnnotationHub</em>, then subset to standard chromosomes and remove mitochondria (more work needed to handle these cases internally). We use a “chain file” from UCSC to move the ranges from hg19 to the modern hg38 to be consistent with gene ranges. Finally, we sort the features to be bootstrapped.</p>
+<p>Here, we use a set of DNase hypersensitivity sites (DHS) from the ENCODE project in A549 cell line. Here, for speed, we load an existing data object which has been processed with the following steps:</p>
+<ul>
+<li>Download DNase hypersensitivity peaks in A549 from <em>AnnotationHub</em> # Subset to standard chromosomes and remove mitochondria (more work needed to handle these cases internally).</li>
+<li>Use a chain file from UCSC to lift ranges from hg19 to hg38</li>
+<li>Sort the DHS features to be bootstrapped</li>
+</ul>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"DHSA549Hg38"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqinfo.html">seqnames</a></span><span class="op">(</span><span class="va">DHSA549Hg38</span><span class="op">)</span><span class="op">)</span></code></pre></div>
@@ -210,8 +221,8 @@
 ## 15240 14436  9549  6034  9714  8043  9549  8463  8247  8924  8618 10597  2732 
 ## chr14 chr15 chr16 chr17 chr18 chr19 chr20 chr21 chr22  chrX  chrY 
 ##  5785  6929  6596 11438  2643  8818  5986  1471  3010  4024   239</code></pre>
-<p>Here we apply a segmented block bootstrap with blocks of size 500kb, to the peaks…</p>
-<p>Test on 10 times bootstrap ~13s</p>
+<p>Now e apply a segmented block bootstrap with blocks of size 500kb, to the peaks. We are currently interested in profiling the speed of this operation (future vignette iterations will also demonstrate its use in a workflow).</p>
+<p>Testing the segmented block bootstrap:</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">L_b</span> <span class="op">&lt;-</span> <span class="fl">5e5</span>
 <span class="co"># TODO 'x' has no seqlengths</span>
@@ -224,14 +235,14 @@
                  no_prop <span class="op">=</span> <span class="fu"><a href="../reference/segBootstrapRanges.html">segBootstrapRanges</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">seg</span>, <span class="va">L_b</span>, <span class="fl">1</span>, <span class="va">deny</span>, proportion_length <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
 <span class="op">)</span>, times<span class="op">=</span><span class="fl">10</span><span class="op">)</span></code></pre></div>
 <pre><code>## Unit: milliseconds
-##     expr      min       lq     mean   median       uq      max neval
-##     prop 129.2226 142.1649 272.1519 152.7035 449.0137 497.2538    10
-##  no_prop 126.0484 128.3655 167.8252 134.7498 143.7327 448.8146    10</code></pre>
+##     expr      min       lq     mean   median       uq       max neval
+##     prop 214.8576 220.7639 462.0519 243.9688 977.5060 1000.5159    10
+##  no_prop 196.1615 209.7585 285.3541 213.7090 222.2691  941.0595    10</code></pre>
 </div>
 <div id="visualizing-the-segmented-block-bootstrap" class="section level1">
 <h1 class="hasAnchor">
 <a href="#visualizing-the-segmented-block-bootstrap" class="anchor"></a>Visualizing the segmented block bootstrap</h1>
-<p>Toy example for evaluating segmented block bootstrap…</p>
+<p>Below we present a toy example for visualizing the segmented block bootstrap.</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://phanstiellab.github.io/bentobox">BentoBox</a></span><span class="op">)</span><span class="op">)</span>
 <span class="va">plotGRanges</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">gr</span><span class="op">)</span> <span class="op">{</span>
@@ -294,24 +305,31 @@
 <span class="va">gr</span><span class="op">$</span><span class="va">state</span> <span class="op">&lt;-</span> <span class="va">seg</span><span class="op">$</span><span class="va">state</span><span class="op">[</span><span class="va">idx</span><span class="op">]</span>
 <span class="va">gr</span><span class="op">$</span><span class="va">state_col</span> <span class="op">&lt;-</span> <span class="va">seg</span><span class="op">$</span><span class="va">state_col</span><span class="op">[</span><span class="va">idx</span><span class="op">]</span>
 <span class="fu">plotGRanges</span><span class="op">(</span><span class="fu">fixBBPlots</span><span class="op">(</span><span class="va">gr</span><span class="op">)</span><span class="op">)</span></code></pre></div>
-<pre><code>## Warning: Not enough plotting space for all provided range elements.</code></pre>
 <p><img src="segmented_boot_ranges_files/figure-html/toyranges-1.png"><!-- --></p>
-<p>Not scaling blocks to segmentation length:</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div id="not-scaling-blocks-to-segmentation-length" class="section level2">
+<h2 class="hasAnchor">
+<a href="#not-scaling-blocks-to-segmentation-length" class="anchor"></a>Not scaling blocks to segmentation length</h2>
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">gr_prime</span> <span class="op">&lt;-</span> <span class="fu">nullranges</span><span class="fu">::</span><span class="fu"><a href="../reference/segBootstrapRanges.html">segBootstrapRanges</a></span><span class="op">(</span><span class="va">gr</span>, <span class="va">seg</span>, L_b <span class="op">=</span> <span class="fl">25</span>, R <span class="op">=</span> <span class="fl">1</span>, 
                                            proportion_length <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>
 <span class="fu">plotGRanges</span><span class="op">(</span><span class="fu">fixBBPlots</span><span class="op">(</span><span class="va">gr_prime</span><span class="op">)</span><span class="op">)</span></code></pre></div>
-<pre><code>## Warning: Not enough plotting space for all provided range elements.</code></pre>
-<p><img src="segmented_boot_ranges_files/figure-html/unnamed-chunk-11-1.png"><!-- --></p>
-<p>Scaling blocks to segmentation length:</p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<pre><code>## Warning: Not enough plotting space for all provided range elements.
+
+## Warning: Not enough plotting space for all provided range elements.</code></pre>
+<p><img src="segmented_boot_ranges_files/figure-html/toy-no-prop-1.png"><!-- --></p>
+</div>
+<div id="scaling-blocks-to-segmentation-length" class="section level2">
+<h2 class="hasAnchor">
+<a href="#scaling-blocks-to-segmentation-length" class="anchor"></a>Scaling blocks to segmentation length</h2>
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">gr_prime</span> <span class="op">&lt;-</span> <span class="fu">nullranges</span><span class="fu">::</span><span class="fu"><a href="../reference/segBootstrapRanges.html">segBootstrapRanges</a></span><span class="op">(</span><span class="va">gr</span>, <span class="va">seg</span>, L_b <span class="op">=</span> <span class="fl">50</span>, R <span class="op">=</span> <span class="fl">1</span>, 
                                            proportion_length <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>
 <span class="fu">plotGRanges</span><span class="op">(</span><span class="fu">fixBBPlots</span><span class="op">(</span><span class="va">gr_prime</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code>## Warning: Not enough plotting space for all provided range elements.
 
 ## Warning: Not enough plotting space for all provided range elements.</code></pre>
-<p><img src="segmented_boot_ranges_files/figure-html/unnamed-chunk-12-1.png"><!-- --></p>
+<p><img src="segmented_boot_ranges_files/figure-html/toy-prop-1.png"><!-- --></p>
+</div>
 </div>
   </div>
 
@@ -326,7 +344,7 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by <a href="https://mikelove.github.io">Michael Love</a>, <a href="https://twitter.com/wancenm">Wancen Mu</a>, <a href="https://ericscottdavis.com">Eric Davis</a>, <a href="http://phanstiel-lab.med.unc.edu">Douglas Phanstiel</a>, <a href="https://chanzuckerberg.com">CZI</a>.</p>
+  <p>Developed by <a href="https://mikelove.github.io">Michael Love</a>, <a href="https://twitter.com/wancenm">Wancen Mu</a>, <a href="https://ericscottdavis.com">Eric Davis</a>, <a href="http://phanstiel-lab.med.unc.edu">Douglas Phanstiel</a>, <a href="https://stuartlee.org">Stuart Lee</a>, <a href="https://chanzuckerberg.com">CZI</a>.</p>
 </div>
 
 <div class="pkgdown">

@@ -4,6 +4,18 @@
     <loc>https://nullranges.github.io/nullranges/index.html</loc>
   </url>
   <url>
+    <loc>https://nullranges.github.io/nullranges/reference/Matched.html</loc>
+  </url>
+  <url>
+    <loc>https://nullranges.github.io/nullranges/reference/MatchedDataFrame.html</loc>
+  </url>
+  <url>
+    <loc>https://nullranges.github.io/nullranges/reference/MatchedGInteractions.html</loc>
+  </url>
+  <url>
+    <loc>https://nullranges.github.io/nullranges/reference/MatchedGRanges.html</loc>
+  </url>
+  <url>
     <loc>https://nullranges.github.io/nullranges/reference/bootstrapRanges.html</loc>
   </url>
   <url>
@@ -28,19 +40,7 @@
     <loc>https://nullranges.github.io/nullranges/reference/matched-plotting.html</loc>
   </url>
   <url>
-    <loc>https://nullranges.github.io/nullranges/reference/matched.html</loc>
-  </url>
-  <url>
     <loc>https://nullranges.github.io/nullranges/reference/matchedData.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/reference/matchedDataFrame.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/reference/matchedGInteractions.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/reference/matchedGRanges.html</loc>
   </url>
   <url>
     <loc>https://nullranges.github.io/nullranges/reference/overview.html</loc>

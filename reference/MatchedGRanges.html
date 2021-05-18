@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Segmentated block bootstrap — segBootstrapRanges • nullranges</title>
+<title>MatchedGRanges — MatchedGRanges-class • nullranges</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Segmentated block bootstrap — segBootstrapRanges" />
-<meta property="og:description" content="Segmentated block bootstrap" />
+<meta property="og:title" content="MatchedGRanges — MatchedGRanges-class" />
+<meta property="og:description" content="MatchedGRanges" />
 
 
 
@@ -135,62 +135,16 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Segmentated block bootstrap</h1>
-    <small class="dont-index">Source: <a href='https://github.com/nullranges/nullranges/blob/master/R/segment_bootstrap.R'><code>R/segment_bootstrap.R</code></a></small>
-    <div class="hidden name"><code>segBootstrapRanges.Rd</code></div>
+    <h1>MatchedGRanges</h1>
+    <small class="dont-index">Source: <a href='https://github.com/nullranges/nullranges/blob/master/R/AllClasses.R'><code>R/AllClasses.R</code></a></small>
+    <div class="hidden name"><code>MatchedGRanges.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Segmentated block bootstrap</p>
+    <p>MatchedGRanges</p>
     </div>
 
-    <pre class="usage"><span class='fu'>segBootstrapRanges</span><span class='op'>(</span>
-  <span class='va'>x</span>,
-  <span class='va'>seg</span>,
-  <span class='va'>L_b</span>,
-  <span class='va'>R</span>,
-  deny <span class='op'>=</span> <span class='cn'>NULL</span>,
-  deny_option <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"drop"</span>, <span class='st'>"trim"</span><span class='op'>)</span>,
-  proportion_length <span class='op'>=</span> <span class='cn'>TRUE</span>
-<span class='op'>)</span></pre>
 
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
-    <table class="ref-arguments">
-    <colgroup><col class="name" /><col class="desc" /></colgroup>
-    <tr>
-      <th>x</th>
-      <td><p>the input GRanges</p></td>
-    </tr>
-    <tr>
-      <th>seg</th>
-      <td><p>the segmentation GRanges, with a column ("state")
-indicating segmentation state</p></td>
-    </tr>
-    <tr>
-      <th>L_b</th>
-      <td><p>the length of the blocks (for proportional blocks, this
-is the maximal length of block)</p></td>
-    </tr>
-    <tr>
-      <th>R</th>
-      <td><p>the number of bootstrap samples to generate</p></td>
-    </tr>
-    <tr>
-      <th>deny</th>
-      <td><p>the GRanges of deny regions (optional)</p></td>
-    </tr>
-    <tr>
-      <th>deny_option</th>
-      <td><p>whether to "drop" or "trim" bootstrap
-ranges that overlap a deny region</p></td>
-    </tr>
-    <tr>
-      <th>proportion_length</th>
-      <td><p>whether to use scaled block length,
-(scaling by the proportion of the segmentation state
-out of the total genome length)</p></td>
-    </tr>
-    </table>
 
 
   </div>

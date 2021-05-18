@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Our Pledge • nullranges</title>
+<title>Contributing to nullranges • nullranges</title>
 
 
 <!-- jquery -->
@@ -39,7 +39,7 @@
 
 
 
-<meta property="og:title" content="Our Pledge" />
+<meta property="og:title" content="Contributing to nullranges" />
 
 
 
@@ -134,59 +134,52 @@
 <div class="row">
   <div class="contents col-md-9">
     <div class="page-header">
-      <h1>Our Pledge</h1>
+      <h1>Contributing to nullranges</h1>
     </div>
 
+<div id="contributing-to-nullranges" class="section level1">
 
-<div id="our-pledge" class="section level1">
-
-<p>In the interest of fostering an open and welcoming environment, we as contributors and maintainers pledge to make participation in our project and our community a harassment-free experience for everyone, regardless of age, body size, disability, ethnicity, sex characteristics, gender identity and expression, level of experience, education, socio-economic status, nationality, personal appearance, race, religion, or sexual identity and orientation.</p>
+<p>This outlines how to propose a change to nullranges. (Template copied from tidyverse contribution guide).</p>
+<div id="fixing-typos" class="section level2">
+<h2 class="hasAnchor">
+<a href="#fixing-typos" class="anchor"></a>Fixing typos</h2>
+<p>You can fix typos, spelling mistakes, or grammatical errors in the documentation directly using the GitHub web interface, as long as the changes are made in the <em>source</em> file. This generally means you’ll need to edit <a href="https://roxygen2.r-lib.org/articles/roxygen2.html">roxygen2 comments</a> in an <code>.R</code>, not a <code>.Rd</code> file. You can find the <code>.R</code> file that generates the <code>.Rd</code> by reading the comment in the first line.</p>
 </div>
-<div id="our-standards" class="section level1">
-<h1 class="hasAnchor">
-<a href="#our-standards" class="anchor"></a>Our Standards</h1>
-<p>Examples of behavior that contributes to creating a positive environment include:</p>
+<div id="bigger-changes" class="section level2">
+<h2 class="hasAnchor">
+<a href="#bigger-changes" class="anchor"></a>Bigger changes</h2>
+<p>If you want to make a bigger change, it’s a good idea to first file an issue and make sure someone from the team agrees that it’s needed. If you’ve found a bug, please file an issue that illustrates the bug with a minimal <a href="https://www.tidyverse.org/help/#reprex">reprex</a> (this will also help you write a unit test, if needed).</p>
+</div>
+<div id="slack-channel" class="section level2">
+<h2 class="hasAnchor">
+<a href="#slack-channel" class="anchor"></a>Slack channel</h2>
+<p>The nullranges development team has a public Slack channel <code>#nullranges</code> on the <em>community-bioc</em> Slack. We welcome questions or suggestions there as well, if you want to discuss. I will note that GitHub Issues are also useful for having a permanent record, and for tracking bugs/suggestions.</p>
+<div id="pull-request-process" class="section level3">
+<h3 class="hasAnchor">
+<a href="#pull-request-process" class="anchor"></a>Pull request process</h3>
 <ul>
-<li>Using welcoming and inclusive language</li>
-<li>Being respectful of differing viewpoints and experiences</li>
-<li>Gracefully accepting constructive criticism</li>
-<li>Focusing on what is best for the community</li>
-<li>Showing empathy towards other community members</li>
+<li><p>Fork the package and clone onto your computer. If you haven’t done this before, we recommend using <code><a href="https://usethis.r-lib.org/reference/create_from_github.html">usethis::create_from_github("nullranges/nullranges", fork = TRUE)</a></code>.</p></li>
+<li><p>Install all development dependences with <code><a href="https://devtools.r-lib.org//reference/install_deps.html">devtools::install_dev_deps()</a></code>, and then make sure the package passes R CMD check by running <code><a href="https://devtools.r-lib.org//reference/check.html">devtools::check()</a></code>. If R CMD check doesn’t pass cleanly, it’s a good idea to ask for help before continuing.</p></li>
+<li><p>Create a Git branch for your pull request (PR). We recommend using <code><a href="https://usethis.r-lib.org/reference/pull-requests.html">usethis::pr_init("brief-description-of-change")</a></code>.</p></li>
+<li><p>Make your changes, commit to git, and then create a PR by running <code><a href="https://usethis.r-lib.org/reference/pull-requests.html">usethis::pr_push()</a></code>, and following the prompts in your browser. The title of your PR should briefly describe the change. The body of your PR should contain <code>Fixes #issue-number</code>.</p></li>
+<li><p>For user-facing changes, add a bullet to the top of <code>NEWS.md</code> (i.e. just below the first header). Follow the style described in <a href="https://style.tidyverse.org/news.html" class="uri">https://style.tidyverse.org/news.html</a>.</p></li>
 </ul>
-<p>Examples of unacceptable behavior by participants include:</p>
+</div>
+<div id="code-style" class="section level3">
+<h3 class="hasAnchor">
+<a href="#code-style" class="anchor"></a>Code style</h3>
 <ul>
-<li>The use of sexualized language or imagery and unwelcome sexual attention or advances</li>
-<li>Trolling, insulting/derogatory comments, and personal or political attacks</li>
-<li>Public or private harassment</li>
-<li>Publishing others’ private information, such as a physical or electronic address, without explicit permission</li>
-<li>Other conduct which could reasonably be considered inappropriate in a professional setting</li>
+<li><p>We use <a href="https://cran.r-project.org/package=roxygen2">roxygen2</a> for documentation.</p></li>
+<li><p>We use <a href="https://cran.r-project.org/package=testthat">testthat</a> for unit tests. Contributions with test cases included are easier to accept.</p></li>
 </ul>
 </div>
-<div id="our-responsibilities" class="section level1">
-<h1 class="hasAnchor">
-<a href="#our-responsibilities" class="anchor"></a>Our Responsibilities</h1>
-<p>Project maintainers are responsible for clarifying the standards of acceptable behavior and are expected to take appropriate and fair corrective action in response to any instances of unacceptable behavior.</p>
-<p>Project maintainers have the right and responsibility to remove, edit, or reject comments, commits, code, wiki edits, issues, and other contributions that are not aligned to this Code of Conduct, or to ban temporarily or permanently any contributor for other behaviors that they deem inappropriate, threatening, offensive, or harmful.</p>
 </div>
-<div id="scope" class="section level1">
-<h1 class="hasAnchor">
-<a href="#scope" class="anchor"></a>Scope</h1>
-<p>This Code of Conduct applies within all project spaces, and it also applies when an individual is representing the project or its community in public spaces. Examples of representing a project or community include using an official project e-mail address, posting via an official social media account, or acting as an appointed representative at an online or offline event. Representation of a project may be further defined and clarified by project maintainers.</p>
+<div id="code-of-conduct" class="section level2">
+<h2 class="hasAnchor">
+<a href="#code-of-conduct" class="anchor"></a>Code of Conduct</h2>
+<p>Please note that the nullranges project is released with a <a href="CODE_OF_CONDUCT.html">Contributor Code of Conduct</a>. By contributing to this project you agree to abide by its terms.</p>
 </div>
-<div id="enforcement" class="section level1">
-<h1 class="hasAnchor">
-<a href="#enforcement" class="anchor"></a>Enforcement</h1>
-<p>Instances of abusive, harassing, or otherwise unacceptable behavior may be reported by contacting any of the authors of this package. If you are uncomfortable reporting to the package authors, incidents can also be reported to members of the Bioconductor Project core team.</p>
-<p>All complaints will be reviewed and investigated and will result in a response that is deemed necessary and appropriate to the circumstances. The project team is obligated to maintain confidentiality with regard to the reporter of an incident. Further details of specific enforcement policies may be posted separately.</p>
-<p>Project maintainers who do not follow or enforce the Code of Conduct in good faith may face temporary or permanent repercussions as determined by other members of the project’s leadership.</p>
 </div>
-<div id="attribution" class="section level1">
-<h1 class="hasAnchor">
-<a href="#attribution" class="anchor"></a>Attribution</h1>
-<p>This Code of Conduct is adapted from the Contributor Covenant, version 1.4, available at <a href="https://www.contributor-covenant.org/version/1/4/code-of-conduct.html" class="uri">https://www.contributor-covenant.org/version/1/4/code-of-conduct.html</a></p>
-<p>For answers to common questions about this code of conduct, see <a href="https://www.contributor-covenant.org/faq" class="uri">https://www.contributor-covenant.org/faq</a></p>
-</div>
-
 
   </div>
 
