@@ -125,8 +125,8 @@ ENCODE project in A549 cell line. Here, for speed, we load an existing
 data object which has been processed with the following steps:
 
 * Download DNase hypersensitivity peaks in A549 from *AnnotationHub* 
-# Subset to standard chromosomes and remove mitochondria (more work
-needed to handle these cases internally). 
+* Subset to standard chromosomes and remove mitochondria (more work
+needed to handle these cases internally).
 * Use a chain file from UCSC to lift ranges from hg19 to hg38
 * Sort the DHS features to be bootstrapped
 
@@ -152,8 +152,8 @@ seqlengths(x) <- seqlengths(seg)
 ```{r}
 library(microbenchmark)
 microbenchmark(list=alist(
-                 prop = segBootstrapRanges(x, seg, L_b, 1, deny, proportion_length = TRUE),
-                 no_prop = segBootstrapRanges(x, seg, L_b, 1, deny, proportion_length = FALSE)
+                 prop = bootRanges(x, seg, L_b, 1, deny, proportion_length = TRUE),
+                 no_prop = bootRanges(x, seg, L_b, 1, deny, proportion_length = FALSE)
 ), times=10)
 ```
 
@@ -235,15 +235,15 @@ plotGRanges(fixBBPlots(gr))
 ## Not scaling blocks to segmentation length
 
 ```{r toy-no-prop}
-gr_prime <- nullranges::segBootstrapRanges(gr, seg, L_b = 25, R = 1, 
-                                           proportion_length = FALSE)[[1]]
+gr_prime <- bootRanges(gr, seg, L_b = 25, R = 1, 
+                       proportion_length = FALSE)[[1]]
 plotGRanges(fixBBPlots(gr_prime))
 ```
 
 ## Scaling blocks to segmentation length
 
 ```{r toy-prop}
-gr_prime <- nullranges::segBootstrapRanges(gr, seg, L_b = 50, R = 1, 
-                                           proportion_length = TRUE)[[1]]
+gr_prime <- bootRanges(gr, seg, L_b = 50, R = 1, 
+                       proportion_length = TRUE)[[1]]
 plotGRanges(fixBBPlots(gr_prime))
 ```
