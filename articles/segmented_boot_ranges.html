@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.15</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.16</span>
       </span>
     </div>
 
@@ -104,7 +104,7 @@
       <h1 data-toc-skip>Segmented block bootstrap</h1>
                         <h4 class="author">Wancen Mu</h4>
             
-            <h4 class="date">05/18/2021</h4>
+            <h4 class="date">05/20/2021</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/master/vignettes/segmented_boot_ranges.Rmd"><code>vignettes/segmented_boot_ranges.Rmd</code></a></small>
       <div class="hidden name"><code>segmented_boot_ranges.Rmd</code></div>
@@ -216,7 +216,9 @@
 <a href="#timing-on-dhs-peaks" class="anchor"></a>Timing on DHS peaks</h1>
 <p>Here, we use a set of DNase hypersensitivity sites (DHS) from the ENCODE project in A549 cell line. Here, for speed, we load an existing data object which has been processed with the following steps:</p>
 <ul>
-<li>Download DNase hypersensitivity peaks in A549 from <em>AnnotationHub</em> # Subset to standard chromosomes and remove mitochondria (more work needed to handle these cases internally).</li>
+<li>Download DNase hypersensitivity peaks in A549 from <em>AnnotationHub</em>
+</li>
+<li>Subset to standard chromosomes and remove mitochondria (more work needed to handle these cases internally).</li>
 <li>Use a chain file from UCSC to lift ranges from hg19 to hg38</li>
 <li>Sort the DHS features to be bootstrapped</li>
 </ul>
@@ -238,13 +240,13 @@
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/joshuaulrich/microbenchmark/">microbenchmark</a></span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/pkg/microbenchmark/man/microbenchmark.html">microbenchmark</a></span><span class="op">(</span>list<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">alist</a></span><span class="op">(</span>
-                 prop <span class="op">=</span> <span class="fu"><a href="../reference/segBootstrapRanges.html">segBootstrapRanges</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">seg</span>, <span class="va">L_b</span>, <span class="fl">1</span>, <span class="va">deny</span>, proportion_length <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,
-                 no_prop <span class="op">=</span> <span class="fu"><a href="../reference/segBootstrapRanges.html">segBootstrapRanges</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">seg</span>, <span class="va">L_b</span>, <span class="fl">1</span>, <span class="va">deny</span>, proportion_length <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
+                 prop <span class="op">=</span> <span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">seg</span>, <span class="va">L_b</span>, <span class="fl">1</span>, <span class="va">deny</span>, proportion_length <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,
+                 no_prop <span class="op">=</span> <span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">seg</span>, <span class="va">L_b</span>, <span class="fl">1</span>, <span class="va">deny</span>, proportion_length <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
 <span class="op">)</span>, times<span class="op">=</span><span class="fl">10</span><span class="op">)</span></code></pre></div>
 <pre><code>## Unit: milliseconds
 ##     expr      min       lq     mean   median        uq      max neval
-##     prop 221.9856 236.6053 502.4010 250.9352 1080.6897 1110.056    10
-##  no_prop 210.3396 215.8948 305.3773 224.3055  230.0586 1057.874    10</code></pre>
+##     prop 243.6794 252.3216 583.6755 295.4057 1056.9700 1101.124    10
+##  no_prop 243.1111 247.6158 328.6035 251.8351  273.6226  972.203    10</code></pre>
 </div>
 <div id="visualizing-the-segmented-block-bootstrap" class="section level1">
 <h1 class="hasAnchor">
@@ -317,8 +319,8 @@
 <h2 class="hasAnchor">
 <a href="#not-scaling-blocks-to-segmentation-length" class="anchor"></a>Not scaling blocks to segmentation length</h2>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">gr_prime</span> <span class="op">&lt;-</span> <span class="fu">nullranges</span><span class="fu">::</span><span class="fu"><a href="../reference/segBootstrapRanges.html">segBootstrapRanges</a></span><span class="op">(</span><span class="va">gr</span>, <span class="va">seg</span>, L_b <span class="op">=</span> <span class="fl">25</span>, R <span class="op">=</span> <span class="fl">1</span>, 
-                                           proportion_length <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>
+<code class="sourceCode R"><span class="va">gr_prime</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">gr</span>, <span class="va">seg</span>, L_b <span class="op">=</span> <span class="fl">25</span>, R <span class="op">=</span> <span class="fl">1</span>, 
+                       proportion_length <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>
 <span class="fu">plotGRanges</span><span class="op">(</span><span class="fu">fixBBPlots</span><span class="op">(</span><span class="va">gr_prime</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code>## Warning: Not enough plotting space for all provided range elements.
 
@@ -329,8 +331,8 @@
 <h2 class="hasAnchor">
 <a href="#scaling-blocks-to-segmentation-length" class="anchor"></a>Scaling blocks to segmentation length</h2>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">gr_prime</span> <span class="op">&lt;-</span> <span class="fu">nullranges</span><span class="fu">::</span><span class="fu"><a href="../reference/segBootstrapRanges.html">segBootstrapRanges</a></span><span class="op">(</span><span class="va">gr</span>, <span class="va">seg</span>, L_b <span class="op">=</span> <span class="fl">50</span>, R <span class="op">=</span> <span class="fl">1</span>, 
-                                           proportion_length <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>
+<code class="sourceCode R"><span class="va">gr_prime</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">gr</span>, <span class="va">seg</span>, L_b <span class="op">=</span> <span class="fl">50</span>, R <span class="op">=</span> <span class="fl">1</span>, 
+                       proportion_length <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>
 <span class="fu">plotGRanges</span><span class="op">(</span><span class="fu">fixBBPlots</span><span class="op">(</span><span class="va">gr_prime</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code>## Warning: Not enough plotting space for all provided range elements.
 

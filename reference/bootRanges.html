@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>matchRanges — matchRanges • nullranges</title>
+<title>Block bootstrap genomic ranges — bootRanges • nullranges</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,9 +46,10 @@
 
 
 
-<meta property="og:title" content="matchRanges — matchRanges" />
-<meta property="og:description" content="A function that generates a covariate-matched control
-set of the same datatype." />
+<meta property="og:title" content="Block bootstrap genomic ranges — bootRanges" />
+<meta property="og:description" content="Performs a block bootstrap (R times) optionally with respect
+to a genome segmentation. Returns a bootRanges object, which
+is essentially a GRangesList of length R." />
 <meta property="og:image" content="/logo.png" />
 
 
@@ -144,63 +145,79 @@ set of the same datatype." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>matchRanges</h1>
-    <small class="dont-index">Source: <a href='https://github.com/nullranges/nullranges/blob/master/R/AllGenerics.R'><code>R/AllGenerics.R</code></a>, <a href='https://github.com/nullranges/nullranges/blob/master/R/methods-matchRanges.R'><code>R/methods-matchRanges.R</code></a></small>
-    <div class="hidden name"><code>matchRanges.Rd</code></div>
+    <h1>Block bootstrap genomic ranges</h1>
+    <small class="dont-index">Source: <a href='https://github.com/nullranges/nullranges/blob/master/R/bootRanges.R'><code>R/bootRanges.R</code></a></small>
+    <div class="hidden name"><code>bootRanges.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>A function that generates a covariate-matched control
-set of the same datatype.</p>
+    <p>Performs a block bootstrap (R times) optionally with respect
+to a genome segmentation. Returns a bootRanges object, which
+is essentially a GRangesList of length R.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>matchRanges</span><span class='op'>(</span><span class='va'>focal</span>, <span class='va'>pool</span>, <span class='va'>covar</span>, <span class='va'>method</span>, <span class='va'>replace</span>, <span class='va'>...</span><span class='op'>)</span>
-
-<span class='co'># S4 method for DF_OR_df_OR_dt,DF_OR_df_OR_dt,formula,character,logical</span>
-<span class='fu'>matchRanges</span><span class='op'>(</span><span class='va'>focal</span>, <span class='va'>pool</span>, <span class='va'>covar</span>, <span class='va'>method</span>, <span class='va'>replace</span><span class='op'>)</span>
-
-<span class='co'># S4 method for GRanges,GRanges,formula,character,logical</span>
-<span class='fu'>matchRanges</span><span class='op'>(</span><span class='va'>focal</span>, <span class='va'>pool</span>, <span class='va'>covar</span>, <span class='va'>method</span>, <span class='va'>replace</span><span class='op'>)</span>
-
-<span class='co'># S4 method for GInteractions,GInteractions,formula,character,logical</span>
-<span class='fu'>matchRanges</span><span class='op'>(</span><span class='va'>focal</span>, <span class='va'>pool</span>, <span class='va'>covar</span>, <span class='va'>method</span>, <span class='va'>replace</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>bootRanges</span><span class='op'>(</span>
+  <span class='va'>x</span>,
+  seg <span class='op'>=</span> <span class='cn'>NULL</span>,
+  <span class='va'>L_b</span>,
+  R <span class='op'>=</span> <span class='fl'>1</span>,
+  deny <span class='op'>=</span> <span class='cn'>NULL</span>,
+  deny_option <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"drop"</span>, <span class='st'>"trim"</span><span class='op'>)</span>,
+  proportion_length <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  type <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"bootstrap"</span>, <span class='st'>"permute"</span><span class='op'>)</span>,
+  within_chrom <span class='op'>=</span> <span class='cn'>FALSE</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>focal</th>
-      <td><p>a DataFrame, GRanges, or GInteractions object containing
-the focal data to match.</p></td>
+      <th>x</th>
+      <td><p>the input GRanges</p></td>
     </tr>
     <tr>
-      <th>pool</th>
-      <td><p>a DataFrame, GRanges, or GInteractions object containing
-the pool from which to select matches.</p></td>
+      <th>seg</th>
+      <td><p>the segmentation GRanges, with a column ("state")
+indicating segmentation state (optional)</p></td>
     </tr>
     <tr>
-      <th>covar</th>
-      <td><p>a rhs formula with covariates on which to match.</p></td>
+      <th>L_b</th>
+      <td><p>the length of the blocks (for proportional blocks, this
+is the maximal length of block)</p></td>
     </tr>
     <tr>
-      <th>method</th>
-      <td><p>character describing which matching method to use.
-supported options are either 'nearest', 'rejection', or 'stratified'.</p></td>
+      <th>R</th>
+      <td><p>the number of bootstrap samples to generate</p></td>
     </tr>
     <tr>
-      <th>replace</th>
-      <td><p>logical describing whether to select matches with or without
-replacement.</p></td>
+      <th>deny</th>
+      <td><p>the GRanges of deny regions (optional)</p></td>
     </tr>
     <tr>
-      <th>...</th>
-      <td><p>additional arguments</p></td>
+      <th>deny_option</th>
+      <td><p>whether to "drop" or "trim" bootstrap
+ranges that overlap a deny region</p></td>
+    </tr>
+    <tr>
+      <th>proportion_length</th>
+      <td><p>for segmented block bootstrap,
+whether to use scaled block length, (scaling by the proportion
+of the segmentation state out of the total genome length)</p></td>
+    </tr>
+    <tr>
+      <th>type</th>
+      <td><p>the type of null generation (unsegmented only)</p></td>
+    </tr>
+    <tr>
+      <th>within_chrom</th>
+      <td><p>whether to re-sample (bootstrap) ranges
+across chromosomes (default) or only within chromosomes (unsegmented only)</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>a covariate-matched control set of data</p>
+    <p>bootRanges: a GRangesList of length R with the bootstrapped ranges</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
