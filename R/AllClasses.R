@@ -21,7 +21,7 @@ Matched <- setClass(Class = "Matched",
 setValidity(Class = "Matched",
             method = function(object){
               
-              stopifnot(all(c('id', 'ps', 'group') %in%
+              stopifnot(all(c('id', 'ps', 'set') %in%
                               colnames(object@matchedData)))
               
             })
