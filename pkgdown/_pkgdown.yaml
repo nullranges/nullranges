@@ -50,6 +50,4 @@ reference:
 - title: "bootRanges"
   desc: "Block bootstrap ranges optionally within segmentation"
 - contents:
-  - bootstrapRanges
-  - segmentDensity
-  - segBootstrapRanges
+  - bootRanges

@@ -1,22 +1,4 @@
-#' Unsegmented block bootstrap
-#'
-#' @param x the input GRanges to bootstrap
-#' @param L_b the length of the blocks
-#' @param type the type of null generation
-#' @param within_chrom whether to re-sample (bootstrap) ranges
-#' across chromosomes (default) or only within chromosomes
-#'
-#' @return one iteration of bootstrapped ranges
-#' (TODO fix this)
-#'
-#' @importFrom stats as.formula binomial kmeans predict
-#' quantile rbinom rnorm runif terms
-#' @importFrom IRanges IRanges successiveIRanges mid
-#' @importFrom GenomicRanges tileGenome sort
-#' @importFrom GenomeInfoDb seqlengths seqlengths<- seqlevels sortSeqlevels
-#' 
-#' @export
-bootstrapRanges <- function(x, L_b,
+unseg_bootstrap <- function(x, L_b,
                             type = c("bootstrap", "permute"),
                             within_chrom = FALSE) {
   type <- match.arg(type)
@@ -37,9 +19,9 @@ bootstrapRanges <- function(x, L_b,
       # the ranges on this chromosome
       r <- x[seqnames(x) == chr]
       r_prime <- if (type == "bootstrap") {
-        block_bootstrap_granges_within_chrom(r, L_b, L_s, chr)
-      } else {
-        permute_blocks_granges_within_chrom(r, L_b, L_s, chr)
+        unseg_bootstrap_within_chrom(r, L_b, L_s, chr)
+      } else if (type == "permute") {
+        unseg_permute_within_chrom(r, L_b, L_s, chr)
       }
       r_prime
     })
@@ -51,12 +33,10 @@ bootstrapRanges <- function(x, L_b,
     # L_s is now a vector of the chromosome lengths
     L_s <- chrom_lens
     x_prime <- if (type == "bootstrap") {
-      block_bootstrap_granges(x, L_b, L_s)
-    } else {
-      permute_blocks_granges(x, L_b, L_s)
+      unseg_bootstrap_across_chrom(x, L_b, L_s)
+    } else if (type == "permute") {
+      unseg_permute_across_chrom(x, L_b, L_s)
     }
-    # sort outgoing ranges?
-    x_prime <- GenomicRanges::sort(x_prime)
   }
   x_prime
 }
@@ -67,7 +47,7 @@ bootstrapRanges <- function(x, L_b,
 # @param L_b the length of the blocks
 # @param L_s the length of the segment (chromosome)
 # @param chr the name of the chromosome
-block_bootstrap_granges_within_chrom <- function(x, L_b, L_s, chr) {
+unseg_bootstrap_within_chrom <- function(x, L_b, L_s, chr) {
   if (missing(chr)) {
     chr <- as.character(seqnames(x)[1])
   }
@@ -100,7 +80,7 @@ block_bootstrap_granges_within_chrom <- function(x, L_b, L_s, chr) {
 # @param L_b the length of the blocks
 # @param L_s the length of the segment (chromosome)
 # @param chr the name of the chromosome
-permute_blocks_granges_within_chrom <- function(x, L_b, L_s, chr) {
+unseg_permute_within_chrom <- function(x, L_b, L_s, chr) {
   if (missing(chr)) {
     chr <- as.character(seqnames(x)[1])
   }
@@ -133,7 +113,7 @@ permute_blocks_granges_within_chrom <- function(x, L_b, L_s, chr) {
 # @param x the input GRanges
 # @param L_b the length of the blocks
 # @param L_s the lengths of the chromosomes
-block_bootstrap_granges <- function(x, L_b, L_s) {
+unseg_bootstrap_across_chrom <- function(x, L_b, L_s) {
   # blocks allowed to go over L_s
   n_per_chrom  <- ceiling(L_s / L_b)
   # total number of tiling blocks
@@ -165,7 +145,7 @@ block_bootstrap_granges <- function(x, L_b, L_s) {
 # @param x the input GRanges
 # @param L_b the length of the blocks
 # @param L_s the lengths of the chromosomes
-permute_blocks_granges <- function(x, L_b, L_s) {
+unseg_permute_across_chrom <- function(x, L_b, L_s) {
   blocks <- GenomicRanges::tileGenome(seqlengths=L_s, tilewidth=L_b,
                        cut.last.tile.in.chrom=TRUE)
     # pass along the full seqlengths of 'x'

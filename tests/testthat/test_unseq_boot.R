@@ -16,10 +16,10 @@ test_that("unsegmented bootstrap works", {
                 chrom=as.integer(factor(seq_nms)))
 
   L_b <- 100
-  gr_prime <- bootstrapRanges(gr, L_b=L_b, type="permute", within_chrom=TRUE)
-  gr_prime <- bootstrapRanges(gr, L_b=L_b, type="bootstrap", within_chrom=TRUE)
-  gr_prime <- bootstrapRanges(gr, L_b=L_b, type="permute", within_chrom=FALSE)
-  gr_prime <- bootstrapRanges(gr, L_b=L_b, type="bootstrap", within_chrom=FALSE)
+  gr_prime <- bootRanges(gr, L_b=L_b, type="permute", within_chrom=TRUE)
+  gr_prime <- bootRanges(gr, L_b=L_b, type="bootstrap", within_chrom=TRUE)
+  gr_prime <- bootRanges(gr, L_b=L_b, type="permute", within_chrom=FALSE)
+  gr_prime <- bootRanges(gr, L_b=L_b, type="bootstrap", within_chrom=FALSE)
 
   # empty test
   expect_true(length(gr_prime) > 0)

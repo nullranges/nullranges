@@ -1,6 +1,17 @@
+#' @import methods
+#' @export
+bootRanges <- setClass(Class = "bootRanges",
+                       contains = "CompressedGRangesList")
+
+setValidity(Class = "bootRanges",
+            method = function(object) {
+              stopifnot(c("blockLength","segmented") %in% names(metadata(object)))
+              stopifnot(is(metadata(object)$blockLength, "numeric") & metadata(object)$blockLength > 0)
+              stopifnot(is(metadata(object)$segmented, "logical"))
+              })
+
 #' @rdname matched
 #' @rawNamespace import(data.table, except = c(between, shift, first, second, indices))
-#' @import methods
 #' @export
 Matched <- setClass(Class = "Matched",
                     slots = list(matchedData = "data.table",

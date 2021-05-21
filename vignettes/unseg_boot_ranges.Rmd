@@ -26,24 +26,37 @@ vignette for the alternative implementation.
 # Timing on DHS peaks
 
 First download DNase hypersensitivity peaks in A549 from
-*AnnotationHub*:
-
-```{r}
-suppressPackageStartupMessages(library(AnnotationHub))
-ah <- AnnotationHub()
-pks <- query(ah, c("DnaseSeq", "narrowPeak", "A549", "UniPk"))[[1]]
-```
-
+*AnnotationHub*.
 We subset to standard chromosomes and remove mitochondria (more work
 needed to handle these cases internally). Finally, we sort the
 features to be bootstrapped.
 
-```{r}
+```{r eval=FALSE}
+suppressPackageStartupMessages(library(AnnotationHub))
+ah <- AnnotationHub()
+pks <- query(ah, c("DnaseSeq", "narrowPeak", "A549", "UniPk"))[[1]]
 library(GenomeInfoDb)
 pks <- keepStandardChromosomes(pks)
 seqlevels(pks) <- setdiff(seqlevels(pks), "chrM")
 table(seqnames(pks))
 pks <- sort(pks)
+```
+
+```{r results="hide"}
+library(nullrangesData)
+data("DHSA549Hg38")
+pks <- DHSA549Hg38
+# to get seqlengths only
+suppressPackageStartupMessages(library(EnsDb.Hsapiens.v86))
+edb <- EnsDb.Hsapiens.v86
+filt <- AnnotationFilterList(GeneIdFilter("ENSG", "startsWith"))
+g <- genes(edb, filter = filt)
+g <- keepStandardChromosomes(g, pruning.mode = "coarse")
+seqlevels(g, pruning.mode="coarse") <- setdiff(seqlevels(g), "MT")
+seqlevels(g) <- paste0("chr", seqlevels(g))
+genome(g) <- "hg38"
+g <- sortSeqlevels(g)
+seqlengths(pks) <- seqlengths(g)
 ```
 
 ```{r}
@@ -59,10 +72,10 @@ set.seed(5) # reproducibility
 library(microbenchmark)
 L_b <- 5e5
 microbenchmark(list=alist(
-                 p_within=bootstrapRanges(pks, L_b=L_b, within_chrom=TRUE, type="permute"),
-                 b_within=bootstrapRanges(pks, L_b=L_b, within_chrom=TRUE),
-                 p_across=bootstrapRanges(pks, L_b=L_b, within_chrom=FALSE, type="permute"),
-                 b_across=bootstrapRanges(pks, L_b=L_b, within_chrom=FALSE)
+                 p_within=bootRanges(pks, L_b=L_b, within_chrom=TRUE, type="permute"),
+                 b_within=bootRanges(pks, L_b=L_b, within_chrom=TRUE),
+                 p_across=bootRanges(pks, L_b=L_b, within_chrom=FALSE, type="permute"),
+                 b_across=bootRanges(pks, L_b=L_b, within_chrom=FALSE)
 ), times=10)
 ```
 
@@ -122,7 +135,7 @@ Visualize two permutations of blocks within chromosome:
 
 ```{r perm-within, fig.width=5, fig.height=2}
 for (i in 1:2) {
-  gr_prime <- bootstrapRanges(gr, L_b=100, type="permute", within_chrom=TRUE)
+  gr_prime <- bootRanges(gr, L_b=100, type="permute", within_chrom=TRUE)[[1]]
   plotGRanges(gr_prime)
 }
 ```
@@ -131,7 +144,7 @@ Visualize two bootstraps within chromosome:
 
 ```{r boot-within, fig.width=5, fig.height=2}
 for (i in 1:2) {
-  gr_prime <- bootstrapRanges(gr, L_b=100, within_chrom=TRUE)
+  gr_prime <- bootRanges(gr, L_b=100, within_chrom=TRUE)[[1]]
   plotGRanges(gr_prime)
 }
 ```
@@ -143,7 +156,7 @@ larger blocks than previously.
 
 ```{r perm-across, fig.width=5, fig.height=2}
 for (i in 1:2) {
-  gr_prime <- bootstrapRanges(gr, L_b=200, type="permute", within_chrom=FALSE)
+  gr_prime <- bootRanges(gr, L_b=200, type="permute", within_chrom=FALSE)[[1]]
   plotGRanges(gr_prime)
 }
 ```
@@ -152,7 +165,7 @@ Visualize two bootstraps across chromosome:
 
 ```{r boot-across, fig.width=5, fig.height=2}
 for (i in 1:2) {
-  gr_prime <- bootstrapRanges(gr, L_b=200, within_chrom=FALSE)
+  gr_prime <- bootRanges(gr, L_b=200, within_chrom=FALSE)[[1]]
   plotGRanges(gr_prime)
 }
 ```

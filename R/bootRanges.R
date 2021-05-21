@@ -1,35 +1,57 @@
-#' Segmentated block bootstrap
+#' Block bootstrap genomic ranges
+#'
+#' Performs a block bootstrap (R times) optionally with respect
+#' to a genome segmentation. Returns a bootRanges object, which
+#' is essentially a GRangesList of length R.
 #'
 #' @param x the input GRanges
 #' @param seg the segmentation GRanges, with a column ("state")
-#' indicating segmentation state
+#' indicating segmentation state (optional)
 #' @param L_b the length of the blocks (for proportional blocks, this
 #' is the maximal length of block)
 #' @param R the number of bootstrap samples to generate
 #' @param deny the GRanges of deny regions (optional)
 #' @param deny_option whether to "drop" or "trim" bootstrap
 #' ranges that overlap a deny region
-#' @param proportion_length whether to use scaled block length,
-#' (scaling by the proportion of the segmentation state
-#' out of the total genome length)
+#' @param proportion_length for segmented block bootstrap,
+#' whether to use scaled block length, (scaling by the proportion
+#' of the segmentation state out of the total genome length)
+#' @param type the type of null generation (unsegmented only)
+#' @param within_chrom whether to re-sample (bootstrap) ranges
+#' across chromosomes (default) or only within chromosomes (unsegmented only)
+#'
+#' @return bootRanges: a GRangesList of length R with the bootstrapped ranges
 #'
 #' @importFrom IRanges overlapsAny
+#' @importFrom stats as.formula binomial kmeans predict
+#' quantile rbinom rnorm runif terms
+#' @importFrom IRanges IRanges successiveIRanges mid
+#' @importFrom GenomicRanges tileGenome sort GRangesList
+#' @importFrom GenomeInfoDb seqlengths seqlengths<- seqlevels sortSeqlevels
 #' 
 #' @export
-segBootstrapRanges <- function(x, seg, L_b, R,
-                               deny=NULL, deny_option = c("drop", "trim"),
-                               proportion_length = TRUE) {
+bootRanges <- function(x, seg = NULL, L_b, R=1,
+                       deny = NULL,
+                       deny_option = c("drop", "trim"),
+                       proportion_length = TRUE,
+                       type = c("bootstrap", "permute"),
+                       within_chrom = FALSE) {
 
   chr_lens <- seqlengths(x)
   stopifnot(all(!is.na(chr_lens)))
   deny_option <- match.arg(deny_option)
 
-  replicate(R, {
-    x_prime <- seg_bootstrap_granges(x = x, seg = ranges(seg),
-                                     state = seg$state, L_b = L_b,
-                                     chr_names = seqnames(seg),
-                                     chr_lens = chr_lens,
-                                     proportion_length = proportion_length)
+  br <- replicate(R, {
+    if (!is.null(seg)) {
+      x_prime <- seg_bootstrap(x = x, seg = ranges(seg),
+                               state = seg$state, L_b = L_b,
+                               chr_names = seqnames(seg),
+                               chr_lens = chr_lens,
+                               proportion_length = proportion_length)
+    } else {
+      x_prime <- unseg_bootstrap(x = x, L_b = L_b, type = type,
+                                 within_chrom = within_chrom)
+    }
     
     # deal with deny regions:
     if (!is.null(deny)) {
@@ -50,6 +72,12 @@ segBootstrapRanges <- function(x, seg, L_b, R,
     # sort outgoing ranges?
     GenomicRanges::sort(x_prime)
   })
+
+
+  br <- GRangesList(br)
+  metadata(br) <- list("blockLength" = L_b,
+                       segmented = !is.null(seg))
+  new("bootRanges", br)
 }
 
 # Segmentation block bootstrap sub-function
@@ -63,13 +91,15 @@ segBootstrapRanges <- function(x, seg, L_b, R,
 # @param proportion_length whether to use scaled block length
 #        (scaling by the proportion of the segmentation state
 #         out of the total genome length)
-seg_bootstrap_granges <- function(x, seg, state, L_b,
-                                  chr_names, chr_lens,
-                                  proportion_length = TRUE) {
+seg_bootstrap <- function(x, seg, state, L_b,
+                          chr_names, chr_lens,
+                          proportion_length = TRUE) {
 
   # sequence along the states: 1,2,..,S
   esses <- seq_len(max(state))
   chr_names <- as.character(chr_names)
+
+  # TODO: break this into two functions: seg_bootstrap_prop, seg_bootstrap_noprop
   
   if (proportion_length) {
     # length of genome
