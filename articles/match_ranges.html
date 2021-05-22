@@ -104,7 +104,7 @@
       <h1 data-toc-skip>Matching ranges</h1>
                         <h4 class="author">Eric S. Davis</h4>
             
-            <h4 class="date">05/21/2021</h4>
+            <h4 class="date">05/22/2021</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/master/vignettes/match_ranges.Rmd"><code>vignettes/match_ranges.Rmd</code></a></small>
       <div class="hidden name"><code>match_ranges.Rmd</code></div>
@@ -242,7 +242,7 @@
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/overview.html">overview</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span></code></pre></div>
 <pre><code>## MatchedGInteractions object: 
-##      group    N anchor1.peakStrength.mean anchor1.peakStrength.sd
+##        set    N anchor1.peakStrength.mean anchor1.peakStrength.sd
 ##      focal 1000                  486.2919                814.5577
 ##    matched 1000                  480.9038                793.9768
 ##       pool 5000                  582.2479               1088.8064
@@ -260,7 +260,7 @@
 ##        233.5443 1.067993e-05 0.0002356949</code></pre>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/matchedData.html">matchedData</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span> <span class="op">%&gt;%</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
-<pre><code>##    id anchor1.peakStrength contactFreq        ps group
+<pre><code>##    id anchor1.peakStrength contactFreq        ps   set
 ## 1:  1               230.00    0.000000 0.1691996 focal
 ## 2:  1               197.25   89.648797 0.1712493 focal
 ## 3:  1               139.50   45.126913 0.1714369 focal
@@ -607,17 +607,17 @@
 ##   -------
 ##   regions: 113671 ranges and 0 metadata columns
 ##   seqinfo: 25 sequences (1 circular) from hg19 genome</code></pre>
-<p>Extract indices by group (default is ‘matched’)</p>
+<p>Extract indices by set (default is ‘matched’)</p>
 <div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/indices.html">indices</a></span><span class="op">(</span><span class="va">mgi</span>, group <span class="op">=</span> <span class="st">"unmatched"</span><span class="op">)</span> <span class="op">%&gt;%</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="fu"><a href="../reference/indices.html">indices</a></span><span class="op">(</span><span class="va">mgi</span>, set <span class="op">=</span> <span class="st">"unmatched"</span><span class="op">)</span> <span class="op">%&gt;%</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
 <pre><code>## [1] 1 2 3 4 5 6</code></pre>
 <div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/indices.html">indices</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span> <span class="op">%&gt;%</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
 <pre><code>## [1] 1409 1555 2152 1132 1324 3954</code></pre>
 <p>Should be <code>TRUE</code>:</p>
 <div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/identical.html">identical</a></span><span class="op">(</span><span class="fu"><a href="../reference/matchedData.html">matchedData</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span><span class="op">[</span><span class="va">group</span> <span class="op">==</span> <span class="st">"pool"</span><span class="op">]</span><span class="op">[</span><span class="fu"><a href="../reference/indices.html">indices</a></span><span class="op">(</span><span class="va">mgi</span>, group <span class="op">=</span> <span class="st">"unmatched"</span><span class="op">)</span>, <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'group'</span><span class="op">)</span><span class="op">]</span>,
-          <span class="fu"><a href="../reference/matchedData.html">matchedData</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span><span class="op">[</span><span class="va">group</span> <span class="op">==</span> <span class="st">"unmatched"</span>, <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'group'</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/identical.html">identical</a></span><span class="op">(</span><span class="fu"><a href="../reference/matchedData.html">matchedData</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span><span class="op">[</span><span class="va">set</span> <span class="op">==</span> <span class="st">"pool"</span><span class="op">]</span><span class="op">[</span><span class="fu"><a href="../reference/indices.html">indices</a></span><span class="op">(</span><span class="va">mgi</span>, set <span class="op">=</span> <span class="st">"unmatched"</span><span class="op">)</span>, <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'set'</span><span class="op">)</span><span class="op">]</span>,
+          <span class="fu"><a href="../reference/matchedData.html">matchedData</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span><span class="op">[</span><span class="va">set</span> <span class="op">==</span> <span class="st">"unmatched"</span>, <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'set'</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></code></pre></div>
 <pre><code>## [1] TRUE</code></pre>
   </div>
 
