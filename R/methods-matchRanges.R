@@ -270,7 +270,7 @@ propensityMatch <- function(covarData, covars, method, replace) {
   model <- speedglm(formula = f, data = covarData,
                     family = binomial("logit"), fitted = TRUE, model = TRUE)
 
-  ## Get propensity scores of focal and pool groups as vectors
+  ## Get propensity scores of focal and pool sets as vectors
   id <- NULL
   ps <- NULL
 
@@ -515,5 +515,5 @@ setMethod("matched", "MDF_OR_MGR_OR_MGI", function(x, ...) {
 #' @rdname matchRangesAccessors
 #' @export
 setMethod("unmatched", "MDF_OR_MGR_OR_MGI", function(x, ...) {
-  x@pool[indices(x, group = "unmatched"),]
+  x@pool[indices(x, set = "unmatched"),]
 })
