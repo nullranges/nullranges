@@ -101,34 +101,47 @@ setMethod("overview", signature(x="Matched"), overviewMatched)
 # internal function for covariate plotting
 set_matched_plot <- function(data, type, cols, x) {
   x <- rlang::ensym(x)
-  y <- rlang::sym("set")
-  color <- rlang::sym("set")
-
-  type <- match.arg(type, c("jitter", "ridges", "lines"))
+  set <- rlang::sym("set")
+  
+  type <- match.arg(type, c("jitter", "ridges", "lines", "bars"))
   
   if (identical(type, "jitter")) {
-    ans <- ggplot(data, mapping = aes(x = !!x, y = !!y, color = !!color)) +
+    ans <- ggplot(data, mapping = aes(x = !!x, y = !!set, color = !!set)) +
       geom_jitter(height = 0.25, width = 0, alpha = 0.7) +
       scale_y_discrete(limits = rev) +
       scale_color_manual(values = cols)
   }
-
+  
   if (identical(type, "ridges")) {
-    fill <- rlang::sym("set")
     ans <-
-      ggplot(data,  mapping = aes(x = !!x, y = !!y, fill = !!fill)) +
+      ggplot(data,  mapping = aes(x = !!x, y = !!set, fill = !!set)) +
       geom_density_ridges(alpha = 0.7, color = NA) +
       scale_y_discrete(limits = rev) +
       scale_fill_manual(values = cols)
   }
-
+  
   if (identical(type, "lines")) {
-    ans <- ggplot(data, mapping = aes(x = !!x, color = !!color)) +
+    ans <- ggplot(data, mapping = aes(x = !!x, color = !!set)) +
       geom_density(show.legend = FALSE, na.rm = TRUE) +
       stat_density(geom = 'line', position = 'identity', na.rm = TRUE) +
       scale_color_manual(values = cols)
   }
-
+  
+  if (identical(type, "bars")) {
+    ## Form melted table, calculate percentages, and order (for continuous)
+    tbl <- md[, .N, by = .(eval(set), eval(x))]
+    dat <- tbl[, .(eval(x), pct = (N/sum(N)*100)), by = set]
+    dat <- dat[order(V1)]
+    
+    ## Rename columns
+    colnames(dat) <- c(deparse(set), deparse(x), 'pct')
+    
+    ## Plot
+    ans <- ggplot(data = dat, mapping = aes(x = !!set, y = pct, fill = !!x)) +
+      geom_col(position = 'stack') +
+      labs(y = "Percentage")
+  }
+  
   ans
 }
 

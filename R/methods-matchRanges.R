@@ -260,7 +260,7 @@ ssMatch <- function(fps, pps, replace) {
 }
 
 ## Helper function that calculates propensity scores
-## and implements nearest neighbor matching
+## and implements matching methods
 propensityMatch <- function(covarData, covars, method, replace) {
 
   ## Assemble covariate formula
