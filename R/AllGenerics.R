@@ -43,8 +43,8 @@ setGeneric("plotPropensity", function(x, ...)
 
 #' @rdname matched-plotting
 #' @export
-setGeneric("plotCovariates", function(x, ...)
-  standardGeneric("plotCovariates"))
+setGeneric("plotCovariate", function(x, ...)
+  standardGeneric("plotCovariate"))
 
 ## Generics for utils --------------------------------------------------------------------
 

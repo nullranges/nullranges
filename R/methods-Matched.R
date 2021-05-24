@@ -129,15 +129,15 @@ set_matched_plot <- function(data, type, cols, x) {
   
   if (identical(type, "bars")) {
     ## Form melted table, calculate percentages, and order (for continuous)
-    tbl <- md[, .N, by = .(eval(set), eval(x))]
-    dat <- tbl[, .(eval(x), pct = (N/sum(N)*100)), by = set]
-    dat <- dat[order(V1)]
+    data <- data[, .N, by = .(eval(set), eval(x))]
+    data <- data[, .(eval(x), pct = (N/sum(N)*100)), by = set]
+    data <- data[order(V1)]
     
     ## Rename columns
-    colnames(dat) <- c(deparse(set), deparse(x), 'pct')
+    colnames(data) <- c(deparse(set), deparse(x), 'pct')
     
     ## Plot
-    ans <- ggplot(data = dat, mapping = aes(x = !!set, y = pct, fill = !!x)) +
+    ans <- ggplot(data = data, mapping = aes(x = !!set, y = pct, fill = !!x)) +
       geom_col(position = 'stack') +
       labs(y = "Percentage")
   }
@@ -172,65 +172,86 @@ plot_propensity <- function(x, type = NULL) {
 }
 
 ## Define function for plotting covariates
-plot_covariates <- function(x, covar = 'all', sets = 'all', type = NULL, logTransform = FALSE) {
+plot_covariate <- function(x, covar = NULL, sets = 'all', type = NULL, log = NULL) {
 
-  ## Extract matchedData
-  md <- matchedData(x)
-
-  ## Chose plot type by data size
-  if (is.null(type)) {
-    type <- ifelse(sum(md[["set"]] == "pool") <= 10000, "jitter", "ridge")
-  }
-
-  ## Define colors & covariates
+  ## Define colors & sets
   cols <- c("#1F78B4", "#A6CEE3", "#33A02C", "#B2DF8A")
   names(cols) <- c('focal', 'matched', 'pool', 'unmatched')
-
-  ## Parse covariate & set to plot
-  covar <- match.arg(covar, choices = c('all', covariates(x)), several.ok = TRUE)
+  
+  ## Parse arguments
+  covar <- match.arg(covar, choices = covariates(x), several.ok = FALSE)
   sets <- match.arg(sets, choices = c('all', names(cols)), several.ok = TRUE)
-
-  if (length(covar) == 1) {
-    if (covar == 'all') {
-      covar <- covariates(x)
-    }
-  }
-
+  
   if (length(sets) == 1) {
     if (sets == 'all') {
       sets <- names(cols)
     }
   }
-
-  ## Melt data for plotting multiple covariates
-  mmd <- melt(md, measure.vars = covar)
-
-  ## Subset set by sets
-  mmd <- mmd[mmd[["set"]] %in% sets]
-
-  ans <- set_matched_plot(mmd,
-                          type,
-                          cols = cols[names(cols) %in% sets],
-                          x = "value")
-
+  
+  if (!is.null(log)) {
+    log <- match.arg(log, choices = c('x', 'y'), several.ok = TRUE)
+  }
+  
+  ## Extract matched data
+  md <- matchedData(x)
+  
+  ## Subset matched data and colors by sets
+  md <- md[md[["set"]] %in% sets]
+  cols <- cols[names(cols) %in% sets]
+  
+  ## Extract covariate values for checking data type
+  covarValues <- md[[covar]]
+  
+  ## Use class of covariate values to set plot type
+  if (is.null(type)) {
+    if (is.numeric(covarValues)) {
+      type <- ifelse(uniqueN(covarValues) <= 10, 'bars', 'lines')
+    } else if (is.factor(covarValues) |
+               is.logical(covarValues) |
+               is.character(covarValues)) {
+      type <- 'bars'
+    } else {
+      stop(sprintf('Data type %s is not supported.'), covarValues)
+    }
+  }
+  
+  ## Generate plot by type
+  ans <- set_matched_plot(data = md,
+                          type = type,
+                          cols = cols,
+                          x = !!covar)
+  
+  ## Apply general plot formatting
   ans <- ans +
-    labs(y = "") +
-    facet_grid(~variable, scales = "free_x")+
     theme_minimal()+
-    theme(legend.position = 'none',
-          panel.grid.minor = element_blank(),
+    theme(panel.grid.minor = element_blank(),
           panel.border = element_rect(fill = 'transparent'))
-
-  if (logTransform) {
+  
+  ## Apply log transformation(s)
+  if ('x' %in% log) {
+    if (identical(type, 'bars')) {
+      stop("Transformation of x-axis not valid when type = 'bars'.")
+    }
     ans <- ans +
       scale_x_continuous(
         trans = "log",
         breaks = scales::log_breaks(base = exp(1)),
         oob = scales::oob_squish_infinite) +
-      labs(x = "log(value)",  y = "")
-
+      labs(x = sprintf("log(%s)", covar))
   }
-
+  
+  if ('y' %in% log) {
+    if (!identical(type, 'lines')) {
+      stop("Transformation of y-axis only valid when type = 'lines'.")
+    }
+    ans <- ans +
+      scale_y_continuous(
+        trans = "log",
+        breaks = scales::log_breaks(base = exp(1)),
+        oob = scales::oob_squish_infinite) +
+      labs(y = "log(density)",  y = "")
+  }
+  
   ans
 
 }
@@ -247,13 +268,13 @@ setMethod("plotPropensity", signature(x="Matched"),
 #' @param covar ...
 #' @param sets ...
 #' @param type ...
-#' @param logTransform ...
+#' @param log ...
 #' @param ... additional arguments
 #'
 #' @rdname matched-plotting
 #' @importFrom scales squish_infinite
 #' @export
-setMethod("plotCovariates", signature(x="Matched"), function(x, covar = 'all', sets = 'all', type = NULL, logTransform = FALSE) {
+setMethod("plotCovariate", signature(x="Matched"), function(x, covar = NULL, sets = 'all', type = NULL, log = NULL) {
   # not sure why you need NSE here?
-  plot_covariates(x, covar, sets, type, logTransform)
+  plot_covariate(x, covar, sets, type, log)
 })
