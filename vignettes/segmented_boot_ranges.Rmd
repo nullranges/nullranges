@@ -143,7 +143,7 @@ use in a workflow).
 Testing the segmented block bootstrap:
 
 ```{r}
-L_b <- 5e5
+blockLength <- 5e5
 # TODO 'x' has no seqlengths
 x <- DHSA549Hg38
 seqlengths(x) <- seqlengths(seg)
@@ -152,8 +152,8 @@ seqlengths(x) <- seqlengths(seg)
 ```{r}
 library(microbenchmark)
 microbenchmark(list=alist(
-                 prop = bootRanges(x, seg, L_b, 1, deny, proportion_length = TRUE),
-                 no_prop = bootRanges(x, seg, L_b, 1, deny, proportion_length = FALSE)
+                 prop = bootRanges(x, seg, blockLength, 1, deny, proportionLength = TRUE),
+                 no_prop = bootRanges(x, seg, blockLength, 1, deny, proportionLength = FALSE)
 ), times=10)
 ```
 
@@ -235,15 +235,15 @@ plotGRanges(fixBBPlots(gr))
 ## Not scaling blocks to segmentation length
 
 ```{r toy-no-prop}
-gr_prime <- bootRanges(gr, seg, L_b = 25, R = 1, 
-                       proportion_length = FALSE)[[1]]
+gr_prime <- bootRanges(gr, seg, blockLength = 25, R = 1, 
+                       proportionLength = FALSE)[[1]]
 plotGRanges(fixBBPlots(gr_prime))
 ```
 
 ## Scaling blocks to segmentation length
 
 ```{r toy-prop}
-gr_prime <- bootRanges(gr, seg, L_b = 50, R = 1, 
-                       proportion_length = TRUE)[[1]]
+gr_prime <- bootRanges(gr, seg, blockLength = 50, R = 1, 
+                       proportionLength = TRUE)[[1]]
 plotGRanges(fixBBPlots(gr_prime))
 ```
