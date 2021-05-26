@@ -47,11 +47,11 @@ unseg_bootstrap <- function(x, L_b,
 # @param L_b the length of the blocks
 # @param L_s the length of the segment (chromosome)
 # @param chr the name of the chromosome
-unseg_bootstrap_within_chrom <- function(x, L_b, L_s, chr) {
-  if (missing(chr)) {
+unseg_bootstrap_within_chrom <- function(x, L_b, L_s=NULL, chr=NULL) {
+  if (is.null(chr)) {
     chr <- as.character(seqnames(x)[1])
   }
-  if (missing(L_s)) {
+  if (is.null(L_s)) {
     L_s <- seqlengths(x)[[chr]]
   }
   # blocks allowed to go over L_s
@@ -80,11 +80,11 @@ unseg_bootstrap_within_chrom <- function(x, L_b, L_s, chr) {
 # @param L_b the length of the blocks
 # @param L_s the length of the segment (chromosome)
 # @param chr the name of the chromosome
-unseg_permute_within_chrom <- function(x, L_b, L_s, chr) {
-  if (missing(chr)) {
+unseg_permute_within_chrom <- function(x, L_b, L_s=NULL, chr=NULL) {
+  if (is.null(chr)) {
     chr <- as.character(seqnames(x)[1])
   }
-  if (missing(L_s)) {
+  if (is.null(L_s)) {
     L_s <- seqlengths(x)[[chr]]
   }
   # blocks allowed to go over L_s
