@@ -28,3 +28,4 @@ test_that("trim denyOption works as expected", {
 
   ## plotGRanges(x)
   ## plotGRanges(b)
+})
