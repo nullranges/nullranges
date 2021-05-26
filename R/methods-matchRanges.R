@@ -77,16 +77,24 @@ rejectSample <- function(fps, pps) {
 
   ## Kernal density estimates for focal and pool
   df <- kde(fps)
-  dg <- kde(pps)
+  dp <- kde(pps)
 
   ## Set scale by finding the highest point of density ratios (focal/pool)
   ## This ensures that pool covers focal at all points
   grid <- seq(from=quantile(pps, .001), to=quantile(pps, .999), length=1000)
-  scale <- max(predict(df, x=grid) / predict(dg, x=grid))
+  fgrid <- predict(df, x=grid)
+  pgrid <- predict(dp, x=grid)
+  if (any(fgrid < 0 | pgrid < 0)) {
+    stop("kernel density estimates by ks::kde are negative, cannot perform rejection sampling")
+  }
+  scale <- max(fgrid/pgrid)
+  if (scale > 1e3) {
+    stop("scaling factor for density of the PS for pool is > 1e3, could lead to instability")
+  }
 
   ## Calculate the probability of accepting each pool
   thresh <- function(x) ifelse(x > 1e-3, x, 0)
-  accept_prob <- pmin(thresh(predict(df, x=pps))/(scale * predict(dg, x=pps)), 1)
+  accept_prob <- pmin(thresh(predict(df, x=pps))/(scale * predict(dp, x=pps)), 1)
 
   ## Randomly select pps according to accept probability
   accept <- rbinom(length(pps), size=1, prob=accept_prob)

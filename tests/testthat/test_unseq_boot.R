@@ -1,6 +1,4 @@
-context("unsegmented bootstrap")
 library(nullranges)
-
 test_that("unsegmented bootstrap works", {
 
   library(GenomicRanges)
