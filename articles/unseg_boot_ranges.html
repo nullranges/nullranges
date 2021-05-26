@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.16</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.17</span>
       </span>
     </div>
 
@@ -98,13 +98,13 @@
 
       
 
-      </header><script src="unseg_boot_ranges_files/header-attrs-2.6/header-attrs.js"></script><div class="row">
+      </header><script src="unseg_boot_ranges_files/header-attrs-2.8/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Un-segmented block bootstrap</h1>
                         <h4 class="author">Michael Love</h4>
             
-            <h4 class="date">05/22/2021</h4>
+            <h4 class="date">05/26/2021</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/master/vignettes/unseg_boot_ranges.Rmd"><code>vignettes/unseg_boot_ranges.Rmd</code></a></small>
       <div class="hidden name"><code>unseg_boot_ranges.Rmd</code></div>
@@ -148,19 +148,19 @@
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span> <span class="co"># reproducibility</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/joshuaulrich/microbenchmark/">microbenchmark</a></span><span class="op">)</span>
-<span class="va">L_b</span> <span class="op">&lt;-</span> <span class="fl">5e5</span>
+<span class="va">blockLength</span> <span class="op">&lt;-</span> <span class="fl">5e5</span>
 <span class="fu"><a href="https://rdrr.io/pkg/microbenchmark/man/microbenchmark.html">microbenchmark</a></span><span class="op">(</span>list<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">alist</a></span><span class="op">(</span>
-                 p_within<span class="op">=</span><span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">pks</span>, L_b<span class="op">=</span><span class="va">L_b</span>, within_chrom<span class="op">=</span><span class="cn">TRUE</span>, type<span class="op">=</span><span class="st">"permute"</span><span class="op">)</span>,
-                 b_within<span class="op">=</span><span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">pks</span>, L_b<span class="op">=</span><span class="va">L_b</span>, within_chrom<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>,
-                 p_across<span class="op">=</span><span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">pks</span>, L_b<span class="op">=</span><span class="va">L_b</span>, within_chrom<span class="op">=</span><span class="cn">FALSE</span>, type<span class="op">=</span><span class="st">"permute"</span><span class="op">)</span>,
-                 b_across<span class="op">=</span><span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">pks</span>, L_b<span class="op">=</span><span class="va">L_b</span>, within_chrom<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span>
+                 p_within<span class="op">=</span><span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">pks</span>, blockLength<span class="op">=</span><span class="va">blockLength</span>, withinChrom<span class="op">=</span><span class="cn">TRUE</span>, type<span class="op">=</span><span class="st">"permute"</span><span class="op">)</span>,
+                 b_within<span class="op">=</span><span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">pks</span>, blockLength<span class="op">=</span><span class="va">blockLength</span>, withinChrom<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>,
+                 p_across<span class="op">=</span><span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">pks</span>, blockLength<span class="op">=</span><span class="va">blockLength</span>, withinChrom<span class="op">=</span><span class="cn">FALSE</span>, type<span class="op">=</span><span class="st">"permute"</span><span class="op">)</span>,
+                 b_across<span class="op">=</span><span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">pks</span>, blockLength<span class="op">=</span><span class="va">blockLength</span>, withinChrom<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span>
 <span class="op">)</span>, times<span class="op">=</span><span class="fl">10</span><span class="op">)</span></code></pre></div>
 <pre><code>## Unit: milliseconds
 ##      expr       min        lq      mean    median        uq      max neval
-##  p_within 1202.5915 1230.6903 1634.8279 1634.8193 2044.0050 2069.142    10
-##  b_within 1169.4151 1179.0522 1382.0257 1229.0019 1411.6095 1997.113    10
-##  p_across  219.7532  223.9510  409.9918  243.1462  253.8935 1137.172    10
-##  b_across  238.9517  259.4159  340.3650  266.5503  273.7549 1046.908    10</code></pre>
+##  p_within 1473.7433 1478.3098 1837.8324 1535.5154 2316.0724 2436.547    10
+##  b_within 1366.2848 1401.3866 1444.2231 1442.6960 1483.2555 1522.386    10
+##  p_across  246.0724  258.7827  361.7811  269.6721  296.9151 1117.670    10
+##  b_across  282.6378  285.8644  379.8679  301.5960  310.8144 1106.311    10</code></pre>
 </div>
 <div id="visualize-on-synthetic-data" class="section level1">
 <h1 class="hasAnchor">
@@ -210,14 +210,14 @@
 <p>Visualize two permutations of blocks within chromosome:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span> <span class="op">{</span>
-  <span class="va">gr_prime</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">gr</span>, L_b<span class="op">=</span><span class="fl">100</span>, type<span class="op">=</span><span class="st">"permute"</span>, within_chrom<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>
+  <span class="va">gr_prime</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">gr</span>, blockLength<span class="op">=</span><span class="fl">100</span>, type<span class="op">=</span><span class="st">"permute"</span>, withinChrom<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>
   <span class="fu">plotGRanges</span><span class="op">(</span><span class="va">gr_prime</span><span class="op">)</span>
 <span class="op">}</span></code></pre></div>
 <p><img src="unseg_boot_ranges_files/figure-html/perm-within-1.png" width="480"><img src="unseg_boot_ranges_files/figure-html/perm-within-2.png" width="480"></p>
 <p>Visualize two bootstraps within chromosome:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span> <span class="op">{</span>
-  <span class="va">gr_prime</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">gr</span>, L_b<span class="op">=</span><span class="fl">100</span>, within_chrom<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>
+  <span class="va">gr_prime</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">gr</span>, blockLength<span class="op">=</span><span class="fl">100</span>, withinChrom<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>
   <span class="fu">plotGRanges</span><span class="op">(</span><span class="va">gr_prime</span><span class="op">)</span>
 <span class="op">}</span></code></pre></div>
 <p><img src="unseg_boot_ranges_files/figure-html/boot-within-1.png" width="480"><img src="unseg_boot_ranges_files/figure-html/boot-within-2.png" width="480"></p>
@@ -228,14 +228,14 @@
 <p>Visualize two permutations of blocks across chromosome. Here we use larger blocks than previously.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span> <span class="op">{</span>
-  <span class="va">gr_prime</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">gr</span>, L_b<span class="op">=</span><span class="fl">200</span>, type<span class="op">=</span><span class="st">"permute"</span>, within_chrom<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>
+  <span class="va">gr_prime</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">gr</span>, blockLength<span class="op">=</span><span class="fl">200</span>, type<span class="op">=</span><span class="st">"permute"</span>, withinChrom<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>
   <span class="fu">plotGRanges</span><span class="op">(</span><span class="va">gr_prime</span><span class="op">)</span>
 <span class="op">}</span></code></pre></div>
 <p><img src="unseg_boot_ranges_files/figure-html/perm-across-1.png" width="480"><img src="unseg_boot_ranges_files/figure-html/perm-across-2.png" width="480"></p>
 <p>Visualize two bootstraps across chromosome:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span> <span class="op">{</span>
-  <span class="va">gr_prime</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">gr</span>, L_b<span class="op">=</span><span class="fl">200</span>, within_chrom<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>
+  <span class="va">gr_prime</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">gr</span>, blockLength<span class="op">=</span><span class="fl">200</span>, withinChrom<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>
   <span class="fu">plotGRanges</span><span class="op">(</span><span class="va">gr_prime</span><span class="op">)</span>
 <span class="op">}</span></code></pre></div>
 <p><img src="unseg_boot_ranges_files/figure-html/boot-across-1.png" width="480"><img src="unseg_boot_ranges_files/figure-html/boot-across-2.png" width="480"></p>
