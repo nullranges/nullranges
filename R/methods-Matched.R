@@ -222,6 +222,51 @@ plot_covariates <- function(x, covar = 'all', sets = 'all', type = NULL, logTran
 
 }
 
+cobalt_available <- function() {
+  if (!requireNamespace("cobalt", quietly = TRUE)) {
+    stop("Package: cobalt must be installed to run `tabulateCovariateSets`.")
+  }
+}
+
+matched_formula <- function(x, covar) {
+  covar <- match.arg(covar, 
+                     choices = c('all', covariates(x)), 
+                     several.ok = TRUE)
+  
+  if (length(covar) == 1 && identical(covar, 'all')) {
+    covar <- covariates(x)
+  }
+  
+  f <- as.formula(combnCov(covar)[1])
+  
+  rlang::f_lhs(f) <- rlang::sym("set")
+  rlang::f_env(f) <- parent.frame()
+  
+  f
+}
+
+
+tabulateCovariateSets <- function(x, 
+                                  covar = "all", 
+                                  focal = "focal", 
+                                  propensity_score = "ps",
+                                  sd = "all") {
+  
+  cobalt_available()
+  md <- matchedData(x)
+  f <- matched_formula(x, covar)
+  
+  cobalt::bal.tab(
+    f,
+    data = md,
+    distance = propensity_score,
+    focal = focal,
+    which.treat = focal,
+    s.d.denom = sd,
+    stats = c("mean.diffs", "variance.ratios")
+  )
+}
+
 #' @title Plotting functions for Matched objects
 #'
 #' @rdname matched-plotting
