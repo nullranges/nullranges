@@ -21,7 +21,7 @@ Matched <- setClass(Class = "Matched",
 setValidity(Class = "Matched",
             method = function(object){
               
-              stopifnot(all(c('id', 'ps', 'group') %in%
+              stopifnot(all(c('id', 'ps', 'set') %in%
                               colnames(object@matchedData)))
               
             })
@@ -66,18 +66,22 @@ setMethod("initialize", "MatchedDataFrame",
 #' @import GenomicRanges
 #' @export
 MatchedGRanges <- setClass(Class = "MatchedGRanges",
-                           contains = c("Matched", "DelegatingGenomicRanges"),
+                           contains = c("Matched", "GRanges"),
                            slots = list(focal = "GRanges",
-                                        pool  = "GRanges"))
+                                        pool  = "GRanges",
+                                        delegate = 'GRanges'))
 
 setMethod("initialize", "MatchedGRanges",
           function(.Object, ..., delegate = GRanges()) {
             
-            ## Use delegate to set other attributes in DelegatingGenomicRanges
+            ## Use delegate to set other attributes in GenomicRanges
             .Object@delegate <- delegate
-            .Object@elementMetadata <- elementMetadata(delegate)
-            .Object@elementType <- elementType(delegate)
-            .Object@metadata <- metadata(delegate)
+
+            for (x in slotNames(delegate)){
+              `slot<-`(object = .Object,
+                       name = x,
+                       value = do.call(x, list(delegate)))
+            }
             
             ## Use default class generator function for args in MatchedGRanges and Matched
             .Object <- callNextMethod(.Object, ...)

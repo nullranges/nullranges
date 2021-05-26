@@ -278,7 +278,7 @@ propensityMatch <- function(covarData, covars, method, replace) {
   model <- speedglm(formula = f, data = covarData,
                     family = binomial("logit"), fitted = TRUE, model = TRUE)
 
-  ## Get propensity scores of focal and pool groups as vectors
+  ## Get propensity scores of focal and pool sets as vectors
   id <- NULL
   ps <- NULL
 
@@ -309,12 +309,12 @@ propensityMatch <- function(covarData, covars, method, replace) {
     mdt <- ssMatch(fps, pps, replace = FALSE)
 
 
-  ## Assemble information by group
+  ## Assemble information by set
   matchedData <- rbind(
-    covarData[id == 1, c(.SD, group = 'focal')],
-    covarData[id == 0][mdt$ppsIndex, c(.SD, group = 'matched')],
-    covarData[id == 0, c(.SD, group = 'pool')],
-    covarData[id == 0][!mdt$ppsIndex, c(.SD, group = 'unmatched')]
+    covarData[id == 1, c(.SD, set = 'focal')],
+    covarData[id == 0][mdt$ppsIndex, c(.SD, set = 'matched')],
+    covarData[id == 0, c(.SD, set = 'pool')],
+    covarData[id == 0][!mdt$ppsIndex, c(.SD, set = 'unmatched')]
   )
 
   ## Matched indicies
@@ -523,5 +523,5 @@ setMethod("matched", "MDF_OR_MGR_OR_MGI", function(x, ...) {
 #' @rdname matchRangesAccessors
 #' @export
 setMethod("unmatched", "MDF_OR_MGR_OR_MGI", function(x, ...) {
-  x@pool[indices(x, group = "unmatched"),]
+  x@pool[indices(x, set = "unmatched"),]
 })

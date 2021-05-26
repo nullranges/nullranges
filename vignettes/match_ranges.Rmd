@@ -77,16 +77,16 @@ matched(mgi)
 unmatched(mgi)
 ```
 
-Extract indices by group (default is 'matched')
+Extract indices by set (default is 'matched')
 
 ```{r}
-indices(mgi, group = "unmatched") %>% head()
+indices(mgi, set = "unmatched") %>% head()
 indices(mgi) %>% head()
 ```
 
 Should be `TRUE`:
 
 ```{r}
-identical(matchedData(mgi)[group == "pool"][indices(mgi, group = "unmatched"), -c('group')],
-          matchedData(mgi)[group == "unmatched", -c('group')])
+identical(matchedData(mgi)[set == "pool"][indices(mgi, set = "unmatched"), -c('set')],
+          matchedData(mgi)[set == "unmatched", -c('set')])
 ```

@@ -28,28 +28,28 @@ setMethod("covariates", "Matched", function(x, ...) {
   x@covar
 })
 
-getIndices <- function(x, group = 'matched') {
-  ## Get group argument
-  group <- match.arg(group, choices=c("focal","matched","pool","unmatched"))
+getIndices <- function(x, set = 'matched') {
+  ## Get set argument
+  set <- match.arg(set, choices=c("focal","matched","pool","unmatched"))
 
   ## Get the length of each focal and pool
-  n.focal <- nrow(x@matchedData[group == 'focal'])
-  n.pool  <- nrow(x@matchedData[group == 'pool'])
+  n.focal <- nrow(x@matchedData[set == 'focal'])
+  n.pool  <- nrow(x@matchedData[set == 'pool'])
 
-  if (group == 'focal')
+  if (set == 'focal')
     return(1:n.focal)
 
-  if (group == 'matched')
+  if (set == 'matched')
     return(x@matchedIndex)
 
-  if (group == 'unmatched')
+  if (set == 'unmatched')
     return(which(!(1:n.pool) %in% x@matchedIndex))
 
-  if (group == 'pool')
+  if (set == 'pool')
     return(1:n.pool)
 }
 
-#' @param group a character string describing from which group to extract indices.
+#' @param set a character string describing from which set to extract indices.
 #'              can be one of 'focal', 'matched', 'pool', or 'unmatched'.
 #' @rdname matched
 #' @export
@@ -67,16 +67,16 @@ overviewMatched <- function(x) {
     else
       list(mean = mean(x), sd = sd(x))
   }
-  group <- NULL
+  set <- NULL
 
   md <- matchedData(x)
   ## Apply aggregation to matchedData
   md.agg <- md[, as.list(c(N =.N, unlist(lapply(.SD, agg)))),
-                          .SDcols = -c('id'), by = group]
+                          .SDcols = -c('id'), by = set]
 
   ## Calculate distances between focal and matched
-  d <- md[group == 'focal', -c('id', 'group')] -
-    md[group == 'matched', -c('id', 'group')]
+  d <- md[set == 'focal', -c('id', 'set')] -
+    md[set == 'matched', -c('id', 'set')]
 
   ## Apply aggregation to distances
   d.agg <- d[, as.list(unlist(lapply(.SD, agg)))]
@@ -101,8 +101,8 @@ setMethod("overview", signature(x="Matched"), overviewMatched)
 # internal function for covariate plotting
 set_matched_plot <- function(data, type, cols, x) {
   x <- rlang::ensym(x)
-  y <- rlang::sym("group")
-  color <- rlang::sym("group")
+  y <- rlang::sym("set")
+  color <- rlang::sym("set")
 
   type <- match.arg(type, c("jitter", "ridges", "lines"))
   
@@ -114,7 +114,7 @@ set_matched_plot <- function(data, type, cols, x) {
   }
 
   if (identical(type, "ridges")) {
-    fill <- rlang::sym("group")
+    fill <- rlang::sym("set")
     ans <-
       ggplot(data,  mapping = aes(x = !!x, y = !!y, fill = !!fill)) +
       geom_density_ridges(alpha = 0.7, color = NA) +
@@ -144,7 +144,7 @@ plot_propensity <- function(x, type = NULL) {
 
 
   if (is.null(type)) {
-    type <- ifelse(sum(md[["group"]] == "pool") <= 10000, "jitter", "ridge")
+    type <- ifelse(sum(md[["set"]] == "pool") <= 10000, "jitter", "ridge")
   }
 
   ans <- set_matched_plot(md, type, cols, x = "ps")
@@ -166,7 +166,7 @@ plot_covariates <- function(x, covar = 'all', sets = 'all', type = NULL, logTran
 
   ## Chose plot type by data size
   if (is.null(type)) {
-    type <- ifelse(sum(md[["group"]] == "pool") <= 10000, "jitter", "ridge")
+    type <- ifelse(sum(md[["set"]] == "pool") <= 10000, "jitter", "ridge")
   }
 
   ## Define colors & covariates
@@ -192,8 +192,8 @@ plot_covariates <- function(x, covar = 'all', sets = 'all', type = NULL, logTran
   ## Melt data for plotting multiple covariates
   mmd <- melt(md, measure.vars = covar)
 
-  ## Subset group by sets
-  mmd <- mmd[mmd[["group"]] %in% sets]
+  ## Subset set by sets
+  mmd <- mmd[mmd[["set"]] %in% sets]
 
   ans <- set_matched_plot(mmd,
                           type,

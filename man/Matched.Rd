@@ -18,7 +18,7 @@ matched(x, ...)
 
 \S4method{covariates}{Matched}(x, ...)
 
-\S4method{indices}{Matched}(x, group = "matched")
+\S4method{indices}{Matched}(x, set = "matched")
 
 \S4method{overview}{Matched}(x)
 }
@@ -27,7 +27,7 @@ matched(x, ...)
 
 \item{...}{additional arguments}
 
-\item{group}{a character string describing from which group to extract indices.
+\item{set}{a character string describing from which set to extract indices.
 can be one of 'focal', 'matched', 'pool', or 'unmatched'.}
 }
 \description{
