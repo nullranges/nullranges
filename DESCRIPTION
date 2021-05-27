@@ -38,7 +38,8 @@ Suggests:
     patchwork,
     hictoolsr,
     BentoBox,
-    magrittr
+    magrittr,
+    cobalt
 Imports:
     stats,
     IRanges,

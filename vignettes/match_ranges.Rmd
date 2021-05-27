@@ -90,3 +90,21 @@ Should be `TRUE`:
 identical(matchedData(mgi)[set == "pool"][indices(mgi, set = "unmatched"), -c('set')],
           matchedData(mgi)[set == "unmatched", -c('set')])
 ```
+
+## Using `cobalt` to assess balancing
+
+This is straight-forward by accessing the matchedData:
+
+```{r}
+library(cobalt)
+res <- bal.tab(set ~ contactFreq + anchor1.peakStrength, 
+               data = matchedData(mgi),
+               distance = "ps", # name of column containing propensity score 
+               focal = "focal", # name of focal group in set column
+               which.treat = "focal", # compare everything to focal
+               s.d.denom = "all" # how to adjust standard deviation
+)
+res
+love.plot(res)
+```
+
