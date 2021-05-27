@@ -9,6 +9,13 @@ plotPropensity(x, ...)
 
 \S4method{plotPropensity}{Matched}(x, type = NULL)
 }
+\arguments{
+\item{x}{...}
+
+\item{...}{additional arguments}
+
+\item{type}{...}
+}
 \description{
 Plotting functions for Matched objects
 }

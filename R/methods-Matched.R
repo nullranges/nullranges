@@ -128,10 +128,13 @@ set_matched_plot <- function(data, type, cols, x) {
   }
   
   if (identical(type, "bars")) {
+    ## suppress R CMD CHECK Note
+    N <- pct <- NULL
+    
     ## Form melted table, calculate percentages, and order (for continuous)
-    data <- data[, .N, by = .(eval(set), eval(x))]
-    data <- data[, .(eval(x), pct = (N/sum(N)*100)), by = set]
-    data <- data[order(V1)]
+    data <- data[, .N, by = list(eval(set), eval(x))]
+    data <- data[, list(eval(x), "pct" = (N/sum(N)*100)), by = set]
+    data <- data[order("V1")]
     
     ## Rename columns
     colnames(data) <- c(deparse(set), deparse(x), 'pct')
@@ -257,6 +260,10 @@ plot_covariate <- function(x, covar = NULL, sets = 'all', type = NULL, log = NUL
 }
 
 #' Plotting functions for Matched objects
+#'
+#' @param x ...
+#' @param type ...
+#' @param ... additional arguments
 #'
 #' @rdname matched-plotting
 #' @import ggplot2 ggridges

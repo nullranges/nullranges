@@ -52,11 +52,11 @@ make_example_matched_data_set <- function(type, matched, method, replace) {
                 rep(FALSE, 1e4)),
     covar1 = c(abs(rnorm(500, mean = 4, sd = 2)),
                runif(1e4, min = 0, max = 12)),
-    covar2 = c(sample(letters[1:5],
+    covar2 = c(sample(letters[seq_len(5)],
                       size = 500,
                       replace = TRUE,
                       prob = c(0.1, 0.3, 0.4, 0.1, 0.05)),
-               sample(letters[1:5],
+               sample(letters[seq_len(5)],
                       size = 1e4,
                       replace = TRUE,
                       prob = c(0.4, 0.3, 0.1, 0.1, 0.05)))
@@ -71,7 +71,7 @@ make_example_matched_data_set <- function(type, matched, method, replace) {
   ## Generate example GRanges
   if (identical(type, 'GRanges')) {
     out <- GRanges(seqnames = 'chr1', 
-                   ranges = IRanges(start = 1:nrow(df),
+                   ranges = IRanges(start = seq_len(nrow(df)),
                                     width = 100))
     
     mcols(out) <- df
@@ -80,11 +80,11 @@ make_example_matched_data_set <- function(type, matched, method, replace) {
   ## Generate example GInteractions
   if (identical(type, 'GInteractions')) {
     gr <- GRanges(seqnames = 'chr1', 
-                  ranges = IRanges(start = 1:nrow(df),
+                  ranges = IRanges(start = seq_len(nrow(df)),
                                    width = 100))
     
-    out <- GInteractions(anchor1 = 1:nrow(df),
-                         anchor2 = 1:nrow(df),
+    out <- GInteractions(anchor1 = seq_len(nrow(df)),
+                         anchor2 = seq_len(nrow(df)),
                          regions = gr)
     
     mcols(out) <- df
