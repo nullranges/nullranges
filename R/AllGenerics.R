@@ -41,10 +41,15 @@ setGeneric("indices", function(x, ...) standardGeneric("indices"))
 setGeneric("plotPropensity", function(x, ...)
   standardGeneric("plotPropensity"))
 
-#' @rdname matched-plotting
+#' @rdname plotCovariate
 #' @export
-setGeneric("plotCovariates", function(x, ...)
-  standardGeneric("plotCovariates"))
+setGeneric("plotCovariate", function(x,
+                                     covar = NULL,
+                                     sets = 'all',
+                                     type = NULL,
+                                     log = NULL,
+                                     ...)
+  standardGeneric("plotCovariate"))
 
 ## Generics for utils --------------------------------------------------------------------
 
@@ -53,6 +58,15 @@ setGeneric("plotCovariates", function(x, ...)
 #' @rdname combnCov
 #' @export
 setGeneric("combnCov", function(x) standardGeneric("combnCov"))
+
+#' @rdname makeExampleMatchedDataSet
+#' @export
+setGeneric("makeExampleMatchedDataSet", function(type = 'DataFrame',
+                                                 matched = FALSE,
+                                                 method = 'rejection', 
+                                                 replace = FALSE,
+                                                 ...)
+  standardGeneric("makeExampleMatchedDataSet"))
 
 ## Generics for matchedDataFrame/matchedGRanges/matchedGInteractions ---------------------
 
