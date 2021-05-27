@@ -54,6 +54,15 @@ setGeneric("plotCovariate", function(x, ...)
 #' @export
 setGeneric("combnCov", function(x) standardGeneric("combnCov"))
 
+#' @rdname makeExampleMatchedDataSet
+#' @export
+setGeneric("makeExampleMatchedDataSet", function(type = 'DataFrame',
+                                                 matched = FALSE,
+                                                 method = 'rejection', 
+                                                 replace = FALSE,
+                                                 ...)
+  standardGeneric("makeExampleMatchedDataSet"))
+
 ## Generics for matchedDataFrame/matchedGRanges/matchedGInteractions ---------------------
 
 #' @rdname matchRanges

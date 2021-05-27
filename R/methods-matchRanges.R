@@ -1,6 +1,6 @@
 ## Helper functions for matchRanges ------------------------------------------------------
 
-## Define helper function to parse formula
+## Helper function to parse formula
 parseFormula <- function(f) {
 
   ## Check for valid formula

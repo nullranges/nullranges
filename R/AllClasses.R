@@ -120,3 +120,7 @@ setMethod("initialize", "MatchedGInteractions",
 ## Class Union for shared MatchedDataFrame/MatchedGRanges/MatchedGInteractions methods
 setClassUnion("MDF_OR_MGR_OR_MGI",
               c("MatchedDataFrame", "MatchedGRanges", "MatchedGInteractions"))
+
+## General class unions
+setClassUnion("character_OR_missing", c("character", "missing"))
+setClassUnion("logical_OR_missing", c("logical", "missing"))
