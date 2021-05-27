@@ -256,7 +256,7 @@ plot_covariate <- function(x, covar = NULL, sets = 'all', type = NULL, log = NUL
 
 }
 
-#' @title Plotting functions for Matched objects
+#' Plotting functions for Matched objects
 #'
 #' @rdname matched-plotting
 #' @import ggplot2 ggridges
@@ -264,17 +264,64 @@ plot_covariate <- function(x, covar = NULL, sets = 'all', type = NULL, log = NUL
 setMethod("plotPropensity", signature(x="Matched"),
           function(x, type = NULL) plot_propensity(x, type))
 
-#' @param x ...
-#' @param covar ...
-#' @param sets ...
-#' @param type ...
-#' @param log ...
-#' @param ... additional arguments
+#' Covariate plotting for Matched objects
+#' 
+#' This function plots the distributions of a covariate
+#' from each matched set of a Matched object.
+#' 
+#' By default, \code{plotCovariate} will sense the 
+#' class of covariate and make a plot best suited to
+#' that data type. For example, if the covariate class
+#' is categorical in nature then the \code{type} argument
+#' defaults to 'bars'. \code{type} is set to 'lines' for
+#' continuous covariates. These settings can also be overwritten
+#' manually.
+#' 
+#' @param x Matched object
+#' @param covar character naming the covariate to plot.
+#' If multiple are provided, only the first one is used.
+#' @param sets character vector describing which matched set(s)
+#' to include in the plot. Options are 'focal', 'matched',
+#' 'pool', or 'unmatched'. Multiple options are accepted.
+#' @param type character naming the plot type. Available
+#' options are one of either 'ridges', 'jitter', 'lines',
+#' or 'bars'. Note that for large datasets, use of 'jitter'
+#' is discouraged because the large density of points can
+#' stall the R-graphics device.
+#' @param log character vector describing which axis or
+#' axes to apply log-transformation. Available options are
+#' 'x' and/or 'y'.
+#' @param ... additional arguments.
+#' 
+#' @return Returns a plot of a covariate's distribution
+#' among matched sets.
+#' 
+#' @examples
+#' ## Matched example dataset
+#' mdf <- makeExampleMatchedDataSet(matched = TRUE)
+#' 
+#' ## Visualize covariates
+#' plotCovariate(mdf)
+#' plotCovariate(mdf, covar = 'covar2')
+#' plotCovariate(mdf,
+#'               covar = 'covar1',
+#'               sets = c('focal', 'matched', 'pool'))
+#' plotCovariate(mdf,
+#'               covar = 'covar1',
+#'               sets = c('focal', 'matched', 'pool'),
+#'               type = 'ridges')
+#' plotCovariate(mdf,
+#'               covar = 'covar1',
+#'               sets = c('focal', 'matched', 'pool'),
+#'               type = 'jitter')
 #'
-#' @rdname matched-plotting
+#' @rdname plotCovariate
 #' @importFrom scales squish_infinite
 #' @export
-setMethod("plotCovariate", signature(x="Matched"), function(x, covar = NULL, sets = 'all', type = NULL, log = NULL) {
-  # not sure why you need NSE here?
-  plot_covariate(x, covar, sets, type, log)
-})
+setMethod("plotCovariate",
+          signature = signature(x="Matched",
+                                covar = 'character_OR_missing',
+                                sets = 'character_OR_missing',
+                                type = 'character_OR_missing',
+                                log = 'character_OR_missing'),
+          definition = plot_covariate)

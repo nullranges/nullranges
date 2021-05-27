@@ -2,31 +2,12 @@
 % Please edit documentation in R/AllGenerics.R, R/methods-Matched.R
 \name{plotPropensity}
 \alias{plotPropensity}
-\alias{plotCovariate}
 \alias{plotPropensity,Matched-method}
-\alias{plotCovariate,Matched-method}
 \title{Plotting functions for Matched objects}
 \usage{
 plotPropensity(x, ...)
 
-plotCovariate(x, ...)
-
 \S4method{plotPropensity}{Matched}(x, type = NULL)
-
-\S4method{plotCovariate}{Matched}(x, covar = NULL, sets = "all", type = NULL, log = NULL)
-}
-\arguments{
-\item{x}{...}
-
-\item{...}{additional arguments}
-
-\item{type}{...}
-
-\item{covar}{...}
-
-\item{sets}{...}
-
-\item{log}{...}
 }
 \description{
 Plotting functions for Matched objects
