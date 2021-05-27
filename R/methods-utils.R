@@ -136,13 +136,13 @@ make_example_matched_data_set <- function(type, matched, method, replace) {
 #' ## Make Matched class examples (i.e. matched = TRUE)
 #' makeExampleMatchedDataSet(matched = TRUE)
 #' makeExampleMatchedDataSet(type = 'DataFrame', matched = TRUE,
-#'                           method = 'r',
+#'                           method = 'rejection',
 #'                           replace = FALSE)
 #' makeExampleMatchedDataSet(type = 'GRanges', matched = TRUE,
-#'                           method = 'r',
+#'                           method = 'rejection',
 #'                           replace = FALSE)
 #' makeExampleMatchedDataSet(type = 'GInteractions', matched = TRUE,
-#'                           method = 'r',
+#'                           method = 'rejection',
 #'                           replace = FALSE)
 #'
 #' @rdname makeExampleMatchedDataSet
