@@ -129,12 +129,12 @@ set_matched_plot <- function(data, type, cols, x) {
   
   if (identical(type, "bars")) {
     ## suppress R CMD CHECK Note
-    N <- pct <- NULL
+    N <- pct <- V1 <- NULL
     
     ## Form melted table, calculate percentages, and order (for continuous)
-    data <- data[, .N, by = list(eval(set), eval(x))]
-    data <- data[, list(eval(x), "pct" = (N/sum(N)*100)), by = set]
-    data <- data[order("V1")]
+    data <- data[, .N, by = .(eval(set), eval(x))]
+    data <- data[, .(eval(x), "pct" = (N/sum(N)*100)), by = set]
+    data <- data[order(V1)]
     
     ## Rename columns
     colnames(data) <- c(deparse(set), deparse(x), 'pct')
