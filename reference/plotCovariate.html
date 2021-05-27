@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Plotting functions for Matched objects — plotPropensity • nullranges</title>
+<title>Covariate plotting for Matched objects — plotCovariate • nullranges</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,8 +46,9 @@
 
 
 
-<meta property="og:title" content="Plotting functions for Matched objects — plotPropensity" />
-<meta property="og:description" content="Plotting functions for Matched objects" />
+<meta property="og:title" content="Covariate plotting for Matched objects — plotCovariate" />
+<meta property="og:description" content="This function plots the distributions of a covariate
+from each matched set of a Matched object." />
 <meta property="og:image" content="/logo.png" />
 
 
@@ -143,38 +144,93 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Plotting functions for Matched objects</h1>
+    <h1>Covariate plotting for Matched objects</h1>
     <small class="dont-index">Source: <a href='https://github.com/nullranges/nullranges/blob/master/R/AllGenerics.R'><code>R/AllGenerics.R</code></a>, <a href='https://github.com/nullranges/nullranges/blob/master/R/methods-Matched.R'><code>R/methods-Matched.R</code></a></small>
-    <div class="hidden name"><code>matched-plotting.Rd</code></div>
+    <div class="hidden name"><code>plotCovariate.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Plotting functions for Matched objects</p>
+    <p>This function plots the distributions of a covariate
+from each matched set of a Matched object.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>plotPropensity</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>...</span><span class='op'>)</span>
+    <pre class="usage"><span class='fu'>plotCovariate</span><span class='op'>(</span><span class='va'>x</span>, covar <span class='op'>=</span> <span class='cn'>NULL</span>, sets <span class='op'>=</span> <span class='st'>"all"</span>, type <span class='op'>=</span> <span class='cn'>NULL</span>, log <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span><span class='op'>)</span>
 
-<span class='co'># S4 method for Matched</span>
-<span class='fu'>plotPropensity</span><span class='op'>(</span><span class='va'>x</span>, type <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre>
+<span class='co'># S4 method for Matched,character_OR_missing,character_OR_missing,character_OR_missing,character_OR_missing</span>
+<span class='fu'>plotCovariate</span><span class='op'>(</span><span class='va'>x</span>, covar <span class='op'>=</span> <span class='cn'>NULL</span>, sets <span class='op'>=</span> <span class='st'>"all"</span>, type <span class='op'>=</span> <span class='cn'>NULL</span>, log <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>x</th>
-      <td><p>...</p></td>
+      <td><p>Matched object</p></td>
     </tr>
     <tr>
-      <th>...</th>
-      <td><p>additional arguments</p></td>
+      <th>covar</th>
+      <td><p>character naming the covariate to plot.
+If multiple are provided, only the first one is used.</p></td>
+    </tr>
+    <tr>
+      <th>sets</th>
+      <td><p>character vector describing which matched set(s)
+to include in the plot. Options are 'focal', 'matched',
+'pool', or 'unmatched'. Multiple options are accepted.</p></td>
     </tr>
     <tr>
       <th>type</th>
-      <td><p>...</p></td>
+      <td><p>character naming the plot type. Available
+options are one of either 'ridges', 'jitter', 'lines',
+or 'bars'. Note that for large datasets, use of 'jitter'
+is discouraged because the large density of points can
+stall the R-graphics device.</p></td>
+    </tr>
+    <tr>
+      <th>log</th>
+      <td><p>character vector describing which axis or
+axes to apply log-transformation. Available options are
+'x' and/or 'y'.</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>additional arguments.</p></td>
     </tr>
     </table>
 
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
+    <p>Returns a plot of a covariate's distribution
+among matched sets.</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>By default, <code>plotCovariate</code> will sense the
+class of covariate and make a plot best suited to
+that data type. For example, if the covariate class
+is categorical in nature then the <code>type</code> argument
+defaults to 'bars'. <code>type</code> is set to 'lines' for
+continuous covariates. These settings can also be overwritten
+manually.</p>
+
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='co'>## Matched example dataset</span>
+<span class='va'>mdf</span> <span class='op'>&lt;-</span> <span class='fu'><a href='makeExampleMatchedDataSet.html'>makeExampleMatchedDataSet</a></span><span class='op'>(</span>matched <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+
+<span class='co'>## Visualize covariates</span>
+<span class='fu'>plotCovariate</span><span class='op'>(</span><span class='va'>mdf</span><span class='op'>)</span>
+</div><div class='img'><img src='plotCovariate-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'>plotCovariate</span><span class='op'>(</span><span class='va'>mdf</span>, covar <span class='op'>=</span> <span class='st'>'covar2'</span><span class='op'>)</span>
+</div><div class='img'><img src='plotCovariate-2.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'>plotCovariate</span><span class='op'>(</span><span class='va'>mdf</span>,
+              covar <span class='op'>=</span> <span class='st'>'covar1'</span>,
+              sets <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>'focal'</span>, <span class='st'>'matched'</span>, <span class='st'>'pool'</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='img'><img src='plotCovariate-3.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'>plotCovariate</span><span class='op'>(</span><span class='va'>mdf</span>,
+              covar <span class='op'>=</span> <span class='st'>'covar1'</span>,
+              sets <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>'focal'</span>, <span class='st'>'matched'</span>, <span class='st'>'pool'</span><span class='op'>)</span>,
+              type <span class='op'>=</span> <span class='st'>'ridges'</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='message'>Picking joint bandwidth of 0.545</span></div><div class='img'><img src='plotCovariate-4.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'>plotCovariate</span><span class='op'>(</span><span class='va'>mdf</span>,
+              covar <span class='op'>=</span> <span class='st'>'covar1'</span>,
+              sets <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>'focal'</span>, <span class='st'>'matched'</span>, <span class='st'>'pool'</span><span class='op'>)</span>,
+              type <span class='op'>=</span> <span class='st'>'jitter'</span><span class='op'>)</span>
+</div><div class='img'><img src='plotCovariate-5.png' alt='' width='700' height='433' /></div><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
