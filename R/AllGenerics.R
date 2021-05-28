@@ -45,7 +45,10 @@ setGeneric("plotPropensity", function(x, ...)
 #' @export
 setGeneric("plotCovariate", function(x,
                                      covar = NULL,
-                                     sets = 'all',
+                                     sets = c('focal',
+                                              'matched',
+                                              'pool',
+                                              'unmatched'),
                                      type = NULL,
                                      log = NULL,
                                      ...)

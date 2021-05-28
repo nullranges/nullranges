@@ -175,7 +175,7 @@ plot_propensity <- function(x, type = NULL) {
 }
 
 ## Define function for plotting covariates
-plot_covariate <- function(x, covar = NULL, sets = 'all', type = NULL, log = NULL) {
+plot_covariate <- function(x, covar, sets, type, log) {
 
   ## Define colors & sets
   cols <- c("#1F78B4", "#A6CEE3", "#33A02C", "#B2DF8A")
@@ -183,13 +183,7 @@ plot_covariate <- function(x, covar = NULL, sets = 'all', type = NULL, log = NUL
   
   ## Parse arguments
   covar <- match.arg(covar, choices = covariates(x), several.ok = FALSE)
-  sets <- match.arg(sets, choices = c('all', names(cols)), several.ok = TRUE)
-  
-  if (length(sets) == 1) {
-    if (sets == 'all') {
-      sets <- names(cols)
-    }
-  }
+  sets <- match.arg(sets, choices = names(cols), several.ok = TRUE)
   
   if (!is.null(log)) {
     log <- match.arg(log, choices = c('x', 'y'), several.ok = TRUE)

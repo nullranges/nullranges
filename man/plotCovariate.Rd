@@ -5,9 +5,16 @@
 \alias{plotCovariate,Matched,character_OR_missing,character_OR_missing,character_OR_missing,character_OR_missing-method}
 \title{Covariate plotting for Matched objects}
 \usage{
-plotCovariate(x, covar = NULL, sets = "all", type = NULL, log = NULL, ...)
+plotCovariate(
+  x,
+  covar = NULL,
+  sets = c("focal", "matched", "pool", "unmatched"),
+  type = NULL,
+  log = NULL,
+  ...
+)
 
-\S4method{plotCovariate}{Matched,character_OR_missing,character_OR_missing,character_OR_missing,character_OR_missing}(x, covar = NULL, sets = "all", type = NULL, log = NULL)
+\S4method{plotCovariate}{Matched,character_OR_missing,character_OR_missing,character_OR_missing,character_OR_missing}(x, covar, sets, type, log)
 }
 \arguments{
 \item{x}{Matched object}
