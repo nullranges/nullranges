@@ -38,7 +38,14 @@ setGeneric("indices", function(x, ...) standardGeneric("indices"))
 
 #' @rdname matched-plotting
 #' @export
-setGeneric("plotPropensity", function(x, ...)
+setGeneric("plotPropensity", function(x, 
+                                      sets = c('focal',
+                                               'matched',
+                                               'pool',
+                                               'unmatched'),
+                                      type = NULL,
+                                      log = NULL,
+                                      ...)
   standardGeneric("plotPropensity"))
 
 #' @rdname plotCovariate

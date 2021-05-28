@@ -116,7 +116,7 @@ make_example_matched_data_set <- function(type, matched, method, replace) {
 #' Matched dataset (\code{matched = TRUE}) or an input dataset
 #' for \code{matchRanges()} (\code{matched = FALSE}).
 #' @param method character describing which matching method to use.
-#' supported options are either 'nearest', 'rejection', or 'stratified'.
+#' Supported options are either 'nearest', 'rejection', or 'stratified'.
 #' @param replace TRUE/FALSE describing whether to select matches with
 #' or without replacement.
 #' @param ... additional arguments

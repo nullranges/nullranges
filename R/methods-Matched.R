@@ -97,9 +97,52 @@ setMethod("overview", signature(x="Matched"), overviewMatched)
 
 ## Define plot methods for Matched class -------------------------------------------------
 
+## Internal function for parsing common plotting args
+parse_plot_args <- function(sets, x){
+  
+  ## Define colors & sets
+  cols <- c(focal = "#1F78B4", matched = "#A6CEE3",
+            pool = "#33A02C", unmatched = "#B2DF8A")
+  
+  ## Parse arguments
+  sets <- match.arg(sets, choices = names(cols), several.ok = TRUE)
+  
+  ## Extract matched data & subset by sets
+  md <- matchedData(x)
+  md <- md[md[["set"]] %in% sets]
+  cols <- cols[names(cols) %in% sets]
+  
+  ## Return args
+  return(list(md = md,
+              cols = cols,
+              sets = sets))
+}
+
+## Internal function for setting type argument
+set_matched_type <- function(data, type, thresh, x) {
+  
+  ## Extract covariate values for checking data type
+  vals <- data[[x]]
+  
+  ## Use class of covariate to set plot type
+  if (is.null(type)) {
+    if (is.numeric(vals)) {
+      type <- ifelse(uniqueN(vals) <= thresh, 'bars', 'lines')
+    } else if (is.factor(vals) |
+               is.logical(vals) |
+               is.character(vals)) {
+      type <- 'bars'
+    } else {
+      stop(sprintf('Data type %s is not supported.'), vals)
+    }
+  }
+  
+  type
+}
+
 #' @importFrom rlang !! enquo
-# internal function for covariate plotting
-set_matched_plot <- function(data, type, cols, x) {
+## Internal function for setting matched plot
+set_matched_plot <- function(data, type, cols, thresh, x) {
   x <- rlang::ensym(x)
   set <- rlang::sym("set")
   
@@ -128,8 +171,14 @@ set_matched_plot <- function(data, type, cols, x) {
   }
   
   if (identical(type, "bars")) {
-    ## suppress R CMD CHECK Note
+    ## Suppress R CMD CHECK Note
     N <- pct <- V1 <- NULL
+    
+    ## Convert categorical-numeric to factor
+    vals <- data[[x]]
+    if (is.numeric(vals) & uniqueN(vals) <= thresh){
+      data[[x]] <- as.factor(signif(vals, 2))
+    }
     
     ## Form melted table, calculate percentages, and order (for continuous)
     data <- data[, .N, by = .(eval(set), eval(x))]
@@ -143,80 +192,15 @@ set_matched_plot <- function(data, type, cols, x) {
     ans <- ggplot(data = data, mapping = aes(x = !!set, y = pct, fill = !!x)) +
       geom_col(position = 'stack') +
       labs(y = "Percentage")
-  }
-  
-  ans
-}
-
-## Define function for plotting propensity scores
-plot_propensity <- function(x, type = NULL) {
-
-  ## Extract matchedData
-  md <- matchedData(x)
-
-  ## Define colors
-  cols <- c("#1F78B4", "#A6CEE3", "#33A02C", "#B2DF8A")
-
-
-
-  if (is.null(type)) {
-    type <- ifelse(sum(md[["set"]] == "pool") <= 10000, "jitter", "ridge")
-  }
-
-  ans <- set_matched_plot(md, type, cols, x = "ps")
-
-  ans +
-    labs(x = "Propensity Score", y = NULL) +
-    theme_minimal() +
-    theme(legend.position = 'none',
-          panel.border = element_rect(fill = 'transparent'))
-
-
-}
-
-## Define function for plotting covariates
-plot_covariate <- function(x, covar, sets, type, log) {
-
-  ## Define colors & sets
-  cols <- c("#1F78B4", "#A6CEE3", "#33A02C", "#B2DF8A")
-  names(cols) <- c('focal', 'matched', 'pool', 'unmatched')
-  
-  ## Parse arguments
-  covar <- match.arg(covar, choices = covariates(x), several.ok = FALSE)
-  sets <- match.arg(sets, choices = names(cols), several.ok = TRUE)
-  
-  if (!is.null(log)) {
-    log <- match.arg(log, choices = c('x', 'y'), several.ok = TRUE)
-  }
-  
-  ## Extract matched data
-  md <- matchedData(x)
-  
-  ## Subset matched data and colors by sets
-  md <- md[md[["set"]] %in% sets]
-  cols <- cols[names(cols) %in% sets]
-  
-  ## Extract covariate values for checking data type
-  covarValues <- md[[covar]]
-  
-  ## Use class of covariate values to set plot type
-  if (is.null(type)) {
-    if (is.numeric(covarValues)) {
-      type <- ifelse(uniqueN(covarValues) <= 10, 'bars', 'lines')
-    } else if (is.factor(covarValues) |
-               is.logical(covarValues) |
-               is.character(covarValues)) {
-      type <- 'bars'
+    
+    ## RColorBrewer palette "Set3" has only 12 colors
+    if (thresh <= 12) {
+      ans <- ans + scale_fill_brewer(palette = "Set3")
     } else {
-      stop(sprintf('Data type %s is not supported.'), covarValues)
+      ans <- ans + scale_fill_ordinal(direction = -1)
     }
+      
   }
-  
-  ## Generate plot by type
-  ans <- set_matched_plot(data = md,
-                          type = type,
-                          cols = cols,
-                          x = !!covar)
   
   ## Apply general plot formatting
   ans <- ans +
@@ -224,7 +208,18 @@ plot_covariate <- function(x, covar, sets, type, log) {
     theme(panel.grid.minor = element_blank(),
           panel.border = element_rect(fill = 'transparent'))
   
-  ## Apply log transformation(s)
+  ans
+}
+
+## Internal function to apply log-transformation
+apply_log_trans <- function(log, type, ans, x) {
+  
+  ## Parse log parameter
+  if (!is.null(log)) {
+    log <- match.arg(log, choices = c('x', 'y'), several.ok = TRUE)
+  }
+  
+  ## Apply x-transformation
   if ('x' %in% log) {
     if (identical(type, 'bars')) {
       stop("Transformation of x-axis not valid when type = 'bars'.")
@@ -234,9 +229,10 @@ plot_covariate <- function(x, covar, sets, type, log) {
         trans = "log",
         breaks = scales::log_breaks(base = exp(1)),
         oob = scales::oob_squish_infinite) +
-      labs(x = sprintf("log(%s)", covar))
+      labs(x = sprintf("log(%s)", x))
   }
   
+  ## Apply y-transformation
   if ('y' %in% log) {
     if (!identical(type, 'lines')) {
       stop("Transformation of y-axis only valid when type = 'lines'.")
@@ -250,7 +246,84 @@ plot_covariate <- function(x, covar, sets, type, log) {
   }
   
   ans
+  
+}
 
+## Define function for plotting propensity scores
+plot_propensity <- function(x, sets, type, log, thresh = 12) {
+  
+  ## Suppress R CMD Check Note
+  md <- cols <- NULL
+
+  ## Extract matchedData (md); parse cols & sets
+  list2env(parse_plot_args(sets, x), envir = environment())
+  
+  ## Use class of covariate to set type
+  type <- set_matched_type(data = md,
+                           type = type,
+                           thresh = thresh,
+                           x = "ps")
+  
+  ## Generate plot by type
+  ans <- set_matched_plot(data = md,
+                          type = type,
+                          cols = cols,
+                          thresh = thresh,
+                          x = "ps")
+  
+  ## Apply general plot formatting
+  ans <- ans +
+    labs(title = paste0("~", paste(covariates(x), collapse = "+")))
+  
+  if (!identical(type, 'bars')) {
+    ans <- ans +
+      labs(x = "Propensity Score", y = NULL)  
+  }
+  
+  
+  ## Apply any log-transformations
+  ans <- apply_log_trans(log = log,
+                         type = type,
+                         ans = ans,
+                         x = "ps")
+  
+  ans
+
+}
+
+## Define function for plotting covariates
+plot_covariate <- function(x, covar, sets, type, log, thresh = 12) {
+  
+  ## Suppress R CMD Check Note
+  md <- cols <- NULL
+  
+  ## Extract matchedData (md); parse cols & sets
+  list2env(parse_plot_args(sets, x), envir = environment())
+  
+  ## Parse covariate arguments
+  covar <- match.arg(covar, choices = covariates(x), several.ok = FALSE)
+  
+  ## Use class of covariate to set type
+  type <- set_matched_type(data = md,
+                           type = type,
+                           thresh = thresh,
+                           x = covar)
+  
+  ## Generate plot by type
+  ans <- set_matched_plot(data = md,
+                          type = type,
+                          cols = cols,
+                          thresh = thresh,
+                          x = !!covar)
+  
+  ## Apply any log-transformations
+  ans <- apply_log_trans(log = log,
+                         type = type,
+                         ans = ans,
+                         x = covar)
+  
+  ans
+  
 }
 
 #' Plotting functions for Matched objects
@@ -262,8 +335,20 @@ plot_covariate <- function(x, covar, sets, type, log) {
 #' @rdname matched-plotting
 #' @import ggplot2 ggridges
 #' @export
-setMethod("plotPropensity", signature(x="Matched"),
-          function(x, type = NULL) plot_propensity(x, type))
+# setMethod("plotPropensity",
+#           signature = signature(x="Matched",
+#                                 sets = 'character_OR_missing',
+#                                 type = 'character_OR_missing',
+#                                 log = 'character_OR_missing'),
+#           definition = function(x, sets, type, log, ...) {
+#             plot_propensity(x, sets, type, log, ...) 
+#           })
+setMethod("plotPropensity",
+          signature = signature(x="Matched",
+                                sets = 'character_OR_missing',
+                                type = 'character_OR_missing',
+                                log = 'character_OR_missing'),
+          definition = plot_propensity)
 
 #' Covariate plotting for Matched objects
 #' 
@@ -319,6 +404,15 @@ setMethod("plotPropensity", signature(x="Matched"),
 #' @rdname plotCovariate
 #' @importFrom scales squish_infinite
 #' @export
+# setMethod("plotCovariate",
+#           signature = signature(x="Matched",
+#                                 covar = 'character_OR_missing',
+#                                 sets = 'character_OR_missing',
+#                                 type = 'character_OR_missing',
+#                                 log = 'character_OR_missing'),
+#           definition = function(x, covar, sets, type, log, ...) {
+#             plot_covariate(x, covar, sets, type, log, ...) 
+#           })
 setMethod("plotCovariate",
           signature = signature(x="Matched",
                                 covar = 'character_OR_missing',

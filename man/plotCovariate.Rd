@@ -14,7 +14,7 @@ plotCovariate(
   ...
 )
 
-\S4method{plotCovariate}{Matched,character_OR_missing,character_OR_missing,character_OR_missing,character_OR_missing}(x, covar, sets, type, log)
+\S4method{plotCovariate}{Matched,character_OR_missing,character_OR_missing,character_OR_missing,character_OR_missing}(x, covar, sets, type, log, thresh = 12)
 }
 \arguments{
 \item{x}{Matched object}

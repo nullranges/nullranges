@@ -25,7 +25,7 @@ Matched dataset (\code{matched = TRUE}) or an input dataset
 for \code{matchRanges()} (\code{matched = FALSE}).}
 
 \item{method}{character describing which matching method to use.
-supported options are either 'nearest', 'rejection', or 'stratified'.}
+Supported options are either 'nearest', 'rejection', or 'stratified'.}
 
 \item{replace}{TRUE/FALSE describing whether to select matches with
 or without replacement.}
