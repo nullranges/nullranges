@@ -44,7 +44,7 @@ Matched Object (when \code{matched = FALSE}).
 \examples{
 ## Make examples for matchRanges() (i.e matched = FALSE)
 makeExampleMatchedDataSet()
-makeExampleMatchedDataSet(type = 'data.frame', matched = FALSE)
+head(makeExampleMatchedDataSet(type = 'data.frame', matched = FALSE))
 makeExampleMatchedDataSet(type = 'data.table', matched = FALSE)
 makeExampleMatchedDataSet(type = 'DataFrame', matched = FALSE)
 makeExampleMatchedDataSet(type = 'GRanges', matched = FALSE)
@@ -53,13 +53,13 @@ makeExampleMatchedDataSet(type = 'GInteractions', matched = FALSE)
 ## Make Matched class examples (i.e. matched = TRUE)
 makeExampleMatchedDataSet(matched = TRUE)
 makeExampleMatchedDataSet(type = 'DataFrame', matched = TRUE,
-                          method = 'r',
+                          method = 'rejection',
                           replace = FALSE)
 makeExampleMatchedDataSet(type = 'GRanges', matched = TRUE,
-                          method = 'r',
+                          method = 'rejection',
                           replace = FALSE)
 makeExampleMatchedDataSet(type = 'GInteractions', matched = TRUE,
-                          method = 'r',
+                          method = 'rejection',
                           replace = FALSE)
 
 }
