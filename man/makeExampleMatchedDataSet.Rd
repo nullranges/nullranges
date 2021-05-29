@@ -38,8 +38,8 @@ input to \code{matchRanges()}.
 }
 \description{
 This function will generate an example dataset as either 1) input
-for \code{matchRanges()} (when \code{matched = TRUE}) or 2) a
-Matched Object (when \code{matched = FALSE}).
+for \code{matchRanges()} (when \code{matched = FALSE}) or 2) a
+Matched Object (when \code{matched = TRUE}).
 }
 \examples{
 ## Make examples for matchRanges() (i.e matched = FALSE)
