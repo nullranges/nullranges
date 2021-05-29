@@ -105,8 +105,8 @@ make_example_matched_data_set <- function(type, matched, method, replace) {
 #' Function for generating an example matchRanges or Matched dataset
 #' 
 #' This function will generate an example dataset as either 1) input
-#' for `matchRanges()` (when `matched = TRUE`) or 2) a 
-#' Matched Object (when `matched = FALSE`).
+#' for `matchRanges()` (when `matched = FALSE`) or 2) a 
+#' Matched Object (when `matched = TRUE`).
 #'
 #' @param type Character designating which type of dataset to make.
 #'   options are one of 'data.frame', 'data.table', 'DataFrame',
