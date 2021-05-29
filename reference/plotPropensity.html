@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Function for creating combinations of covariates — combnCov • nullranges</title>
+<title>Propensity score plotting for Matched objects — plotPropensity • nullranges</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,8 +46,9 @@
 
 
 
-<meta property="og:title" content="Function for creating combinations of covariates — combnCov" />
-<meta property="og:description" content="Function for creating combinations of covariates" />
+<meta property="og:title" content="Propensity score plotting for Matched objects — plotPropensity" />
+<meta property="og:description" content="This function plots the distribution of propensity scores
+from each matched set of a Matched object." />
 <meta property="og:image" content="/logo.png" />
 
 
@@ -143,36 +144,97 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Function for creating combinations of covariates</h1>
-    <small class="dont-index">Source: <a href='https://github.com/nullranges/nullranges/blob/master/R/AllGenerics.R'><code>R/AllGenerics.R</code></a>, <a href='https://github.com/nullranges/nullranges/blob/master/R/methods-utils.R'><code>R/methods-utils.R</code></a></small>
-    <div class="hidden name"><code>combnCov.Rd</code></div>
+    <h1>Propensity score plotting for Matched objects</h1>
+    <small class="dont-index">Source: <a href='https://github.com/nullranges/nullranges/blob/master/R/AllGenerics.R'><code>R/AllGenerics.R</code></a>, <a href='https://github.com/nullranges/nullranges/blob/master/R/methods-Matched.R'><code>R/methods-Matched.R</code></a></small>
+    <div class="hidden name"><code>plotPropensity.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Function for creating combinations of covariates</p>
+    <p>This function plots the distribution of propensity scores
+from each matched set of a Matched object.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>combnCov</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span>
+    <pre class="usage"><span class='fu'>plotPropensity</span><span class='op'>(</span>
+  <span class='va'>x</span>,
+  sets <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"focal"</span>, <span class='st'>"matched"</span>, <span class='st'>"pool"</span>, <span class='st'>"unmatched"</span><span class='op'>)</span>,
+  type <span class='op'>=</span> <span class='cn'>NULL</span>,
+  log <span class='op'>=</span> <span class='cn'>NULL</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span>
 
-<span class='co'># S4 method for character</span>
-<span class='fu'>combnCov</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span></pre>
+<span class='co'># S4 method for Matched,character_OR_missing,character_OR_missing,character_OR_missing</span>
+<span class='fu'>plotPropensity</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>sets</span>, <span class='va'>type</span>, <span class='va'>log</span>, thresh <span class='op'>=</span> <span class='fl'>12</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>x</th>
-      <td><p>Character vector of covariates to combine</p></td>
+      <td><p>Matched object</p></td>
+    </tr>
+    <tr>
+      <th>sets</th>
+      <td><p>Character vector describing which matched set(s)
+to include in the plot. Options are 'focal', 'matched',
+'pool', or 'unmatched'. Multiple options are accepted.</p></td>
+    </tr>
+    <tr>
+      <th>type</th>
+      <td><p>Character naming the plot type. Available
+options are one of either 'ridges', 'jitter', 'lines',
+or 'bars'. Note that for large datasets, use of 'jitter'
+is discouraged because the large density of points can
+stall the R-graphics device.</p></td>
+    </tr>
+    <tr>
+      <th>log</th>
+      <td><p>Character vector describing which axis or
+axes to apply log-transformation. Available options are
+'x' and/or 'y'.</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>Additional arguments.</p></td>
+    </tr>
+    <tr>
+      <th>thresh</th>
+      <td><p>Integer describing the number of
+unique values required to classify a numeric
+variable as discrete (and convert it to a factor).
+If the number of unique values exceeds <code>thresh</code>
+then the variable is considered continuous.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>Returns a character vector of formulae combinations.</p>
+    <p>Returns a plot of propensity score distributions
+among matched sets.</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p><code>plotPropensity</code> uses the <code>thresh</code> argument
+to determine whether to plot propensity scores as
+continuous (line plot) or catetgorical (bar plot).
+These settings can also be overwritten manually.</p>
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <div class='dont-index'><p><code><a href='plotCovariate.html'>plotCovariate()</a></code> to plot covariate distributions.</p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'>combnCov</span><span class='op'>(</span>x <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>'a'</span>, <span class='st'>'b'</span>, <span class='st'>'c'</span><span class='op'>)</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; [1] "~a+b+c" "~b+c"   "~a+c"   "~c"     "~a+b"   "~b"     "~a"    </div><div class='input'>
+    <pre class="examples"><div class='input'><span class='co'>## Matched example dataset</span>
+<span class='va'>mdf</span> <span class='op'>&lt;-</span> <span class='fu'><a href='makeExampleMatchedDataSet.html'>makeExampleMatchedDataSet</a></span><span class='op'>(</span>matched <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+
+<span class='co'>## Visualize propensity scores</span>
+<span class='fu'>plotPropensity</span><span class='op'>(</span><span class='va'>mdf</span><span class='op'>)</span>
+</div><div class='img'><img src='plotPropensity-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'>plotPropensity</span><span class='op'>(</span><span class='va'>mdf</span>,
+              sets <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>'focal'</span>, <span class='st'>'matched'</span>, <span class='st'>'pool'</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='img'><img src='plotPropensity-2.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'>plotPropensity</span><span class='op'>(</span><span class='va'>mdf</span>,
+              sets <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>'focal'</span>, <span class='st'>'matched'</span>, <span class='st'>'pool'</span><span class='op'>)</span>,
+              type <span class='op'>=</span> <span class='st'>'ridges'</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='message'>Picking joint bandwidth of 0.0147</span></div><div class='img'><img src='plotPropensity-3.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'>plotPropensity</span><span class='op'>(</span><span class='va'>mdf</span>,
+              sets <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>'focal'</span>, <span class='st'>'matched'</span>, <span class='st'>'pool'</span><span class='op'>)</span>,
+              type <span class='op'>=</span> <span class='st'>'jitter'</span><span class='op'>)</span>
+</div><div class='img'><img src='plotPropensity-4.png' alt='' width='700' height='433' /></div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
