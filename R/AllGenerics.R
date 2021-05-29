@@ -1,13 +1,8 @@
 ## Generics for Matched class ------------------------------------------------------------
 
-#' Overview
-#'
-#' @param x an object
-#' @param ... additional arguments
-#'
 #' @rdname overview
 #' @export
-setGeneric("overview", function(x, ...) standardGeneric("overview"))
+setGeneric("overview", function(x, digits = 2, ...) standardGeneric("overview"))
 
 #' matchedData
 #'

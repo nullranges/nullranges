@@ -60,7 +60,6 @@ make_example_matched_data_set <- function(type, matched, method, replace) {
                       replace = TRUE,
                       prob = c(0.4, 0.3, 0.1, 0.1, 0.05)))
   )
-  df$covar2 <- as.factor(df$covar2) # remove after fixing overview()
 
   ## Generate example data.frame/data.table/DataFrame
   if (identical(type, 'data.frame')) out <- df

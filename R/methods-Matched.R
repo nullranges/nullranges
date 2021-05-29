@@ -58,41 +58,85 @@ setMethod("indices", "Matched", getIndices)
 
 ## Define overview method for Matched class ----------------------------------------------
 
-overviewMatched <- function(x) {
-
-  ## Define aggregation function
-  agg <- function(x) {
-    if (any(is.factor(x)))
-      list(table(x))
-    else
+#' Internal aggregation function for `overview`
+#' @param x Vector of any type
+#' @param signif TRUE/FALSE apply rounding
+#' @inheritParams overview
+#' @return A list of aggregated values
+#' @noRd
+agg <- function(x, signif, digits) {
+  if (any(is.logical(x)) |
+      any(is.character(x)) |
+      any(is.factor(x))) {
+    list(table(as.factor(x)))
+  } else {
+    if (signif) {
+      list(mean = signif(mean(x),digits),
+           sd = signif(sd(x),digits))
+    } else {
       list(mean = mean(x), sd = sd(x))
+    }
   }
+}
+
+#' Internal function for `overview` method
+#' @noRd
+overviewMatched <- function(x, digits) {
+  
+  ## Suppress R CMD Check Note
   set <- NULL
-
+  
+  ## Extract matched data & aggregate
   md <- matchedData(x)
-  ## Apply aggregation to matchedData
-  md.agg <- md[, as.list(c(N =.N, unlist(lapply(.SD, agg)))),
-                          .SDcols = -c('id'), by = set]
-
-  ## Calculate distances between focal and matched
-  d <- md[set == 'focal', -c('id', 'set')] -
-    md[set == 'matched', -c('id', 'set')]
-
-  ## Apply aggregation to distances
-  d.agg <- d[, as.list(unlist(lapply(.SD, agg)))]
-
+  md.agg <- md[, as.list(c(N =.N, unlist(lapply(.SD, agg, TRUE, digits)))),
+               .SDcols = -c('id'), by = set]
+  
+  ## Apply aggregation to focal and matched
+  distf <- md[set == 'focal', as.list(unlist(lapply(.SD, agg, FALSE))),
+              .SDcols=-c('id', 'set')]
+  distm <- md[set == 'matched', as.list(unlist(lapply(.SD, agg, FALSE))),
+              .SDcols=-c('id', 'set')]
+  
+  ## Calculate distances between focal and matched  
+  d <- signif(distf - distm, digits)
+  
   ## Display overview
   cat(class(x), "object:", '\n', sep = ' ')
   print(md.agg, row.names = FALSE)
   cat('--------\n')
   cat('focal - matched: \n')
-  print(d.agg, row.names = FALSE)
-
+  print(d, row.names = FALSE)
+  
 }
 
-#' @rdname matched
+#' Overview of matching quality
+#' 
+#' The overview function provides a quick assessment of
+#' overall matching quality by reporting the N, mean, and
+#' s.d. of focal, matched, pool, and unmatched sets for all 
+#' covariates as well as the propensity scores ('ps').
+#' The mean and s.d. difference in focal - matched is also
+#' reported.
+#' 
+#' Factor, character, or logical covariates are reported by
+#' N per set, rather than with mean and s.d.
+#' 
+#' @param x Matched object
+#' @param digits Integer indicating the number
+#'   of significant digits to be used. Negative
+#'   values are allowed (see `?signif`).
+#'   
+#' @return A printed overview of matching quality.
+#' 
+#' @examples
+#' mdf <- makeExampleMatchedDataSet(matched = TRUE)
+#' overview(mdf)
+#' 
+#' @rdname overview
 #' @export
-setMethod("overview", signature(x="Matched"), overviewMatched)
+setMethod("overview", signature(x="Matched",
+                                digits = 'numeric_OR_missing'),
+          definition = overviewMatched)
 
 
 ## Define plot methods for Matched class -------------------------------------------------

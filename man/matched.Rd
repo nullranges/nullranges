@@ -9,7 +9,6 @@
 \alias{matchedData,Matched-method}
 \alias{covariates,Matched-method}
 \alias{indices,Matched-method}
-\alias{overview,Matched-method}
 \title{Matched}
 \usage{
 matched(x, ...)
@@ -19,8 +18,6 @@ matched(x, ...)
 \S4method{covariates}{Matched}(x, ...)
 
 \S4method{indices}{Matched}(x, set = "matched")
-
-\S4method{overview}{Matched}(x)
 }
 \arguments{
 \item{x}{an object}
