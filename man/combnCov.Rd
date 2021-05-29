@@ -10,16 +10,15 @@ combnCov(x)
 \S4method{combnCov}{character}(x)
 }
 \arguments{
-\item{x}{character vector of covariates to combine}
+\item{x}{Character vector of covariates to combine}
 }
 \value{
-returns a character vector of formulae combinations.
+Returns a character vector of formulae combinations.
 }
 \description{
 Function for creating combinations of covariates
 }
 \examples{
-
 combnCov(x = c('a', 'b', 'c'))
 
 }
