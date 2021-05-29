@@ -16,7 +16,7 @@ makeExampleMatchedDataSet(
 \S4method{makeExampleMatchedDataSet}{character_OR_missing,logical_OR_missing,character_OR_missing,logical_OR_missing}(type, matched, method, replace)
 }
 \arguments{
-\item{type}{character designating which type of dataset to make.
+\item{type}{Character designating which type of dataset to make.
 options are one of 'data.frame', 'data.table', 'DataFrame',
 'GRanges', or 'GInteractions'.}
 
@@ -24,13 +24,13 @@ options are one of 'data.frame', 'data.table', 'DataFrame',
 Matched dataset (\code{matched = TRUE}) or an input dataset
 for \code{matchRanges()} (\code{matched = FALSE}).}
 
-\item{method}{character describing which matching method to use.
-supported options are either 'nearest', 'rejection', or 'stratified'.}
+\item{method}{Character describing which matching method to use.
+Supported options are either 'nearest', 'rejection', or 'stratified'.}
 
 \item{replace}{TRUE/FALSE describing whether to select matches with
 or without replacement.}
 
-\item{...}{additional arguments}
+\item{...}{Additional arguments}
 }
 \value{
 Returns an example Matched dataset or an example dataset for

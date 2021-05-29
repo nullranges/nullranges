@@ -22,12 +22,11 @@ combnCovariates <- function(x) {
 
 #' Function for creating combinations of covariates
 #'
-#' @param x character vector of covariates to combine
+#' @param x Character vector of covariates to combine
 #'
-#' @return returns a character vector of formulae combinations.
+#' @return Returns a character vector of formulae combinations.
 #'
 #' @examples
-#'
 #' combnCov(x = c('a', 'b', 'c'))
 #'
 #' @rdname combnCov
@@ -106,23 +105,23 @@ make_example_matched_data_set <- function(type, matched, method, replace) {
 #' Function for generating an example matchRanges or Matched dataset
 #' 
 #' This function will generate an example dataset as either 1) input
-#' for \code{matchRanges()} (when \code{matched = TRUE}) or 2) a 
-#' Matched Object (when \code{matched = FALSE}).
+#' for `matchRanges()` (when `matched = TRUE`) or 2) a 
+#' Matched Object (when `matched = FALSE`).
 #'
-#' @param type character designating which type of dataset to make.
-#' options are one of 'data.frame', 'data.table', 'DataFrame',
-#' 'GRanges', or 'GInteractions'.
+#' @param type Character designating which type of dataset to make.
+#'   options are one of 'data.frame', 'data.table', 'DataFrame',
+#'   'GRanges', or 'GInteractions'.
 #' @param matched TRUE/FALSE designating whether to generate a
-#' Matched dataset (\code{matched = TRUE}) or an input dataset
-#' for \code{matchRanges()} (\code{matched = FALSE}).
-#' @param method character describing which matching method to use.
-#' supported options are either 'nearest', 'rejection', or 'stratified'.
+#'   Matched dataset (`matched = TRUE`) or an input dataset
+#'   for `matchRanges()` (`matched = FALSE`).
+#' @param method Character describing which matching method to use.
+#'   Supported options are either 'nearest', 'rejection', or 'stratified'.
 #' @param replace TRUE/FALSE describing whether to select matches with
-#' or without replacement.
-#' @param ... additional arguments
+#'   or without replacement.
+#' @param ... Additional arguments
 #'
 #' @return Returns an example Matched dataset or an example dataset for
-#' input to \code{matchRanges()}.
+#'   input to `matchRanges()`.
 #'
 #' @examples
 #' ## Make examples for matchRanges() (i.e matched = FALSE)

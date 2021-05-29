@@ -97,9 +97,76 @@ setMethod("overview", signature(x="Matched"), overviewMatched)
 
 ## Define plot methods for Matched class -------------------------------------------------
 
+#' Internal function for parsing common plotting args
+#' 
+#' Defines colors & linetypes, parses the set argument
+#' and extracts matched data.
+#' 
+#' @inheritParams plotCovariate
+#' @return A list of arguments:
+#' * [`md`] - matched data
+#' * [`cols`] - named color vector
+#' * [`sets`] - parsed sets
+#' * [`lty`] = named linetype vector
+#' @noRd
+parse_plot_args <- function(sets, x){
+  
+  ## Define colors & linetypes
+  cols <- c(focal = "#1F78B4", matched = "#A6CEE3",
+            pool = "#33A02C", unmatched = "#B2DF8A")
+  lty <- c(focal = 1, matched = 2, pool = 1, unmatched = 2)
+  
+  ## Parse arguments
+  sets <- match.arg(sets, choices = names(cols), several.ok = TRUE)
+  
+  ## Extract matched data & subset by sets
+  md <- matchedData(x)
+  md <- md[md[["set"]] %in% sets]
+  cols <- cols[names(cols) %in% sets]
+  
+  ## Return args
+  return(list(md = md, cols = cols, sets = sets, lty = lty))
+}
+
+#' Internal function for setting type argument
+#' @inheritParams plotCovariate
+#' @param data Matched data
+#' @param x Character or symbol describing which column of matched data
+#'   for which to apply function.
+#' @return A character with the new value for `type`
+#' @noRd
+set_matched_type <- function(data, type, thresh, x) {
+  
+  ## Extract covariate values for checking data type
+  vals <- data[[x]]
+  
+  ## Use class of covariate to set plot type
+  if (is.null(type)) {
+    if (is.numeric(vals)) {
+      type <- ifelse(uniqueN(vals) <= thresh, 'bars', 'lines')
+    } else if (is.factor(vals) |
+               is.logical(vals) |
+               is.character(vals)) {
+      type <- 'bars'
+    } else {
+      stop(sprintf('Data type %s is not supported.'), vals)
+    }
+  }
+  
+  type
+}
+
+#' Internal function for setting matched plot
+#' @inheritParams plotCovariate
+#' @param data Matched data
+#' @param cols,lty Named character vector of colors/lty for focal,
+#'   matched, pool, and unmatched sets.
+#' @param x Character or symbol describing which column of matched data
+#'   for which to apply function.
 #' @importFrom rlang !! enquo
-# internal function for covariate plotting
-set_matched_plot <- function(data, type, cols, x) {
+#' @return A `ggplot` set by `type` argument
+#' @noRd
+set_matched_plot <- function(data, type, cols, lty, thresh, x) {
   x <- rlang::ensym(x)
   set <- rlang::sym("set")
   
@@ -121,15 +188,21 @@ set_matched_plot <- function(data, type, cols, x) {
   }
   
   if (identical(type, "lines")) {
-    ans <- ggplot(data, mapping = aes(x = !!x, color = !!set)) +
-      geom_density(show.legend = FALSE, na.rm = TRUE) +
+    ans <- ggplot(data, mapping = aes(x = !!x, color = !!set, linetype=!!set)) +
       stat_density(geom = 'line', position = 'identity', na.rm = TRUE) +
-      scale_color_manual(values = cols)
+      scale_color_manual(values = cols) +
+      scale_linetype_manual(values = lty)
   }
   
   if (identical(type, "bars")) {
-    ## suppress R CMD CHECK Note
+    ## Suppress R CMD CHECK Note
     N <- pct <- V1 <- NULL
+    
+    ## Convert categorical-numeric to factor
+    vals <- data[[x]]
+    if (is.numeric(vals) & uniqueN(vals) <= thresh){
+      data[[x]] <- as.factor(signif(vals, 2))
+    }
     
     ## Form melted table, calculate percentages, and order (for continuous)
     data <- data[, .N, by = .(eval(set), eval(x))]
@@ -142,87 +215,9 @@ set_matched_plot <- function(data, type, cols, x) {
     ## Plot
     ans <- ggplot(data = data, mapping = aes(x = !!set, y = pct, fill = !!x)) +
       geom_col(position = 'stack') +
-      labs(y = "Percentage")
+      labs(y = "Percentage") + 
+      scale_fill_hue(l = 70, c = 50)
   }
-  
-  ans
-}
-
-## Define function for plotting propensity scores
-plot_propensity <- function(x, type = NULL) {
-
-  ## Extract matchedData
-  md <- matchedData(x)
-
-  ## Define colors
-  cols <- c("#1F78B4", "#A6CEE3", "#33A02C", "#B2DF8A")
-
-
-
-  if (is.null(type)) {
-    type <- ifelse(sum(md[["set"]] == "pool") <= 10000, "jitter", "ridge")
-  }
-
-  ans <- set_matched_plot(md, type, cols, x = "ps")
-
-  ans +
-    labs(x = "Propensity Score", y = NULL) +
-    theme_minimal() +
-    theme(legend.position = 'none',
-          panel.border = element_rect(fill = 'transparent'))
-
-
-}
-
-## Define function for plotting covariates
-plot_covariate <- function(x, covar = NULL, sets = 'all', type = NULL, log = NULL) {
-
-  ## Define colors & sets
-  cols <- c("#1F78B4", "#A6CEE3", "#33A02C", "#B2DF8A")
-  names(cols) <- c('focal', 'matched', 'pool', 'unmatched')
-  
-  ## Parse arguments
-  covar <- match.arg(covar, choices = covariates(x), several.ok = FALSE)
-  sets <- match.arg(sets, choices = c('all', names(cols)), several.ok = TRUE)
-  
-  if (length(sets) == 1) {
-    if (sets == 'all') {
-      sets <- names(cols)
-    }
-  }
-  
-  if (!is.null(log)) {
-    log <- match.arg(log, choices = c('x', 'y'), several.ok = TRUE)
-  }
-  
-  ## Extract matched data
-  md <- matchedData(x)
-  
-  ## Subset matched data and colors by sets
-  md <- md[md[["set"]] %in% sets]
-  cols <- cols[names(cols) %in% sets]
-  
-  ## Extract covariate values for checking data type
-  covarValues <- md[[covar]]
-  
-  ## Use class of covariate values to set plot type
-  if (is.null(type)) {
-    if (is.numeric(covarValues)) {
-      type <- ifelse(uniqueN(covarValues) <= 10, 'bars', 'lines')
-    } else if (is.factor(covarValues) |
-               is.logical(covarValues) |
-               is.character(covarValues)) {
-      type <- 'bars'
-    } else {
-      stop(sprintf('Data type %s is not supported.'), covarValues)
-    }
-  }
-  
-  ## Generate plot by type
-  ans <- set_matched_plot(data = md,
-                          type = type,
-                          cols = cols,
-                          x = !!covar)
   
   ## Apply general plot formatting
   ans <- ans +
@@ -230,7 +225,24 @@ plot_covariate <- function(x, covar = NULL, sets = 'all', type = NULL, log = NUL
     theme(panel.grid.minor = element_blank(),
           panel.border = element_rect(fill = 'transparent'))
   
-  ## Apply log transformation(s)
+  ans
+}
+
+#' Internal function to apply log-transformation
+#' @inheritParams plotCovariate
+#' @param ans Input `ggplot` to be log-transformed
+#' @param x Character or symbol describing which column of matched data
+#'   for which to apply function.
+#' @return A log-transformed `ggplot`.
+#' @noRd
+apply_log_trans <- function(log, type, ans, x) {
+  
+  ## Parse log parameter
+  if (!is.null(log)) {
+    log <- match.arg(log, choices = c('x', 'y'), several.ok = TRUE)
+  }
+  
+  ## Apply x-transformation
   if ('x' %in% log) {
     if (identical(type, 'bars')) {
       stop("Transformation of x-axis not valid when type = 'bars'.")
@@ -240,9 +252,10 @@ plot_covariate <- function(x, covar = NULL, sets = 'all', type = NULL, log = NUL
         trans = "log",
         breaks = scales::log_breaks(base = exp(1)),
         oob = scales::oob_squish_infinite) +
-      labs(x = sprintf("log(%s)", covar))
+      labs(x = sprintf("log(%s)", x))
   }
   
+  ## Apply y-transformation
   if ('y' %in% log) {
     if (!identical(type, 'lines')) {
       stop("Transformation of y-axis only valid when type = 'lines'.")
@@ -256,52 +269,167 @@ plot_covariate <- function(x, covar = NULL, sets = 'all', type = NULL, log = NUL
   }
   
   ans
+  
+}
+
+#' Internal function for plotting propensity scores
+#' @noRd
+plot_propensity <- function(x, sets, type, log, thresh = 12) {
+  
+  ## Suppress R CMD Check Note
+  md <- cols <- lty <- NULL
+
+  ## Extract matchedData (md); parse cols, lty & sets
+  list2env(parse_plot_args(sets, x), envir = environment())
+  
+  ## Use class of covariate to set type
+  type <- set_matched_type(data = md,
+                           type = type,
+                           thresh = thresh,
+                           x = "ps")
+  
+  ## Generate plot by type
+  ans <- set_matched_plot(data = md,
+                          type = type,
+                          cols = cols,
+                          lty = lty,
+                          thresh = thresh,
+                          x = "ps")
+  
+  ## Apply general plot formatting
+  ans <- ans +
+    labs(title = paste0("~", paste(covariates(x), collapse = "+")))
+  
+  if (!identical(type, 'bars')) {
+    ans <- ans +
+      labs(x = "Propensity Score", y = NULL)  
+  }
+  
+  
+  ## Apply any log-transformations
+  ans <- apply_log_trans(log = log,
+                         type = type,
+                         ans = ans,
+                         x = "ps")
+  
+  ans
 
 }
 
-#' Plotting functions for Matched objects
+#' Internal function for plotting a covariate
+#' @noRd
+plot_covariate <- function(x, covar, sets, type, log, thresh = 12) {
+  
+  ## Suppress R CMD Check Note
+  md <- cols <- lty <- NULL
+  
+  ## Extract matchedData (md); parse cols, lty & sets
+  list2env(parse_plot_args(sets, x), envir = environment())
+  
+  ## Parse covariate arguments
+  covar <- match.arg(covar, choices = covariates(x), several.ok = FALSE)
+  
+  ## Use class of covariate to set type
+  type <- set_matched_type(data = md,
+                           type = type,
+                           thresh = thresh,
+                           x = covar)
+  
+  ## Generate plot by type
+  ans <- set_matched_plot(data = md,
+                          type = type,
+                          cols = cols,
+                          lty = lty,
+                          thresh = thresh,
+                          x = !!covar)
+  
+  ## Apply any log-transformations
+  ans <- apply_log_trans(log = log,
+                         type = type,
+                         ans = ans,
+                         x = covar)
+  
+  ans
+  
+}
+
+#' Propensity score plotting for Matched objects
 #'
-#' @param x ...
-#' @param type ...
-#' @param ... additional arguments
+#' This function plots the distribution of propensity scores
+#' from each matched set of a Matched object.
+#' 
+#' `plotPropensity` uses the `thresh` argument
+#' to determine whether to plot propensity scores as 
+#' continuous (line plot) or catetgorical (bar plot).
+#' These settings can also be overwritten manually.
+#' 
+#' @inheritParams plotCovariate
+#' 
+#' @return Returns a plot of propensity score distributions
+#' among matched sets.
+#' 
+#' @examples
+#' ## Matched example dataset
+#' mdf <- makeExampleMatchedDataSet(matched = TRUE)
+#' 
+#' ## Visualize propensity scores
+#' plotPropensity(mdf)
+#' plotPropensity(mdf,
+#'               sets = c('focal', 'matched', 'pool'))
+#' plotPropensity(mdf,
+#'               sets = c('focal', 'matched', 'pool'),
+#'               type = 'ridges')
+#' plotPropensity(mdf,
+#'               sets = c('focal', 'matched', 'pool'),
+#'               type = 'jitter')
 #'
-#' @rdname matched-plotting
+#' @rdname plotPropensity
+#' @seealso [plotCovariate()] to plot covariate distributions.
 #' @import ggplot2 ggridges
 #' @export
-setMethod("plotPropensity", signature(x="Matched"),
-          function(x, type = NULL) plot_propensity(x, type))
+setMethod("plotPropensity",
+          signature = signature(x="Matched",
+                                sets = 'character_OR_missing',
+                                type = 'character_OR_missing',
+                                log = 'character_OR_missing'),
+          definition = plot_propensity)
 
 #' Covariate plotting for Matched objects
 #' 
 #' This function plots the distributions of a covariate
 #' from each matched set of a Matched object.
 #' 
-#' By default, \code{plotCovariate} will sense the 
+#' By default, `plotCovariate` will sense the 
 #' class of covariate and make a plot best suited to
 #' that data type. For example, if the covariate class
-#' is categorical in nature then the \code{type} argument
-#' defaults to 'bars'. \code{type} is set to 'lines' for
+#' is categorical in nature then the `type` argument
+#' defaults to 'bars'. `type` is set to 'lines' for
 #' continuous covariates. These settings can also be overwritten
 #' manually.
 #' 
 #' @param x Matched object
-#' @param covar character naming the covariate to plot.
-#' If multiple are provided, only the first one is used.
-#' @param sets character vector describing which matched set(s)
-#' to include in the plot. Options are 'focal', 'matched',
-#' 'pool', or 'unmatched'. Multiple options are accepted.
-#' @param type character naming the plot type. Available
-#' options are one of either 'ridges', 'jitter', 'lines',
-#' or 'bars'. Note that for large datasets, use of 'jitter'
-#' is discouraged because the large density of points can
-#' stall the R-graphics device.
-#' @param log character vector describing which axis or
-#' axes to apply log-transformation. Available options are
-#' 'x' and/or 'y'.
-#' @param ... additional arguments.
+#' @param covar Character naming the covariate to plot.
+#'   If multiple are provided, only the first one is used.
+#' @param sets Character vector describing which matched set(s)
+#'   to include in the plot. Options are 'focal', 'matched',
+#'   'pool', or 'unmatched'. Multiple options are accepted.
+#' @param type Character naming the plot type. Available
+#'   options are one of either 'ridges', 'jitter', 'lines',
+#'   or 'bars'. Note that for large datasets, use of 'jitter'
+#'   is discouraged because the large density of points can
+#'   stall the R-graphics device.
+#' @param log Character vector describing which axis or
+#'   axes to apply log-transformation. Available options are
+#'   'x' and/or 'y'.
+#' @param thresh Integer describing the number of
+#'   unique values required to classify a numeric
+#'   variable as discrete (and convert it to a factor).
+#'   If the number of unique values exceeds `thresh`
+#'   then the variable is considered continuous.
+#' @param ... Additional arguments. 
 #' 
 #' @return Returns a plot of a covariate's distribution
-#' among matched sets.
+#'   among matched sets.
 #' 
 #' @examples
 #' ## Matched example dataset
@@ -323,6 +451,8 @@ setMethod("plotPropensity", signature(x="Matched"),
 #'               type = 'jitter')
 #'
 #' @rdname plotCovariate
+#' @seealso [plotPropensity()] to plot propensity scores.
+#' @family Matched plotting
 #' @importFrom scales squish_infinite
 #' @export
 setMethod("plotCovariate",
