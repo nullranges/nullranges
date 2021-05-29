@@ -97,7 +97,18 @@ setMethod("overview", signature(x="Matched"), overviewMatched)
 
 ## Define plot methods for Matched class -------------------------------------------------
 
-## Internal function for parsing common plotting args
+#' Internal function for parsing common plotting args
+#' 
+#' Defines colors & linetypes, parses the set argument
+#' and extracts matched data.
+#' 
+#' @inheritParams plotCovariate
+#' @return A list of arguments:
+#' * [`md`] - matched data
+#' * [`cols`] - named color vector
+#' * [`sets`] - parsed sets
+#' * [`lty`] = named linetype vector
+#' @noRd
 parse_plot_args <- function(sets, x){
   
   ## Define colors & linetypes
@@ -117,7 +128,13 @@ parse_plot_args <- function(sets, x){
   return(list(md = md, cols = cols, sets = sets, lty = lty))
 }
 
-## Internal function for setting type argument
+#' Internal function for setting type argument
+#' @inheritParams plotCovariate
+#' @param data Matched data
+#' @param x Character or symbol describing which column of matched data
+#'   for which to apply function.
+#' @return A character with the new value for `type`
+#' @noRd
 set_matched_type <- function(data, type, thresh, x) {
   
   ## Extract covariate values for checking data type
@@ -139,8 +156,16 @@ set_matched_type <- function(data, type, thresh, x) {
   type
 }
 
+#' Internal function for setting matched plot
+#' @inheritParams plotCovariate
+#' @param data Matched data
+#' @param cols,lty Named character vector of colors/lty for focal,
+#'   matched, pool, and unmatched sets.
+#' @param x Character or symbol describing which column of matched data
+#'   for which to apply function.
 #' @importFrom rlang !! enquo
-## Internal function for setting matched plot
+#' @return A `ggplot` set by `type` argument
+#' @noRd
 set_matched_plot <- function(data, type, cols, lty, thresh, x) {
   x <- rlang::ensym(x)
   set <- rlang::sym("set")
@@ -203,7 +228,13 @@ set_matched_plot <- function(data, type, cols, lty, thresh, x) {
   ans
 }
 
-## Internal function to apply log-transformation
+#' Internal function to apply log-transformation
+#' @inheritParams plotCovariate
+#' @param ans Input `ggplot` to be log-transformed
+#' @param x Character or symbol describing which column of matched data
+#'   for which to apply function.
+#' @return A log-transformed `ggplot`.
+#' @noRd
 apply_log_trans <- function(log, type, ans, x) {
   
   ## Parse log parameter
@@ -241,7 +272,8 @@ apply_log_trans <- function(log, type, ans, x) {
   
 }
 
-## Define function for plotting propensity scores
+#' Internal function for plotting propensity scores
+#' @noRd
 plot_propensity <- function(x, sets, type, log, thresh = 12) {
   
   ## Suppress R CMD Check Note
@@ -284,7 +316,8 @@ plot_propensity <- function(x, sets, type, log, thresh = 12) {
 
 }
 
-## Define function for plotting covariates
+#' Internal function for plotting a covariate
+#' @noRd
 plot_covariate <- function(x, covar, sets, type, log, thresh = 12) {
   
   ## Suppress R CMD Check Note
