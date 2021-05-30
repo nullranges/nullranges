@@ -15,6 +15,8 @@ overview(x, digits = 2, ...)
 \item{digits}{Integer indicating the number
 of significant digits to be used. Negative
 values are allowed (see \code{?signif}).}
+
+\item{...}{Additional arguments.}
 }
 \value{
 A printed overview of matching quality.

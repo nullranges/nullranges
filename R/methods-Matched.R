@@ -1,34 +1,69 @@
 ## Define accessor functions for Matched class -------------------------------------------
 
-#' Accessor methods for Matched Class
+#' Get matched data from a Matched object
 #'
-#' Functions that get data from Matched subclasses
-#' such as Matched, MatchedDataFrame, MatchedGRanges,
-#' and MatchedGInteractions.
+#' @inheritParams indices
+#' @return A `data.table` with matched data.
+#' @examples 
+#' mdf <- makeExampleMatchedDataSet(matched = TRUE)
+#' matchedData(mdf)
 #'
-#' @param x Matched object
-#' @param ... additional arguments
-#'
-#' @name Matched
-#' @rdname matched
-NULL
-
-#' @rdname matched
+#' @rdname matchedData
 #' @export
 setMethod("matchedData", "Matched", function(x, ...) {
   x@matchedData
 })
 
-#' @param x an object
-#' @param ... additional arguments
+#' Get covariates from a Matched object
 #'
-#' @rdname matched
+#' @inheritParams indices
+#' @return A character vector of covariates
+#' @examples 
+#' mdf <- makeExampleMatchedDataSet(matched = TRUE)
+#' covariates(mdf)
+#' 
+#' @rdname covariates
 #' @export
 setMethod("covariates", "Matched", function(x, ...) {
   x@covar
 })
 
-getIndices <- function(x, set = 'matched') {
+#' Get matching method used for Matched object
+#' 
+#' @inheritParams indices
+#' @return A character describing the matched method
+#' @examples 
+#' mdf <- makeExampleMatchedDataSet(matched = TRUE)
+#' method(mdf)
+#'
+#' @rdname method
+#' @export
+setMethod("method", "Matched", function(x, ...) {
+  x@method
+})
+
+#' Get replace method
+#' 
+#' Determine if a Matched object was created
+#' with or without replacement.
+#'
+#' @inheritParams indices
+#' @return TRUE/FALSE indicating whether matching
+#'   was done with or without replacement.
+#' @examples 
+#' mdf <- makeExampleMatchedDataSet(matched = TRUE)
+#' withReplacement(mdf)
+#'
+#' @rdname withReplacement
+#' @export
+setMethod("withReplacement", "Matched", function(x, ...) {
+  x@replace
+})
+
+#' Internal function for accessing indices
+#' @inheritParams indices
+#' @noRd
+getIndices <- function(x, set) {
   ## Get set argument
   set <- match.arg(set, choices=c("focal","matched","pool","unmatched"))
 
@@ -49,9 +84,36 @@ getIndices <- function(x, set = 'matched') {
     return(1:n.pool)
 }
 
-#' @param set a character string describing from which set to extract indices.
+#' Get indices of matched set
+#' 
+#' Extracts the indices of a specified matched set
+#' from a Matched object.
+#' 
+#' Indices from 'focal' come from the `focal` set
+#' of `matchRanges()` used to construct the `Matched`
+#' object while indices from 'matched', 'pool', and 'unmatched'
+#' come from the `pool` set. Default returns the 'matched' indices
+#' from the `pool` set.
+#'
+#' @param x Matched object.
+#' @param set A character string describing from which set to extract indices.
 #'              can be one of 'focal', 'matched', 'pool', or 'unmatched'.
-#' @rdname matched
+#' @param ... Additional arguments.
+#' 
+#' @return An integer vector corresponding
+#'   to the indices in the `focal` or `pool` which comprise the
+#'   "focal" or c("matched", "pool", "unmatched") sets.
+#'
+#' @examples 
+#' mdf <- makeExampleMatchedDataSet(matched = TRUE)
+#' head(indices(mdf))
+#' 
+#' head(indices(mdf, set = 'focal'))
+#' head(indices(mdf, set = 'pool'))
+#' head(indices(mdf, set = 'matched'))
+#' head(indices(mdf, set = 'unmatched'))
+#'
+#' @rdname indices
 #' @export
 setMethod("indices", "Matched", getIndices)
 
@@ -125,6 +187,7 @@ overviewMatched <- function(x, digits) {
 #' @param digits Integer indicating the number
 #'   of significant digits to be used. Negative
 #'   values are allowed (see `?signif`).
+#' @param ... Additional arguments.
 #'   
 #' @return A printed overview of matching quality.
 #' 

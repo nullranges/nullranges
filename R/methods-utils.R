@@ -1,6 +1,7 @@
 ## Exported general utility functions ----------------------------------------------------
 
-## Function for creating combinations of covariates
+#' Function for creating combinations of covariates
+#' @noRd
 combnCovariates <- function(x) {
 
   ## Generate covariate list for expanding
@@ -22,7 +23,8 @@ combnCovariates <- function(x) {
 
 #' Function for creating combinations of covariates
 #'
-#' @param x Character vector of covariates to combine
+#' @param x Character vector of covariates to combine.
+#' @param ... Additional arguments.
 #'
 #' @return Returns a character vector of formulae combinations.
 #'
@@ -34,7 +36,8 @@ combnCovariates <- function(x) {
 #' @export
 setMethod("combnCov", signature(x="character"), combnCovariates)
 
-## Function for generating an example dataset
+#' Function for generating an example dataset
+#' @noRd
 make_example_matched_data_set <- function(type, matched, method, replace) {
   
   ## Parse type argument

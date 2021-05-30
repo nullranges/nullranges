@@ -5,12 +5,14 @@
 \alias{combnCov,character-method}
 \title{Function for creating combinations of covariates}
 \usage{
-combnCov(x)
+combnCov(x, ...)
 
 \S4method{combnCov}{character}(x)
 }
 \arguments{
-\item{x}{Character vector of covariates to combine}
+\item{x}{Character vector of covariates to combine.}
+
+\item{...}{Additional arguments.}
 }
 \value{
 Returns a character vector of formulae combinations.
