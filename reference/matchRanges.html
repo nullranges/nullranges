@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>matchRanges — matchRanges • nullranges</title>
+<title>Generate a covariate-matched control set of ranges — matchRanges • nullranges</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,9 +46,10 @@
 
 
 
-<meta property="og:title" content="matchRanges — matchRanges" />
-<meta property="og:description" content="A function that generates a covariate-matched control
-set of the same datatype." />
+<meta property="og:title" content="Generate a covariate-matched control set of ranges — matchRanges" />
+<meta property="og:description" content="matchRanges() uses a propensity score-based method to
+generate a covariate-matched control set of DataFrame,
+GRanges, or GInteractions objects." />
 <meta property="og:image" content="/logo.png" />
 
 
@@ -144,25 +145,26 @@ set of the same datatype." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>matchRanges</h1>
+    <h1>Generate a covariate-matched control set of ranges</h1>
     <small class="dont-index">Source: <a href='https://github.com/nullranges/nullranges/blob/master/R/AllGenerics.R'><code>R/AllGenerics.R</code></a>, <a href='https://github.com/nullranges/nullranges/blob/master/R/methods-matchRanges.R'><code>R/methods-matchRanges.R</code></a></small>
     <div class="hidden name"><code>matchRanges.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>A function that generates a covariate-matched control
-set of the same datatype.</p>
+    <p><code>matchRanges()</code> uses a propensity score-based method to
+generate a covariate-matched control set of DataFrame,
+GRanges, or GInteractions objects.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>matchRanges</span><span class='op'>(</span><span class='va'>focal</span>, <span class='va'>pool</span>, <span class='va'>covar</span>, <span class='va'>method</span>, <span class='va'>replace</span>, <span class='va'>...</span><span class='op'>)</span>
+    <pre class="usage"><span class='fu'>matchRanges</span><span class='op'>(</span><span class='va'>focal</span>, <span class='va'>pool</span>, <span class='va'>covar</span>, method <span class='op'>=</span> <span class='st'>"rejection"</span>, replace <span class='op'>=</span> <span class='cn'>FALSE</span>, <span class='va'>...</span><span class='op'>)</span>
 
-<span class='co'># S4 method for DF_OR_df_OR_dt,DF_OR_df_OR_dt,formula,character,logical</span>
+<span class='co'># S4 method for DF_OR_df_OR_dt,DF_OR_df_OR_dt,formula,character_OR_missing,logical_OR_missing</span>
 <span class='fu'>matchRanges</span><span class='op'>(</span><span class='va'>focal</span>, <span class='va'>pool</span>, <span class='va'>covar</span>, <span class='va'>method</span>, <span class='va'>replace</span><span class='op'>)</span>
 
-<span class='co'># S4 method for GRanges,GRanges,formula,character,logical</span>
+<span class='co'># S4 method for GRanges,GRanges,formula,character_OR_missing,logical_OR_missing</span>
 <span class='fu'>matchRanges</span><span class='op'>(</span><span class='va'>focal</span>, <span class='va'>pool</span>, <span class='va'>covar</span>, <span class='va'>method</span>, <span class='va'>replace</span><span class='op'>)</span>
 
-<span class='co'># S4 method for GInteractions,GInteractions,formula,character,logical</span>
+<span class='co'># S4 method for GInteractions,GInteractions,formula,character_OR_missing,logical_OR_missing</span>
 <span class='fu'>matchRanges</span><span class='op'>(</span><span class='va'>focal</span>, <span class='va'>pool</span>, <span class='va'>covar</span>, <span class='va'>method</span>, <span class='va'>replace</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -170,38 +172,204 @@ set of the same datatype.</p>
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>focal</th>
-      <td><p>a DataFrame, GRanges, or GInteractions object containing
+      <td><p>A DataFrame, GRanges, or GInteractions object containing
 the focal data to match.</p></td>
     </tr>
     <tr>
       <th>pool</th>
-      <td><p>a DataFrame, GRanges, or GInteractions object containing
+      <td><p>A DataFrame, GRanges, or GInteractions object containing
 the pool from which to select matches.</p></td>
     </tr>
     <tr>
       <th>covar</th>
-      <td><p>a rhs formula with covariates on which to match.</p></td>
+      <td><p>A rhs formula with covariates on which to match.</p></td>
     </tr>
     <tr>
       <th>method</th>
-      <td><p>character describing which matching method to use.
+      <td><p>A character describing which matching method to use.
 supported options are either 'nearest', 'rejection', or 'stratified'.</p></td>
     </tr>
     <tr>
       <th>replace</th>
-      <td><p>logical describing whether to select matches with or without
+      <td><p>TRUE/FALSE describing whether to select matches with or without
 replacement.</p></td>
     </tr>
     <tr>
       <th>...</th>
-      <td><p>additional arguments</p></td>
+      <td><p>Additional arguments.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>a covariate-matched control set of data</p>
+    <p>A covariate-matched control set of data.</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
+    <p>Available inputs for <code>focal</code> and <code>pool</code> include <code>data.frame</code>,
+<code>data.table</code>, <code>DataFrame</code>, <code>GRanges</code>, or <code>GInteractions</code>.
+<code>data.frame</code> and <code>data.table</code> inputs are coerced to <code>DataFrame</code>
+objects and returned as <code>MatchedDataFrame</code> while <code>GRanges</code> and
+<code>GInteractions</code> objects are returned as <code>MatchedGRanges</code> or
+<code>MatchedGInteractions</code>, respectively.</p>
+    <h2 class="hasAnchor" id="matching-methods"><a class="anchor" href="#matching-methods"></a>Matching methods</h2>
+
+    
+
+<ul>
+<li><p><code>method = 'nearest'</code>: Nearest neighbor matching
+with replacement. Finds the nearest neighbor by using a
+rolling join with <code>data.table</code>. Matching without replacement
+is not currently supported.</p></li>
+<li><p><code>method = 'rejection'</code>: (Default) Rejection sampling
+with or without replacement. Uses a probability-based approach
+to select options in the <code>pool</code> that match the <code>focal</code> distribition.</p></li>
+<li><p><code>method = 'stratified'</code>: Iterative stratified sampling
+with or without replacement. Bins <code>focal</code> and <code>pool</code> propensity
+scores by value and selects matches within bins until all <code>focal</code>
+items have a corresponding match in <code>pool</code>.</p></li>
+</ul>
+
+
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='co'>## Match with DataFrame</span>
+<span class='va'>x</span> <span class='op'>&lt;-</span> <span class='fu'><a href='makeExampleMatchedDataSet.html'>makeExampleMatchedDataSet</a></span><span class='op'>(</span>type <span class='op'>=</span> <span class='st'>'DataFrame'</span><span class='op'>)</span>
+<span class='fu'>matchRanges</span><span class='op'>(</span>focal <span class='op'>=</span> <span class='va'>x</span><span class='op'>[</span><span class='va'>x</span><span class='op'>$</span><span class='va'>treated</span>,<span class='op'>]</span>,
+            pool <span class='op'>=</span> <span class='va'>x</span><span class='op'>[</span><span class='op'>!</span><span class='va'>x</span><span class='op'>$</span><span class='va'>treated</span>,<span class='op'>]</span>,
+            covar <span class='op'>=</span> <span class='op'>~</span><span class='va'>covar1</span> <span class='op'>+</span> <span class='va'>covar2</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; MatchedDataFrame with 500 rows and 3 columns
+#&gt;       treated    covar1      covar2
+#&gt;     &lt;logical&gt; &lt;numeric&gt; &lt;character&gt;
+#&gt; 1       FALSE   5.60013           c
+#&gt; 2       FALSE   5.43395           c
+#&gt; 3       FALSE   4.47920           b
+#&gt; 4       FALSE   1.45446           c
+#&gt; 5       FALSE   2.99545           c
+#&gt; ...       ...       ...         ...
+#&gt; 496     FALSE   4.90340           c
+#&gt; 497     FALSE   9.54752           b
+#&gt; 498     FALSE   4.64822           c
+#&gt; 499     FALSE   1.82828           d
+#&gt; 500     FALSE   7.02681           b</div><div class='input'>
+<span class='co'>## Match with GRanges</span>
+<span class='va'>x</span> <span class='op'>&lt;-</span> <span class='fu'><a href='makeExampleMatchedDataSet.html'>makeExampleMatchedDataSet</a></span><span class='op'>(</span>type <span class='op'>=</span> <span class='st'>"GRanges"</span><span class='op'>)</span>
+<span class='fu'>matchRanges</span><span class='op'>(</span>focal <span class='op'>=</span> <span class='va'>x</span><span class='op'>[</span><span class='va'>x</span><span class='op'>$</span><span class='va'>treated</span>,<span class='op'>]</span>,
+            pool <span class='op'>=</span> <span class='va'>x</span><span class='op'>[</span><span class='op'>!</span><span class='va'>x</span><span class='op'>$</span><span class='va'>treated</span>,<span class='op'>]</span>,
+            covar <span class='op'>=</span> <span class='op'>~</span><span class='va'>covar1</span> <span class='op'>+</span> <span class='va'>covar2</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; MatchedGRanges object with 500 ranges and 3 metadata columns:
+#&gt;         seqnames      ranges strand |   treated    covar1      covar2
+#&gt;            &lt;Rle&gt;   &lt;IRanges&gt;  &lt;Rle&gt; | &lt;logical&gt; &lt;numeric&gt; &lt;character&gt;
+#&gt;     [1]     chr1   4191-4290      * |     FALSE   5.60013           c
+#&gt;     [2]     chr1   3668-3767      * |     FALSE   5.43395           c
+#&gt;     [3]     chr1 10236-10335      * |     FALSE   4.47920           b
+#&gt;     [4]     chr1   8451-8550      * |     FALSE   1.45446           c
+#&gt;     [5]     chr1   5658-5757      * |     FALSE   2.99545           c
+#&gt;     ...      ...         ...    ... .       ...       ...         ...
+#&gt;   [496]     chr1   7472-7571      * |     FALSE   4.90340           c
+#&gt;   [497]     chr1   8316-8415      * |     FALSE   9.54752           b
+#&gt;   [498]     chr1   8987-9086      * |     FALSE   4.64822           c
+#&gt;   [499]     chr1   8288-8387      * |     FALSE   1.82828           d
+#&gt;   [500]     chr1     868-967      * |     FALSE   7.02681           b
+#&gt;   -------
+#&gt;   seqinfo: 1 sequence from an unspecified genome; no seqlengths</div><div class='input'>
+<span class='co'>## Match with GInteractions</span>
+<span class='va'>x</span> <span class='op'>&lt;-</span> <span class='fu'><a href='makeExampleMatchedDataSet.html'>makeExampleMatchedDataSet</a></span><span class='op'>(</span>type <span class='op'>=</span> <span class='st'>"GInteractions"</span><span class='op'>)</span>
+<span class='fu'>matchRanges</span><span class='op'>(</span>focal <span class='op'>=</span> <span class='va'>x</span><span class='op'>[</span><span class='va'>x</span><span class='op'>$</span><span class='va'>treated</span>,<span class='op'>]</span>,
+            pool <span class='op'>=</span> <span class='va'>x</span><span class='op'>[</span><span class='op'>!</span><span class='va'>x</span><span class='op'>$</span><span class='va'>treated</span>,<span class='op'>]</span>,
+            covar <span class='op'>=</span> <span class='op'>~</span><span class='va'>covar1</span> <span class='op'>+</span> <span class='va'>covar2</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; MatchedGInteractions object with 500 interactions and 3 metadata columns:
+#&gt;         seqnames1     ranges1     seqnames2     ranges2 |   treated    covar1
+#&gt;             &lt;Rle&gt;   &lt;IRanges&gt;         &lt;Rle&gt;   &lt;IRanges&gt; | &lt;logical&gt; &lt;numeric&gt;
+#&gt;     [1]      chr1   4191-4290 ---      chr1   4191-4290 |     FALSE   5.60013
+#&gt;     [2]      chr1   3668-3767 ---      chr1   3668-3767 |     FALSE   5.43395
+#&gt;     [3]      chr1 10236-10335 ---      chr1 10236-10335 |     FALSE   4.47920
+#&gt;     [4]      chr1   8451-8550 ---      chr1   8451-8550 |     FALSE   1.45446
+#&gt;     [5]      chr1   5658-5757 ---      chr1   5658-5757 |     FALSE   2.99545
+#&gt;     ...       ...         ... ...       ...         ... .       ...       ...
+#&gt;   [496]      chr1   7472-7571 ---      chr1   7472-7571 |     FALSE   4.90340
+#&gt;   [497]      chr1   8316-8415 ---      chr1   8316-8415 |     FALSE   9.54752
+#&gt;   [498]      chr1   8987-9086 ---      chr1   8987-9086 |     FALSE   4.64822
+#&gt;   [499]      chr1   8288-8387 ---      chr1   8288-8387 |     FALSE   1.82828
+#&gt;   [500]      chr1     868-967 ---      chr1     868-967 |     FALSE   7.02681
+#&gt;              covar2
+#&gt;         &lt;character&gt;
+#&gt;     [1]           c
+#&gt;     [2]           c
+#&gt;     [3]           b
+#&gt;     [4]           c
+#&gt;     [5]           c
+#&gt;     ...         ...
+#&gt;   [496]           c
+#&gt;   [497]           b
+#&gt;   [498]           c
+#&gt;   [499]           d
+#&gt;   [500]           b
+#&gt;   -------
+#&gt;   regions: 10500 ranges and 0 metadata columns
+#&gt;   seqinfo: 1 sequence from an unspecified genome; no seqlengths</div><div class='input'>
+<span class='co'>## Nearest neighbor matching with replacement</span>
+<span class='va'>x</span> <span class='op'>&lt;-</span> <span class='fu'><a href='makeExampleMatchedDataSet.html'>makeExampleMatchedDataSet</a></span><span class='op'>(</span>type <span class='op'>=</span> <span class='st'>'DataFrame'</span><span class='op'>)</span>
+<span class='fu'>matchRanges</span><span class='op'>(</span>focal <span class='op'>=</span> <span class='va'>x</span><span class='op'>[</span><span class='va'>x</span><span class='op'>$</span><span class='va'>treated</span>,<span class='op'>]</span>,
+            pool <span class='op'>=</span> <span class='va'>x</span><span class='op'>[</span><span class='op'>!</span><span class='va'>x</span><span class='op'>$</span><span class='va'>treated</span>,<span class='op'>]</span>,
+            covar <span class='op'>=</span> <span class='op'>~</span><span class='va'>covar1</span> <span class='op'>+</span> <span class='va'>covar2</span>,
+            method <span class='op'>=</span> <span class='st'>'nearest'</span>,
+            replace <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; MatchedDataFrame with 500 rows and 3 columns
+#&gt;       treated    covar1      covar2
+#&gt;     &lt;logical&gt; &lt;numeric&gt; &lt;character&gt;
+#&gt; 1       FALSE   2.87088           c
+#&gt; 2       FALSE   3.54290           c
+#&gt; 3       FALSE   7.11436           c
+#&gt; 4       FALSE  10.78965           b
+#&gt; 5       FALSE   4.25960           c
+#&gt; ...       ...       ...         ...
+#&gt; 496     FALSE  0.173349           e
+#&gt; 497     FALSE  4.362421           a
+#&gt; 498     FALSE  3.182474           e
+#&gt; 499     FALSE  4.688994           d
+#&gt; 500     FALSE  5.068635           d</div><div class='input'>
+<span class='co'>## Rejection sampling without replacement</span>
+<span class='va'>x</span> <span class='op'>&lt;-</span> <span class='fu'><a href='makeExampleMatchedDataSet.html'>makeExampleMatchedDataSet</a></span><span class='op'>(</span>type <span class='op'>=</span> <span class='st'>'DataFrame'</span><span class='op'>)</span>
+<span class='fu'>matchRanges</span><span class='op'>(</span>focal <span class='op'>=</span> <span class='va'>x</span><span class='op'>[</span><span class='va'>x</span><span class='op'>$</span><span class='va'>treated</span>,<span class='op'>]</span>,
+            pool <span class='op'>=</span> <span class='va'>x</span><span class='op'>[</span><span class='op'>!</span><span class='va'>x</span><span class='op'>$</span><span class='va'>treated</span>,<span class='op'>]</span>,
+            covar <span class='op'>=</span> <span class='op'>~</span><span class='va'>covar1</span> <span class='op'>+</span> <span class='va'>covar2</span>,
+            method <span class='op'>=</span> <span class='st'>'rejection'</span>,
+            replace <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; MatchedDataFrame with 500 rows and 3 columns
+#&gt;       treated    covar1      covar2
+#&gt;     &lt;logical&gt; &lt;numeric&gt; &lt;character&gt;
+#&gt; 1       FALSE   5.60013           c
+#&gt; 2       FALSE   5.43395           c
+#&gt; 3       FALSE   4.47920           b
+#&gt; 4       FALSE   1.45446           c
+#&gt; 5       FALSE   2.99545           c
+#&gt; ...       ...       ...         ...
+#&gt; 496     FALSE   4.90340           c
+#&gt; 497     FALSE   9.54752           b
+#&gt; 498     FALSE   4.64822           c
+#&gt; 499     FALSE   1.82828           d
+#&gt; 500     FALSE   7.02681           b</div><div class='input'>
+<span class='co'>## Stratified sampling without replacement</span>
+<span class='va'>x</span> <span class='op'>&lt;-</span> <span class='fu'><a href='makeExampleMatchedDataSet.html'>makeExampleMatchedDataSet</a></span><span class='op'>(</span>type <span class='op'>=</span> <span class='st'>'DataFrame'</span><span class='op'>)</span>
+<span class='fu'>matchRanges</span><span class='op'>(</span>focal <span class='op'>=</span> <span class='va'>x</span><span class='op'>[</span><span class='va'>x</span><span class='op'>$</span><span class='va'>treated</span>,<span class='op'>]</span>,
+            pool <span class='op'>=</span> <span class='va'>x</span><span class='op'>[</span><span class='op'>!</span><span class='va'>x</span><span class='op'>$</span><span class='va'>treated</span>,<span class='op'>]</span>,
+            covar <span class='op'>=</span> <span class='op'>~</span><span class='va'>covar1</span> <span class='op'>+</span> <span class='va'>covar2</span>,
+            method <span class='op'>=</span> <span class='st'>'stratified'</span>,
+            replace <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; MatchedDataFrame with 500 rows and 3 columns
+#&gt;       treated    covar1      covar2
+#&gt;     &lt;logical&gt; &lt;numeric&gt; &lt;character&gt;
+#&gt; 1       FALSE   2.86662           c
+#&gt; 2       FALSE   3.54290           c
+#&gt; 3       FALSE   7.11436           c
+#&gt; 4       FALSE  10.78965           b
+#&gt; 5       FALSE   4.25960           c
+#&gt; ...       ...       ...         ...
+#&gt; 496     FALSE   1.32077           b
+#&gt; 497     FALSE   4.35726           a
+#&gt; 498     FALSE   4.32895           b
+#&gt; 499     FALSE   4.68899           d
+#&gt; 500     FALSE   5.06864           d</div><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
