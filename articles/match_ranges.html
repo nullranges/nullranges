@@ -104,7 +104,7 @@
       <h1 data-toc-skip>Matching ranges</h1>
                         <h4 class="author">Eric S. Davis</h4>
             
-            <h4 class="date">05/29/2021</h4>
+            <h4 class="date">05/30/2021</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/master/vignettes/match_ranges.Rmd"><code>vignettes/match_ranges.Rmd</code></a></small>
       <div class="hidden name"><code>match_ranges.Rmd</code></div>
@@ -242,21 +242,21 @@
 <code class="sourceCode R"><span class="fu"><a href="../reference/overview.html">overview</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span></code></pre></div>
 <pre><code>## MatchedGInteractions object: 
 ##        set    N anchor1.peakStrength.mean anchor1.peakStrength.sd
-##      focal 1000                  486.2919                814.5577
-##    matched 1000                  480.9038                793.9768
-##       pool 5000                  582.2479               1088.8064
-##  unmatched 4122                  601.0466               1135.9089
-##  contactFreq.mean contactFreq.sd   ps.mean      ps.sd
-##          146.6587       452.2163 0.1679906 0.01322368
-##          141.2774       456.2981 0.1679799 0.01309822
-##          127.2755       380.4621 0.1664019 0.01526854
-##          125.6364       375.6084 0.1661302 0.01569888
+##      focal 1000                       490                     810
+##    matched 1000                       480                     790
+##       pool 5000                       580                    1100
+##  unmatched 4122                       600                    1100
+##  contactFreq.mean contactFreq.sd ps.mean ps.sd
+##               150            450    0.17 0.013
+##               140            460    0.17 0.013
+##               130            380    0.17 0.015
+##               130            380    0.17 0.016
 ## --------
 ## focal - matched: 
 ##  anchor1.peakStrength.mean anchor1.peakStrength.sd contactFreq.mean
-##                   5.388125                245.6603         5.381319
-##  contactFreq.sd      ps.mean        ps.sd
-##        233.5443 1.067993e-05 0.0002356949</code></pre>
+##                        5.4                      21              5.4
+##  contactFreq.sd ps.mean   ps.sd
+##            -4.1 1.1e-05 0.00013</code></pre>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/matchedData.html">matchedData</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span> <span class="op">%&gt;%</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
 <pre><code>##    id anchor1.peakStrength contactFreq        ps   set
@@ -439,7 +439,7 @@
 ##   regions: 113671 ranges and 0 metadata columns
 ##   seqinfo: 25 sequences (1 circular) from hg19 genome</code></pre>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/Matched-class.html">matched</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="fu"><a href="../reference/matched.html">matched</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span></code></pre></div>
 <pre><code>## GInteractions object with 1000 interactions and 20 metadata columns:
 ##          seqnames1             ranges1     seqnames2             ranges2 |
 ##              &lt;Rle&gt;           &lt;IRanges&gt;         &lt;Rle&gt;           &lt;IRanges&gt; |

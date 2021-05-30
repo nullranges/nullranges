@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Unmatched — unmatched • nullranges</title>
+<title>Get unmatched set from a Matched object — unmatched • nullranges</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,8 +46,8 @@
 
 
 
-<meta property="og:title" content="Unmatched — unmatched" />
-<meta property="og:description" content="Unmatched" />
+<meta property="og:title" content="Get unmatched set from a Matched object — unmatched" />
+<meta property="og:description" content="Get unmatched set from a Matched object" />
 <meta property="og:image" content="/logo.png" />
 
 
@@ -143,31 +143,53 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Unmatched</h1>
-    <small class="dont-index">Source: <a href='https://github.com/nullranges/nullranges/blob/master/R/AllGenerics.R'><code>R/AllGenerics.R</code></a></small>
+    <h1>Get unmatched set from a Matched object</h1>
+    <small class="dont-index">Source: <a href='https://github.com/nullranges/nullranges/blob/master/R/AllGenerics.R'><code>R/AllGenerics.R</code></a>, <a href='https://github.com/nullranges/nullranges/blob/master/R/methods-matchRanges.R'><code>R/methods-matchRanges.R</code></a></small>
     <div class="hidden name"><code>unmatched.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Unmatched</p>
+    <p>Get unmatched set from a Matched object</p>
     </div>
 
-    <pre class="usage"><span class='fu'>unmatched</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>...</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>unmatched</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>...</span><span class='op'>)</span>
+
+<span class='co'># S4 method for MDF_OR_MGR_OR_MGI</span>
+<span class='fu'>unmatched</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>x</th>
-      <td><p>an object</p></td>
+      <td><p>A <code>MatchedDataFrame</code>, <code>MatchedGRanges</code>,
+or <code>MatchedGInteractions</code> object.</p></td>
     </tr>
     <tr>
       <th>...</th>
-      <td><p>additional arguments</p></td>
+      <td><p>Additional options.</p></td>
     </tr>
     </table>
 
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='va'>x</span> <span class='op'>&lt;-</span> <span class='fu'><a href='makeExampleMatchedDataSet.html'>makeExampleMatchedDataSet</a></span><span class='op'>(</span>matched <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+<span class='fu'>unmatched</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; DataFrame with 9500 rows and 3 columns
+#&gt;        treated    covar1      covar2
+#&gt;      &lt;logical&gt; &lt;numeric&gt; &lt;character&gt;
+#&gt; 1        FALSE   3.28347           e
+#&gt; 2        FALSE   7.12640           a
+#&gt; 3        FALSE   1.92222           b
+#&gt; 4        FALSE  10.24116           a
+#&gt; 5        FALSE  10.17287           c
+#&gt; ...        ...       ...         ...
+#&gt; 9496     FALSE   1.23578           b
+#&gt; 9497     FALSE   1.69671           a
+#&gt; 9498     FALSE   6.11140           a
+#&gt; 9499     FALSE   2.21657           d
+#&gt; 9500     FALSE   5.33003           b</div><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

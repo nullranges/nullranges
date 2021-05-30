@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Get matched data from a Matched object — matchedData • nullranges</title>
+<title>Get replace method — withReplacement • nullranges</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,8 +46,9 @@
 
 
 
-<meta property="og:title" content="Get matched data from a Matched object — matchedData" />
-<meta property="og:description" content="Get matched data from a Matched object" />
+<meta property="og:title" content="Get replace method — withReplacement" />
+<meta property="og:description" content="Determine if a Matched object was created
+with or without replacement." />
 <meta property="og:image" content="/logo.png" />
 
 
@@ -143,19 +144,20 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Get matched data from a Matched object</h1>
+    <h1>Get replace method</h1>
     <small class="dont-index">Source: <a href='https://github.com/nullranges/nullranges/blob/master/R/AllGenerics.R'><code>R/AllGenerics.R</code></a>, <a href='https://github.com/nullranges/nullranges/blob/master/R/methods-Matched.R'><code>R/methods-Matched.R</code></a></small>
-    <div class="hidden name"><code>matchedData.Rd</code></div>
+    <div class="hidden name"><code>withReplacement.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Get matched data from a Matched object</p>
+    <p>Determine if a Matched object was created
+with or without replacement.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>matchedData</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>...</span><span class='op'>)</span>
+    <pre class="usage"><span class='fu'>withReplacement</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>...</span><span class='op'>)</span>
 
 <span class='co'># S4 method for Matched</span>
-<span class='fu'>matchedData</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>...</span><span class='op'>)</span></pre>
+<span class='fu'>withReplacement</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -172,23 +174,13 @@
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A <code>data.table</code> with matched data.</p>
+    <p>TRUE/FALSE indicating whether matching
+was done with or without replacement.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='va'>mdf</span> <span class='op'>&lt;-</span> <span class='fu'><a href='makeExampleMatchedDataSet.html'>makeExampleMatchedDataSet</a></span><span class='op'>(</span>matched <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
-<span class='fu'>matchedData</span><span class='op'>(</span><span class='va'>mdf</span><span class='op'>)</span>
-</div><div class='output co'>#&gt;        id   covar1 covar2         ps       set
-#&gt;     1:  1 2.879049      c 0.21095908     focal
-#&gt;     2:  1 3.539645      c 0.19210984     focal
-#&gt;     3:  1 7.117417      c 0.11193396     focal
-#&gt;     4:  1 4.141017      a 0.01771986     focal
-#&gt;     5:  1 4.258575      c 0.17308581     focal
-#&gt;    ---                                        
-#&gt; 20496:  0 1.235781      b 0.08945367 unmatched
-#&gt; 20497:  0 1.696712      a 0.02707977 unmatched
-#&gt; 20498:  0 6.111404      a 0.01255772 unmatched
-#&gt; 20499:  0 2.216575      d 0.07578989 unmatched
-#&gt; 20500:  0 5.330029      b 0.04535856 unmatched</div><div class='input'>
+<span class='fu'>withReplacement</span><span class='op'>(</span><span class='va'>mdf</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; [1] FALSE</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
