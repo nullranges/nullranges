@@ -68,7 +68,10 @@ setGeneric("makeExampleMatchedDataSet", function(type = 'DataFrame',
 
 #' @rdname matchRanges
 #' @export
-setGeneric("matchRanges", function(focal, pool, covar, method, replace, ...)
+setGeneric("matchRanges", function(focal, pool, covar,
+                                   method = 'rejection',
+                                   replace = FALSE,
+                                   ...)
   standardGeneric("matchRanges"))
 
 #' @rdname focal

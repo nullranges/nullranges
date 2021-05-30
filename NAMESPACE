@@ -40,8 +40,6 @@ import(GenomicRanges)
 import(InteractionSet)
 import(S4Vectors)
 import(data.table, except = c(between, shift, first, second, indices))
-import(data.table, except = c(between, shift, first, second, indices))
-
 import(ggplot2)
 import(ggridges)
 import(methods)

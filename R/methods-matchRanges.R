@@ -1,6 +1,9 @@
-## Helper functions for matchRanges ------------------------------------------------------
+## Internal functions for matchRanges ------------------------------------------------------
 
-## Helper function to parse formula
+#' Validate covariate formula
+#' @param f A formula object.
+#' @return A validated character vector of covariates
+#' @noRd
 parseFormula <- function(f) {
 
   ## Check for valid formula
@@ -24,13 +27,19 @@ parseFormula <- function(f) {
 
 }
 
-## Define sample.vec to handle vectors of varying length
+#' Define sample.vec to handle vectors of varying length
+#' @noRd
 sample.vec <- function(x, ...) x[sample(length(x), ...)]
 
-## Helper function for nearest neighbor matching with replacement
+#' Nearest neighbor matching with replacement (data.table)
+#' @param fps A numeric vector of `focal` propensity scores.
+#' @param pps A numeric vector of `pool` propensity scores.
+#' @inheritParams matchRanges
+#' @return A matched `data.table`.
+#' @noRd
 nnMatch <- function(fps, pps, replace) {
 
-  # to avoid R CMD CHECK NOTE
+  ## Suppress R CMD CHECK NOTE
   ppsIndex <- NULL
   fpsIndex <- NULL
   N <- NULL
@@ -51,7 +60,6 @@ nnMatch <- function(fps, pps, replace) {
   ## Find all nearest matches for each unique fps
   amdt <- dt[.(uniq.fps), roll = 'nearest', mult = 'all']
 
-
   ## Randomly subsample with replacement among duplicates
   mdt <- amdt[, .(ppsIndex = sample.vec(ppsIndex, N, replace = replace)), by = fps]
 
@@ -67,7 +75,12 @@ nnMatch <- function(fps, pps, replace) {
 
 }
 
-## Helper function to perform rejection sampling
+#' Perform rejection sampling
+#' @inheritParams nnMatch
+#' @return A binary numeric vector equal to the length
+#'   of pps representing whether or not to accept each
+#'   pps based on fps distribution.
+#' @noRd
 rejectSample <- function(fps, pps) {
 
   ## Ensure fps <= pps
@@ -104,8 +117,10 @@ rejectSample <- function(fps, pps) {
 
 }
 
-## Helper function for rejection sampling without replacement
-## Not viable for discrete or nearly discrete covariates
+#' Rejection sampling and matching for discrete and
+#' continuous distributions.
+#' @inherit nnMatch params return
+#' @noRd
 rsMatch <- function(fps, pps, replace) {
 
   ## Detect descrete distribution
@@ -157,7 +172,16 @@ rsMatch <- function(fps, pps, replace) {
 
 }
 
-## Helper function to assign fps and pps to n bins
+#' Stratifies propensity scores by bins
+#' @param fm A `data.table` with `focal` propensity scores
+#'   and their corresponding indices.
+#' @param fm A `data.table` with `pool` propensity scores
+#'   and their corresponding indices.
+#' @param n The number of bins used for stratifying
+#'   propensity scores.
+#' @return A `data.table` of strata with fps, pps, and
+#'   their respective indices for each bin.
+#' @noRd
 stratify <- function(fm, pm, n) {
 
   fpsIndex <- NULL
@@ -184,10 +208,12 @@ stratify <- function(fm, pm, n) {
 
 }
 
-## Helper function for stratified sampling
+#' Perform iterative stratified sampling
+#' @inherit nnMatch params return
+#' @noRd
 ssMatch <- function(fps, pps, replace) {
 
-  # suppress R CMD CHECK Note
+  ## Suppress R CMD CHECK Note
   fpsN <- NULL
   ppsN <- NULL
   fpsIndices <- NULL
@@ -267,8 +293,15 @@ ssMatch <- function(fps, pps, replace) {
   return(mdt)
 }
 
-## Helper function that calculates propensity scores
-## and implements matching methods
+#' Calculate propensity scores, implement matching
+#' methods, and construct Matched object
+#' @param covarData A `data.table` with covariate data.
+#'   Contains id column for designating whether covariates
+#'   belong in focal or pool (1 or 0, respectively), and
+#'   columns for the values of each covariate.
+#' @inheritParams matchRanges
+#' @return A `Matched` object.
+#' @noRd
 propensityMatch <- function(covarData, covars, method, replace) {
 
   ## Assemble covariate formula
@@ -330,7 +363,14 @@ propensityMatch <- function(covarData, covars, method, replace) {
   return(obj)
 }
 
-## Helper function - matching core for DataFrames/GRanges/GInteractions
+#' Core matching for DataFrames/GRanges/GInteractions
+#' @param focal A `DataFrame` object containing
+#'   the focal data to match.
+#' @param pool A `DataFrame` object containing
+#'   the pool from which to select matches.
+#' @inheritParams matchRanges
+#' @return A `Matched` object.
+#' @noRd
 matchRanges.Core <- function(focal, pool, covar, method, replace) {
 
   ## Extract covariates from formula as character vector
@@ -368,7 +408,10 @@ matchRanges.Core <- function(focal, pool, covar, method, replace) {
 
 ## Matched subclass methods for matchRanges ----------------------------------------------
 
-## MatchedDataFrame method for matchRanges
+#' MatchedDataFrame method for matchRanges
+#' @inheritParams matchRanges.Core
+#' @return A `MatchedDataFrame` object.
+#' @noRd
 matchRanges.MatchedDataFrame <- function(focal, pool, covar, method, replace) {
 
   ## Convert focal and pool to DataFrames
@@ -392,46 +435,115 @@ matchRanges.MatchedDataFrame <- function(focal, pool, covar, method, replace) {
   return(obj)
 }
 
-#' matchRanges
+#' Generate a covariate-matched control set of ranges
+#' 
+#' `matchRanges()` uses a propensity score-based method to
+#' generate a covariate-matched control set of DataFrame,
+#' GRanges, or GInteractions objects.
+#' 
+#' Available inputs for `focal` and `pool` include `data.frame`,
+#' `data.table`, `DataFrame`, `GRanges`, or `GInteractions`.
+#' `data.frame` and `data.table` inputs are coerced to `DataFrame`
+#' objects and returned as `MatchedDataFrame` while `GRanges` and
+#' `GInteractions` objects are returned as `MatchedGRanges` or
+#' `MatchedGInteractions`, respectively.
+#' 
+#' @section Matching methods:
+#' \itemize{
+#'   \item{`method = 'nearest'`: }{Nearest neighbor matching 
+#'   with replacement. Finds the nearest neighbor by using a 
+#'   rolling join with `data.table`. Matching without replacement
+#'   is not currently supported.}
+#'   \item{`method = 'rejection'`: }{(Default) Rejection sampling
+#'   with or without replacement. Uses a probability-based approach
+#'   to select options in the `pool` that match the `focal` distribition.}
+#'   \item{`method = 'stratified'`: }{Iterative stratified sampling
+#'   with or without replacement. Bins `focal` and `pool` propensity
+#'   scores by value and selects matches within bins until all `focal`
+#'   items have a corresponding match in `pool`.}
+#' }
 #'
-#' A function that generates a covariate-matched control
-#' set of the same datatype.
+#' @param focal A DataFrame, GRanges, or GInteractions object containing
+#'   the focal data to match.
+#' @param pool A DataFrame, GRanges, or GInteractions object containing
+#'   the pool from which to select matches.
+#' @param covar A rhs formula with covariates on which to match.
+#' @param method A character describing which matching method to use.
+#'   supported options are either 'nearest', 'rejection', or 'stratified'.
+#' @param replace TRUE/FALSE describing whether to select matches with or without
+#'   replacement.
+#' @param ... Additional arguments.
 #'
-#' @param focal a DataFrame, GRanges, or GInteractions object containing
-#' the focal data to match.
-#' @param pool a DataFrame, GRanges, or GInteractions object containing
-#' the pool from which to select matches.
-#' @param covar a rhs formula with covariates on which to match.
-#' @param method character describing which matching method to use.
-#' supported options are either 'nearest', 'rejection', or 'stratified'.
-#' @param replace logical describing whether to select matches with or without
-#' replacement.
-#' @param ... additional arguments
+#' @return A covariate-matched control set of data.
+#' 
+#' @examples 
+#' ## Match with DataFrame
+#' x <- makeExampleMatchedDataSet(type = 'DataFrame')
+#' matchRanges(focal = x[x$treated,],
+#'             pool = x[!x$treated,],
+#'             covar = ~covar1 + covar2)
+#' 
+#' ## Match with GRanges
+#' x <- makeExampleMatchedDataSet(type = "GRanges")
+#' matchRanges(focal = x[x$treated,],
+#'             pool = x[!x$treated,],
+#'             covar = ~covar1 + covar2)
+#' 
+#' ## Match with GInteractions
+#' x <- makeExampleMatchedDataSet(type = "GInteractions")
+#' matchRanges(focal = x[x$treated,],
+#'             pool = x[!x$treated,],
+#'             covar = ~covar1 + covar2)
+#' 
+#' ## Nearest neighbor matching with replacement
+#' x <- makeExampleMatchedDataSet(type = 'DataFrame')
+#' matchRanges(focal = x[x$treated,],
+#'             pool = x[!x$treated,],
+#'             covar = ~covar1 + covar2,
+#'             method = 'nearest',
+#'             replace = TRUE)
+#' 
+#' ## Rejection sampling without replacement
+#' x <- makeExampleMatchedDataSet(type = 'DataFrame')
+#' matchRanges(focal = x[x$treated,],
+#'             pool = x[!x$treated,],
+#'             covar = ~covar1 + covar2,
+#'             method = 'rejection',
+#'             replace = FALSE)
+#' 
+#' ## Stratified sampling without replacement
+#' x <- makeExampleMatchedDataSet(type = 'DataFrame')
+#' matchRanges(focal = x[x$treated,],
+#'             pool = x[!x$treated,],
+#'             covar = ~covar1 + covar2,
+#'             method = 'stratified',
+#'             replace = FALSE)
 #'
-#' @return a covariate-matched control set of data
-#'
-#' @name matchRanges
 #' @rdname matchRanges
 #'
 #' @rawNamespace import(data.table, except = c(between, shift, first, second, indices))
-#'
 #' @importFrom rlang f_lhs f_rhs
 #' @importFrom speedglm speedglm
 #' @importFrom ks kde
 #' @import S4Vectors
-NULL
-
-#' @rdname matchRanges
+#' 
 #' @export
 setMethod("matchRanges",
           signature = signature(focal   = "DF_OR_df_OR_dt",
                                 pool    = "DF_OR_df_OR_dt",
                                 covar   = "formula",
-                                method  = "character",
-                                replace = "logical"),
+                                method  = "character_OR_missing",
+                                replace = "logical_OR_missing"),
           definition = matchRanges.MatchedDataFrame)
 
-## MatchedGRanges method for matchRanges
+#' MatchedGRanges method for matchRanges
+#' @param focal A `GRanges` object containing
+#'   the focal data to match.
+#' @param pool A `GRanges` object containing
+#'   the pool from which to select matches.
+#' @inheritParams matchRanges
+#' @return A `MatchedGRanges` object
+#' @noRd
 matchRanges.MatchedGRanges <- function(focal, pool, covar, method, replace) {
 
   ## Extract DataFrame from GRanges/GInteractions objects
@@ -461,11 +573,18 @@ setMethod("matchRanges",
           signature = signature(focal   = "GRanges",
                                 pool    = "GRanges",
                                 covar   = "formula",
-                                method  = 'character',
-                                replace = 'logical'),
+                                method  = 'character_OR_missing',
+                                replace = 'logical_OR_missing'),
           definition = matchRanges.MatchedGRanges)
 
-## MatchedGInteractions method for matchRanges
+#' MatchedGInteractions method for matchRanges
+#' @param focal A `GInteractions` object containing
+#'   the focal data to match.
+#' @param pool A `GInteractions` object containing
+#'   the pool from which to select matches.
+#' @inheritParams matchRanges
+#' @return A `MatchedGInteractions` object
+#' @noRd
 matchRanges.MatchedGInteractions <- function(focal, pool, covar, method, replace) {
 
   ## Extract DataFrame from GRanges/GInteractions objects
@@ -495,8 +614,8 @@ setMethod("matchRanges",
           signature = signature(focal   = "GInteractions",
                                 pool    = "GInteractions",
                                 covar   = "formula",
-                                method  = 'character',
-                                replace = 'logical'),
+                                method  = 'character_OR_missing',
+                                replace = 'logical_OR_missing'),
           definition = matchRanges.MatchedGInteractions)
 
 ## Define accessor functions for matchGRanges class --------------------------------------
