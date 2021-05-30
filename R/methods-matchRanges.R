@@ -323,7 +323,9 @@ propensityMatch <- function(covarData, covars, method, replace) {
   ## Combine information in Matched object
   obj <- Matched(matchedData = matchedData,
                  matchedIndex = matchedIndex,
-                 covar = covars)
+                 covar = covars,
+                 method = method,
+                 replace = replace)
 
   return(obj)
 }
@@ -382,6 +384,8 @@ matchRanges.MatchedDataFrame <- function(focal, pool, covar, method, replace) {
                           matchedData = matchedData(md),
                           matchedIndex = indices(md),
                           covar = covariates(md),
+                          method = method(md),
+                          replace = withReplacement(md),
                           delegate = pool[indices(md),])
 
   ## Return MatchedDataFrame object
@@ -443,6 +447,8 @@ matchRanges.MatchedGRanges <- function(focal, pool, covar, method, replace) {
                         matchedData = matchedData(md),
                         matchedIndex = indices(md),
                         covar = covariates(md),
+                        method = method(md),
+                        replace = withReplacement(md),
                         delegate = pool[indices(md)])
 
   ## Return MatchedGRanges object
@@ -475,6 +481,8 @@ matchRanges.MatchedGInteractions <- function(focal, pool, covar, method, replace
                               matchedData = matchedData(md),
                               matchedIndex = indices(md),
                               covar = covariates(md),
+                              method = method(md),
+                              replace = withReplacement(md),
                               delegate = pool[indices(md)])
 
   ## Return MatchedGInteractions object
@@ -493,34 +501,59 @@ setMethod("matchRanges",
 
 ## Define accessor functions for matchGRanges class --------------------------------------
 
-#' Accessor methods for matchRanges Class
-#'
-#' Functions that get data from "matchRanges" subclasses
-#' such as MatchedDataFrame, MatchedGRanges,
-#' and MatchedGInteractions.
-#'
-#' @param x Matched object
-#' @param ... additional arguments
-#'
-#' @rdname matchRangesAccessors
+#' Get focal set from a Matched object
+#' 
+#' @param x A `MatchedDataFrame`, `MatchedGRanges`,
+#'   or `MatchedGInteractions` object.
+#' @param ... Additional options.
+#' 
+#' @examples 
+#' x <- makeExampleMatchedDataSet(matched = TRUE)
+#' focal(x)
+#' 
+#' @rdname focal
 #' @export
 setMethod("focal", "MDF_OR_MGR_OR_MGI", function(x, ...) {
   x@focal
 })
 
-#' @rdname matchRangesAccessors
+#' Get pool set from a Matched object
+#' 
+#' @inheritParams focal
+#' 
+#' @examples 
+#' x <- makeExampleMatchedDataSet(matched = TRUE)
+#' pool(x)
+#' 
+#' @rdname pool
 #' @export
 setMethod("pool", "MDF_OR_MGR_OR_MGI", function(x, ...) {
   x@pool
 })
 
-#' @rdname matchRangesAccessors
+#' Get matched set from a Matched object
+#' 
+#' @inheritParams focal
+#' 
+#' @examples 
+#' x <- makeExampleMatchedDataSet(matched = TRUE)
+#' matched(x)
+#' 
+#' @rdname matched
 #' @export
 setMethod("matched", "MDF_OR_MGR_OR_MGI", function(x, ...) {
   x@delegate
 })
 
-#' @rdname matchRangesAccessors
+#' Get unmatched set from a Matched object
+#' 
+#' @inheritParams focal
+#' 
+#' @examples 
+#' x <- makeExampleMatchedDataSet(matched = TRUE)
+#' unmatched(x)
+#' 
+#' @rdname unmatched
 #' @export
 setMethod("unmatched", "MDF_OR_MGR_OR_MGI", function(x, ...) {
   x@pool[indices(x, set = "unmatched"),]

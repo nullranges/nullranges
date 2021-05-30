@@ -4,7 +4,125 @@
 \name{MatchedGInteractions-class}
 \alias{MatchedGInteractions-class}
 \alias{MatchedGInteractions}
-\title{MatchedGInteractions}
+\title{MatchedGInteractions objects}
 \description{
-MatchedGInteractions
+The \code{MatchedGInteractions} class is a subclass of both
+\code{Matched} and \code{GInteractions}. Therefore, it contains slots
+and methods for both of these classes.
+}
+\details{
+The \code{MatchedGInteractions} class uses a delegate object
+during initialization to assign its \code{GInteractions} slots.
+\code{MatchedGInteractions} behaves as a \code{GInteractions} but also
+includes additional \code{Matched} object functionality
+(see \code{?Matched}). For more information about
+\code{GInteractions} see \code{?InteractionSet::GInteractions}.
+}
+\section{Slots}{
+
+\describe{
+\item{\code{focal}}{A \code{GInteractions} object containing the focal
+data to match.}
+
+\item{\code{pool}}{A \code{GInteractions} object containing the pool
+from which to select matches.}
+
+\item{\code{delegate}}{A \code{GInteractions} object used to initialize
+\code{GInteractions}-specific slots. \code{matchRanges()} assigns
+the matched set to the slot.}
+
+\item{\code{matchedData}}{A \code{data.table} with matched data}
+
+\item{\code{matchedIndex}}{An integer vector corresponding
+to the indices in the \code{pool} which comprise the
+\code{matched} set.}
+
+\item{\code{covar}}{A character vector describing the covariates
+used for matching.}
+
+\item{\code{method}}{Character describing replacement method
+used for matching.}
+
+\item{\code{replace}}{TRUE/FALSE describing if matching was
+done with or without replacement.}
+
+\item{\code{anchor1}}{\code{anchorIds(delegate)$first}}
+
+\item{\code{anchor2}}{\code{anchorIds(delegate)$second}}
+
+\item{\code{regions}}{\code{regions(delegate)}}
+
+\item{\code{NAMES}}{\code{names(delegate)}}
+
+\item{\code{elementMetadata}}{\code{elementMetadata(delegate)}}
+
+\item{\code{metadata}}{\code{metadata(delegate)}}
+}}
+
+\section{Accessor methods for Matched Class}{
+
+Functions that get data from Matched subclasses (\code{x})
+such as MatchedDataFrame, MatchedGRanges,
+and MatchedGInteractions are listed below:
+\itemize{
+\item{\code{matchedData(x)}: }{Get matched data from a Matched object}
+\item{\code{covariates(x)}: }{Get covariates from a Matched object}
+\item{\code{method(x)}: }{Get matching method used for Matched object}
+\item{\code{withReplacement(x)}: }{Get replace method}
+\item{\code{indices(x, set)}: }{Get indices of matched set}
+}
+For more detail check the help pages for these functions.
+}
+
+\section{Accessor methods for Matched subclass objects}{
+
+Additional functions that get data from Matched subclasses
+(\code{x}) such as MatchedDataFrame, MatchedGRanges,
+and MatchedGInteractions include:
+\itemize{
+\item{\code{focal(x)}: }{Get focal set from a Matched object}
+\item{\code{pool(x)}: }{Get pool set from a Matched object}
+\item{\code{matched(x)}: }{Get matched set from a Matched object}
+\item{\code{unmatched(x)}: }{Get unmatched set from a Matched object}
+}
+For more detail check the help pages for these functions.
+}
+
+\examples{
+## GInteractions
+gi <- makeExampleMatchedDataSet(type = "GInteractions")
+mgi <- matchRanges(focal = gi[gi$treated,],
+                   pool = gi[!gi$treated,],
+                   covar = ~covar1 + covar2,
+                   method = 'rejection',
+                   replace = FALSE)
+class(mgi)
+
+## Make MatchedDataFrame example
+x <- makeExampleMatchedDataSet(matched = TRUE)
+
+## Accessor functions for Matched class
+matchedData(x)
+covariates(x)
+method(x)
+withReplacement(x)
+head(indices(x, set = 'matched'))
+
+## Make MatchedDataFrame example
+x <- makeExampleMatchedDataSet(type = 'GRanges', matched = TRUE)
+
+## Accessor functions for Matched subclasses
+focal(x)
+pool(x)
+matched(x)
+unmatched(x)
+
+}
+\seealso{
+\link[InteractionSet:GInteractions-class]{InteractionSet::GInteractions}
+
+\link{matchedData}, \link{covariates}, \link{method},
+\link{withReplacement}, \link{indices}
+
+\link{focal}, \link{pool}, \link{matched}, \link{unmatched}
 }
