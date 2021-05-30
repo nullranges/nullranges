@@ -89,35 +89,36 @@ For more detail check the help pages for these functions.
 }
 
 \examples{
+## Constructing MatchedDataFrame with matchRanges
 ## data.frame
-df <- makeExampleMatchedDataSet(type = "data.frame")
-mdf <- matchRanges(focal = df[df$treated,],
-                   pool = df[!df$treated,],
+x <- makeExampleMatchedDataSet(type = "data.frame")
+mx <- matchRanges(focal = x[x$treated,],
+                   pool = x[!x$treated,],
                    covar = ~covar1 + covar2,
                    method = 'rejection',
                    replace = FALSE)
-class(mdf)
+class(mx)
 
 ## data.table
-dt <- makeExampleMatchedDataSet(type = "data.table")
-mdt <- matchRanges(focal = dt[dt$treated],
-                   pool = dt[!dt$treated],
+x <- makeExampleMatchedDataSet(type = "data.table")
+mx <- matchRanges(focal = x[x$treated],
+                   pool = x[!x$treated],
                    covar = ~covar1 + covar2,
                    method = 'rejection',
                    replace = FALSE)
-class(mdt)
+class(mx)
 
 ## DataFrame
-df <- makeExampleMatchedDataSet(type = "DataFrame")
-mdf <- matchRanges(focal = df[df$treated,],
-                   pool = df[!df$treated,],
+x <- makeExampleMatchedDataSet(type = "DataFrame")
+mx <- matchRanges(focal = x[x$treated,],
+                   pool = x[!x$treated,],
                    covar = ~covar1 + covar2,
                    method = 'rejection',
                    replace = FALSE)
-class(mdf)
+class(mx)
 
 ## Make MatchedDataFrame example
-x <- makeExampleMatchedDataSet(matched = TRUE)
+x <- makeExampleMatchedDataSet(type = 'DataFrame', matched = TRUE)
 
 ## Accessor functions for Matched class
 matchedData(x)
@@ -125,9 +126,6 @@ covariates(x)
 method(x)
 withReplacement(x)
 head(indices(x, set = 'matched'))
-
-## Make MatchedDataFrame example
-x <- makeExampleMatchedDataSet(type = 'GRanges', matched = TRUE)
 
 ## Accessor functions for Matched subclasses
 focal(x)

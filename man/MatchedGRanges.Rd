@@ -91,7 +91,7 @@ For more detail check the help pages for these functions.
 }
 
 \examples{
-## GRanges
+## Contructing MatchedGRanges with matchRanges
 gr <- makeExampleMatchedDataSet(type = "GRanges")
 mgr <- matchRanges(focal = gr[gr$treated,],
                    pool = gr[!gr$treated,],
@@ -100,8 +100,8 @@ mgr <- matchRanges(focal = gr[gr$treated,],
                    replace = FALSE)
 class(mgr)
 
-## Make MatchedDataFrame example
-x <- makeExampleMatchedDataSet(matched = TRUE)
+## Make MatchedGRanges example
+x <- makeExampleMatchedDataSet(type = 'GRanges', matched = TRUE)
 
 ## Accessor functions for Matched class
 matchedData(x)
@@ -109,9 +109,6 @@ covariates(x)
 method(x)
 withReplacement(x)
 head(indices(x, set = 'matched'))
-
-## Make MatchedDataFrame example
-x <- makeExampleMatchedDataSet(type = 'GRanges', matched = TRUE)
 
 ## Accessor functions for Matched subclasses
 focal(x)

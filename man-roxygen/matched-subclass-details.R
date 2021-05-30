@@ -11,9 +11,6 @@
 #' For more detail check the help pages for these functions.
 #' 
 #' @examples 
-#' ## Make MatchedDataFrame example
-#' x <- makeExampleMatchedDataSet(type = 'GRanges', matched = TRUE)
-#' 
 #' ## Accessor functions for Matched subclasses
 #' focal(x)
 #' pool(x)

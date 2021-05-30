@@ -15,6 +15,10 @@ setValidity(Class = "bootRanges",
 #' The Matched class is a container for attributes of covariate-matched
 #' data resulting from `matchRanges()`.
 #' 
+#' @examples 
+#' ## Make Matched example
+#' x <- makeExampleMatchedDataSet(matched = TRUE)
+#' 
 #' @template matched-class-slots
 #' @template matched-class-details
 #' 
@@ -71,32 +75,36 @@ setClassUnion("DF_OR_df_OR_dt", c("DFrame", "data.frame", "data.table"))
 #' @seealso [S4Vectors::DataFrame]
 #' 
 #' @examples 
+#' ## Constructing MatchedDataFrame with matchRanges
 #' ## data.frame
-#' df <- makeExampleMatchedDataSet(type = "data.frame")
-#' mdf <- matchRanges(focal = df[df$treated,],
-#'                    pool = df[!df$treated,],
+#' x <- makeExampleMatchedDataSet(type = "data.frame")
+#' mx <- matchRanges(focal = x[x$treated,],
+#'                    pool = x[!x$treated,],
 #'                    covar = ~covar1 + covar2,
 #'                    method = 'rejection',
 #'                    replace = FALSE)
-#' class(mdf)
+#' class(mx)
 #' 
 #' ## data.table
-#' dt <- makeExampleMatchedDataSet(type = "data.table")
-#' mdt <- matchRanges(focal = dt[dt$treated],
-#'                    pool = dt[!dt$treated],
+#' x <- makeExampleMatchedDataSet(type = "data.table")
+#' mx <- matchRanges(focal = x[x$treated],
+#'                    pool = x[!x$treated],
 #'                    covar = ~covar1 + covar2,
 #'                    method = 'rejection',
 #'                    replace = FALSE)
-#' class(mdt)
+#' class(mx)
 #' 
 #' ## DataFrame
-#' df <- makeExampleMatchedDataSet(type = "DataFrame")
-#' mdf <- matchRanges(focal = df[df$treated,],
-#'                    pool = df[!df$treated,],
+#' x <- makeExampleMatchedDataSet(type = "DataFrame")
+#' mx <- matchRanges(focal = x[x$treated,],
+#'                    pool = x[!x$treated,],
 #'                    covar = ~covar1 + covar2,
 #'                    method = 'rejection',
 #'                    replace = FALSE)
-#' class(mdf)
+#' class(mx)
+#' 
+#' ## Make MatchedDataFrame example
+#' x <- makeExampleMatchedDataSet(type = 'DataFrame', matched = TRUE)
 #' 
 #' @template matched-class-details
 #' @template matched-subclass-details
@@ -163,7 +171,7 @@ setMethod("initialize", "MatchedDataFrame",
 #' @seealso [GenomicRanges::GRanges]
 #' 
 #' @examples 
-#' ## GRanges
+#' ## Contructing MatchedGRanges with matchRanges
 #' gr <- makeExampleMatchedDataSet(type = "GRanges")
 #' mgr <- matchRanges(focal = gr[gr$treated,],
 #'                    pool = gr[!gr$treated,],
@@ -171,6 +179,9 @@ setMethod("initialize", "MatchedDataFrame",
 #'                    method = 'rejection',
 #'                    replace = FALSE)
 #' class(mgr)
+#' 
+#' ## Make MatchedGRanges example
+#' x <- makeExampleMatchedDataSet(type = 'GRanges', matched = TRUE)
 #' 
 #' @template matched-class-details
 #' @template matched-subclass-details
@@ -233,7 +244,7 @@ setMethod("initialize", "MatchedGRanges",
 #' @seealso [InteractionSet::GInteractions]
 #' 
 #' @examples 
-#' ## GInteractions
+#' ## Constructing MatchedGInteractions with matchRanges
 #' gi <- makeExampleMatchedDataSet(type = "GInteractions")
 #' mgi <- matchRanges(focal = gi[gi$treated,],
 #'                    pool = gi[!gi$treated,],
@@ -241,6 +252,9 @@ setMethod("initialize", "MatchedGRanges",
 #'                    method = 'rejection',
 #'                    replace = FALSE)
 #' class(mgi)
+#'
+#' ## Make MatchedGInteractions example
+#' x <- makeExampleMatchedDataSet(type = "GInteractions", matched = TRUE)
 #' 
 #' @template matched-class-details
 #' @template matched-subclass-details

@@ -89,7 +89,7 @@ For more detail check the help pages for these functions.
 }
 
 \examples{
-## GInteractions
+## Constructing MatchedGInteractions with matchRanges
 gi <- makeExampleMatchedDataSet(type = "GInteractions")
 mgi <- matchRanges(focal = gi[gi$treated,],
                    pool = gi[!gi$treated,],
@@ -98,8 +98,8 @@ mgi <- matchRanges(focal = gi[gi$treated,],
                    replace = FALSE)
 class(mgi)
 
-## Make MatchedDataFrame example
-x <- makeExampleMatchedDataSet(matched = TRUE)
+## Make MatchedGInteractions example
+x <- makeExampleMatchedDataSet(type = "GInteractions", matched = TRUE)
 
 ## Accessor functions for Matched class
 matchedData(x)
@@ -107,9 +107,6 @@ covariates(x)
 method(x)
 withReplacement(x)
 head(indices(x, set = 'matched'))
-
-## Make MatchedDataFrame example
-x <- makeExampleMatchedDataSet(type = 'GRanges', matched = TRUE)
 
 ## Accessor functions for Matched subclasses
 focal(x)
