@@ -50,18 +50,18 @@ make_example_matched_data_set <- function(type, matched, method, replace) {
   ## Generate example covariate data
   set.seed(123)
   df <- data.frame(
-    treated = c(rep(TRUE, 500),
-                rep(FALSE, 1e4)),
-    covar1 = c(abs(rnorm(500, mean = 4, sd = 2)),
-               runif(1e4, min = 0, max = 12)),
-    covar2 = c(sample(letters[seq_len(5)],
-                      size = 500,
-                      replace = TRUE,
-                      prob = c(0.1, 0.3, 0.4, 0.1, 0.05)),
-               sample(letters[seq_len(5)],
-                      size = 1e4,
-                      replace = TRUE,
-                      prob = c(0.4, 0.3, 0.1, 0.1, 0.05)))
+    feature1 = c(rep(TRUE, 500),
+                 rep(FALSE, 1e4)),
+    feature2 = c(abs(rnorm(500, mean = 4, sd = 2)),
+                 runif(1e4, min = 0, max = 12)),
+    feature3 = c(sample(letters[seq_len(5)],
+                        size = 500,
+                        replace = TRUE,
+                        prob = c(0.1, 0.3, 0.4, 0.1, 0.05)),
+                 sample(letters[seq_len(5)],
+                        size = 1e4,
+                        replace = TRUE,
+                        prob = c(0.4, 0.3, 0.1, 0.1, 0.05)))
   )
 
   ## Generate example data.frame/data.table/DataFrame
@@ -93,9 +93,9 @@ make_example_matched_data_set <- function(type, matched, method, replace) {
   
   ## Return dataset matched or not
   if (matched) {
-    out <- matchRanges(focal = out[out$treated,],
-                       pool = out[!out$treated,],
-                       covar = ~covar1 + covar2,
+    out <- matchRanges(focal = out[out$feature1,],
+                       pool = out[!out$feature1,],
+                       covar = ~feature2 + feature3,
                        method = method,
                        replace = replace)
   }
@@ -109,6 +109,9 @@ make_example_matched_data_set <- function(type, matched, method, replace) {
 #' This function will generate an example dataset as either 1) input
 #' for `matchRanges()` (when `matched = FALSE`) or 2) a 
 #' Matched Object (when `matched = TRUE`).
+#' 
+#' When `matched = FALSE`, the data returned contains 3 different
+#' features that can be subset to perform matching.
 #'
 #' @param type Character designating which type of dataset to make.
 #'   options are one of 'data.frame', 'data.table', 'DataFrame',

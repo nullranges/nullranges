@@ -36,8 +36,10 @@ figures:
   fig.retina: 1
   
 reference:
-  - title: "Covariate-match Ranges"
-    desc: "Generate a covariate-matched control set of ranges"
+  - title: "Matching Ranges"
+    desc: >
+      Use a propensity score-based method to match ranges
+      by one or more covariates.
     contents:
       - matchRanges
   - subtitle: "Matched classes"
@@ -66,7 +68,7 @@ reference:
     contents:
       - combnCov
       - makeExampleMatchedDataSet
-  - title: "Block Bootstrap Ranges"
+  - title: "Bootstrapping Ranges"
     desc: "Block bootstrap ranges optionally within segmentation"
     contents:
       - bootRanges

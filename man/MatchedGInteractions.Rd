@@ -91,9 +91,9 @@ For more detail check the help pages for these functions.
 \examples{
 ## Constructing MatchedGInteractions with matchRanges
 gi <- makeExampleMatchedDataSet(type = "GInteractions")
-mgi <- matchRanges(focal = gi[gi$treated,],
-                   pool = gi[!gi$treated,],
-                   covar = ~covar1 + covar2,
+mgi <- matchRanges(focal = gi[gi$feature1,],
+                   pool = gi[!gi$feature1,],
+                   covar = ~feature2 + feature3,
                    method = 'rejection',
                    replace = FALSE)
 class(mgi)

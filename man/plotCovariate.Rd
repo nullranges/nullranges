@@ -67,16 +67,16 @@ mdf <- makeExampleMatchedDataSet(matched = TRUE)
 
 ## Visualize covariates
 plotCovariate(mdf)
-plotCovariate(mdf, covar = 'covar2')
+plotCovariate(mdf, covar = 'feature3')
 plotCovariate(mdf,
-              covar = 'covar1',
+              covar = 'feature2',
               sets = c('focal', 'matched', 'pool'))
 plotCovariate(mdf,
-              covar = 'covar1',
+              covar = 'feature2',
               sets = c('focal', 'matched', 'pool'),
               type = 'ridges')
 plotCovariate(mdf,
-              covar = 'covar1',
+              covar = 'feature2',
               sets = c('focal', 'matched', 'pool'),
               type = 'jitter')
 
