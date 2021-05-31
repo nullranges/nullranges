@@ -47,7 +47,7 @@
 
 
 <meta property="og:title" content="Function reference" />
-<meta property="og:image" content="/logo.png" />
+<meta property="og:image" content="https://nullranges.github.io/nullranges/logo.png" />
 
 
 
@@ -156,8 +156,8 @@
     <tbody>
       <tr>
         <th colspan="2">
-          <h2 id="section-all-functions" class="hasAnchor"><a href="#section-all-functions" class="anchor"></a>All functions</h2>
-          <p class="section-desc"></p>
+          <h2 id="section-covariate-match-ranges" class="hasAnchor"><a href="#section-covariate-match-ranges" class="anchor"></a>Covariate-match Ranges</h2>
+          <p class="section-desc"><p>Generate a covariate-matched control set of ranges</p></p>
         </th>
       </tr>
       
@@ -168,15 +168,34 @@
       <tr>
         
         <td>
-          <p><code><a href="MatchedDataFrame.html">MatchedDataFrame-class</a></code> </p>
+          <p><code><a href="matchRanges.html">matchRanges()</a></code> </p>
         </td>
-        <td><p>MatchedDataFrame objects</p></td>
+        <td><p>Generate a covariate-matched control set of ranges</p></td>
+      </tr>
+    </tbody><tbody>
+      
+      <tr>
+        <th colspan="2">
+          <h3 id="section-matched-classes" class="hasAnchor"><a href="#section-matched-classes" class="anchor"></a>Matched classes</h3>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      
+    </tbody><tbody>
+      
+      
+      <tr>
+        
+        <td>
+          <p><code><a href="matchedClass.html">Matched-class</a></code> </p>
+        </td>
+        <td><p>Matched objects</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="MatchedGInteractions.html">MatchedGInteractions-class</a></code> </p>
+          <p><code><a href="MatchedDataFrame.html">MatchedDataFrame-class</a></code> </p>
         </td>
-        <td><p>MatchedGInteractions objects</p></td>
+        <td><p>MatchedDataFrame objects</p></td>
       </tr><tr>
         
         <td>
@@ -186,70 +205,23 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="bootRanges.html">bootRanges()</a></code> </p>
+          <p><code><a href="MatchedGInteractions.html">MatchedGInteractions-class</a></code> </p>
         </td>
-        <td><p>Block bootstrap genomic ranges</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="combnCov.html">combnCov()</a></code> </p>
-        </td>
-        <td><p>Function for creating combinations of covariates</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="covariates.html">covariates()</a></code> </p>
-        </td>
-        <td><p>Get covariates from a Matched object</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="focal.html">focal()</a></code> </p>
-        </td>
-        <td><p>Get focal set from a Matched object</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="indices.html">indices()</a></code> </p>
-        </td>
-        <td><p>Get indices of matched set</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="makeExampleMatchedDataSet.html">makeExampleMatchedDataSet()</a></code> </p>
-        </td>
-        <td><p>Function for generating an example matchRanges or Matched dataset</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="matchRanges.html">matchRanges()</a></code> </p>
-        </td>
-        <td><p>Generate a covariate-matched control set of ranges</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="matched.html">matched()</a></code> </p>
-        </td>
-        <td><p>Get matched set from a Matched object</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="matchedClass.html">Matched-class</a></code> </p>
-        </td>
-        <td><p>Matched objects</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="matchedData.html">matchedData()</a></code> </p>
-        </td>
-        <td><p>Get matched data from a Matched object</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="method.html">method()</a></code> </p>
-        </td>
-        <td><p>Get matching method used for Matched object</p></td>
-      </tr><tr>
+        <td><p>MatchedGInteractions objects</p></td>
+      </tr>
+    </tbody><tbody>
+      
+      <tr>
+        <th colspan="2">
+          <h3 id="section-assessing-matching-quality" class="hasAnchor"><a href="#section-assessing-matching-quality" class="anchor"></a>Assessing matching quality</h3>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      
+    </tbody><tbody>
+      
+      
+      <tr>
         
         <td>
           <p><code><a href="overview.html">overview()</a></code> </p>
@@ -267,6 +239,55 @@
           <p><code><a href="plotPropensity.html">plotPropensity()</a></code> </p>
         </td>
         <td><p>Propensity score plotting for Matched objects</p></td>
+      </tr>
+    </tbody><tbody>
+      
+      <tr>
+        <th colspan="2">
+          <h3 id="section-accessor-functions" class="hasAnchor"><a href="#section-accessor-functions" class="anchor"></a>Accessor functions</h3>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      
+    </tbody><tbody>
+      
+      
+      <tr>
+        
+        <td>
+          <p><code><a href="matchedData.html">matchedData()</a></code> </p>
+        </td>
+        <td><p>Get matched data from a Matched object</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="covariates.html">covariates()</a></code> </p>
+        </td>
+        <td><p>Get covariates from a Matched object</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="indices.html">indices()</a></code> </p>
+        </td>
+        <td><p>Get indices of matched set</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="method.html">method()</a></code> </p>
+        </td>
+        <td><p>Get matching method used for Matched object</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="withReplacement.html">withReplacement()</a></code> </p>
+        </td>
+        <td><p>Get replace method</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="focal.html">focal()</a></code> </p>
+        </td>
+        <td><p>Get focal set from a Matched object</p></td>
       </tr><tr>
         
         <td>
@@ -276,21 +297,65 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="segmentDensity.html">segmentDensity()</a></code> </p>
+          <p><code><a href="matched.html">matched()</a></code> </p>
         </td>
-        <td><p>Genomic segmentation based on gene density</p></td>
+        <td><p>Get matched set from a Matched object</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="unmatched.html">unmatched()</a></code> </p>
         </td>
         <td><p>Get unmatched set from a Matched object</p></td>
+      </tr>
+    </tbody><tbody>
+      
+      <tr>
+        <th colspan="2">
+          <h3 id="section-utility-functions" class="hasAnchor"><a href="#section-utility-functions" class="anchor"></a>Utility functions</h3>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      
+    </tbody><tbody>
+      
+      
+      <tr>
+        
+        <td>
+          <p><code><a href="combnCov.html">combnCov()</a></code> </p>
+        </td>
+        <td><p>Function for creating combinations of covariates</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="withReplacement.html">withReplacement()</a></code> </p>
+          <p><code><a href="makeExampleMatchedDataSet.html">makeExampleMatchedDataSet()</a></code> </p>
         </td>
-        <td><p>Get replace method</p></td>
+        <td><p>Function for generating an example matchRanges or Matched dataset</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-block-bootstrap-ranges" class="hasAnchor"><a href="#section-block-bootstrap-ranges" class="anchor"></a>Block Bootstrap Ranges</h2>
+          <p class="section-desc"><p>Block bootstrap ranges optionally within segmentation</p></p>
+        </th>
+      </tr>
+      
+      
+    </tbody><tbody>
+      
+      
+      <tr>
+        
+        <td>
+          <p><code><a href="bootRanges.html">bootRanges()</a></code> </p>
+        </td>
+        <td><p>Block bootstrap genomic ranges</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="segmentDensity.html">segmentDensity()</a></code> </p>
+        </td>
+        <td><p>Genomic segmentation based on gene density</p></td>
       </tr>
     </tbody>
     </table>
@@ -306,7 +371,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by Michael Love, Wancen Mu, Eric Davis, Douglas Phanstiel, Stuart Lee, CZI.</p>
+  <p>Developed by <a href='https://mikelove.github.io'>Michael Love</a>, <a href='https://twitter.com/wancenm'>Wancen Mu</a>, <a href='https://ericscottdavis.com'>Eric Davis</a>, <a href='http://phanstiel-lab.med.unc.edu'>Douglas Phanstiel</a>, <a href='https://stuartlee.org'>Stuart Lee</a>, <a href='https://chanzuckerberg.com'>CZI</a>.</p>
 </div>
 
 <div class="pkgdown">
