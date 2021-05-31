@@ -202,12 +202,16 @@ or without replacement.</p></td>
 
     <p>Returns an example Matched dataset or an example dataset for
 input to <code><a href='matchRanges.html'>matchRanges()</a></code>.</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>When <code>matched = FALSE</code>, the data returned contains 3 different
+features that can be subset to perform matching.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'>## Make examples for matchRanges() (i.e matched = FALSE)</span>
 <span class='fu'>makeExampleMatchedDataSet</span><span class='op'>(</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; DataFrame with 10500 rows and 3 columns
-#&gt;         treated    covar1      covar2
+#&gt;        feature1  feature2    feature3
 #&gt;       &lt;logical&gt; &lt;numeric&gt; &lt;character&gt;
 #&gt; 1          TRUE   2.87905           c
 #&gt; 2          TRUE   3.53965           c
@@ -220,27 +224,27 @@ input to <code><a href='matchRanges.html'>matchRanges()</a></code>.</p>
 #&gt; 10498     FALSE   6.11140           a
 #&gt; 10499     FALSE   2.21657           d
 #&gt; 10500     FALSE   5.33003           b</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span><span class='fu'>makeExampleMatchedDataSet</span><span class='op'>(</span>type <span class='op'>=</span> <span class='st'>'data.frame'</span>, matched <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span><span class='op'>)</span>
-</div><div class='output co'>#&gt;   treated   covar1 covar2
-#&gt; 1    TRUE 2.879049      c
-#&gt; 2    TRUE 3.539645      c
-#&gt; 3    TRUE 7.117417      c
-#&gt; 4    TRUE 4.141017      a
-#&gt; 5    TRUE 4.258575      c
-#&gt; 6    TRUE 7.430130      c</div><div class='input'><span class='fu'>makeExampleMatchedDataSet</span><span class='op'>(</span>type <span class='op'>=</span> <span class='st'>'data.table'</span>, matched <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
-</div><div class='output co'>#&gt;        treated   covar1 covar2
-#&gt;     1:    TRUE 2.879049      c
-#&gt;     2:    TRUE 3.539645      c
-#&gt;     3:    TRUE 7.117417      c
-#&gt;     4:    TRUE 4.141017      a
-#&gt;     5:    TRUE 4.258575      c
-#&gt;    ---                        
-#&gt; 10496:   FALSE 1.235781      b
-#&gt; 10497:   FALSE 1.696712      a
-#&gt; 10498:   FALSE 6.111404      a
-#&gt; 10499:   FALSE 2.216575      d
-#&gt; 10500:   FALSE 5.330029      b</div><div class='input'><span class='fu'>makeExampleMatchedDataSet</span><span class='op'>(</span>type <span class='op'>=</span> <span class='st'>'DataFrame'</span>, matched <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;   feature1 feature2 feature3
+#&gt; 1     TRUE 2.879049        c
+#&gt; 2     TRUE 3.539645        c
+#&gt; 3     TRUE 7.117417        c
+#&gt; 4     TRUE 4.141017        a
+#&gt; 5     TRUE 4.258575        c
+#&gt; 6     TRUE 7.430130        c</div><div class='input'><span class='fu'>makeExampleMatchedDataSet</span><span class='op'>(</span>type <span class='op'>=</span> <span class='st'>'data.table'</span>, matched <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;        feature1 feature2 feature3
+#&gt;     1:     TRUE 2.879049        c
+#&gt;     2:     TRUE 3.539645        c
+#&gt;     3:     TRUE 7.117417        c
+#&gt;     4:     TRUE 4.141017        a
+#&gt;     5:     TRUE 4.258575        c
+#&gt;    ---                           
+#&gt; 10496:    FALSE 1.235781        b
+#&gt; 10497:    FALSE 1.696712        a
+#&gt; 10498:    FALSE 6.111404        a
+#&gt; 10499:    FALSE 2.216575        d
+#&gt; 10500:    FALSE 5.330029        b</div><div class='input'><span class='fu'>makeExampleMatchedDataSet</span><span class='op'>(</span>type <span class='op'>=</span> <span class='st'>'DataFrame'</span>, matched <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; DataFrame with 10500 rows and 3 columns
-#&gt;         treated    covar1      covar2
+#&gt;        feature1  feature2    feature3
 #&gt;       &lt;logical&gt; &lt;numeric&gt; &lt;character&gt;
 #&gt; 1          TRUE   2.87905           c
 #&gt; 2          TRUE   3.53965           c
@@ -254,7 +258,7 @@ input to <code><a href='matchRanges.html'>matchRanges()</a></code>.</p>
 #&gt; 10499     FALSE   2.21657           d
 #&gt; 10500     FALSE   5.33003           b</div><div class='input'><span class='fu'>makeExampleMatchedDataSet</span><span class='op'>(</span>type <span class='op'>=</span> <span class='st'>'GRanges'</span>, matched <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; GRanges object with 10500 ranges and 3 metadata columns:
-#&gt;           seqnames      ranges strand |   treated    covar1      covar2
+#&gt;           seqnames      ranges strand |  feature1  feature2    feature3
 #&gt;              &lt;Rle&gt;   &lt;IRanges&gt;  &lt;Rle&gt; | &lt;logical&gt; &lt;numeric&gt; &lt;character&gt;
 #&gt;       [1]     chr1       1-100      * |      TRUE   2.87905           c
 #&gt;       [2]     chr1       2-101      * |      TRUE   3.53965           c
@@ -270,7 +274,7 @@ input to <code><a href='matchRanges.html'>matchRanges()</a></code>.</p>
 #&gt;   -------
 #&gt;   seqinfo: 1 sequence from an unspecified genome; no seqlengths</div><div class='input'><span class='fu'>makeExampleMatchedDataSet</span><span class='op'>(</span>type <span class='op'>=</span> <span class='st'>'GInteractions'</span>, matched <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; GInteractions object with 10500 interactions and 3 metadata columns:
-#&gt;           seqnames1     ranges1     seqnames2     ranges2 |   treated    covar1
+#&gt;           seqnames1     ranges1     seqnames2     ranges2 |  feature1  feature2
 #&gt;               &lt;Rle&gt;   &lt;IRanges&gt;         &lt;Rle&gt;   &lt;IRanges&gt; | &lt;logical&gt; &lt;numeric&gt;
 #&gt;       [1]      chr1       1-100 ---      chr1       1-100 |      TRUE   2.87905
 #&gt;       [2]      chr1       2-101 ---      chr1       2-101 |      TRUE   3.53965
@@ -283,7 +287,7 @@ input to <code><a href='matchRanges.html'>matchRanges()</a></code>.</p>
 #&gt;   [10498]      chr1 10498-10597 ---      chr1 10498-10597 |     FALSE   6.11140
 #&gt;   [10499]      chr1 10499-10598 ---      chr1 10499-10598 |     FALSE   2.21657
 #&gt;   [10500]      chr1 10500-10599 ---      chr1 10500-10599 |     FALSE   5.33003
-#&gt;                covar2
+#&gt;              feature3
 #&gt;           &lt;character&gt;
 #&gt;       [1]           c
 #&gt;       [2]           c
@@ -302,7 +306,7 @@ input to <code><a href='matchRanges.html'>matchRanges()</a></code>.</p>
 <span class='co'>## Make Matched class examples (i.e. matched = TRUE)</span>
 <span class='fu'>makeExampleMatchedDataSet</span><span class='op'>(</span>matched <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; MatchedDataFrame with 500 rows and 3 columns
-#&gt;       treated    covar1      covar2
+#&gt;      feature1  feature2    feature3
 #&gt;     &lt;logical&gt; &lt;numeric&gt; &lt;character&gt;
 #&gt; 1       FALSE   5.60013           c
 #&gt; 2       FALSE   5.43395           c
@@ -318,7 +322,7 @@ input to <code><a href='matchRanges.html'>matchRanges()</a></code>.</p>
                           method <span class='op'>=</span> <span class='st'>'rejection'</span>,
                           replace <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; MatchedDataFrame with 500 rows and 3 columns
-#&gt;       treated    covar1      covar2
+#&gt;      feature1  feature2    feature3
 #&gt;     &lt;logical&gt; &lt;numeric&gt; &lt;character&gt;
 #&gt; 1       FALSE   5.60013           c
 #&gt; 2       FALSE   5.43395           c
@@ -334,7 +338,7 @@ input to <code><a href='matchRanges.html'>matchRanges()</a></code>.</p>
                           method <span class='op'>=</span> <span class='st'>'rejection'</span>,
                           replace <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; MatchedGRanges object with 500 ranges and 3 metadata columns:
-#&gt;         seqnames      ranges strand |   treated    covar1      covar2
+#&gt;         seqnames      ranges strand |  feature1  feature2    feature3
 #&gt;            &lt;Rle&gt;   &lt;IRanges&gt;  &lt;Rle&gt; | &lt;logical&gt; &lt;numeric&gt; &lt;character&gt;
 #&gt;     [1]     chr1   4191-4290      * |     FALSE   5.60013           c
 #&gt;     [2]     chr1   3668-3767      * |     FALSE   5.43395           c
@@ -352,7 +356,7 @@ input to <code><a href='matchRanges.html'>matchRanges()</a></code>.</p>
                           method <span class='op'>=</span> <span class='st'>'rejection'</span>,
                           replace <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; MatchedGInteractions object with 500 interactions and 3 metadata columns:
-#&gt;         seqnames1     ranges1     seqnames2     ranges2 |   treated    covar1
+#&gt;         seqnames1     ranges1     seqnames2     ranges2 |  feature1  feature2
 #&gt;             &lt;Rle&gt;   &lt;IRanges&gt;         &lt;Rle&gt;   &lt;IRanges&gt; | &lt;logical&gt; &lt;numeric&gt;
 #&gt;     [1]      chr1   4191-4290 ---      chr1   4191-4290 |     FALSE   5.60013
 #&gt;     [2]      chr1   3668-3767 ---      chr1   3668-3767 |     FALSE   5.43395
@@ -365,7 +369,7 @@ input to <code><a href='matchRanges.html'>matchRanges()</a></code>.</p>
 #&gt;   [498]      chr1   8987-9086 ---      chr1   8987-9086 |     FALSE   4.64822
 #&gt;   [499]      chr1   8288-8387 ---      chr1   8288-8387 |     FALSE   1.82828
 #&gt;   [500]      chr1     868-967 ---      chr1     868-967 |     FALSE   7.02681
-#&gt;              covar2
+#&gt;            feature3
 #&gt;         &lt;character&gt;
 #&gt;     [1]           c
 #&gt;     [2]           c

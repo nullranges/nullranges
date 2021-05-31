@@ -246,9 +246,9 @@ and MatchedGInteractions include:</p><ul>
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'>## Contructing MatchedGRanges with matchRanges</span>
 <span class='va'>gr</span> <span class='op'>&lt;-</span> <span class='fu'><a href='makeExampleMatchedDataSet.html'>makeExampleMatchedDataSet</a></span><span class='op'>(</span>type <span class='op'>=</span> <span class='st'>"GRanges"</span><span class='op'>)</span>
-<span class='va'>mgr</span> <span class='op'>&lt;-</span> <span class='fu'><a href='matchRanges.html'>matchRanges</a></span><span class='op'>(</span>focal <span class='op'>=</span> <span class='va'>gr</span><span class='op'>[</span><span class='va'>gr</span><span class='op'>$</span><span class='va'>treated</span>,<span class='op'>]</span>,
-                   pool <span class='op'>=</span> <span class='va'>gr</span><span class='op'>[</span><span class='op'>!</span><span class='va'>gr</span><span class='op'>$</span><span class='va'>treated</span>,<span class='op'>]</span>,
-                   covar <span class='op'>=</span> <span class='op'>~</span><span class='va'>covar1</span> <span class='op'>+</span> <span class='va'>covar2</span>,
+<span class='va'>mgr</span> <span class='op'>&lt;-</span> <span class='fu'><a href='matchRanges.html'>matchRanges</a></span><span class='op'>(</span>focal <span class='op'>=</span> <span class='va'>gr</span><span class='op'>[</span><span class='va'>gr</span><span class='op'>$</span><span class='va'>feature1</span>,<span class='op'>]</span>,
+                   pool <span class='op'>=</span> <span class='va'>gr</span><span class='op'>[</span><span class='op'>!</span><span class='va'>gr</span><span class='op'>$</span><span class='va'>feature1</span>,<span class='op'>]</span>,
+                   covar <span class='op'>=</span> <span class='op'>~</span><span class='va'>feature2</span> <span class='op'>+</span> <span class='va'>feature3</span>,
                    method <span class='op'>=</span> <span class='st'>'rejection'</span>,
                    replace <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
 <span class='fu'><a href='https://rdrr.io/r/base/class.html'>class</a></span><span class='op'>(</span><span class='va'>mgr</span><span class='op'>)</span>
@@ -260,26 +260,26 @@ and MatchedGInteractions include:</p><ul>
 
 <span class='co'>## Accessor functions for Matched class</span>
 <span class='fu'><a href='matchedData.html'>matchedData</a></span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span>
-</div><div class='output co'>#&gt;        id   covar1 covar2         ps       set
-#&gt;     1:  1 2.879049      c 0.21095908     focal
-#&gt;     2:  1 3.539645      c 0.19210984     focal
-#&gt;     3:  1 7.117417      c 0.11193396     focal
-#&gt;     4:  1 4.141017      a 0.01771986     focal
-#&gt;     5:  1 4.258575      c 0.17308581     focal
-#&gt;    ---                                        
-#&gt; 20496:  0 1.235781      b 0.08945367 unmatched
-#&gt; 20497:  0 1.696712      a 0.02707977 unmatched
-#&gt; 20498:  0 6.111404      a 0.01255772 unmatched
-#&gt; 20499:  0 2.216575      d 0.07578989 unmatched
-#&gt; 20500:  0 5.330029      b 0.04535856 unmatched</div><div class='input'><span class='fu'><a href='covariates.html'>covariates</a></span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; [1] "covar1" "covar2"</div><div class='input'><span class='fu'><a href='method.html'>method</a></span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;        id feature2 feature3         ps       set
+#&gt;     1:  1 2.879049        c 0.21095908     focal
+#&gt;     2:  1 3.539645        c 0.19210984     focal
+#&gt;     3:  1 7.117417        c 0.11193396     focal
+#&gt;     4:  1 4.141017        a 0.01771986     focal
+#&gt;     5:  1 4.258575        c 0.17308581     focal
+#&gt;    ---                                          
+#&gt; 20496:  0 1.235781        b 0.08945367 unmatched
+#&gt; 20497:  0 1.696712        a 0.02707977 unmatched
+#&gt; 20498:  0 6.111404        a 0.01255772 unmatched
+#&gt; 20499:  0 2.216575        d 0.07578989 unmatched
+#&gt; 20500:  0 5.330029        b 0.04535856 unmatched</div><div class='input'><span class='fu'><a href='covariates.html'>covariates</a></span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; [1] "feature2" "feature3"</div><div class='input'><span class='fu'><a href='method.html'>method</a></span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; [1] "rejection"</div><div class='input'><span class='fu'><a href='withReplacement.html'>withReplacement</a></span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; [1] FALSE</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span><span class='fu'><a href='indices.html'>indices</a></span><span class='op'>(</span><span class='va'>x</span>, set <span class='op'>=</span> <span class='st'>'matched'</span><span class='op'>)</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; [1] 3691 3168 9736 7951 5158 8196</div><div class='input'>
 <span class='co'>## Accessor functions for Matched subclasses</span>
 <span class='fu'><a href='focal.html'>focal</a></span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; GRanges object with 500 ranges and 3 metadata columns:
-#&gt;         seqnames    ranges strand |   treated    covar1      covar2
+#&gt;         seqnames    ranges strand |  feature1  feature2    feature3
 #&gt;            &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt; | &lt;logical&gt; &lt;numeric&gt; &lt;character&gt;
 #&gt;     [1]     chr1     1-100      * |      TRUE   2.87905           c
 #&gt;     [2]     chr1     2-101      * |      TRUE   3.53965           c
@@ -295,7 +295,7 @@ and MatchedGInteractions include:</p><ul>
 #&gt;   -------
 #&gt;   seqinfo: 1 sequence from an unspecified genome; no seqlengths</div><div class='input'><span class='fu'><a href='pool.html'>pool</a></span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; GRanges object with 10000 ranges and 3 metadata columns:
-#&gt;           seqnames      ranges strand |   treated    covar1      covar2
+#&gt;           seqnames      ranges strand |  feature1  feature2    feature3
 #&gt;              &lt;Rle&gt;   &lt;IRanges&gt;  &lt;Rle&gt; | &lt;logical&gt; &lt;numeric&gt; &lt;character&gt;
 #&gt;       [1]     chr1     501-600      * |     FALSE   3.28347           e
 #&gt;       [2]     chr1     502-601      * |     FALSE   7.12640           a
@@ -311,7 +311,7 @@ and MatchedGInteractions include:</p><ul>
 #&gt;   -------
 #&gt;   seqinfo: 1 sequence from an unspecified genome; no seqlengths</div><div class='input'><span class='fu'><a href='matched.html'>matched</a></span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; GRanges object with 500 ranges and 3 metadata columns:
-#&gt;         seqnames      ranges strand |   treated    covar1      covar2
+#&gt;         seqnames      ranges strand |  feature1  feature2    feature3
 #&gt;            &lt;Rle&gt;   &lt;IRanges&gt;  &lt;Rle&gt; | &lt;logical&gt; &lt;numeric&gt; &lt;character&gt;
 #&gt;     [1]     chr1   4191-4290      * |     FALSE   5.60013           c
 #&gt;     [2]     chr1   3668-3767      * |     FALSE   5.43395           c
@@ -327,7 +327,7 @@ and MatchedGInteractions include:</p><ul>
 #&gt;   -------
 #&gt;   seqinfo: 1 sequence from an unspecified genome; no seqlengths</div><div class='input'><span class='fu'><a href='unmatched.html'>unmatched</a></span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; GRanges object with 9500 ranges and 3 metadata columns:
-#&gt;          seqnames      ranges strand |   treated    covar1      covar2
+#&gt;          seqnames      ranges strand |  feature1  feature2    feature3
 #&gt;             &lt;Rle&gt;   &lt;IRanges&gt;  &lt;Rle&gt; | &lt;logical&gt; &lt;numeric&gt; &lt;character&gt;
 #&gt;      [1]     chr1     501-600      * |     FALSE   3.28347           e
 #&gt;      [2]     chr1     502-601      * |     FALSE   7.12640           a
