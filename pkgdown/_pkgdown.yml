@@ -21,14 +21,14 @@ authors:
     href: https://chanzuckerberg.com
     
 articles:
-- title: Articles
-  navbar: ~
-  contents:
-  - intro
-  - match_ranges
-  - match_ranges_methods
-  - segmented_boot_ranges
-  - unseg_boot_ranges
+  - title: Articles
+    navbar: ~
+    contents:
+      - intro
+      - match_ranges
+      - match_ranges_methods
+      - segmented_boot_ranges
+      - unseg_boot_ranges
   
 figures:
   fig.width: 5

@@ -8,3 +8,5 @@
 ^CONTRIBUTING\.md$
 ^pkgdown$
 ^man-roxygen$
+^pkgdown/_pkgdown\.yaml$
+^docs$
