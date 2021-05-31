@@ -479,43 +479,43 @@ matchRanges.MatchedDataFrame <- function(focal, pool, covar, method, replace) {
 #' @examples 
 #' ## Match with DataFrame
 #' x <- makeExampleMatchedDataSet(type = 'DataFrame')
-#' matchRanges(focal = x[x$treated,],
-#'             pool = x[!x$treated,],
-#'             covar = ~covar1 + covar2)
+#' matchRanges(focal = x[x$feature1,],
+#'             pool = x[!x$feature1,],
+#'             covar = ~feature2 + feature3)
 #' 
 #' ## Match with GRanges
 #' x <- makeExampleMatchedDataSet(type = "GRanges")
-#' matchRanges(focal = x[x$treated,],
-#'             pool = x[!x$treated,],
-#'             covar = ~covar1 + covar2)
+#' matchRanges(focal = x[x$feature1,],
+#'             pool = x[!x$feature1,],
+#'             covar = ~feature2 + feature3)
 #' 
 #' ## Match with GInteractions
 #' x <- makeExampleMatchedDataSet(type = "GInteractions")
-#' matchRanges(focal = x[x$treated,],
-#'             pool = x[!x$treated,],
-#'             covar = ~covar1 + covar2)
+#' matchRanges(focal = x[x$feature1,],
+#'             pool = x[!x$feature1,],
+#'             covar = ~feature2 + feature3)
 #' 
 #' ## Nearest neighbor matching with replacement
 #' x <- makeExampleMatchedDataSet(type = 'DataFrame')
-#' matchRanges(focal = x[x$treated,],
-#'             pool = x[!x$treated,],
-#'             covar = ~covar1 + covar2,
+#' matchRanges(focal = x[x$feature1,],
+#'             pool = x[!x$feature1,],
+#'             covar = ~feature2 + feature3,
 #'             method = 'nearest',
 #'             replace = TRUE)
 #' 
 #' ## Rejection sampling without replacement
 #' x <- makeExampleMatchedDataSet(type = 'DataFrame')
-#' matchRanges(focal = x[x$treated,],
-#'             pool = x[!x$treated,],
-#'             covar = ~covar1 + covar2,
+#' matchRanges(focal = x[x$feature1,],
+#'             pool = x[!x$feature1,],
+#'             covar = ~feature2 + feature3,
 #'             method = 'rejection',
 #'             replace = FALSE)
 #' 
 #' ## Stratified sampling without replacement
 #' x <- makeExampleMatchedDataSet(type = 'DataFrame')
-#' matchRanges(focal = x[x$treated,],
-#'             pool = x[!x$treated,],
-#'             covar = ~covar1 + covar2,
+#' matchRanges(focal = x[x$feature1,],
+#'             pool = x[!x$feature1,],
+#'             covar = ~feature2 + feature3,
 #'             method = 'stratified',
 #'             replace = FALSE)
 #'

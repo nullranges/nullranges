@@ -78,27 +78,27 @@ setClassUnion("DF_OR_df_OR_dt", c("DFrame", "data.frame", "data.table"))
 #' ## Constructing MatchedDataFrame with matchRanges
 #' ## data.frame
 #' x <- makeExampleMatchedDataSet(type = "data.frame")
-#' mx <- matchRanges(focal = x[x$treated,],
-#'                    pool = x[!x$treated,],
-#'                    covar = ~covar1 + covar2,
+#' mx <- matchRanges(focal = x[x$feature1,],
+#'                    pool = x[!x$feature1,],
+#'                    covar = ~feature2 + feature3,
 #'                    method = 'rejection',
 #'                    replace = FALSE)
 #' class(mx)
 #' 
 #' ## data.table
 #' x <- makeExampleMatchedDataSet(type = "data.table")
-#' mx <- matchRanges(focal = x[x$treated],
-#'                    pool = x[!x$treated],
-#'                    covar = ~covar1 + covar2,
+#' mx <- matchRanges(focal = x[x$feature1],
+#'                    pool = x[!x$feature1],
+#'                    covar = ~feature2 + feature3,
 #'                    method = 'rejection',
 #'                    replace = FALSE)
 #' class(mx)
 #' 
 #' ## DataFrame
 #' x <- makeExampleMatchedDataSet(type = "DataFrame")
-#' mx <- matchRanges(focal = x[x$treated,],
-#'                    pool = x[!x$treated,],
-#'                    covar = ~covar1 + covar2,
+#' mx <- matchRanges(focal = x[x$feature1,],
+#'                    pool = x[!x$feature1,],
+#'                    covar = ~feature2 + feature3,
 #'                    method = 'rejection',
 #'                    replace = FALSE)
 #' class(mx)
@@ -173,9 +173,9 @@ setMethod("initialize", "MatchedDataFrame",
 #' @examples 
 #' ## Contructing MatchedGRanges with matchRanges
 #' gr <- makeExampleMatchedDataSet(type = "GRanges")
-#' mgr <- matchRanges(focal = gr[gr$treated,],
-#'                    pool = gr[!gr$treated,],
-#'                    covar = ~covar1 + covar2,
+#' mgr <- matchRanges(focal = gr[gr$feature1,],
+#'                    pool = gr[!gr$feature1,],
+#'                    covar = ~feature2 + feature3,
 #'                    method = 'rejection',
 #'                    replace = FALSE)
 #' class(mgr)
@@ -246,9 +246,9 @@ setMethod("initialize", "MatchedGRanges",
 #' @examples 
 #' ## Constructing MatchedGInteractions with matchRanges
 #' gi <- makeExampleMatchedDataSet(type = "GInteractions")
-#' mgi <- matchRanges(focal = gi[gi$treated,],
-#'                    pool = gi[!gi$treated,],
-#'                    covar = ~covar1 + covar2,
+#' mgi <- matchRanges(focal = gi[gi$feature1,],
+#'                    pool = gi[!gi$feature1,],
+#'                    covar = ~feature2 + feature3,
 #'                    method = 'rejection',
 #'                    replace = FALSE)
 #' class(mgi)

@@ -41,6 +41,10 @@ This function will generate an example dataset as either 1) input
 for \code{matchRanges()} (when \code{matched = FALSE}) or 2) a
 Matched Object (when \code{matched = TRUE}).
 }
+\details{
+When \code{matched = FALSE}, the data returned contains 3 different
+features that can be subset to perform matching.
+}
 \examples{
 ## Make examples for matchRanges() (i.e matched = FALSE)
 makeExampleMatchedDataSet()
