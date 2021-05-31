@@ -70,12 +70,12 @@ default). The default `type` is bootstrap.
 ```{r}
 set.seed(5) # reproducibility
 library(microbenchmark)
-L_b <- 5e5
+blockLength <- 5e5
 microbenchmark(list=alist(
-                 p_within=bootRanges(pks, L_b=L_b, within_chrom=TRUE, type="permute"),
-                 b_within=bootRanges(pks, L_b=L_b, within_chrom=TRUE),
-                 p_across=bootRanges(pks, L_b=L_b, within_chrom=FALSE, type="permute"),
-                 b_across=bootRanges(pks, L_b=L_b, within_chrom=FALSE)
+                 p_within=bootRanges(pks, blockLength=blockLength, withinChrom=TRUE, type="permute"),
+                 b_within=bootRanges(pks, blockLength=blockLength, withinChrom=TRUE),
+                 p_across=bootRanges(pks, blockLength=blockLength, withinChrom=FALSE, type="permute"),
+                 b_across=bootRanges(pks, blockLength=blockLength, withinChrom=FALSE)
 ), times=10)
 ```
 
@@ -135,7 +135,7 @@ Visualize two permutations of blocks within chromosome:
 
 ```{r perm-within, fig.width=5, fig.height=2}
 for (i in 1:2) {
-  gr_prime <- bootRanges(gr, L_b=100, type="permute", within_chrom=TRUE)[[1]]
+  gr_prime <- bootRanges(gr, blockLength=100, type="permute", withinChrom=TRUE)[[1]]
   plotGRanges(gr_prime)
 }
 ```
@@ -144,7 +144,7 @@ Visualize two bootstraps within chromosome:
 
 ```{r boot-within, fig.width=5, fig.height=2}
 for (i in 1:2) {
-  gr_prime <- bootRanges(gr, L_b=100, within_chrom=TRUE)[[1]]
+  gr_prime <- bootRanges(gr, blockLength=100, withinChrom=TRUE)[[1]]
   plotGRanges(gr_prime)
 }
 ```
@@ -156,7 +156,7 @@ larger blocks than previously.
 
 ```{r perm-across, fig.width=5, fig.height=2}
 for (i in 1:2) {
-  gr_prime <- bootRanges(gr, L_b=200, type="permute", within_chrom=FALSE)[[1]]
+  gr_prime <- bootRanges(gr, blockLength=200, type="permute", withinChrom=FALSE)[[1]]
   plotGRanges(gr_prime)
 }
 ```
@@ -165,7 +165,7 @@ Visualize two bootstraps across chromosome:
 
 ```{r boot-across, fig.width=5, fig.height=2}
 for (i in 1:2) {
-  gr_prime <- bootRanges(gr, L_b=200, within_chrom=FALSE)[[1]]
+  gr_prime <- bootRanges(gr, blockLength=200, withinChrom=FALSE)[[1]]
   plotGRanges(gr_prime)
 }
 ```

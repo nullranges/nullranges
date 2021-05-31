@@ -5,3 +5,8 @@
 ^CODE\_OF\_CONDUCT\.md$
 ^.*\.yaml$
 ^.*\.yml$
+^CONTRIBUTING\.md$
+^pkgdown$
+^man-roxygen$
+^pkgdown/_pkgdown\.yaml$
+^docs$

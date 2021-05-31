@@ -10,29 +10,108 @@ setValidity(Class = "bootRanges",
               stopifnot(is(metadata(object)$segmented, "logical"))
               })
 
-#' @rdname matched
+#' Matched objects
+#' 
+#' The Matched class is a container for attributes of covariate-matched
+#' data resulting from `matchRanges()`.
+#' 
+#' @examples 
+#' ## Make Matched example
+#' x <- makeExampleMatchedDataSet(matched = TRUE)
+#' 
+#' @template matched-class-slots
+#' @template matched-class-details
+#' 
+#' @rdname matchedClass
 #' @rawNamespace import(data.table, except = c(between, shift, first, second, indices))
 #' @export
 Matched <- setClass(Class = "Matched",
                     slots = list(matchedData = "data.table",
                                  matchedIndex = "integer",
-                                 covar = "character"))
+                                 covar = "character",
+                                 method = "character",
+                                 replace = 'logical'))
 
 setValidity(Class = "Matched",
             method = function(object){
               
-              stopifnot(all(c('id', 'ps', 'group') %in%
+              stopifnot(all(c('id', 'ps', 'set') %in%
                               colnames(object@matchedData)))
               
             })
 
-#' MatchedDataFrame
+#' Class union for "DataFrame-like" objects
+#' @noRd
+setClassUnion("DF_OR_df_OR_dt", c("DFrame", "data.frame", "data.table"))
+
+#' MatchedDataFrame objects
+#' 
+#' The `MatchedDataFrame` class is a subclass of both
+#' `Matched` and `DFrame`. Therefore, it contains slots
+#' and methods for both of these classes.
+#' 
+#' The `MatchedDataFrame` class uses a delegate object
+#' during initialization to assign its `DFrame` slots.
+#' `MatchedDataFrame` behaves as a `DataFrame` but also
+#' includes additional `Matched` object functionality
+#' (see `?Matched`). For more information about
+#' `DataFrame` see `?S4Vectors::DataFrame`.
+#' 
+#' @slot focal A `DataFrame` object containing the focal
+#'  data to match.
+#' @slot pool A `DataFrame` object containing the pool
+#'  from which to select matches.
+#' @slot delegate A `DataFrame` object used to initialize
+#'  `DataFrame`-specific slots. `matchRanges()` assigns
+#'  the matched set to the slot.
+#' @template matched-class-slots
+#' @slot rownames `rownames(delegate)`
+#' @slot nrows `nrows(delegate)`
+#' @slot listData `as.list(delegate)`
+#' @slot elementType `elementType(delegate)`
+#' @slot elementMetadata `elementMetadata(delegate)`
+#' @slot metadata `metadata(delegate)`
+#' 
+#' @seealso [S4Vectors::DataFrame]
+#' 
+#' @examples 
+#' ## Constructing MatchedDataFrame with matchRanges
+#' ## data.frame
+#' x <- makeExampleMatchedDataSet(type = "data.frame")
+#' mx <- matchRanges(focal = x[x$treated,],
+#'                    pool = x[!x$treated,],
+#'                    covar = ~covar1 + covar2,
+#'                    method = 'rejection',
+#'                    replace = FALSE)
+#' class(mx)
+#' 
+#' ## data.table
+#' x <- makeExampleMatchedDataSet(type = "data.table")
+#' mx <- matchRanges(focal = x[x$treated],
+#'                    pool = x[!x$treated],
+#'                    covar = ~covar1 + covar2,
+#'                    method = 'rejection',
+#'                    replace = FALSE)
+#' class(mx)
+#' 
+#' ## DataFrame
+#' x <- makeExampleMatchedDataSet(type = "DataFrame")
+#' mx <- matchRanges(focal = x[x$treated,],
+#'                    pool = x[!x$treated,],
+#'                    covar = ~covar1 + covar2,
+#'                    method = 'rejection',
+#'                    replace = FALSE)
+#' class(mx)
+#' 
+#' ## Make MatchedDataFrame example
+#' x <- makeExampleMatchedDataSet(type = 'DataFrame', matched = TRUE)
+#' 
+#' @template matched-class-details
+#' @template matched-subclass-details
 #' 
 #' @rdname matchedDataFrame
 #' @rawNamespace import(data.table, except = c(between, shift, first, second, indices))
 #' @export
-setClassUnion("DF_OR_df_OR_dt", c("DFrame", "data.frame", "data.table"))
-
 MatchedDataFrame <- setClass(Class = "MatchedDataFrame",
                              contains = c("Matched", "DFrame"),
                              slots = list(focal = "DF_OR_df_OR_dt",
@@ -60,8 +139,53 @@ setMethod("initialize", "MatchedDataFrame",
             
           })
 
-#' MatchedGRanges
+#' MatchedGRanges objects
 #' 
+#' The `MatchedGRanges` class is a subclass of both
+#' `Matched` and `GRanges`. Therefore, it contains slots
+#' and methods for both of these classes.
+#' 
+#' The `MatchedGRanges` class uses a delegate object
+#' during initialization to assign its `GRanges` slots.
+#' `MatchedGRanges` behaves as a `GRanges` but also
+#' includes additional `Matched` object functionality
+#' (see `?Matched`). For more information about
+#' `GRanges` see `?GenomicRanges::GRanges`.
+#' 
+#' @slot focal A `GRanges` object containing the focal
+#'  data to match.
+#' @slot pool A `GRanges` object containing the pool
+#'  from which to select matches.
+#' @slot delegate A `GRanges` object used to initialize
+#'  `GRanges`-specific slots. `matchRanges()` assigns
+#'  the matched set to the slot.
+#' @template matched-class-slots
+#' @slot seqnames `seqnames(delegate)`
+#' @slot ranges `ranges(delegate)`
+#' @slot strand `strand(delegate)`
+#' @slot seqinfo `seqinfo(delegate)`
+#' @slot elementMetadata `elementMetadata(delegate)`
+#' @slot elementType `elementType(delegate)`
+#' @slot metadata `metadata(delegate)`
+#' 
+#' @seealso [GenomicRanges::GRanges]
+#' 
+#' @examples 
+#' ## Contructing MatchedGRanges with matchRanges
+#' gr <- makeExampleMatchedDataSet(type = "GRanges")
+#' mgr <- matchRanges(focal = gr[gr$treated,],
+#'                    pool = gr[!gr$treated,],
+#'                    covar = ~covar1 + covar2,
+#'                    method = 'rejection',
+#'                    replace = FALSE)
+#' class(mgr)
+#' 
+#' ## Make MatchedGRanges example
+#' x <- makeExampleMatchedDataSet(type = 'GRanges', matched = TRUE)
+#' 
+#' @template matched-class-details
+#' @template matched-subclass-details
+#'
 #' @rdname matchedGRanges
 #' @import GenomicRanges
 #' @export
@@ -89,7 +213,51 @@ setMethod("initialize", "MatchedGRanges",
             
           })
 
-#' MatchedGInteractions
+#' MatchedGInteractions objects
+#' 
+#' The `MatchedGInteractions` class is a subclass of both
+#' `Matched` and `GInteractions`. Therefore, it contains slots
+#' and methods for both of these classes.
+#' 
+#' The `MatchedGInteractions` class uses a delegate object
+#' during initialization to assign its `GInteractions` slots.
+#' `MatchedGInteractions` behaves as a `GInteractions` but also
+#' includes additional `Matched` object functionality
+#' (see `?Matched`). For more information about
+#' `GInteractions` see `?InteractionSet::GInteractions`.
+#' 
+#' @slot focal A `GInteractions` object containing the focal
+#'  data to match.
+#' @slot pool A `GInteractions` object containing the pool
+#'  from which to select matches.
+#' @slot delegate A `GInteractions` object used to initialize
+#'  `GInteractions`-specific slots. `matchRanges()` assigns
+#'  the matched set to the slot.
+#' @template matched-class-slots
+#' @slot anchor1 `anchorIds(delegate)$first`
+#' @slot anchor2 `anchorIds(delegate)$second`
+#' @slot regions `regions(delegate)`
+#' @slot NAMES `names(delegate)`
+#' @slot elementMetadata `elementMetadata(delegate)`
+#' @slot metadata `metadata(delegate)`
+#' 
+#' @seealso [InteractionSet::GInteractions]
+#' 
+#' @examples 
+#' ## Constructing MatchedGInteractions with matchRanges
+#' gi <- makeExampleMatchedDataSet(type = "GInteractions")
+#' mgi <- matchRanges(focal = gi[gi$treated,],
+#'                    pool = gi[!gi$treated,],
+#'                    covar = ~covar1 + covar2,
+#'                    method = 'rejection',
+#'                    replace = FALSE)
+#' class(mgi)
+#'
+#' ## Make MatchedGInteractions example
+#' x <- makeExampleMatchedDataSet(type = "GInteractions", matched = TRUE)
+#' 
+#' @template matched-class-details
+#' @template matched-subclass-details
 #' 
 #' @rdname matchedGInteractions
 #' @import InteractionSet
@@ -108,6 +276,7 @@ setMethod("initialize", "MatchedGInteractions",
             .Object@anchor1 <- anchorIds(delegate)$first
             .Object@anchor2 <- anchorIds(delegate)$second
             .Object@regions <- regions(delegate)
+            .Object@NAMES <- names(delegate)
             .Object@elementMetadata <- elementMetadata(delegate)
             .Object@metadata <- metadata(delegate)
             
@@ -117,6 +286,15 @@ setMethod("initialize", "MatchedGInteractions",
             
           })
 
-## Class Union for shared MatchedDataFrame/MatchedGRanges/MatchedGInteractions methods
+#' Class union for Matched subtypes
+#' @noRd
 setClassUnion("MDF_OR_MGR_OR_MGI",
               c("MatchedDataFrame", "MatchedGRanges", "MatchedGInteractions"))
+
+#' Class unions for general types
+#' @noRd
+setClassUnion("character_OR_missing", c("character", "missing"))
+#' @noRd
+setClassUnion("logical_OR_missing", c("logical", "missing"))
+#' @noRd
+setClassUnion("numeric_OR_missing", c("numeric", "missing"))

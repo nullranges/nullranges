@@ -55,9 +55,9 @@ Visualize matching
 ```{r vis-match}
 plotPropensity(mgi) #plot shows propensity scores
 plotPropensity(mgi, type = 'ridge')
-plotCovariates(mgi, covar = 'all', type = 'ridge', logTransform = TRUE)
-plotCovariates(mgi, covar = 'all', type = 'jitter', logTransform = TRUE)
-plotCovariates(mgi, covar = 'contactFreq', type = 'jitter', logTransform = TRUE)
+plotCovariate(mgi, covar = 'contactFreq', type = 'ridge', log = 'x')
+plotCovariate(mgi, covar = 'contactFreq', type = 'jitter', log = 'x')
+plotCovariate(mgi, covar = 'contactFreq', type = 'jitter', log = 'x')
 ```
 
 Summary and access data
@@ -77,16 +77,16 @@ matched(mgi)
 unmatched(mgi)
 ```
 
-Extract indices by group (default is 'matched')
+Extract indices by set (default is 'matched')
 
 ```{r}
-indices(mgi, group = "unmatched") %>% head()
+indices(mgi, set = "unmatched") %>% head()
 indices(mgi) %>% head()
 ```
 
 Should be `TRUE`:
 
 ```{r}
-identical(matchedData(mgi)[group == "pool"][indices(mgi, group = "unmatched"), -c('group')],
-          matchedData(mgi)[group == "unmatched", -c('group')])
+identical(matchedData(mgi)[set == "pool"][indices(mgi, set = "unmatched"), -c('set')],
+          matchedData(mgi)[set == "unmatched", -c('set')])
 ```
