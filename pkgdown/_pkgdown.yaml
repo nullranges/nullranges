@@ -1,5 +1,7 @@
 url: https://nullranges.github.io/nullranges
+
 title: nullranges
+
 authors:
   Michael Love:
     href: https://mikelove.github.io
@@ -17,6 +19,7 @@ authors:
     href: https://trichelab.vai.org
   CZI:
     href: https://chanzuckerberg.com
+    
 articles:
 - title: Articles
   navbar: ~
@@ -26,28 +29,45 @@ articles:
   - match_ranges_methods
   - segmented_boot_ranges
   - unseg_boot_ranges
+  
 figures:
   fig.width: 5
   fig.height: 3
   fig.retina: 1
+  
 reference:
-- title: "matchRanges"
-  desc: "Matching ranges by one or more covariates"
-- contents:
-  - starts_with("matchRanges")
-  - starts_with("plotPropensity")
-  - starts_with("plotCovariates")  
-  - starts_with("Matched")
-  - starts_with("matched")
-  - starts_with("DF_OR_df_OR_dt")
-  - starts_with("combnCov")
-  - starts_with("covariates")
-  - starts_with("focal")
-  - starts_with("indices")
-  - starts_with("overview")
-  - starts_with("pool")
-  - starts_with("unmatched")
-- title: "bootRanges"
-  desc: "Block bootstrap ranges optionally within segmentation"
-- contents:
-  - bootRanges
+  - title: "Covariate-match Ranges"
+    desc: "Generate a covariate-matched control set of ranges"
+    contents:
+      - matchRanges
+  - subtitle: "Matched classes"
+    contents:
+      - Matched-class
+      - MatchedDataFrame-class
+      - MatchedGRanges-class
+      - MatchedGInteractions-class
+  - subtitle: "Assessing matching quality"
+    contents:
+      - overview
+      - plotCovariate
+      - plotPropensity
+  - subtitle: "Accessor functions"
+    contents:
+      - matchedData
+      - covariates
+      - indices
+      - method
+      - withReplacement
+      - focal
+      - pool
+      - matched
+      - unmatched
+  - subtitle: "Utility functions"
+    contents:
+      - combnCov
+      - makeExampleMatchedDataSet
+  - title: "Block Bootstrap Ranges"
+    desc: "Block bootstrap ranges optionally within segmentation"
+    contents:
+      - bootRanges
+      - segmentDensity
