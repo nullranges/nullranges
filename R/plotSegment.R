@@ -7,6 +7,7 @@
 #' @param type the type of plot returned. Either a segmentation plot 
 #' included ranges information or a box plot. Default is both plots are displayed.
 #' The y axis \code{"density"} represent square root of overlap counts within segment length. 
+#' @param region GRanges of stricted region that want to be plotted. 
 #'
 #' @importFrom IRanges findOverlaps
 #'

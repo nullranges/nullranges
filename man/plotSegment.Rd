@@ -25,6 +25,8 @@ plotSegment(
 \item{type}{the type of plot returned. Either a segmentation plot
 included ranges information or a box plot. Default is both plots are displayed.
 The y axis \code{"density"} represent square root of overlap counts within segment length.}
+
+\item{region}{GRanges of stricted region that want to be plotted.}
 }
 \description{
 Genomic segmentation based on gene density
