@@ -256,7 +256,7 @@ ssMatch <- function(fps, pps, replace) {
     }
 
     ## Update progress
-    pb$update(tokens=list(step=sprintf('Iteration %s, %s bins(s)', i, n)),
+    pb$update(tokens=list(step=sprintf('Iteration %s, %s bin(s)', i, n)),
               ratio = nrow(results)/length(fps))
     i <- i + 1
 
@@ -277,7 +277,7 @@ ssMatch <- function(fps, pps, replace) {
   }
 
   ## Close progress bar
-  pb$update(tokens=list(step=sprintf('Iteration %s, %s bins(s), done!', i, n)),
+  pb$update(tokens=list(step=sprintf('Iteration %s, %s bin(s), done!', i, n)),
             ratio = nrow(results)/length(fps))
   if(pb$finished) pb$terminate()
 

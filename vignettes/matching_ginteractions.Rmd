@@ -1,0 +1,150 @@
+---
+title: "Matching with GInteractions"
+author: "Eric S. Davis"
+date: "`r format(Sys.Date(), '%m/%d/%Y')`"
+output:
+  rmarkdown::html_document:
+    highlight: tango
+    toc: true
+    toc_float: true	
+    fig_width: 5
+    fig_height: 3
+vignette: |
+  %\VignetteIndexEntry{Matching GInteractions}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+In this vignette, we demonstrate the generation of covariate-matched null ranges by using the `matchRanges()` function to test the "covergence rule" of CTCF-bound chromatin loops, first described in Rao et al. 2014.
+
+## Background and motivation
+
+In 2014, in situ Hi-C was used to probe the spatial organization of the human genome and identify 3D structures - such as chromatin loops - characterized by high contact frequency. Chromatin loops can be formed by loop-extrusion, where the ring-like cohesin complex extrudes chromatin until stopped by a bound CTCF transcription factor. Therefore, most validated loops are bound at both ends by a CTCF motif. The convergence rule purports that the vast majority (\>90%) of CTCF-bound loops occur in a convergent orientation, where the asymetric CTCF motifs at each anchor face one another. This is a highly significant finding since we would only expect to find convergently-oriented CTCF motifs 25% of the time by chance.
+
+Here, we generate a set of null-hypothesis ranges to more rigorously test the convergence rule. We will use `hg19_10kb_ctcfBoundBinPairs` data from the `nullrangesData` package which contains features from the GM12878 cell line aligned to hg19. `hg19_10kb_ctcfBoundBinPairs` is a `GInteractions` object with all interactions between ctcf-bound 10Kb bins within 1Mb annotated with the following features:
+
+-   The total CTCF signal in each bin.
+-   The number of CTCF sites in each bin.
+-   The distance between bin pairs.
+-   Whether at least one CTCF site is convergent between each bin pair.
+-   The prescence or absence of a loop between each bin pair.
+
+Using these annotations and the `matchRanges()` function, we can compare CTCF motif orientations between pairs of genomic regions that are 1) connected by loops, 2) not connected by loops, 3) randomly chosen, or 4) not connected by loops, but matched for the strength of CTCF sites and distance between loop anchors.
+
+## Matching with `matchRanges()`
+
+Before we generate our null ranges, let's take a look at our example dataset:
+
+```{r, message=FALSE, warning=FALSE}
+library(nullrangesData)
+
+## Load example data
+data("hg19_10kb_ctcfBoundBinPairs")
+binPairs <- hg19_10kb_ctcfBoundBinPairs
+
+binPairs
+```
+
+Let's start by defining our focal set (i.e. looped bin-pairs), our pool set (i.e un-looped bin-pairs), and our covariates of interest (i.e. `ctcfSignal` and `distance`):
+
+```{r, message=FALSE, warning=FALSE}
+library(nullranges)
+set.seed(123)
+mgi <- matchRanges(focal = binPairs[binPairs$looped],
+                   pool = binPairs[!binPairs$looped],
+                   covar = ~ctcfSignal + distance,
+                   method = 'stratified')
+mgi
+```
+
+When the focal and pool arguments are `GInteractions` objects, `matchRanges()` returns a `MatchedGInteractions` object. The `MatchedGInteractions` class extends `GInteractions` so all of the same operations can be applied:
+
+```{r, message=FALSE, warning=FALSE}
+library(plyranges)
+library(ggplot2)
+
+## Summarize ctcfSignal by n_sites
+mgi %>%
+  regions() %>%
+  group_by(n_sites) %>%
+  summarize(ctcfSignal = mean(ctcfSignal)) %>%
+  as.data.frame() %>%
+  ggplot(aes(x = n_sites, y = ctcfSignal)) +
+    geom_line() +
+    geom_point(shape = 21, stroke = 1,  fill = 'white') +
+    theme_minimal() +
+    theme(panel.border = element_rect(color = 'black',
+                                      fill = NA))
+```
+
+## Assessing quality of matching
+
+We can get a quick summary of the matching quality with `overview()`:
+
+```{r}
+ov <- overview(mgi)
+ov
+```
+
+In addition to provding a printed overview, the overview data can be extracted for convenience. For example, the `quality` property shows the absolute value of the mean difference between focal and matched sets. Therefore, the lower this value, the better the matching quality:
+
+```{r}
+ov$quality
+```
+
+### Visualizing matching results
+
+Let's visualize overall matching quality by plotting propensity scores for the focal, pool, and matched sets:
+
+```{r, message=FALSE}
+plotPropensity(mgi, sets = c('f', 'p', 'm'))
+```
+
+Log transformations can be applied to 'x', 'y', or both (`c('x', 'y')`) for plotting functions to make it easier to assess quality. It is clear that the matched set is very well matched to the focal set:
+
+```{r}
+plotPropensity(mgi, sets = c('f', 'p', 'm'), log = 'x')
+```
+
+We can ensure that covariate distributions have been matched appropriately by using the `covariates()` function to extract matched covariates along with `patchwork` and `plotCovarite` to visualize all distributions:
+
+```{r, message=FALSE, warning=FALSE, fig.height=5}
+library(patchwork)
+plots <- lapply(covariates(mgi), plotCovariate, x=mgi, sets = c('f', 'm', 'p'))
+Reduce('/', plots)
+```
+
+## Compare CTCF site orientation
+
+Using our matched ranges, we can compare the percent of looped pairs with at least one convergent CTCF site against unlooped pairs, randomly selected pairs, and pairs that are unlooped but have been matched for our covariates. The accessor function `focal()` and `pool()` can be used to conveniently extract these matched sets:
+
+```{r, fig.width=5, fig.height=4}
+## Generate a randomly selected set from all binPairs
+all <- c(focal(mgi), pool(mgi))
+set.seed(123)
+random <- all[sample(1:length(all), length(mgi), replace = FALSE)]
+
+## Calculate the percent of convergent CTCF sites for each group
+g1 <- (sum(focal(mgi)$convergent) / length(focal(mgi)))*100
+g2 <- (sum(pool(mgi)$convergent) / length(pool(mgi)))*100
+g3 <- (sum(random$convergent) / length(random)) * 100
+g4 <- (sum(mgi$convergent) / length(mgi))*100
+
+## Visualize
+barplot(height = c(g1, g2, g3, g4),
+        names.arg = c('looped', 'unlooped', 'random', 'matched'),
+        col = c('#1F78B4', '#33A02C', 'orange2', '#A6CEE3'), 
+        ylab = "Convergent CTCF Sites (%)",
+        main = "Testing the Convergence Rule")
+```
+
+It looks like the converget rule holds, even when controlling for CTCF signal strength and bin pair distance. Our looped group has \> 90% convergent CTCF sites, while our other groups have about 25% per CTCF site on average:
+
+```{r, results='hold'}
+mean(focal(mgi)$n_sites)
+mean(pool(mgi)$n_sites)
+mean(mgi$n_sites)
+mean(random$n_sites)
+```
