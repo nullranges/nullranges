@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Genomic segmentation based on gene density — segmentDensity • nullranges</title>
+<title>Genomic segmentation based on gene density — plotSegment • nullranges</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,7 +46,7 @@
 
 
 
-<meta property="og:title" content="Genomic segmentation based on gene density — segmentDensity" />
+<meta property="og:title" content="Genomic segmentation based on gene density — plotSegment" />
 <meta property="og:description" content="Genomic segmentation based on gene density" />
 <meta property="og:image" content="https://nullranges.github.io/nullranges/logo.png" />
 
@@ -147,15 +147,22 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Genomic segmentation based on gene density</h1>
-    <small class="dont-index">Source: <a href='https://github.com/nullranges/nullranges/blob/master/R/segment_density.R'><code>R/segment_density.R</code></a></small>
-    <div class="hidden name"><code>segmentDensity.Rd</code></div>
+    <small class="dont-index">Source: <a href='https://github.com/nullranges/nullranges/blob/master/R/plotSegment.R'><code>R/plotSegment.R</code></a></small>
+    <div class="hidden name"><code>plotSegment.Rd</code></div>
     </div>
 
     <div class="ref-description">
     <p>Genomic segmentation based on gene density</p>
     </div>
 
-    <pre class="usage"><span class='fu'>segmentDensity</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>n</span>, L_s <span class='op'>=</span> <span class='fl'>1e+06</span>, <span class='va'>deny</span>, type <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"cbs"</span>, <span class='st'>"hmm"</span><span class='op'>)</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>plotSegment</span><span class='op'>(</span>
+  <span class='va'>x</span>,
+  <span class='va'>seg</span>,
+  L_s <span class='op'>=</span> <span class='fl'>1e+06</span>,
+  <span class='va'>deny</span>,
+  type <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"ranges"</span>, <span class='st'>"boxplot"</span><span class='op'>)</span>,
+  region <span class='op'>=</span> <span class='cn'>NULL</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -165,8 +172,8 @@
       <td><p>the input gene GRanges</p></td>
     </tr>
     <tr>
-      <th>n</th>
-      <td><p>the number of states</p></td>
+      <th>seg</th>
+      <td><p>the segmentation GRanges returned by <code>segmentDensity</code> function</p></td>
     </tr>
     <tr>
       <th>L_s</th>
@@ -178,10 +185,13 @@
     </tr>
     <tr>
       <th>type</th>
-      <td><p>the type of segmentation, either "cbs" (which will
-use DNAcopy to segment) or "hmm" (which will use RcppHMM).
-The packages are not imported by nullranges, but must be installed
-by the user</p></td>
+      <td><p>the type of plot returned. Either a segmentation plot
+included ranges information or a box plot. Default is both plots are displayed.
+The y axis <code>"density"</code> represent square root of overlap counts within segment length.</p></td>
+    </tr>
+    <tr>
+      <th>region</th>
+      <td><p>GRanges of stricted region that want to be plotted.</p></td>
     </tr>
     </table>
 
