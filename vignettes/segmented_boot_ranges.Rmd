@@ -101,10 +101,10 @@ seg <- segmentDensity(g, n = 3, L_s = L_s,
 plotSegment(g,seg,L_s,deny2)
 ```
 
-Note here the default ranges plot gives whole genome and cannot visualize state transformations within small ranges, e.g 1kb. If user want to look into specific ranges of segmentation state, the *region* argument is flexible to change. 
+Note here, the default *ranges* plot gives whole genome and every fractured bind regions represents state transformations happens. However, some transformations within small ranges cannot be visualized, e.g 1kb. If user want to look into specific ranges of segmentation state, the *region* argument is flexible to support. 
 
 ```{r}
-region=GRanges("chr2",IRanges(9.4e7,9.5e7))
+region=GRanges("chr16",IRanges(3e7,4e7))
 plotSegment(g,seg,L_s,deny2,type="ranges",region=region)
 ```
 

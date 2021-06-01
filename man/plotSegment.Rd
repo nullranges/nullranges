@@ -9,7 +9,7 @@ plotSegment(
   seg,
   L_s = 1e+06,
   deny,
-  type = c("ranges", "boxplot"),
+  type = c("ranges", "barplot", "boxplot"),
   region = NULL
 )
 }
@@ -22,8 +22,10 @@ plotSegment(
 
 \item{deny}{GRanges of deny region}
 
-\item{type}{the type of plot returned. Either a segmentation plot
-included ranges information or a box plot. Default is both plots are displayed.
+\item{type}{the type of plot returned. Choices are segmentation plot
+included ranges information, barplot showing segmentation states' distribution across chromosome,
+or a box plot indicating average density within each states.
+Default is all plots are displayed.
 The y axis \code{"density"} represent square root of overlap counts within segment length.}
 
 \item{region}{GRanges of stricted region that want to be plotted.}
