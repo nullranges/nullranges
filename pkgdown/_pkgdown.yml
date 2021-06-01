@@ -26,7 +26,8 @@ articles:
     contents:
       - intro
       - matching_ranges
-      - match_ranges_methods
+      - matching_granges
+      - matching_ginteractions
       - segmented_boot_ranges
       - unseg_boot_ranges
   
