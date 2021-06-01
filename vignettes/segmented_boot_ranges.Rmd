@@ -90,19 +90,24 @@ We subset the deny ranges to those which are 500 bp or larger.
 
 TODO: discuss motivation for this.
 
-We use a CBS segmentation as implemented in *DNAcopy* (cite).
+We use a CBS segmentation as implemented in *DNAcopy* (cite). 
 
 ```{r seg-cbs}
 set.seed(5)
 deny2 <- deny %>% plyranges::filter(width(deny) >= 500)
 L_s <- 1e6
-seg_fit <- segmentDensity(g, n = 3, L_s = L_s,
-                          deny = deny2, type = "cbs",
-                          returnPlot = TRUE)
-seg <- seg_fit$seg
-print(seg_fit$p1)
-print(seg_fit$p2)
+seg <- segmentDensity(g, n = 3, L_s = L_s,
+                          deny = deny2, type = "cbs")
+plotSegment(g,seg,L_s,deny2)
 ```
+
+Note here the default ranges plot gives whole genome and cannot visualize state transformations within small ranges, e.g 1kb. If user want to look into specific ranges of segmentation state, the *region* argument is flexible to change. 
+
+```{r}
+region=GRanges("chr2",IRanges(9.4e7,9.5e7))
+plotSegment(g,seg,L_s,deny2,type="ranges",region=region)
+```
+
 
 ## Alternatively: HMM segmentation
 
