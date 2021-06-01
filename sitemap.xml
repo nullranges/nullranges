@@ -73,10 +73,13 @@
     <loc>https://nullranges.github.io/nullranges/articles/intro.html</loc>
   </url>
   <url>
-    <loc>https://nullranges.github.io/nullranges/articles/match_ranges.html</loc>
+    <loc>https://nullranges.github.io/nullranges/articles/matching_ginteractions.html</loc>
   </url>
   <url>
-    <loc>https://nullranges.github.io/nullranges/articles/match_ranges_methods.html</loc>
+    <loc>https://nullranges.github.io/nullranges/articles/matching_granges.html</loc>
+  </url>
+  <url>
+    <loc>https://nullranges.github.io/nullranges/articles/matching_ranges.html</loc>
   </url>
   <url>
     <loc>https://nullranges.github.io/nullranges/articles/segmented_boot_ranges.html</loc>
