@@ -82,7 +82,9 @@ table(seqnames(deny))
 We load *nullranges* and *plyranges* packages:
 
 ```{r}
-library(nullranges)
+# library(nullranges)
+library(devtools)
+load_all()
 suppressPackageStartupMessages(library(plyranges))
 ```
 
@@ -115,10 +117,8 @@ Here we use an alternative segmentation implemented in *RcppHMM* (cite).
 
 ```{r seg-hmm}
 seg_hmm <- segmentDensity(g, n = 3, L_s = L_s,
-                          deny = deny2, type = "hmm",
-                          returnPlot = TRUE)
-print(seg_hmm$p1)
-print(seg_hmm$p2)
+                          deny = deny2, type = "hmm")
+plotSegment(g,seg_hmm,L_s,deny2)
 ```
 
 # Segmented block bootstrap within chromosome
