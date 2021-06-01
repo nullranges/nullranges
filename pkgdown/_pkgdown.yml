@@ -25,7 +25,7 @@ articles:
     navbar: ~
     contents:
       - intro
-      - match_ranges
+      - matching_ranges
       - match_ranges_methods
       - segmented_boot_ranges
       - unseg_boot_ranges

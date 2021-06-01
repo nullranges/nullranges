@@ -1,0 +1,206 @@
+---
+title: "Matching ranges"
+author: "Eric S. Davis"
+date: "`r format(Sys.Date(), '%m/%d/%Y')`"
+output:
+  rmarkdown::html_document:
+    highlight: tango
+    toc: true
+    toc_float: true	
+    fig_width: 5
+    fig_height: 3
+vignette: |
+  %\VignetteIndexEntry{Matching ranges}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+## Introduction
+
+We often want to know the causal relationship between one or more genomic features. Most statisitical tests incorrectly assume that features are randomly distributed across the genome. In fact many features break this assumption because they covary or have different underlying distributions after being subset by another feature. It is therefore critical to isolate the feature of interest by assembling a null set that is matched for confounding covariates. To address this question the `nullranges` package implements `matchRanges()`, an efficient and convenient tool for selecting a covariate-matched set of null hypothesis ranges from a pool of background ranges within the Bioconductor framework.
+
+In this vignette, we provide an overview of `matchRanges()` and its associated functions. We start with a simulated example generated with the utility function `makeExampleMatchedDataSet()`. We also provide an overview of the class struture and a guide for choosing among the supported matching methods. To see `matchedRanges()` used in real biological examples, visit the [Matching GRanges](matching_granges.Rmd), and [Matching GInteractions](matching_ginteractions.Rmd) vignettes.
+
+## Using `matchRanges()`
+
+We will use a simulated data set to demonstrate matching across covarying features:
+
+```{r, message=FALSE, warning=FALSE}
+library(nullranges)
+x <- makeExampleMatchedDataSet(type = 'GRanges')
+x
+```
+
+Our simulated dataset has 3 features: logical `feature1`, numeric `feature2`, and character/factor `feature3`. We can use `matchRanges()` to compare ranges where `feature1` is `TRUE` to ranges where `feature1` is `FALSE`, matched by `feature2` and/or `feature3`:
+
+```{r}
+set.seed(123)
+mgr <- matchRanges(focal = x[x$feature1],
+                   pool = x[!x$feature1],
+                   covar = ~feature2 + feature3)
+mgr
+```
+
+The resulting `MatchedGRanges` object is a set of null hypothesis ranges selected from our `pool` of options that is the same length as our input `focal` ranges and matched for `covar` features 2 and 3. These matched ranges print and behave just as normal `GRanges` would:
+
+```{r, message=FALSE, warning=FALSE}
+library(GenomicRanges)
+sort(mgr)
+```
+
+We can change the `type` argument of `makeExampleMatchedDataSet` to input data.frames, data.tables, DataFrames, GRanges and GInteractions objects - all of which work as inputs for `matchRanges`. These produce either `MatchedDataFrame`, `MatchedGRanges`, or `MatchedGInteractions` objects. For more information about the `Matched` class structure and available methods, see the [Class structure] section below or the help documentation for each class, `?MatchedDataFrame`, `?MatchedGRanges`, or `?MatchedGInteractions`.
+
+### Assessing quality of matching
+
+We can assess the quality of `Matched` classes with `overview()`, `plotCovariate()`, and `plotPropensity()`. `overview()` provides a quick assessment of overall matching quality by reporting the mean and standard deviation for covariates and propensity scores of the focal, pool, matched, and unmatched sets. It also reports the mean difference in focal-matched sets:
+
+```{r paged.print=FALSE}
+overview(mgr)
+```
+
+Visualizing propensity scores can show how well sets were matched overall:
+
+```{r}
+plotPropensity(mgr)
+```
+
+The distributions of features can be visualized in each set with `plotCovariate()`:
+
+```{r}
+plotCovariate(mgr)
+```
+
+Since these functions return ggplots, `patchwork` can be used to visualize all covariates like this:
+
+```{r, message=FALSE, warning=FALSE, fig.height=5}
+library(patchwork)
+plots <- lapply(covariates(mgr), plotCovariate, x=mgr, sets = c('f', 'm', 'p'))
+Reduce('/', plots)
+```
+
+By default, continuous features are plotted as density line plots while categorical features are plotted as stacked bar plots. All sets are also shown by default. Defaults can be overridden by setting the `type` and `sets` arguments.
+
+### Accessing matched data
+
+Custom plots can be made by extracting data from the `Matched` object:
+
+```{r}
+matchedData(mgr)
+```
+
+Attributes of the `Matched` object can be extracted with the following accessor functions:
+
+```{r, results='hold'}
+covariates(mgr)
+method(mgr)
+withReplacement(mgr)
+```
+
+Each set can also be extracted with the following accessor functions:
+
+```{r, results='hold'}
+summary(focal(mgr))
+summary(pool(mgr))
+summary(matched(mgr))
+summary(unmatched(mgr))
+```
+
+The `indices()` function can be used to find the original indices for each set. For example, `indices(x, set="matched")` will supply the indices from the `pool` set that corresponds to the `matched` set. In fact, `matched(x)` is a convenient wrapper around `pool(x)[indices(x, set='matched')`:
+
+```{r}
+identical(matched(mgr), pool(mgr)[indices(mgr, set = 'matched')])
+```
+
+## Choosing the `method` parameter
+
+There are currently 3 available methods for selecting a matched set:
+
+1.  Nearest-neighbor matching with replacement
+
+2.  Rejection sampling with/without replacement
+
+3.  Stratified sampling with/without replacement
+
+Currently, nearest-neighbor matching without replacement is not implemented, but stratified sampling without replacement is a fairly good substitute.
+
+### Nearest-neighbor matching
+
+Attempts to find the nearest neighbor for each range by using a rolling-join (as implemented in the `data.table` package) between `focal` and `pool` propensity scores.
+
+```{r}
+set.seed(123)
+mgr <- matchRanges(focal = x[x$feature1],
+                   pool = x[!x$feature1],
+                   covar = ~feature2 + feature3,
+                   method = 'nearest',
+                   replace = TRUE)
+nn <- overview(mgr)
+plotPropensity(mgr)
+```
+
+This method is best if you have a very large dataset because it is usually the fastest matching method. However, because sampling is done with replacement the user should be careful to assess the number of duplicate ranges pulled. This can be done fairly easily using the `indices()` function:
+
+```{r, results='hold'}
+## Total number of duplicated indices
+length(which(duplicated(indices(mgr))))
+
+sum(table(indices(mgr)) > 1) # used more than once
+sum(table(indices(mgr)) > 2) # used more than twice
+sum(table(indices(mgr)) > 3) # used more than thrice
+```
+
+### Rejection sampling
+
+Uses a probability-based approach to select options in the `pool` that distributionally match the `focal` set based on propensity scores.
+
+```{r}
+set.seed(123)
+mgr <- matchRanges(focal = x[x$feature1],
+                   pool = x[!x$feature1],
+                   covar = ~feature2 + feature3,
+                   method = 'rejection',
+                   replace = FALSE)
+rs <- overview(mgr)
+plotPropensity(mgr)
+```
+
+Rejection sampling is typically the fastest available matching method. Therefore, it is ideal to use on large datasets when sampling without replacement is important. However, this method can be unstable, particularly when the pool set is not much larger than the focal set. In those cases, the best method to use is stratified sampling.
+
+### Stratified sampling
+
+Performs iterative sampling on increasingly large bins of data. `focal` and `pool` propensity scores are binned by their value with high granularity, options are randomly selected (with or without replacement) within each bin and subsequently removed from the pool of available options. This procedure is repeated, decreasing the number of bins (and increasing bin size) until the number of selected matches is equal to the focal set.
+
+```{r}
+set.seed(123)
+mgr <- matchRanges(focal = x[x$feature1],
+                   pool = x[!x$feature1],
+                   covar = ~feature2 + feature3,
+                   method = 'stratified',
+                   replace = FALSE)
+ss <- overview(mgr)
+plotPropensity(mgr)
+```
+
+Stratified sampling is typically the slowest method since it involves iterative resampling. However, this is usually only noticable on very large datasets. Stratified sampling tends to work very well for discrete data, and often produces the best matches even on continuous data:
+
+```{r}
+## Extract difference in propensity scores
+## between focal and matched sets
+fmps <- sapply(c(nn, rs, ss), `[[`, "quality")
+c('nearest', 'rejection', 'stratified')[which.min(fmps)]
+
+```
+
+## Class structure
+
+Since `matchRanges()` automatically constructs the relevant classes, this section is not essential for using any of the `nullranges` package functionality. Instead, this section serves as a guide for developers who wish to extend these classes or those more interested in S4 implementation details.
+
+### Implementation details
+
+`matchRanges()` acts as a constructor, combining a `Matched` superclass - which contains the matching results - with either a `DataFrame`(`data.frame`/`data.table`), `GRanges`, or `GInteractions` superclass. This results in the `MatchedDataFrame`, `MatchedGRanges`, or `MatchedGInteractions` subclasses.
+
+![](images/class_structure.png "Class structure")
+
+Internally, each `Matched` subclass uses a "delegate" object of the same type to assign its slots. The delegate object used is the `matched` set. Therefore, the resulting `Matched*` object behaves as a combination of both its superclasses - with access to methods from both.
+
+For example, using `matchRanges()` on `GRanges` objects assigns a `GRanges` delegate object which is used to populate GRanges-specific slots. This results in a `MatchedGRanges` object, with access to both `Matched` functions (e.g. `plotCovariate`) as well as normal `GRanges` methods (e.g.s `seqnames`, `resize`, etc...).
