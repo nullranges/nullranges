@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Overview of matching quality — overview • nullranges</title>
+<title>Names S3 method for autocomplete — names.MatchedOverview • nullranges</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,13 +46,11 @@
 
 
 
-<meta property="og:title" content="Overview of matching quality — overview" />
-<meta property="og:description" content="The overview function provides a quick assessment of
-overall matching quality by reporting the N, mean, and
-s.d. of focal, matched, pool, and unmatched sets for all
-covariates as well as the propensity scores ('ps').
-The mean and s.d. difference in focal - matched is also
-reported." />
+<meta property="og:title" content="Names S3 method for autocomplete — names.MatchedOverview" />
+<meta property="og:description" content="Names S3 method for autocomplete
+Extract $ operator for MatchedOverview
+Extract [[ operator for MatchedOverview
+Show method for overview" />
 <meta property="og:image" content="https://nullranges.github.io/nullranges/logo.png" />
 
 
@@ -148,78 +146,52 @@ reported." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Overview of matching quality</h1>
-    <small class="dont-index">Source: <a href='https://github.com/nullranges/nullranges/blob/master/R/AllGenerics.R'><code>R/AllGenerics.R</code></a>, <a href='https://github.com/nullranges/nullranges/blob/master/R/methods-Matched.R'><code>R/methods-Matched.R</code></a></small>
-    <div class="hidden name"><code>overview.Rd</code></div>
+    <h1>Names S3 method for autocomplete</h1>
+    <small class="dont-index">Source: <a href='https://github.com/nullranges/nullranges/blob/master/R/methods-Matched.R'><code>R/methods-Matched.R</code></a></small>
+    <div class="hidden name"><code>overview-methods.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>The overview function provides a quick assessment of
-overall matching quality by reporting the N, mean, and
-s.d. of focal, matched, pool, and unmatched sets for all
-covariates as well as the propensity scores ('ps').
-The mean and s.d. difference in focal - matched is also
-reported.</p>
+    <p>Names S3 method for autocomplete</p>
+<p>Extract <code><a href='https://rdrr.io/r/base/Extract.html'>$</a></code> operator for MatchedOverview</p>
+<p>Extract <code><a href='https://rdrr.io/r/base/Extract.html'>[[</a></code> operator for MatchedOverview</p>
+<p>Show method for <code>overview</code></p>
     </div>
 
-    <pre class="usage"><span class='fu'>overview</span><span class='op'>(</span><span class='va'>x</span>, digits <span class='op'>=</span> <span class='fl'>2</span>, <span class='va'>...</span><span class='op'>)</span>
+    <pre class="usage"># S3 method for MatchedOverview
+names(x)
 
-<span class='co'># S4 method for Matched,numeric_OR_missing</span>
-<span class='fu'>overview</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>digits</span><span class='op'>)</span></pre>
+# S4 method for MatchedOverview
+$(x, name)
+
+# S4 method for MatchedOverview,ANY,ANY
+[[(x, i)
+
+# S4 method for MatchedOverview
+show(object)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>x</th>
-      <td><p>Matched object</p></td>
+      <td><p>A <code>MatchedOverview</code> object.</p></td>
     </tr>
     <tr>
-      <th>digits</th>
-      <td><p>Integer indicating the number
-of significant digits to be used. Negative
-values are allowed (see <code><a href='https://rdrr.io/r/base/Round.html'>?signif</a></code>).</p></td>
+      <th>name</th>
+      <td><p>Name of slot.</p></td>
     </tr>
     <tr>
-      <th>...</th>
-      <td><p>Additional arguments.</p></td>
+      <th>i</th>
+      <td><p>A character or numeric to extract.</p></td>
+    </tr>
+    <tr>
+      <th>object</th>
+      <td><p>A <code>MatchedOverview</code> object.</p></td>
     </tr>
     </table>
 
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    
-<ul>
-<li><p>A printed overview of matching quality.</p></li>
-<li><p>(Internally) a <code>MatchedOverview</code> object.</p></li>
-</ul>
-
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
-
-    <p>Factor, character, or logical covariates are reported by
-N per set, rather than with mean and s.d.</p>
-
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='va'>mdf</span> <span class='op'>&lt;-</span> <span class='fu'><a href='makeExampleMatchedDataSet.html'>makeExampleMatchedDataSet</a></span><span class='op'>(</span>matched <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
-<span class='fu'>overview</span><span class='op'>(</span><span class='va'>mdf</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; MatchedDataFrame object: 
-#&gt;        set     N feature2.mean feature2.sd feature3.a feature3.b feature3.c
-#&gt;      focal   500           4.1         1.9         66        157        206
-#&gt;    matched   500           4.5         2.8         56        141        239
-#&gt;       pool 10000           6.0         3.4       4248       3121       1117
-#&gt;  unmatched  9500           6.1         3.4       4192       2980        878
-#&gt;  feature3.d feature3.e ps.mean ps.sd
-#&gt;          49         22   0.100 0.076
-#&gt;          46         18   0.110 0.076
-#&gt;         992        522   0.045 0.051
-#&gt;         946        504   0.041 0.047
-#&gt; --------
-#&gt; focal - matched: 
-#&gt;  feature2.mean feature2.sd feature3.a feature3.b feature3.c feature3.d
-#&gt;          -0.44       -0.94         10         16        -33          3
-#&gt;  feature3.e ps.mean   ps.sd
-#&gt;           4 -0.0036 0.00035</div><div class='input'>
-</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
