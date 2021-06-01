@@ -151,7 +151,7 @@ sum(table(indices(mgr)) > 3) # used more than thrice
 
 ### Rejection sampling
 
-Uses a probability-based approach to select options in the `pool` that distributionally match the `focal` set based on propensity scores.
+Uses a probability-based approach to select options in the `pool` that distributionally match the `focal` set based on propensity scores. If `method` or `replace` is not supplied, the default values are rejection sampling without replacement.
 
 ```{r}
 set.seed(123)
