@@ -205,19 +205,25 @@ setMethod("overview", signature(x="Matched",
           definition = overviewMatched)
 
 #' Names S3 method for autocomplete
-#' @noRd
+#' @param x A `MatchedOverview` object.
+#' @rdname overview-methods
+#' @keywords internal
 #' @exportS3Method
 names.MatchedOverview <- function(x) slotNames(x)
 
 #' Extract `$` operator for MatchedOverview
 #' @param object A `MatchedOverview` object.
 #' @param name Name of slot. 
-#' @noRd
+#' @rdname overview-methods
+#' @keywords internal
 #' @export
 setMethod("$", "MatchedOverview", function(x, name) slot(x, name))
 
 #' Extract `[[` operator for MatchedOverview
-#' @noRd
+#' @param x A `MatchedOverview` object.
+#' @param i A character or numeric to extract.
+#' @rdname overview-methods
+#' @keywords internal
 #' @export
 setMethod("[[", "MatchedOverview", function(x, i) {
   ifelse(is.character(i), slot(x,i), slot(x, slotNames(x)[i]))
@@ -225,7 +231,8 @@ setMethod("[[", "MatchedOverview", function(x, i) {
 
 #' Show method for `overview`
 #' @param object A `MatchedOverview` object.
-#' @noRd
+#' @rdname overview-methods
+#' @keywords internal
 #' @export
 setMethod("show", "MatchedOverview", function(object) {
   cat(object@MatchedClass, "object:", '\n', sep = ' ')
