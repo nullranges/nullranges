@@ -40,6 +40,31 @@ setValidity(Class = "Matched",
               
             })
 
+#' MatchedOverview object
+#' 
+#' Internal container for holding overview summary
+#' data for Matched objects.
+#' 
+#' Necessary to enable separate show and extracting
+#' methods after using the `overview` method on
+#' `Matched` classes and subclasses.
+#' 
+#' @slot aggData A `data.table` with aggregated means
+#'   and s.d. for covariates and propensity scores.
+#' @slot diffData A `data.table` with the aggregated
+#'   means and s.d. between focal and matched sets.
+#' @slot quality A numeric representing the absolute
+#'   value of the mean difference in propensity scores
+#'   between focal and matched sets. Lower values
+#'   indicate higher matching quality.
+#' 
+#' @noRd
+MatchedOverview <- setClass(Class = "MatchedOverview",
+                            slots = list(MatchedClass = 'character',
+                                         aggData = "data.table",
+                                         diffData = "data.table",
+                                         quality = "numeric"))
+
 #' Class union for "DataFrame-like" objects
 #' @noRd
 setClassUnion("DF_OR_df_OR_dt", c("DFrame", "data.frame", "data.table"))

@@ -371,7 +371,7 @@ propensityMatch <- function(covarData, covars, method, replace) {
 #' @inheritParams matchRanges
 #' @return A `Matched` object.
 #' @noRd
-matchRanges.Core <- function(focal, pool, covar, method, replace) {
+matchRanges_Core <- function(focal, pool, covar, method, replace) {
 
   ## Extract covariates from formula as character vector
   covars <- parseFormula(covar)
@@ -409,17 +409,17 @@ matchRanges.Core <- function(focal, pool, covar, method, replace) {
 ## Matched subclass methods for matchRanges ----------------------------------------------
 
 #' MatchedDataFrame method for matchRanges
-#' @inheritParams matchRanges.Core
+#' @inheritParams matchRanges_Core
 #' @return A `MatchedDataFrame` object.
 #' @noRd
-matchRanges.MatchedDataFrame <- function(focal, pool, covar, method, replace) {
+matchRanges_MatchedDataFrame <- function(focal, pool, covar, method, replace) {
 
   ## Convert focal and pool to DataFrames
   f <- DataFrame(focal)
   p <- DataFrame(pool)
 
   ## Execute shared GRanges/GInteractions matching code
-  md <- matchRanges.Core(f, p, covar, method, replace)
+  md <- matchRanges_Core(f, p, covar, method, replace)
 
   ## Combine matched data into MatchedDataFrame class
   obj <- MatchedDataFrame(focal = f,
@@ -534,7 +534,7 @@ setMethod("matchRanges",
                                 covar   = "formula",
                                 method  = "character_OR_missing",
                                 replace = "logical_OR_missing"),
-          definition = matchRanges.MatchedDataFrame)
+          definition = matchRanges_MatchedDataFrame)
 
 #' MatchedGRanges method for matchRanges
 #' @param focal A `GRanges` object containing
@@ -544,14 +544,14 @@ setMethod("matchRanges",
 #' @inheritParams matchRanges
 #' @return A `MatchedGRanges` object
 #' @noRd
-matchRanges.MatchedGRanges <- function(focal, pool, covar, method, replace) {
+matchRanges_MatchedGRanges <- function(focal, pool, covar, method, replace) {
 
   ## Extract DataFrame from GRanges/GInteractions objects
   f <- mcols(focal)
   p <- mcols(pool)
 
   ## Execute matching code to get a Matched object
-  md <- matchRanges.Core(f, p, covar, method, replace)
+  md <- matchRanges_Core(f, p, covar, method, replace)
 
   ## Combine matched data into MatchedGRanges class
   obj <- MatchedGRanges(focal = focal,
@@ -575,7 +575,7 @@ setMethod("matchRanges",
                                 covar   = "formula",
                                 method  = 'character_OR_missing',
                                 replace = 'logical_OR_missing'),
-          definition = matchRanges.MatchedGRanges)
+          definition = matchRanges_MatchedGRanges)
 
 #' MatchedGInteractions method for matchRanges
 #' @param focal A `GInteractions` object containing
@@ -585,14 +585,14 @@ setMethod("matchRanges",
 #' @inheritParams matchRanges
 #' @return A `MatchedGInteractions` object
 #' @noRd
-matchRanges.MatchedGInteractions <- function(focal, pool, covar, method, replace) {
+matchRanges_MatchedGInteractions <- function(focal, pool, covar, method, replace) {
 
   ## Extract DataFrame from GRanges/GInteractions objects
   f <- mcols(focal)
   p <- mcols(pool)
 
   ## Execute matching code to get a Matched object
-  md <- matchRanges.Core(f, p, covar, method, replace)
+  md <- matchRanges_Core(f, p, covar, method, replace)
 
   ## Combine matched data into MatchedGInteractions class
   obj <- MatchedGInteractions(focal = focal,
@@ -616,7 +616,7 @@ setMethod("matchRanges",
                                 covar   = "formula",
                                 method  = 'character_OR_missing',
                                 replace = 'logical_OR_missing'),
-          definition = matchRanges.MatchedGInteractions)
+          definition = matchRanges_MatchedGInteractions)
 
 ## Define accessor functions for matchGRanges class --------------------------------------
 
