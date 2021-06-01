@@ -160,7 +160,7 @@
   <span class='va'>seg</span>,
   L_s <span class='op'>=</span> <span class='fl'>1e+06</span>,
   <span class='va'>deny</span>,
-  type <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"ranges"</span>, <span class='st'>"boxplot"</span><span class='op'>)</span>,
+  type <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"ranges"</span>, <span class='st'>"barplot"</span>, <span class='st'>"boxplot"</span><span class='op'>)</span>,
   region <span class='op'>=</span> <span class='cn'>NULL</span>
 <span class='op'>)</span></pre>
 
@@ -185,8 +185,10 @@
     </tr>
     <tr>
       <th>type</th>
-      <td><p>the type of plot returned. Either a segmentation plot
-included ranges information or a box plot. Default is both plots are displayed.
+      <td><p>the type of plot returned. Choices are segmentation plot
+included ranges information, barplot showing segmentation states' distribution across chromosome,
+or a box plot indicating average density within each states.
+Default is all plots are displayed.
 The y axis <code>"density"</code> represent square root of overlap counts within segment length.</p></td>
     </tr>
     <tr>
