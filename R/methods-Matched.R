@@ -142,6 +142,7 @@ agg <- function(x, signif, digits) {
 }
 
 #' Internal function for `overview` method
+#' @inheritParams overview
 #' @noRd
 overviewMatched <- function(x, digits) {
   
@@ -154,21 +155,21 @@ overviewMatched <- function(x, digits) {
                .SDcols = -c('id'), by = set]
   
   ## Apply aggregation to focal and matched
-  distf <- md[set == 'focal', as.list(unlist(lapply(.SD, agg, FALSE))),
+  aggf <- md[set == 'focal', as.list(unlist(lapply(.SD, agg, FALSE))),
               .SDcols=-c('id', 'set')]
-  distm <- md[set == 'matched', as.list(unlist(lapply(.SD, agg, FALSE))),
+  aggm <- md[set == 'matched', as.list(unlist(lapply(.SD, agg, FALSE))),
               .SDcols=-c('id', 'set')]
   
   ## Calculate distances between focal and matched  
-  d <- signif(distf - distm, digits)
+  d <- signif(aggf - aggm, digits)
   
-  ## Display overview
-  cat(class(x), "object:", '\n', sep = ' ')
-  print(md.agg, row.names = FALSE)
-  cat('--------\n')
-  cat('focal - matched: \n')
-  print(d, row.names = FALSE)
-  
+  ## Return MatchedOverview object
+  obj <- MatchedOverview(MatchedClass = class(x),
+                         aggData = md.agg,
+                         diffData = d,
+                         quality = abs(d[['ps.mean']]))
+  obj
+    
 }
 
 #' Overview of matching quality
@@ -189,7 +190,9 @@ overviewMatched <- function(x, digits) {
 #'   values are allowed (see `?signif`).
 #' @param ... Additional arguments.
 #'   
-#' @return A printed overview of matching quality.
+#' @returns 
+#' * A printed overview of matching quality.
+#' * (Internally) a `MatchedOverview` object.
 #' 
 #' @examples
 #' mdf <- makeExampleMatchedDataSet(matched = TRUE)
@@ -200,6 +203,37 @@ overviewMatched <- function(x, digits) {
 setMethod("overview", signature(x="Matched",
                                 digits = 'numeric_OR_missing'),
           definition = overviewMatched)
+
+#' Names S3 method for autocomplete
+#' @noRd
+#' @exportS3Method
+names.MatchedOverview <- function(x) slotNames(x)
+
+#' Extract `$` operator for MatchedOverview
+#' @param object A `MatchedOverview` object.
+#' @param name Name of slot. 
+#' @noRd
+#' @export
+setMethod("$", "MatchedOverview", function(x, name) slot(x, name))
+
+#' Extract `[[` operator for MatchedOverview
+#' @noRd
+#' @export
+setMethod("[[", "MatchedOverview", function(x, i) {
+  ifelse(is.character(i), slot(x,i), slot(x, slotNames(x)[i]))
+})
+
+#' Show method for `overview`
+#' @param object A `MatchedOverview` object.
+#' @noRd
+#' @export
+setMethod("show", "MatchedOverview", function(object) {
+  cat(object@MatchedClass, "object:", '\n', sep = ' ')
+  print(object@aggData, row.names = FALSE)
+  cat('--------\n')
+  cat('focal - matched: \n')
+  print(object@diffData, row.names = FALSE)
+})
 
 
 ## Define plot methods for Matched class -------------------------------------------------

@@ -19,7 +19,10 @@ values are allowed (see \code{?signif}).}
 \item{...}{Additional arguments.}
 }
 \value{
-A printed overview of matching quality.
+\itemize{
+\item A printed overview of matching quality.
+\item (Internally) a \code{MatchedOverview} object.
+}
 }
 \description{
 The overview function provides a quick assessment of

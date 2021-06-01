@@ -57,9 +57,9 @@ reference:
     contents:
       - matchedData
       - covariates
-      - indices
       - method
       - withReplacement
+      - indices
       - focal
       - pool
       - matched
