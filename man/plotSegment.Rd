@@ -4,21 +4,10 @@
 \alias{plotSegment}
 \title{Genomic segmentation based on gene density}
 \usage{
-plotSegment(
-  x,
-  seg,
-  L_s = 1e+06,
-  deny,
-  type = c("ranges", "barplot", "boxplot"),
-  region = NULL
-)
+plotSegment(seg, deny, type = c("ranges", "barplot", "boxplot"), region = NULL)
 }
 \arguments{
-\item{x}{the input gene GRanges}
-
 \item{seg}{the segmentation GRanges returned by \code{segmentDensity} function}
-
-\item{L_s}{segment length}
 
 \item{deny}{GRanges of deny region}
 
@@ -29,6 +18,9 @@ Default is all plots are displayed.
 The y axis \code{"density"} represent square root of overlap counts within segment length.}
 
 \item{region}{GRanges of stricted region that want to be plotted.}
+}
+\value{
+A \code{ggplot} set by \code{type} argument
 }
 \description{
 Genomic segmentation based on gene density

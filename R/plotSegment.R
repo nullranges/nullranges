@@ -12,6 +12,7 @@
 #' @return A `ggplot` set by `type` argument
 #'
 #' @importFrom IRanges findOverlaps
+#' @importFrom plyranges summarise group_by %>%
 #' @importFrom scales breaks_extended label_comma
 #'
 #' @export
@@ -65,8 +66,9 @@ plotSegment <- function(seg, deny, type = c("ranges","barplot","boxplot"),
   }
   
   if (identical(type, "barplot")) {
-    dat_bar <- dat %>% group_by(chr,state) %>% summarise(distribution=sum(width))
-    ans <- ggplot(dat_bar, aes(fill=state, y=distribution, x=chr)) + 
+    dat_bar <- dat %>% plyranges::group_by(.data$chr,.data$state) %>% 
+      plyranges::summarise(distribution=sum(.data$width))
+    ans <- ggplot(dat_bar, aes(fill=.data$state, y=.data$distribution, x=.data$chr)) + 
       geom_bar(position="fill", stat="identity")+
       theme_classic()+
       scale_fill_brewer(palette="Paired") +

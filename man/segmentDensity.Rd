@@ -20,6 +20,13 @@ use DNAcopy to segment) or "hmm" (which will use RcppHMM).
 The packages are not imported by nullranges, but must be installed
 by the user}
 }
+\value{
+a GRanges with metadata columns containing:
+\itemize{
+\item{state} {segmentation state}
+\item{counts} {average number of genes}
+}
+}
 \description{
 Genomic segmentation based on gene density
 }
