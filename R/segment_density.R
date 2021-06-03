@@ -8,6 +8,12 @@
 #' use DNAcopy to segment) or "hmm" (which will use RcppHMM).
 #' The packages are not imported by nullranges, but must be installed
 #' by the user
+#' 
+#' @return a GRanges with metadata columns containing:
+#' \itemize{
+#'   \item{state} {segmentation state}
+#'   \item{counts} {average number of genes}
+#' } 
 #'
 #' @importFrom plyranges filter join_overlap_intersect
 #'
@@ -81,5 +87,10 @@ segmentDensity <- function(x, n, L_s = 1e6, deny,
 
   seg <- sortSeqlevels(seg)
   seg <- GenomicRanges::sort(seg)
+  
+  # recalculate counts on reduced segment region
+  counts_nostand <- GenomicRanges::countOverlaps(seg, x, minoverlap = 8)
+  counts <- counts_nostand / width(seg) * L_s
+  mcols(seg)$counts <- counts
   return(seg)
 }

@@ -1,8 +1,6 @@
 #' Genomic segmentation based on gene density
 #'
-#' @param x the input gene GRanges
 #' @param seg the segmentation GRanges returned by \code{segmentDensity} function
-#' @param L_s segment length
 #' @param deny GRanges of deny region
 #' @param type the type of plot returned. Choices are segmentation plot 
 #' included ranges information, barplot showing segmentation states' distribution across chromosome, 
@@ -10,17 +8,18 @@
 #' Default is all plots are displayed.
 #' The y axis \code{"density"} represent square root of overlap counts within segment length. 
 #' @param region GRanges of stricted region that want to be plotted. 
+#' 
+#' @return A `ggplot` set by `type` argument
 #'
 #' @importFrom IRanges findOverlaps
 #' @importFrom scales breaks_extended label_comma
 #'
 #' @export
-plotSegment <- function(x, seg, L_s = 1e6, deny, type = c("ranges","barplot","boxplot"),
+plotSegment <- function(seg, deny, type = c("ranges","barplot","boxplot"),
                         region = NULL) {
   
-  counts_nostand <- GenomicRanges::countOverlaps(seg, x, minoverlap = 8)
-  counts <- counts_nostand / width(seg) * L_s
-  
+  type <- match.arg(type, c("ranges","barplot","boxplot"))
+  counts <- mcols(seg)$counts
   mcols(deny)$state <- "deny region"
   
   if(!is.null(region)){
@@ -41,51 +40,52 @@ plotSegment <- function(x, seg, L_s = 1e6, deny, type = c("ranges","barplot","bo
     end = IRanges::end(full_query),
     width = IRanges::width(full_query))
   
-  if("ranges" %in% type){
-    p1 <- ggplot2::ggplot() +
+  if (identical(type, "ranges")) {
+    ans <- ggplot2::ggplot() +
       labs(col = "States", y = "density") +
       geom_segment(aes_string(x = "start", y = "counts", xend = "end", yend = "counts",col = "state"),
                    size = 2.5, data = dat, show.legend = TRUE) +
-      theme_classic() + 
-      theme(strip.background = element_rect(fill="lightblue1", colour="white",size=1),
-            strip.text = element_text(size=8,margin = margin( b = 0.5, t = 0.5)))+
+      # theme(strip.background = element_rect(fill="lightblue1", colour="white",size=1),
+      #       strip.text = element_text(size=8,margin = margin( b = 0.5, t = 0.5)))+
       scale_color_brewer(palette="Paired") +
-      # scale_color_viridis(discrete = TRUE,option = "D",alpha = 0.8)+
-      facet_wrap(~chr, ncol = 4) +
+      facet_wrap(~chr, ncol = 6) +
       scale_y_continuous(breaks = scales::breaks_extended(4))
     if(!is.null(region)){
-      print(p1 + scale_x_continuous(
+      ans <- ans + scale_x_continuous(
         name = "Location(b)",
         labels = label_comma()
-      ))
+      )
     }else{
-      print(p1 + scale_x_continuous(
+      ans <- ans + scale_x_continuous(
                 name = "Location(Mb)",
                 breaks = c(0.5e8, 1.5e8, 2.5e8),
                 labels = c("50", "150", "250")
-              ))
+              )
     }
   }
   
-  if("barplot" %in% type){
+  if (identical(type, "barplot")) {
     dat_bar <- dat %>% group_by(chr,state) %>% summarise(distribution=sum(width))
-    p2 <- ggplot(dat_bar, aes(fill=state, y=distribution, x=chr)) + 
+    ans <- ggplot(dat_bar, aes(fill=state, y=distribution, x=chr)) + 
       geom_bar(position="fill", stat="identity")+
+      theme_classic()+
       scale_fill_brewer(palette="Paired") +
-      # scale_fill_viridis(discrete = TRUE,option = "D",alpha = 0.8)+
-      theme_classic() +
       scale_x_discrete(guide = guide_axis(angle = 45))
-    print(p2)
   }
   
-  if("boxplot" %in% type){
+  if (identical(type, "boxplot")) {
     states <- data.frame(state = factor(seg$state), count = seq2)
-    p3 <- ggplot2::ggplot(aes_string(x = "state", y = "count",fill="state"), data = states) +
+    ans <- ggplot2::ggplot(aes_string(x = "state", y = "count",fill="state"), data = states) +
       geom_boxplot() +
       scale_fill_brewer(palette="Paired") +
-      # scale_fill_npg() +
-      theme_classic() +
       labs(x = "States", y = "density")
-    print(p3)
   }
+  ## Apply general plot formatting
+  ans <- ans +
+    theme_minimal()+
+    theme(legend.position="bottom",
+          panel.grid.minor = element_blank(),
+          panel.border = element_rect(fill = 'transparent'))
+  
+  ans
 }
