@@ -80,9 +80,7 @@ table(seqnames(deny))
 We load *nullranges* and *plyranges* packages:
 
 ```{r}
-# library(nullranges)
-library(devtools)
-load_all()
+library(nullranges)
 library(patchwork)
 suppressPackageStartupMessages(library(plyranges))
 ```
