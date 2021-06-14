@@ -1,5 +1,5 @@
 ---
-title: "Matching with GRanges"
+title: "Case study I: CTCF enrichment"
 author: "Eric S. Davis"
 date: "`r format(Sys.Date(), '%m/%d/%Y')`"
 output:
@@ -10,7 +10,7 @@ output:
     fig_width: 5
     fig_height: 3
 vignette: |
-  %\VignetteIndexEntry{Matching GRanges}
+  %\VignetteIndexEntry{Case study I: CTCF enrichment}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 editor_options: 
@@ -19,7 +19,7 @@ editor_options:
 
 In this vignette we demonstrate generating covariate-matched, null-hypothesis GRanges using the `matchRanges()` function to test for the enrichment of CCCTC-binding factor (CTCF) at chromatin loop anchors.
 
-## Background and motivation
+## Background
 
 One of the fundamental principles of chromatin-looping suggests that most loops are bound at both ends by the CTCF transcription factor (TF). CTCF-bound loops can be formed by loop-extrusion, where the ring-like cohesin complex extrudes chromatin until stopped by bound CTCF. By this mechanism, we expect most loop anchors will be bound by CTCF.
 
@@ -98,7 +98,7 @@ From this plot, it is clear that the matched set is much closer to the focal set
 
 We can ensure that covariate distributions have been matched appropriately by using the `covariates()` function to extract matched covariates along with `patchwork` and `plotCovarite` to visualize all distributions:
 
-```{r, message=FALSE, warning=FALSE, fig.height=5}
+```{r, message=FALSE, warning=FALSE, fig.height=6, fig.width=5}
 library(patchwork)
 plots <- lapply(covariates(mgr), plotCovariate, x=mgr, sets = c('f', 'm', 'p'))
 Reduce('/', plots)
@@ -108,7 +108,7 @@ Reduce('/', plots)
 
 Using our matched ranges, we can compare enrichment of CTCF between bins that 1) contain a loop anchor (i.e. looped), 2) don't contain a loop anchor (i.e. unlooped), or 3) don't contain a loop anchor, but are also matched for the strength and number of DNase sites (i.e. matched). In this case, we calculate CTCF enrichment as the percent of bins that contain CTCF among our 3 sets by using the `focal()` and `pool()` accessor functions:
 
-```{r fig.width=4, fig.height=4}
+```{r fig.width=4, fig.height=5}
 ## Percent of bins with CTCF
 g1 <- (sum(focal(mgr)$n_ctcf_sites >= 1) / length(focal(mgr))) * 100
 g2 <- (sum(pool(mgr)$n_ctcf_sites >= 1) / length(pool(mgr))) * 100
@@ -119,5 +119,6 @@ barplot(height = c(g1, g2, g3),
         names = c('looped', 'unlooped', 'matched'),
         ylab = "CTCF occupied bins (%)",
         col = c('#1F78B4', '#33A02C', '#A6CEE3'),
-        main = 'CTCF enrichment')
+        main = 'CTCF enrichment',
+        las = 1)
 ```

@@ -1,5 +1,5 @@
 ---
-title: "Matching ranges"
+title: "Overview of matchRanges"
 author: "Eric S. Davis"
 date: "`r format(Sys.Date(), '%m/%d/%Y')`"
 output:
@@ -10,14 +10,14 @@ output:
     fig_width: 5
     fig_height: 3
 vignette: |
-  %\VignetteIndexEntry{Matching ranges}
+  %\VignetteIndexEntry{Overview of matchRanges}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
 ## Introduction
 
-We often want to know the causal relationship between one or more genomic features. Most statisitical tests incorrectly assume that features are randomly distributed across the genome. In fact many features break this assumption because they covary or have different underlying distributions after being subset by another feature. It is therefore critical to isolate the feature of interest by assembling a null set that is matched for confounding covariates. To address this question the `nullranges` package implements `matchRanges()`, an efficient and convenient tool for selecting a covariate-matched set of null hypothesis ranges from a pool of background ranges within the Bioconductor framework.
+We often want to know the causal relationship between one or more genomic features. Most statistical tests incorrectly assume that features are randomly distributed across the genome. In fact many features break this assumption because they covary or have different underlying distributions after being subset by another feature. It is therefore critical to isolate the feature of interest by assembling a null set that is matched for confounding covariates. To address this question the `nullranges` package implements `matchRanges()`, an efficient and convenient tool for selecting a covariate-matched set of null hypothesis ranges from a pool of background ranges within the Bioconductor framework.
 
 In this vignette, we provide an overview of `matchRanges()` and its associated functions. We start with a simulated example generated with the utility function `makeExampleMatchedDataSet()`. We also provide an overview of the class struture and a guide for choosing among the supported matching methods. To see `matchedRanges()` used in real biological examples, visit the [Matching GRanges](matching_granges.Rmd), and [Matching GInteractions](matching_ginteractions.Rmd) vignettes.
 
@@ -72,7 +72,7 @@ plotCovariate(mgr)
 
 Since these functions return ggplots, `patchwork` can be used to visualize all covariates like this:
 
-```{r, message=FALSE, warning=FALSE, fig.height=5}
+```{r, message=FALSE, warning=FALSE, fig.height=6, fig.width=5}
 library(patchwork)
 plots <- lapply(covariates(mgr), plotCovariate, x=mgr, sets = c('f', 'm', 'p'))
 Reduce('/', plots)

@@ -1,5 +1,5 @@
 ---
-title: "Matching with GInteractions"
+title: "Case study II: CTCF orientation"
 author: "Eric S. Davis"
 date: "`r format(Sys.Date(), '%m/%d/%Y')`"
 output:
@@ -10,7 +10,7 @@ output:
     fig_width: 5
     fig_height: 3
 vignette: |
-  %\VignetteIndexEntry{Matching GInteractions}
+  %\VignetteIndexEntry{Case study II: CTCF orientation}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 editor_options: 
@@ -19,7 +19,7 @@ editor_options:
 
 In this vignette, we demonstrate the generation of covariate-matched null ranges by using the `matchRanges()` function to test the "covergence rule" of CTCF-bound chromatin loops, first described in Rao et al. 2014.
 
-## Background and motivation
+## Background
 
 In 2014, in situ Hi-C was used to probe the spatial organization of the human genome and identify 3D structures - such as chromatin loops - characterized by high contact frequency. Chromatin loops can be formed by loop-extrusion, where the ring-like cohesin complex extrudes chromatin until stopped by a bound CTCF transcription factor. Therefore, most validated loops are bound at both ends by a CTCF motif. The convergence rule purports that the vast majority (\>90%) of CTCF-bound loops occur in a convergent orientation, where the asymetric CTCF motifs at each anchor face one another. This is a highly significant finding since we would only expect to find convergently-oriented CTCF motifs 25% of the time by chance.
 
@@ -54,7 +54,7 @@ library(nullranges)
 set.seed(123)
 mgi <- matchRanges(focal = binPairs[binPairs$looped],
                    pool = binPairs[!binPairs$looped],
-                   covar = ~ctcfSignal + distance,
+                   covar = ~ctcfSignal + distance + n_sites,
                    method = 'stratified')
 mgi
 ```
@@ -110,34 +110,41 @@ plotPropensity(mgi, sets = c('f', 'p', 'm'), log = 'x')
 
 We can ensure that covariate distributions have been matched appropriately by using the `covariates()` function to extract matched covariates along with `patchwork` and `plotCovarite` to visualize all distributions:
 
-```{r, message=FALSE, warning=FALSE, fig.height=5}
+```{r, message=FALSE, warning=FALSE, fig.height=6, fig.width=5}
 library(patchwork)
 plots <- lapply(covariates(mgi), plotCovariate, x=mgi, sets = c('f', 'm', 'p'))
 Reduce('/', plots)
+
+plotCovariate(mgi, covar = 'n_sites', sets = c('f', 'm', 'p'), type = 'bars', thresh = 15)
+debugonce(plotCovariate)
+hist(mgi$n_sites)
+max(mgi$n_sites)
+min(mgi$n_sites)
 ```
 
 ## Compare CTCF site orientation
 
 Using our matched ranges, we can compare the percent of looped pairs with at least one convergent CTCF site against unlooped pairs, randomly selected pairs, and pairs that are unlooped but have been matched for our covariates. The accessor function `focal()` and `pool()` can be used to conveniently extract these matched sets:
 
-```{r, fig.width=5, fig.height=4}
+```{r, fig.width=5, fig.height=5}
 ## Generate a randomly selected set from all binPairs
 all <- c(focal(mgi), pool(mgi))
 set.seed(123)
 random <- all[sample(1:length(all), length(mgi), replace = FALSE)]
 
 ## Calculate the percent of convergent CTCF sites for each group
-g1 <- (sum(focal(mgi)$convergent) / length(focal(mgi)))*100
-g2 <- (sum(pool(mgi)$convergent) / length(pool(mgi)))*100
+g1 <- (sum(focal(mgi)$convergent) / length(focal(mgi))) * 100
+g2 <- (sum(pool(mgi)$convergent) / length(pool(mgi))) * 100
 g3 <- (sum(random$convergent) / length(random)) * 100
-g4 <- (sum(mgi$convergent) / length(mgi))*100
+g4 <- (sum(mgi$convergent) / length(mgi)) * 100
 
 ## Visualize
 barplot(height = c(g1, g2, g3, g4),
         names.arg = c('looped', 'unlooped', 'random', 'matched'),
         col = c('#1F78B4', '#33A02C', 'orange2', '#A6CEE3'), 
         ylab = "Convergent CTCF Sites (%)",
-        main = "Testing the Convergence Rule")
+        main = "Testing the Convergence Rule",
+        las = 1)
 ```
 
 It looks like the converget rule holds, even when controlling for CTCF signal strength and bin pair distance. Our looped group has \> 90% convergent CTCF sites, while our other groups have about 25% per CTCF site on average:
@@ -145,6 +152,6 @@ It looks like the converget rule holds, even when controlling for CTCF signal st
 ```{r, results='hold'}
 mean(focal(mgi)$n_sites)
 mean(pool(mgi)$n_sites)
-mean(mgi$n_sites)
 mean(random$n_sites)
+mean(mgi$n_sites)
 ```

@@ -33,7 +33,6 @@ articles:
   
 figures:
   fig.width: 5
-  fig.height: 3
   fig.retina: 1
   
 reference:
