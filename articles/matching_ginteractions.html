@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Matching with GInteractions • nullranges</title>
+<title>Case study II: CTCF orientation • nullranges</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
 <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png">
@@ -17,7 +17,7 @@
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="Matching with GInteractions">
+<script src="../pkgdown.js"></script><meta property="og:title" content="Case study II: CTCF orientation">
 <meta property="og:description" content="nullranges">
 <meta property="og:image" content="https://nullranges.github.io/nullranges/logo.png">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
@@ -64,13 +64,13 @@
       <a href="../articles/intro.html">Introduction to nullranges</a>
     </li>
     <li>
-      <a href="../articles/matching_ranges.html">Matching ranges</a>
+      <a href="../articles/matching_ranges.html">Overview of matchRanges</a>
     </li>
     <li>
-      <a href="../articles/matching_granges.html">Matching with GRanges</a>
+      <a href="../articles/matching_granges.html">Case study I: CTCF enrichment</a>
     </li>
     <li>
-      <a href="../articles/matching_ginteractions.html">Matching with GInteractions</a>
+      <a href="../articles/matching_ginteractions.html">Case study II: CTCF orientation</a>
     </li>
     <li>
       <a href="../articles/segmented_boot_ranges.html">Segmented block bootstrap</a>
@@ -104,10 +104,10 @@
       </header><script src="matching_ginteractions_files/header-attrs-2.8/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1 data-toc-skip>Matching with GInteractions</h1>
+      <h1 data-toc-skip>Case study II: CTCF orientation</h1>
                         <h4 class="author">Eric S. Davis</h4>
             
-            <h4 class="date">06/03/2021</h4>
+            <h4 class="date">06/14/2021</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/master/vignettes/matching_ginteractions.Rmd"><code>vignettes/matching_ginteractions.Rmd</code></a></small>
       <div class="hidden name"><code>matching_ginteractions.Rmd</code></div>
@@ -117,9 +117,9 @@
     
     
 <p>In this vignette, we demonstrate the generation of covariate-matched null ranges by using the <code><a href="../reference/matchRanges.html">matchRanges()</a></code> function to test the “covergence rule” of CTCF-bound chromatin loops, first described in Rao et al. 2014.</p>
-<div id="background-and-motivation" class="section level2">
+<div id="background" class="section level2">
 <h2 class="hasAnchor">
-<a href="#background-and-motivation" class="anchor"></a>Background and motivation</h2>
+<a href="#background" class="anchor"></a>Background</h2>
 <p>In 2014, in situ Hi-C was used to probe the spatial organization of the human genome and identify 3D structures - such as chromatin loops - characterized by high contact frequency. Chromatin loops can be formed by loop-extrusion, where the ring-like cohesin complex extrudes chromatin until stopped by a bound CTCF transcription factor. Therefore, most validated loops are bound at both ends by a CTCF motif. The convergence rule purports that the vast majority (&gt;90%) of CTCF-bound loops occur in a convergent orientation, where the asymetric CTCF motifs at each anchor face one another. This is a highly significant finding since we would only expect to find convergently-oriented CTCF motifs 25% of the time by chance.</p>
 <p>Here, we generate a set of null-hypothesis ranges to more rigorously test the convergence rule. We will use <code>hg19_10kb_ctcfBoundBinPairs</code> data from the <code>nullrangesData</code> package which contains features from the GM12878 cell line aligned to hg19. <code>hg19_10kb_ctcfBoundBinPairs</code> is a <code>GInteractions</code> object with all interactions between ctcf-bound 10Kb bins within 1Mb annotated with the following features:</p>
 <ul>
@@ -180,36 +180,36 @@
 <span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span>
 <span class="va">mgi</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/matchRanges.html">matchRanges</a></span><span class="op">(</span>focal <span class="op">=</span> <span class="va">binPairs</span><span class="op">[</span><span class="va">binPairs</span><span class="op">$</span><span class="va">looped</span><span class="op">]</span>,
                    pool <span class="op">=</span> <span class="va">binPairs</span><span class="op">[</span><span class="op">!</span><span class="va">binPairs</span><span class="op">$</span><span class="va">looped</span><span class="op">]</span>,
-                   covar <span class="op">=</span> <span class="op">~</span><span class="va">ctcfSignal</span> <span class="op">+</span> <span class="va">distance</span>,
+                   covar <span class="op">=</span> <span class="op">~</span><span class="va">ctcfSignal</span> <span class="op">+</span> <span class="va">distance</span> <span class="op">+</span> <span class="va">n_sites</span>,
                    method <span class="op">=</span> <span class="st">'stratified'</span><span class="op">)</span>
 <span class="va">mgi</span></code></pre></div>
 <pre><code>## MatchedGInteractions object with 3104 interactions and 5 metadata columns:
 ##          seqnames1             ranges1     seqnames2             ranges2 |
 ##              &lt;Rle&gt;           &lt;IRanges&gt;         &lt;Rle&gt;           &lt;IRanges&gt; |
-##      [1]     chr16   53080001-53090000 ---     chr16   53240001-53250000 |
-##      [2]     chr19   45900001-45910000 ---     chr19   46320001-46330000 |
-##      [3]     chr17   79970001-79980000 ---     chr17   79990001-80000000 |
-##      [4]     chr19   48760001-48770000 ---     chr19   48850001-48860000 |
-##      [5]     chr11       720001-730000 ---     chr11       850001-860000 |
+##      [1]     chr20   48220001-48230000 ---     chr20   48590001-48600000 |
+##      [2]     chr19   42280001-42290000 ---     chr19   42450001-42460000 |
+##      [3]      chrX   12720001-12730000 ---      chrX   12960001-12970000 |
+##      [4]      chr4 139840001-139850000 ---      chr4 140020001-140030000 |
+##      [5]     chr12   53900001-53910000 ---     chr12   54130001-54140000 |
 ##      ...       ...                 ... ...       ...                 ... .
-##   [3100]     chr17   42160001-42170000 ---     chr17   42420001-42430000 |
-##   [3101]     chr18   74510001-74520000 ---     chr18   74900001-74910000 |
+##   [3100]      chr5 148750001-148760000 ---      chr5 148800001-148810000 |
+##   [3101]     chr10   93050001-93060000 ---     chr10   93310001-93320000 |
 ##   [3102]     chr12 111260001-111270000 ---     chr12 111920001-111930000 |
-##   [3103]     chr12   58290001-58300000 ---     chr12   58830001-58840000 |
-##   [3104]      chrX   49020001-49030000 ---      chrX   49030001-49040000 |
+##   [3103]      chr9   33460001-33470000 ---      chr9   33770001-33780000 |
+##   [3104]     chr11 107560001-107570000 ---     chr11 107870001-107880000 |
 ##             looped ctcfSignal   n_sites  distance convergent
 ##          &lt;logical&gt;  &lt;numeric&gt; &lt;numeric&gt; &lt;integer&gt;  &lt;logical&gt;
-##      [1]     FALSE    8.47352         2    160000       TRUE
-##      [2]     FALSE    9.75824         4    420000      FALSE
-##      [3]     FALSE    8.85372         3     20000       TRUE
-##      [4]     FALSE    8.40199         2     90000       TRUE
-##      [5]     FALSE    8.93295         4    130000       TRUE
+##      [1]     FALSE    9.68191         4    370000       TRUE
+##      [2]     FALSE    8.73409         2    170000      FALSE
+##      [3]     FALSE    9.27103         3    240000      FALSE
+##      [4]     FALSE    8.44158         2    180000       TRUE
+##      [5]     FALSE    8.84704         2    230000      FALSE
 ##      ...       ...        ...       ...       ...        ...
-##   [3100]     FALSE    8.51898         4    260000      FALSE
-##   [3101]     FALSE    8.68291         3    390000       TRUE
+##   [3100]     FALSE    7.67362         2     50000       TRUE
+##   [3101]     FALSE    8.22812         2    260000       TRUE
 ##   [3102]     FALSE    8.12033         2    660000      FALSE
-##   [3103]     FALSE    9.91467         3    540000      FALSE
-##   [3104]     FALSE    7.10491         2     10000      FALSE
+##   [3103]     FALSE    8.76051         2    310000      FALSE
+##   [3104]     FALSE    8.12756         2    310000       TRUE
 ##   -------
 ##   regions: 20612 ranges and 5 metadata columns
 ##   seqinfo: 23 sequences from hg19 genome</code></pre>
@@ -242,22 +242,24 @@
 <pre><code>## MatchedGInteractions object: 
 ##        set      N ctcfSignal.mean ctcfSignal.sd distance.mean distance.sd
 ##      focal   3104             8.3          0.67        320000      230000
-##    matched   3104             8.2          0.75        310000      250000
+##    matched   3104             8.2          0.73        320000      250000
 ##       pool 195016             7.9          0.85        490000      290000
 ##  unmatched 191912             7.8          0.85        490000      290000
-##  ps.mean ps.sd
-##    0.024 0.015
-##    0.024 0.015
-##    0.016 0.013
-##    0.015 0.013
+##  n_sites.mean n_sites.sd ps.mean ps.sd
+##           2.4       0.76   0.026 0.016
+##           2.3       0.78   0.026 0.016
+##           2.3       0.96   0.016 0.013
+##           2.3       0.97   0.015 0.013
 ## --------
 ## focal - matched: 
-##  ctcfSignal.mean ctcfSignal.sd distance.mean distance.sd ps.mean    ps.sd
-##            0.063        -0.081         16000      -21000  -2e-07 -4.4e-06</code></pre>
+##  ctcfSignal.mean ctcfSignal.sd distance.mean distance.sd n_sites.mean
+##            0.018        -0.061          1300      -26000        0.049
+##  n_sites.sd  ps.mean    ps.sd
+##      -0.019 -7.9e-07 -5.7e-06</code></pre>
 <p>In addition to provding a printed overview, the overview data can be extracted for convenience. For example, the <code>quality</code> property shows the absolute value of the mean difference between focal and matched sets. Therefore, the lower this value, the better the matching quality:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">ov</span><span class="op">$</span><span class="va">quality</span></code></pre></div>
-<pre><code>## [1] 2e-07</code></pre>
+<pre><code>## [1] 7.9e-07</code></pre>
 <div id="visualizing-matching-results" class="section level3">
 <h3 class="hasAnchor">
 <a href="#visualizing-matching-results" class="anchor"></a>Visualizing matching results</h3>
@@ -288,28 +290,29 @@
 <span class="va">random</span> <span class="op">&lt;-</span> <span class="va">all</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">all</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span>, replace <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">]</span>
 
 <span class="co">## Calculate the percent of convergent CTCF sites for each group</span>
-<span class="va">g1</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="fu"><a href="../reference/focal.html">focal</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span><span class="op">$</span><span class="va">convergent</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="../reference/focal.html">focal</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">*</span><span class="fl">100</span>
-<span class="va">g2</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="fu"><a href="../reference/pool.html">pool</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span><span class="op">$</span><span class="va">convergent</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="../reference/pool.html">pool</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">*</span><span class="fl">100</span>
+<span class="va">g1</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="fu"><a href="../reference/focal.html">focal</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span><span class="op">$</span><span class="va">convergent</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="../reference/focal.html">focal</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span>
+<span class="va">g2</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="fu"><a href="../reference/pool.html">pool</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span><span class="op">$</span><span class="va">convergent</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="../reference/pool.html">pool</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span>
 <span class="va">g3</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">random</span><span class="op">$</span><span class="va">convergent</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">random</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span>
-<span class="va">g4</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">$</span><span class="va">convergent</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span><span class="op">)</span><span class="op">*</span><span class="fl">100</span>
+<span class="va">g4</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">$</span><span class="va">convergent</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span>
 
 <span class="co">## Visualize</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html">barplot</a></span><span class="op">(</span>height <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">g1</span>, <span class="va">g2</span>, <span class="va">g3</span>, <span class="va">g4</span><span class="op">)</span>,
         names.arg <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'looped'</span>, <span class="st">'unlooped'</span>, <span class="st">'random'</span>, <span class="st">'matched'</span><span class="op">)</span>,
         col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'#1F78B4'</span>, <span class="st">'#33A02C'</span>, <span class="st">'orange2'</span>, <span class="st">'#A6CEE3'</span><span class="op">)</span>, 
         ylab <span class="op">=</span> <span class="st">"Convergent CTCF Sites (%)"</span>,
-        main <span class="op">=</span> <span class="st">"Testing the Convergence Rule"</span><span class="op">)</span></code></pre></div>
+        main <span class="op">=</span> <span class="st">"Testing the Convergence Rule"</span>,
+        las <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></code></pre></div>
 <p><img src="matching_ginteractions_files/figure-html/unnamed-chunk-9-1.png"><!-- --></p>
 <p>It looks like the converget rule holds, even when controlling for CTCF signal strength and bin pair distance. Our looped group has &gt; 90% convergent CTCF sites, while our other groups have about 25% per CTCF site on average:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="fu"><a href="../reference/focal.html">focal</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span><span class="op">$</span><span class="va">n_sites</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="fu"><a href="../reference/pool.html">pool</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span><span class="op">$</span><span class="va">n_sites</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">$</span><span class="va">n_sites</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">random</span><span class="op">$</span><span class="va">n_sites</span><span class="op">)</span></code></pre></div>
+<span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">random</span><span class="op">$</span><span class="va">n_sites</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">$</span><span class="va">n_sites</span><span class="op">)</span></code></pre></div>
 <pre><code>## [1] 2.388853
 ## [1] 2.298222
-## [1] 2.429768
-## [1] 2.299613</code></pre>
+## [1] 2.299613
+## [1] 2.339884</code></pre>
 </div>
   </div>
 

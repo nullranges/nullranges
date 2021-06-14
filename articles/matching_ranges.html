@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Matching ranges • nullranges</title>
+<title>Overview of matchRanges • nullranges</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
 <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png">
@@ -17,7 +17,7 @@
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="Matching ranges">
+<script src="../pkgdown.js"></script><meta property="og:title" content="Overview of matchRanges">
 <meta property="og:description" content="nullranges">
 <meta property="og:image" content="https://nullranges.github.io/nullranges/logo.png">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
@@ -64,13 +64,13 @@
       <a href="../articles/intro.html">Introduction to nullranges</a>
     </li>
     <li>
-      <a href="../articles/matching_ranges.html">Matching ranges</a>
+      <a href="../articles/matching_ranges.html">Overview of matchRanges</a>
     </li>
     <li>
-      <a href="../articles/matching_granges.html">Matching with GRanges</a>
+      <a href="../articles/matching_granges.html">Case study I: CTCF enrichment</a>
     </li>
     <li>
-      <a href="../articles/matching_ginteractions.html">Matching with GInteractions</a>
+      <a href="../articles/matching_ginteractions.html">Case study II: CTCF orientation</a>
     </li>
     <li>
       <a href="../articles/segmented_boot_ranges.html">Segmented block bootstrap</a>
@@ -104,10 +104,10 @@
       </header><script src="matching_ranges_files/header-attrs-2.8/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1 data-toc-skip>Matching ranges</h1>
+      <h1 data-toc-skip>Overview of matchRanges</h1>
                         <h4 class="author">Eric S. Davis</h4>
             
-            <h4 class="date">06/03/2021</h4>
+            <h4 class="date">06/14/2021</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/master/vignettes/matching_ranges.Rmd"><code>vignettes/matching_ranges.Rmd</code></a></small>
       <div class="hidden name"><code>matching_ranges.Rmd</code></div>
@@ -119,7 +119,7 @@
 <div id="introduction" class="section level2">
 <h2 class="hasAnchor">
 <a href="#introduction" class="anchor"></a>Introduction</h2>
-<p>We often want to know the causal relationship between one or more genomic features. Most statisitical tests incorrectly assume that features are randomly distributed across the genome. In fact many features break this assumption because they covary or have different underlying distributions after being subset by another feature. It is therefore critical to isolate the feature of interest by assembling a null set that is matched for confounding covariates. To address this question the <code>nullranges</code> package implements <code><a href="../reference/matchRanges.html">matchRanges()</a></code>, an efficient and convenient tool for selecting a covariate-matched set of null hypothesis ranges from a pool of background ranges within the Bioconductor framework.</p>
+<p>We often want to know the causal relationship between one or more genomic features. Most statistical tests incorrectly assume that features are randomly distributed across the genome. In fact many features break this assumption because they covary or have different underlying distributions after being subset by another feature. It is therefore critical to isolate the feature of interest by assembling a null set that is matched for confounding covariates. To address this question the <code>nullranges</code> package implements <code><a href="../reference/matchRanges.html">matchRanges()</a></code>, an efficient and convenient tool for selecting a covariate-matched set of null hypothesis ranges from a pool of background ranges within the Bioconductor framework.</p>
 <p>In this vignette, we provide an overview of <code><a href="../reference/matchRanges.html">matchRanges()</a></code> and its associated functions. We start with a simulated example generated with the utility function <code><a href="../reference/makeExampleMatchedDataSet.html">makeExampleMatchedDataSet()</a></code>. We also provide an overview of the class struture and a guide for choosing among the supported matching methods. To see <code>matchedRanges()</code> used in real biological examples, visit the <a href="matching_granges.Rmd">Matching GRanges</a>, and <a href="matching_ginteractions.Rmd">Matching GInteractions</a> vignettes.</p>
 </div>
 <div id="using-matchranges" class="section level2">
