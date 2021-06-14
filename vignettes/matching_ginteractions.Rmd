@@ -110,16 +110,10 @@ plotPropensity(mgi, sets = c('f', 'p', 'm'), log = 'x')
 
 We can ensure that covariate distributions have been matched appropriately by using the `covariates()` function to extract matched covariates along with `patchwork` and `plotCovarite` to visualize all distributions:
 
-```{r, message=FALSE, warning=FALSE, fig.height=6, fig.width=5}
+```{r, message=FALSE, warning=FALSE, fig.height=8, fig.width=5}
 library(patchwork)
 plots <- lapply(covariates(mgi), plotCovariate, x=mgi, sets = c('f', 'm', 'p'))
 Reduce('/', plots)
-
-plotCovariate(mgi, covar = 'n_sites', sets = c('f', 'm', 'p'), type = 'bars', thresh = 15)
-debugonce(plotCovariate)
-hist(mgi$n_sites)
-max(mgi$n_sites)
-min(mgi$n_sites)
 ```
 
 ## Compare CTCF site orientation
