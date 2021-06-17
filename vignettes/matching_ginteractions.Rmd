@@ -33,6 +33,173 @@ Here, we generate a set of null-hypothesis ranges to more rigorously test the co
 
 Using these annotations and the `matchRanges()` function, we can compare CTCF motif orientations between pairs of genomic regions that are 1) connected by loops, 2) not connected by loops, 3) randomly chosen, or 4) not connected by loops, but matched for the strength of CTCF sites and distance between loop anchors.
 
+```{r, message=FALSE, warning=FALSE, echo=FALSE, fig.width=8.5, fig.height=6.5}
+## Define colors
+colors <- c("#e19995", "#adaf64", "#4fbe9b", "#6eb3d9", "#d098d7")
+
+## Create artificial GInteractions
+library(InteractionSet)
+set.seed(5)
+pool <- GInteractions(
+  anchor1 = GRanges(seqnames = "chr1",
+                    ranges = IRanges(start = sample(1:990, 120, replace = TRUE),
+                                     width = 10)),
+  anchor2 = GRanges(seqnames = "chr1",
+                    ranges = IRanges(start = sample(1:990, 120, replace = TRUE),
+                                     width = 10)),
+  mode = "strict",
+  color = sample(1:5, 120, replace = TRUE)
+)
+
+focal <- GInteractions(
+  anchor1 = GRanges(seqnames = "chr1",
+                    ranges = IRanges(start = sample(1:990, 16, replace = TRUE),
+                                     width = 10)),
+  anchor2 = GRanges(seqnames = "chr1",
+                    ranges = IRanges(start = sample(1:990, 16, replace = TRUE),
+                                     width = 10)),
+  mode = "strict",
+  color = sample(1:5, 16, replace = TRUE)
+)
+
+
+## Add distance to metadata
+pool$distance <- pairdist(pool)
+focal$distance <- pairdist(focal)
+
+## Match ranges
+library(nullranges)
+set.seed(123)
+x <- matchRanges(focal = focal,
+                 pool = pool,
+                 covar = ~color + distance,
+                 method = 'n', replace = TRUE)
+
+## Visualize sets
+library(BentoBox)
+library(grid)
+set.seed(123)
+bb_pageCreate(width = 8.5, height = 6.5, showGuides = FALSE, xgrid = 0, ygrid = 0)
+
+## Define common parameters
+p <- bb_params(chrom = "chr1", chromstart = 1, chromend = 1000)
+
+
+## Pool set
+poolSet <- bb_plotPairsArches(data = pool,
+                              params = p, alpha = 1, linecolor = NA,
+                              fill = colors[pool$color],
+                              archHeight = pool$distance,
+                              x = 1, y = 1.25, width = 2.5, height = 2.25)
+bb_annoGenomeLabel(plot = poolSet, x = 1, y = 3.55)
+bb_plotText(label = "Pool Set",
+            x = 2.25, y = 0.9,
+            just = c("center", "bottom"),
+            fontcolor = "#33A02C",
+            fontface = "bold",
+            fontfamily = 'mono')
+
+## Focal set
+focalSet <- bb_plotPairsArches(data = focal,
+                               params = p, alpha = 1, linecolor = NA,
+                               fill = colors[focal$color],
+                               archHeight = focal$distance,
+                               x = 5, y = 1.1, width = 2.5, height = 0.9)
+bb_annoGenomeLabel(plot = focalSet, x = 5, y = 2.05)
+bb_plotText(label = "Focal Set",
+            x = 6.25, y = 0.9,
+            just = c("center", "bottom"),
+            fontcolor = "#1F78B4",
+            fontface = "bold",
+            fontfamily = 'mono')
+
+
+## Matched set
+matchedSet <- bb_plotPairsArches(data = x,
+                                 params = p, alpha = 1, linecolor = NA,
+                                 fill = colors[x$color],
+                                 archHeight = x$distance,
+                                 x = 5, y = 2.6, width = 2.5, height = 0.9)
+bb_annoGenomeLabel(plot = matchedSet, x = 5, y = 3.55)
+bb_plotText(label = "Matched Set",
+            x = 6.25, y = 2.50,
+            just = c("center", "bottom"),
+            fontcolor = "#A6CEE3",
+            fontface = "bold",
+            fontfamily = 'mono')
+
+
+## Arrow and matchRanges label
+bb_plotSegments(x0 = 3.5, y0 = 3,
+                x1 = 5, y1 = 3,
+                arrow = arrow(type = "closed", length = unit(0.1, "inches")),
+                fill = "black", lwd = 2)
+bb_plotText(label = "matchRanges()", fontfamily = 'mono',
+            x = 4.25, y = 2.9, just = c("center", "bottom"))
+
+
+
+## Matching plots
+library(ggplot2)
+smallText <- theme(legend.title = element_text(size=8),
+                   legend.text=element_text(size=8),
+                   title = element_text(size=8),
+                   axis.title.x = element_text(size=8),
+                   axis.title.y = element_text(size=8))
+
+plot1 <-
+  plotPropensity(x, sets=c('f','m','p')) +
+  smallText +
+  theme(legend.key.size = unit(0.5, 'lines'),
+        title = element_blank())
+
+plot2 <-
+  plotCovariate(x=x, covar=covariates(x)[1], sets=c('f','m','p')) +
+  smallText +
+  theme(legend.text = element_blank(),
+        legend.position = 'none')
+
+plot3 <-
+  plotCovariate(x=x, covar=covariates(x)[2], sets=c('f','m','p'))+
+  smallText + 
+  theme(legend.key.size = unit(0.5, 'lines'))
+
+
+## Propensity scores
+bb_plotText(label = "plotPropensity()",
+            x = 1.10, y = 4.24,
+            just = c("left", "bottom"),
+            fontface = "bold",
+            fontfamily = 'mono')
+bb_plotText(label = "~color + distance",
+            x = 1.25, y = 4.5,
+            just = c("left", "bottom"),
+            fontsize = 10,
+            fontfamily = "mono")
+bb_plotGG(plot = plot1,
+          x = 1, y = 4.5, width = 2.5, height = 1.5,
+          just = c("left", "top"))
+
+## Covariate balance
+bb_plotText(label = "plotCovariate()",
+            x = 3.75, y = 4.24,
+            just = c("left", "bottom"),
+            fontface = "bold",
+            fontfamily = "mono")
+bb_plotText(label = covariates(x),
+            x = c(4, 5.9), y = 4.5,
+            just = c("left", "bottom"),
+            fontsize = 10,
+            fontfamily = "mono")
+bb_plotGG(plot = plot2,
+          x = 3.50, y = 4.5, width = 1.8, height = 1.5,
+          just = c("left", "top"))
+
+bb_plotGG(plot = plot3,
+          x = 5.30, y = 4.5, width = 2.75, height = 1.5,
+          just = c("left", "top"))
+```
+
 ## Matching with `matchRanges()`
 
 Before we generate our null ranges, let's take a look at our example dataset:
@@ -134,10 +301,12 @@ g4 <- (sum(mgi$convergent) / length(mgi)) * 100
 
 ## Visualize
 barplot(height = c(g1, g2, g3, g4),
-        names.arg = c('looped', 'unlooped', 'random', 'matched'),
+        names.arg = c('looped\n(focal)', 'unlooped\n(pool)',
+                      'all pairs\n(random)', 'unlooped\n(matched)'),
         col = c('#1F78B4', '#33A02C', 'orange2', '#A6CEE3'), 
         ylab = "Convergent CTCF Sites (%)",
         main = "Testing the Convergence Rule",
+        border = NA,
         las = 1)
 ```
 
