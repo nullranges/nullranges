@@ -101,13 +101,13 @@
 
       
 
-      </header><script src="matching_ranges_files/header-attrs-2.8/header-attrs.js"></script><div class="row">
+      </header><script src="matching_ranges_files/header-attrs-2.9/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Overview of matchRanges</h1>
                         <h4 class="author">Eric S. Davis</h4>
             
-            <h4 class="date">06/14/2021</h4>
+            <h4 class="date">06/17/2021</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/master/vignettes/matching_ranges.Rmd"><code>vignettes/matching_ranges.Rmd</code></a></small>
       <div class="hidden name"><code>matching_ranges.Rmd</code></div>
@@ -120,7 +120,8 @@
 <h2 class="hasAnchor">
 <a href="#introduction" class="anchor"></a>Introduction</h2>
 <p>We often want to know the causal relationship between one or more genomic features. Most statistical tests incorrectly assume that features are randomly distributed across the genome. In fact many features break this assumption because they covary or have different underlying distributions after being subset by another feature. It is therefore critical to isolate the feature of interest by assembling a null set that is matched for confounding covariates. To address this question the <code>nullranges</code> package implements <code><a href="../reference/matchRanges.html">matchRanges()</a></code>, an efficient and convenient tool for selecting a covariate-matched set of null hypothesis ranges from a pool of background ranges within the Bioconductor framework.</p>
-<p>In this vignette, we provide an overview of <code><a href="../reference/matchRanges.html">matchRanges()</a></code> and its associated functions. We start with a simulated example generated with the utility function <code><a href="../reference/makeExampleMatchedDataSet.html">makeExampleMatchedDataSet()</a></code>. We also provide an overview of the class struture and a guide for choosing among the supported matching methods. To see <code>matchedRanges()</code> used in real biological examples, visit the <a href="matching_granges.Rmd">Matching GRanges</a>, and <a href="matching_ginteractions.Rmd">Matching GInteractions</a> vignettes.</p>
+<p>In this vignette, we provide an overview of <code><a href="../reference/matchRanges.html">matchRanges()</a></code> and its associated functions. We start with a simulated example generated with the utility function <code><a href="../reference/makeExampleMatchedDataSet.html">makeExampleMatchedDataSet()</a></code>. We also provide an overview of the class struture and a guide for choosing among the supported matching methods. To see <code>matchedRanges()</code> used in real biological examples, visit the <a href="matching_granges.html">Case study I: CTCF enrichment</a>, and <a href="matching_ginteractions.html">Case study II: CTCF orientation</a> vignettes.</p>
+<p><img src="matching_ranges_files/figure-html/unnamed-chunk-1-1.png"><!-- --></p>
 </div>
 <div id="using-matchranges" class="section level2">
 <h2 class="hasAnchor">
@@ -217,17 +218,17 @@
 <p>Visualizing propensity scores can show how well sets were matched overall:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/plotPropensity.html">plotPropensity</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span></code></pre></div>
-<p><img src="matching_ranges_files/figure-html/unnamed-chunk-5-1.png"><!-- --></p>
+<p><img src="matching_ranges_files/figure-html/unnamed-chunk-6-1.png"><!-- --></p>
 <p>The distributions of features can be visualized in each set with <code><a href="../reference/plotCovariate.html">plotCovariate()</a></code>:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/plotCovariate.html">plotCovariate</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span></code></pre></div>
-<p><img src="matching_ranges_files/figure-html/unnamed-chunk-6-1.png"><!-- --></p>
+<p><img src="matching_ranges_files/figure-html/unnamed-chunk-7-1.png"><!-- --></p>
 <p>Since these functions return ggplots, <code>patchwork</code> can be used to visualize all covariates like this:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com">patchwork</a></span><span class="op">)</span>
 <span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="fu"><a href="../reference/covariates.html">covariates</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span>, <span class="va">plotCovariate</span>, x<span class="op">=</span><span class="va">mgr</span>, sets <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'f'</span>, <span class="st">'m'</span>, <span class="st">'p'</span><span class="op">)</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/funprog.html">Reduce</a></span><span class="op">(</span><span class="st">'/'</span>, <span class="va">plots</span><span class="op">)</span></code></pre></div>
-<p><img src="matching_ranges_files/figure-html/unnamed-chunk-7-1.png"><!-- --></p>
+<p><img src="matching_ranges_files/figure-html/unnamed-chunk-8-1.png"><!-- --></p>
 <p>By default, continuous features are plotted as density line plots while categorical features are plotted as stacked bar plots. All sets are also shown by default. Defaults can be overridden by setting the <code>type</code> and <code>sets</code> arguments.</p>
 </div>
 <div id="accessing-matched-data" class="section level3">
@@ -295,7 +296,7 @@
                    replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 <span class="va">nn</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/overview.html">overview</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span>
 <span class="fu"><a href="../reference/plotPropensity.html">plotPropensity</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span></code></pre></div>
-<p><img src="matching_ranges_files/figure-html/unnamed-chunk-12-1.png"><!-- --></p>
+<p><img src="matching_ranges_files/figure-html/unnamed-chunk-13-1.png"><!-- --></p>
 <p>This method is best if you have a very large dataset because it is usually the fastest matching method. However, because sampling is done with replacement the user should be careful to assess the number of duplicate ranges pulled. This can be done fairly easily using the <code><a href="../reference/indices.html">indices()</a></code> function:</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">## Total number of duplicated indices</span>
@@ -322,7 +323,7 @@
                    replace <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
 <span class="va">rs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/overview.html">overview</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span>
 <span class="fu"><a href="../reference/plotPropensity.html">plotPropensity</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span></code></pre></div>
-<p><img src="matching_ranges_files/figure-html/unnamed-chunk-14-1.png"><!-- --></p>
+<p><img src="matching_ranges_files/figure-html/unnamed-chunk-15-1.png"><!-- --></p>
 <p>Rejection sampling is typically the fastest available matching method. Therefore, it is ideal to use on large datasets when sampling without replacement is important. However, this method can be unstable, particularly when the pool set is not much larger than the focal set. In those cases, the best method to use is stratified sampling.</p>
 </div>
 <div id="stratified-sampling" class="section level3">
@@ -338,7 +339,7 @@
                    replace <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
 <span class="va">ss</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/overview.html">overview</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span>
 <span class="fu"><a href="../reference/plotPropensity.html">plotPropensity</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span></code></pre></div>
-<p><img src="matching_ranges_files/figure-html/unnamed-chunk-15-1.png"><!-- --></p>
+<p><img src="matching_ranges_files/figure-html/unnamed-chunk-16-1.png"><!-- --></p>
 <p>Stratified sampling is typically the slowest method since it involves iterative resampling. However, this is usually only noticable on very large datasets. Stratified sampling tends to work very well for discrete data, and often produces the best matches even on continuous data:</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">## Extract difference in propensity scores</span>

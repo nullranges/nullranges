@@ -101,13 +101,13 @@
 
       
 
-      </header><script src="matching_ginteractions_files/header-attrs-2.8/header-attrs.js"></script><div class="row">
+      </header><script src="matching_ginteractions_files/header-attrs-2.9/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Case study II: CTCF orientation</h1>
                         <h4 class="author">Eric S. Davis</h4>
             
-            <h4 class="date">06/14/2021</h4>
+            <h4 class="date">06/17/2021</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/master/vignettes/matching_ginteractions.Rmd"><code>vignettes/matching_ginteractions.Rmd</code></a></small>
       <div class="hidden name"><code>matching_ginteractions.Rmd</code></div>
@@ -158,19 +158,19 @@
 ##   [198118]      chrX 154320001-154330000 ---      chrX 154370001-154380000 |
 ##   [198119]      chrX 154320001-154330000 ---      chrX 155250001-155260000 |
 ##   [198120]      chrX 154370001-154380000 ---      chrX 155250001-155260000 |
-##               looped ctcfSignal   n_sites  distance convergent
-##            &lt;logical&gt;  &lt;numeric&gt; &lt;numeric&gt; &lt;integer&gt;  &lt;logical&gt;
-##        [1]     FALSE    5.18038         2    290000      FALSE
-##        [2]     FALSE    5.46775         2    480000       TRUE
-##        [3]     FALSE    7.30942         2    570000      FALSE
-##        [4]     FALSE    7.34338         2    610000      FALSE
-##        [5]     FALSE    6.31338         3    640000       TRUE
-##        ...       ...        ...       ...       ...        ...
-##   [198116]     FALSE    6.79246         2     60000      FALSE
-##   [198117]     FALSE    6.12447         3    940000       TRUE
-##   [198118]     FALSE    7.40868         2     50000       TRUE
-##   [198119]     FALSE    7.00936         3    930000      FALSE
-##   [198120]     FALSE    6.73402         3    880000       TRUE
+##               looped ctcfSignal  n_sites  distance convergent
+##            &lt;logical&gt;  &lt;numeric&gt; &lt;factor&gt; &lt;integer&gt;  &lt;logical&gt;
+##        [1]     FALSE    5.18038        2    290000      FALSE
+##        [2]     FALSE    5.46775        2    480000       TRUE
+##        [3]     FALSE    7.30942        2    570000      FALSE
+##        [4]     FALSE    7.34338        2    610000      FALSE
+##        [5]     FALSE    6.31338        3    640000       TRUE
+##        ...       ...        ...      ...       ...        ...
+##   [198116]     FALSE    6.79246        2     60000      FALSE
+##   [198117]     FALSE    6.12447        3    940000       TRUE
+##   [198118]     FALSE    7.40868        2     50000       TRUE
+##   [198119]     FALSE    7.00936        3    930000      FALSE
+##   [198120]     FALSE    6.73402        3    880000       TRUE
 ##   -------
 ##   regions: 20612 ranges and 5 metadata columns
 ##   seqinfo: 23 sequences from hg19 genome</code></pre>
@@ -186,30 +186,30 @@
 <pre><code>## MatchedGInteractions object with 3104 interactions and 5 metadata columns:
 ##          seqnames1             ranges1     seqnames2             ranges2 |
 ##              &lt;Rle&gt;           &lt;IRanges&gt;         &lt;Rle&gt;           &lt;IRanges&gt; |
-##      [1]     chr20   48220001-48230000 ---     chr20   48590001-48600000 |
-##      [2]     chr19   42280001-42290000 ---     chr19   42450001-42460000 |
-##      [3]      chrX   12720001-12730000 ---      chrX   12960001-12970000 |
-##      [4]      chr4 139840001-139850000 ---      chr4 140020001-140030000 |
-##      [5]     chr12   53900001-53910000 ---     chr12   54130001-54140000 |
+##      [1]     chr11   62160001-62170000 ---     chr11   62190001-62200000 |
+##      [2]     chr17     7890001-7900000 ---     chr17     7990001-8000000 |
+##      [3]     chr22   36460001-36470000 ---     chr22   36680001-36690000 |
+##      [4]     chr11     1560001-1570000 ---     chr11     1710001-1720000 |
+##      [5]     chr12   31780001-31790000 ---     chr12   31830001-31840000 |
 ##      ...       ...                 ... ...       ...                 ... .
-##   [3100]      chr5 148750001-148760000 ---      chr5 148800001-148810000 |
-##   [3101]     chr10   93050001-93060000 ---     chr10   93310001-93320000 |
-##   [3102]     chr12 111260001-111270000 ---     chr12 111920001-111930000 |
-##   [3103]      chr9   33460001-33470000 ---      chr9   33770001-33780000 |
-##   [3104]     chr11 107560001-107570000 ---     chr11 107870001-107880000 |
-##             looped ctcfSignal   n_sites  distance convergent
-##          &lt;logical&gt;  &lt;numeric&gt; &lt;numeric&gt; &lt;integer&gt;  &lt;logical&gt;
-##      [1]     FALSE    9.68191         4    370000       TRUE
-##      [2]     FALSE    8.73409         2    170000      FALSE
-##      [3]     FALSE    9.27103         3    240000      FALSE
-##      [4]     FALSE    8.44158         2    180000       TRUE
-##      [5]     FALSE    8.84704         2    230000      FALSE
-##      ...       ...        ...       ...       ...        ...
-##   [3100]     FALSE    7.67362         2     50000       TRUE
-##   [3101]     FALSE    8.22812         2    260000       TRUE
-##   [3102]     FALSE    8.12033         2    660000      FALSE
-##   [3103]     FALSE    8.76051         2    310000      FALSE
-##   [3104]     FALSE    8.12756         2    310000       TRUE
+##   [3100]      chr2   20980001-20990000 ---      chr2   21180001-21190000 |
+##   [3101]     chr19   14310001-14320000 ---     chr19   14540001-14550000 |
+##   [3102]      chr2   20060001-20070000 ---      chr2   20840001-20850000 |
+##   [3103]     chr14 100750001-100760000 ---     chr14 100850001-100860000 |
+##   [3104]     chr11     1840001-1850000 ---     chr11     2170001-2180000 |
+##             looped ctcfSignal  n_sites  distance convergent
+##          &lt;logical&gt;  &lt;numeric&gt; &lt;factor&gt; &lt;integer&gt;  &lt;logical&gt;
+##      [1]     FALSE    8.12860        2     30000      FALSE
+##      [2]     FALSE    8.72976        3    100000       TRUE
+##      [3]     FALSE    9.51410        4    220000       TRUE
+##      [4]     FALSE    8.64759        3    150000      FALSE
+##      [5]     FALSE    8.43412        2     50000       TRUE
+##      ...       ...        ...      ...       ...        ...
+##   [3100]     FALSE    8.10867        2    200000       TRUE
+##   [3101]     FALSE    8.13800        2    230000      FALSE
+##   [3102]     FALSE    8.46727        2    780000      FALSE
+##   [3103]     FALSE    8.52685        4    100000       TRUE
+##   [3104]     FALSE    8.39022        3    330000       TRUE
 ##   -------
 ##   regions: 20612 ranges and 5 metadata columns
 ##   seqinfo: 23 sequences from hg19 genome</code></pre>
@@ -230,7 +230,7 @@
     <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_minimal</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span>
     <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span><span class="op">(</span>panel.border <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_rect</a></span><span class="op">(</span>color <span class="op">=</span> <span class="st">'black'</span>,
                                       fill <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span><span class="op">)</span></code></pre></div>
-<p><img src="matching_ginteractions_files/figure-html/unnamed-chunk-3-1.png"><!-- --></p>
+<p><img src="matching_ginteractions_files/figure-html/unnamed-chunk-4-1.png"><!-- --></p>
 </div>
 <div id="assessing-quality-of-matching" class="section level2">
 <h2 class="hasAnchor">
@@ -242,41 +242,46 @@
 <pre><code>## MatchedGInteractions object: 
 ##        set      N ctcfSignal.mean ctcfSignal.sd distance.mean distance.sd
 ##      focal   3104             8.3          0.67        320000      230000
-##    matched   3104             8.2          0.73        320000      250000
+##    matched   3104             8.3          0.71        320000      250000
 ##       pool 195016             7.9          0.85        490000      290000
 ##  unmatched 191912             7.8          0.85        490000      290000
-##  n_sites.mean n_sites.sd ps.mean ps.sd
-##           2.4       0.76   0.026 0.016
-##           2.3       0.78   0.026 0.016
-##           2.3       0.96   0.016 0.013
-##           2.3       0.97   0.015 0.013
+##  n_sites.0 n_sites.1 n_sites.2 n_sites.3 n_sites.4 n_sites.5 n_sites.6
+##          0         0      2167       734       164        32         4
+##          0         0      2191       719       157        30         3
+##          0         0    152318     34992      5971       944       158
+##          0         0    150127     34273      5814       914       155
+##  n_sites.7+ ps.mean ps.sd
+##           3   0.026 0.016
+##           4   0.026 0.016
+##         633   0.016 0.013
+##         629   0.015 0.013
 ## --------
 ## focal - matched: 
-##  ctcfSignal.mean ctcfSignal.sd distance.mean distance.sd n_sites.mean
-##            0.018        -0.061          1300      -26000        0.049
-##  n_sites.sd  ps.mean    ps.sd
-##      -0.019 -7.9e-07 -5.7e-06</code></pre>
+##  ctcfSignal.mean ctcfSignal.sd distance.mean distance.sd n_sites.0 n_sites.1
+##         -2.8e-05        -0.047          -250      -26000         0         0
+##  n_sites.2 n_sites.3 n_sites.4 n_sites.5 n_sites.6 n_sites.7+  ps.mean    ps.sd
+##        -24        15         7         2         1         -1 -1.7e-07 -7.4e-07</code></pre>
 <p>In addition to provding a printed overview, the overview data can be extracted for convenience. For example, the <code>quality</code> property shows the absolute value of the mean difference between focal and matched sets. Therefore, the lower this value, the better the matching quality:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">ov</span><span class="op">$</span><span class="va">quality</span></code></pre></div>
-<pre><code>## [1] 7.9e-07</code></pre>
+<pre><code>## [1] 1.7e-07</code></pre>
 <div id="visualizing-matching-results" class="section level3">
 <h3 class="hasAnchor">
 <a href="#visualizing-matching-results" class="anchor"></a>Visualizing matching results</h3>
 <p>Let’s visualize overall matching quality by plotting propensity scores for the focal, pool, and matched sets:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/plotPropensity.html">plotPropensity</a></span><span class="op">(</span><span class="va">mgi</span>, sets <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'f'</span>, <span class="st">'p'</span>, <span class="st">'m'</span><span class="op">)</span><span class="op">)</span></code></pre></div>
-<p><img src="matching_ginteractions_files/figure-html/unnamed-chunk-6-1.png"><!-- --></p>
+<p><img src="matching_ginteractions_files/figure-html/unnamed-chunk-7-1.png"><!-- --></p>
 <p>Log transformations can be applied to ‘x’, ‘y’, or both (<code><a href="https://rdrr.io/r/base/c.html">c('x', 'y')</a></code>) for plotting functions to make it easier to assess quality. It is clear that the matched set is very well matched to the focal set:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/plotPropensity.html">plotPropensity</a></span><span class="op">(</span><span class="va">mgi</span>, sets <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'f'</span>, <span class="st">'p'</span>, <span class="st">'m'</span><span class="op">)</span>, log <span class="op">=</span> <span class="st">'x'</span><span class="op">)</span></code></pre></div>
-<p><img src="matching_ginteractions_files/figure-html/unnamed-chunk-7-1.png"><!-- --></p>
+<p><img src="matching_ginteractions_files/figure-html/unnamed-chunk-8-1.png"><!-- --></p>
 <p>We can ensure that covariate distributions have been matched appropriately by using the <code><a href="../reference/covariates.html">covariates()</a></code> function to extract matched covariates along with <code>patchwork</code> and <code>plotCovarite</code> to visualize all distributions:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com">patchwork</a></span><span class="op">)</span>
 <span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="fu"><a href="../reference/covariates.html">covariates</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span>, <span class="va">plotCovariate</span>, x<span class="op">=</span><span class="va">mgi</span>, sets <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'f'</span>, <span class="st">'m'</span>, <span class="st">'p'</span><span class="op">)</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/funprog.html">Reduce</a></span><span class="op">(</span><span class="st">'/'</span>, <span class="va">plots</span><span class="op">)</span></code></pre></div>
-<p><img src="matching_ginteractions_files/figure-html/unnamed-chunk-8-1.png"><!-- --></p>
+<p><img src="matching_ginteractions_files/figure-html/unnamed-chunk-9-1.png"><!-- --></p>
 </div>
 </div>
 <div id="compare-ctcf-site-orientation" class="section level2">
@@ -297,22 +302,35 @@
 
 <span class="co">## Visualize</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html">barplot</a></span><span class="op">(</span>height <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">g1</span>, <span class="va">g2</span>, <span class="va">g3</span>, <span class="va">g4</span><span class="op">)</span>,
-        names.arg <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'looped'</span>, <span class="st">'unlooped'</span>, <span class="st">'random'</span>, <span class="st">'matched'</span><span class="op">)</span>,
+        names.arg <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'looped\n(focal)'</span>, <span class="st">'unlooped\n(pool)'</span>,
+                      <span class="st">'all pairs\n(random)'</span>, <span class="st">'unlooped\n(matched)'</span><span class="op">)</span>,
         col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'#1F78B4'</span>, <span class="st">'#33A02C'</span>, <span class="st">'orange2'</span>, <span class="st">'#A6CEE3'</span><span class="op">)</span>, 
         ylab <span class="op">=</span> <span class="st">"Convergent CTCF Sites (%)"</span>,
         main <span class="op">=</span> <span class="st">"Testing the Convergence Rule"</span>,
+        border <span class="op">=</span> <span class="cn">NA</span>,
         las <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></code></pre></div>
-<p><img src="matching_ginteractions_files/figure-html/unnamed-chunk-9-1.png"><!-- --></p>
+<p><img src="matching_ginteractions_files/figure-html/unnamed-chunk-10-1.png"><!-- --></p>
 <p>It looks like the converget rule holds, even when controlling for CTCF signal strength and bin pair distance. Our looped group has &gt; 90% convergent CTCF sites, while our other groups have about 25% per CTCF site on average:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="fu"><a href="../reference/focal.html">focal</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span><span class="op">$</span><span class="va">n_sites</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="fu"><a href="../reference/pool.html">pool</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span><span class="op">$</span><span class="va">n_sites</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">random</span><span class="op">$</span><span class="va">n_sites</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">$</span><span class="va">n_sites</span><span class="op">)</span></code></pre></div>
-<pre><code>## [1] 2.388853
-## [1] 2.298222
-## [1] 2.299613
-## [1] 2.339884</code></pre>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="fu"><a href="../reference/focal.html">focal</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span><span class="op">$</span><span class="va">n_sites</span><span class="op">)</span></code></pre></div>
+<pre><code>## Warning in mean.default(focal(mgi)$n_sites): argument is not numeric or logical:
+## returning NA</code></pre>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="fu"><a href="../reference/pool.html">pool</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span><span class="op">$</span><span class="va">n_sites</span><span class="op">)</span></code></pre></div>
+<pre><code>## Warning in mean.default(pool(mgi)$n_sites): argument is not numeric or logical:
+## returning NA</code></pre>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">random</span><span class="op">$</span><span class="va">n_sites</span><span class="op">)</span></code></pre></div>
+<pre><code>## Warning in mean.default(random$n_sites): argument is not numeric or logical:
+## returning NA</code></pre>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">$</span><span class="va">n_sites</span><span class="op">)</span></code></pre></div>
+<pre><code>## Warning in mean.default(mgi$n_sites): argument is not numeric or logical:
+## returning NA</code></pre>
+<pre><code>## [1] NA
+## [1] NA
+## [1] NA
+## [1] NA</code></pre>
 </div>
   </div>
 
