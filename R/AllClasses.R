@@ -5,9 +5,7 @@ bootRanges <- setClass(Class = "bootRanges",
 
 setValidity(Class = "bootRanges",
             method = function(object) {
-              stopifnot(c("blockLength","segmented") %in% names(metadata(object)))
-              stopifnot(is(metadata(object)$blockLength, "numeric") & metadata(object)$blockLength > 0)
-              stopifnot(is(metadata(object)$segmented, "logical"))
+              stopifnot(all(c("blockLength","iter") %in% names(mcols(object))))
               })
 
 #' Matched objects

@@ -25,6 +25,7 @@
 #' @importFrom IRanges overlapsAny
 #' @importFrom stats as.formula binomial kmeans predict
 #' quantile rbinom rnorm runif terms
+#' @importFrom S4Vectors Rle
 #' @importFrom IRanges IRanges successiveIRanges mid
 #' @importFrom GenomicRanges tileGenome sort GRangesList
 #' @importFrom GenomeInfoDb seqlengths seqlengths<- seqlevels sortSeqlevels
@@ -74,8 +75,8 @@ bootRanges <- function(x, seg = NULL, blockLength, R=1,
 
 
   br <- GRangesList(br)
-  metadata(br) <- list("blockLength" = blockLength,
-                       segmented = !is.null(seg))
+  mcols(br)$blockLength <- Rle(as.integer(blockLength))
+  mcols(br)$iter <- seq_len(R)
   new("bootRanges", br)
 }
 
