@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.17</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.18</span>
       </span>
     </div>
 
@@ -107,7 +107,7 @@
       <h1 data-toc-skip>Segmented block bootstrap</h1>
                         <h4 class="author">Wancen Mu</h4>
             
-            <h4 class="date">06/17/2021</h4>
+            <h4 class="date">06/22/2021</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/master/vignettes/segmented_boot_ranges.Rmd"><code>vignettes/segmented_boot_ranges.Rmd</code></a></small>
       <div class="hidden name"><code>segmented_boot_ranges.Rmd</code></div>
@@ -253,8 +253,8 @@
 <span class="op">)</span>, times<span class="op">=</span><span class="fl">10</span><span class="op">)</span></code></pre></div>
 <pre><code>## Unit: milliseconds
 ##     expr      min       lq     mean   median       uq      max neval
-##     prop 289.5941 302.6624 466.6049 309.7292 398.9202 1081.226    10
-##  no_prop 278.2132 296.4166 443.9469 298.4875 320.3200 1044.087    10</code></pre>
+##     prop 248.7647 258.8849 405.4825 267.1588 372.0958 928.6583    10
+##  no_prop 238.6248 243.6903 251.6024 250.3676 259.6024 270.6379    10</code></pre>
 </div>
 <div id="visualizing-the-segmented-block-bootstrap" class="section level1">
 <h1 class="hasAnchor">
@@ -305,7 +305,7 @@
           <span class="st">"blue2"</span>,<span class="st">"green4"</span>,<span class="st">"darkred"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">cols</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fl">1</span><span class="op">:</span><span class="fl">7</span>
 <span class="fu">plotGRanges</span><span class="op">(</span><span class="fu">fixBBPlots</span><span class="op">(</span><span class="va">seg</span><span class="op">)</span><span class="op">)</span></code></pre></div>
-<pre><code>## Warning: Not enough plotting space for all provided range elements.</code></pre>
+<pre><code>## Warning: Not enough plotting space for all provided elements.</code></pre>
 <p><img src="segmented_boot_ranges_files/figure-html/toysegments-1.png"><!-- --></p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">50</span>
@@ -330,9 +330,9 @@
 <code class="sourceCode R"><span class="va">gr_prime</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">gr</span>, <span class="va">seg</span>, blockLength <span class="op">=</span> <span class="fl">25</span>, R <span class="op">=</span> <span class="fl">1</span>, 
                        proportionLength <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>
 <span class="fu">plotGRanges</span><span class="op">(</span><span class="fu">fixBBPlots</span><span class="op">(</span><span class="va">gr_prime</span><span class="op">)</span><span class="op">)</span></code></pre></div>
-<pre><code>## Warning: Not enough plotting space for all provided range elements.
+<pre><code>## Warning: Not enough plotting space for all provided elements.
 
-## Warning: Not enough plotting space for all provided range elements.</code></pre>
+## Warning: Not enough plotting space for all provided elements.</code></pre>
 <p><img src="segmented_boot_ranges_files/figure-html/toy-no-prop-1.png"><!-- --></p>
 </div>
 <div id="scaling-blocks-to-segmentation-length" class="section level2">
@@ -342,9 +342,9 @@
 <code class="sourceCode R"><span class="va">gr_prime</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">gr</span>, <span class="va">seg</span>, blockLength <span class="op">=</span> <span class="fl">50</span>, R <span class="op">=</span> <span class="fl">1</span>, 
                        proportionLength <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>
 <span class="fu">plotGRanges</span><span class="op">(</span><span class="fu">fixBBPlots</span><span class="op">(</span><span class="va">gr_prime</span><span class="op">)</span><span class="op">)</span></code></pre></div>
-<pre><code>## Warning: Not enough plotting space for all provided range elements.
+<pre><code>## Warning: Not enough plotting space for all provided elements.
 
-## Warning: Not enough plotting space for all provided range elements.</code></pre>
+## Warning: Not enough plotting space for all provided elements.</code></pre>
 <p><img src="segmented_boot_ranges_files/figure-html/toy-prop-1.png"><!-- --></p>
 </div>
 </div>
