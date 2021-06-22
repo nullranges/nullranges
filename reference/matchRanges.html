@@ -82,7 +82,7 @@ GRanges, or GInteractions objects." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.18</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.19</span>
       </span>
     </div>
 
@@ -244,15 +244,15 @@ items have a corresponding match in <code>pool</code>.</p></li>
 #&gt;     &lt;logical&gt; &lt;numeric&gt; &lt;character&gt;
 #&gt; 1       FALSE   5.60013           c
 #&gt; 2       FALSE   5.43395           c
-#&gt; 3       FALSE   4.47920           b
-#&gt; 4       FALSE   1.45446           c
+#&gt; 3       FALSE   4.65322           c
+#&gt; 4       FALSE   5.21935           a
 #&gt; 5       FALSE   2.99545           c
 #&gt; ...       ...       ...         ...
-#&gt; 496     FALSE   4.90340           c
-#&gt; 497     FALSE   9.54752           b
-#&gt; 498     FALSE   4.64822           c
-#&gt; 499     FALSE   1.82828           d
-#&gt; 500     FALSE   7.02681           b</div><div class='input'>
+#&gt; 496     FALSE   1.45446           c
+#&gt; 497     FALSE   4.90340           c
+#&gt; 498     FALSE   4.66673           e
+#&gt; 499     FALSE   6.29441           a
+#&gt; 500     FALSE   8.33985           c</div><div class='input'>
 <span class='co'>## Match with GRanges</span>
 <span class='va'>x</span> <span class='op'>&lt;-</span> <span class='fu'><a href='makeExampleMatchedDataSet.html'>makeExampleMatchedDataSet</a></span><span class='op'>(</span>type <span class='op'>=</span> <span class='st'>"GRanges"</span><span class='op'>)</span>
 <span class='fu'>matchRanges</span><span class='op'>(</span>focal <span class='op'>=</span> <span class='va'>x</span><span class='op'>[</span><span class='va'>x</span><span class='op'>$</span><span class='va'>feature1</span>,<span class='op'>]</span>,
@@ -263,15 +263,15 @@ items have a corresponding match in <code>pool</code>.</p></li>
 #&gt;            &lt;Rle&gt;   &lt;IRanges&gt;  &lt;Rle&gt; | &lt;logical&gt; &lt;numeric&gt; &lt;character&gt;
 #&gt;     [1]     chr1   4191-4290      * |     FALSE   5.60013           c
 #&gt;     [2]     chr1   3668-3767      * |     FALSE   5.43395           c
-#&gt;     [3]     chr1 10236-10335      * |     FALSE   4.47920           b
-#&gt;     [4]     chr1   8451-8550      * |     FALSE   1.45446           c
+#&gt;     [3]     chr1 10216-10315      * |     FALSE   4.65322           c
+#&gt;     [4]     chr1   8409-8508      * |     FALSE   5.21935           a
 #&gt;     [5]     chr1   5658-5757      * |     FALSE   2.99545           c
 #&gt;     ...      ...         ...    ... .       ...       ...         ...
-#&gt;   [496]     chr1   7472-7571      * |     FALSE   4.90340           c
-#&gt;   [497]     chr1   8316-8415      * |     FALSE   9.54752           b
-#&gt;   [498]     chr1   8987-9086      * |     FALSE   4.64822           c
-#&gt;   [499]     chr1   8288-8387      * |     FALSE   1.82828           d
-#&gt;   [500]     chr1     868-967      * |     FALSE   7.02681           b
+#&gt;   [496]     chr1   8451-8550      * |     FALSE   1.45446           c
+#&gt;   [497]     chr1   7472-7571      * |     FALSE   4.90340           c
+#&gt;   [498]     chr1   8313-8412      * |     FALSE   4.66673           e
+#&gt;   [499]     chr1   8966-9065      * |     FALSE   6.29441           a
+#&gt;   [500]     chr1   8276-8375      * |     FALSE   8.33985           c
 #&gt;   -------
 #&gt;   seqinfo: 1 sequence from an unspecified genome; no seqlengths</div><div class='input'>
 <span class='co'>## Match with GInteractions</span>
@@ -284,28 +284,28 @@ items have a corresponding match in <code>pool</code>.</p></li>
 #&gt;             &lt;Rle&gt;   &lt;IRanges&gt;         &lt;Rle&gt;   &lt;IRanges&gt; | &lt;logical&gt; &lt;numeric&gt;
 #&gt;     [1]      chr1   4191-4290 ---      chr1   4191-4290 |     FALSE   5.60013
 #&gt;     [2]      chr1   3668-3767 ---      chr1   3668-3767 |     FALSE   5.43395
-#&gt;     [3]      chr1 10236-10335 ---      chr1 10236-10335 |     FALSE   4.47920
-#&gt;     [4]      chr1   8451-8550 ---      chr1   8451-8550 |     FALSE   1.45446
+#&gt;     [3]      chr1 10216-10315 ---      chr1 10216-10315 |     FALSE   4.65322
+#&gt;     [4]      chr1   8409-8508 ---      chr1   8409-8508 |     FALSE   5.21935
 #&gt;     [5]      chr1   5658-5757 ---      chr1   5658-5757 |     FALSE   2.99545
 #&gt;     ...       ...         ... ...       ...         ... .       ...       ...
-#&gt;   [496]      chr1   7472-7571 ---      chr1   7472-7571 |     FALSE   4.90340
-#&gt;   [497]      chr1   8316-8415 ---      chr1   8316-8415 |     FALSE   9.54752
-#&gt;   [498]      chr1   8987-9086 ---      chr1   8987-9086 |     FALSE   4.64822
-#&gt;   [499]      chr1   8288-8387 ---      chr1   8288-8387 |     FALSE   1.82828
-#&gt;   [500]      chr1     868-967 ---      chr1     868-967 |     FALSE   7.02681
+#&gt;   [496]      chr1   8451-8550 ---      chr1   8451-8550 |     FALSE   1.45446
+#&gt;   [497]      chr1   7472-7571 ---      chr1   7472-7571 |     FALSE   4.90340
+#&gt;   [498]      chr1   8313-8412 ---      chr1   8313-8412 |     FALSE   4.66673
+#&gt;   [499]      chr1   8966-9065 ---      chr1   8966-9065 |     FALSE   6.29441
+#&gt;   [500]      chr1   8276-8375 ---      chr1   8276-8375 |     FALSE   8.33985
 #&gt;            feature3
 #&gt;         &lt;character&gt;
 #&gt;     [1]           c
 #&gt;     [2]           c
-#&gt;     [3]           b
-#&gt;     [4]           c
+#&gt;     [3]           c
+#&gt;     [4]           a
 #&gt;     [5]           c
 #&gt;     ...         ...
 #&gt;   [496]           c
-#&gt;   [497]           b
-#&gt;   [498]           c
-#&gt;   [499]           d
-#&gt;   [500]           b
+#&gt;   [497]           c
+#&gt;   [498]           e
+#&gt;   [499]           a
+#&gt;   [500]           c
 #&gt;   -------
 #&gt;   regions: 10500 ranges and 0 metadata columns
 #&gt;   seqinfo: 1 sequence from an unspecified genome; no seqlengths</div><div class='input'>
@@ -342,15 +342,15 @@ items have a corresponding match in <code>pool</code>.</p></li>
 #&gt;     &lt;logical&gt; &lt;numeric&gt; &lt;character&gt;
 #&gt; 1       FALSE   5.60013           c
 #&gt; 2       FALSE   5.43395           c
-#&gt; 3       FALSE   4.47920           b
-#&gt; 4       FALSE   1.45446           c
+#&gt; 3       FALSE   4.65322           c
+#&gt; 4       FALSE   5.21935           a
 #&gt; 5       FALSE   2.99545           c
 #&gt; ...       ...       ...         ...
-#&gt; 496     FALSE   4.90340           c
-#&gt; 497     FALSE   9.54752           b
-#&gt; 498     FALSE   4.64822           c
-#&gt; 499     FALSE   1.82828           d
-#&gt; 500     FALSE   7.02681           b</div><div class='input'>
+#&gt; 496     FALSE   1.45446           c
+#&gt; 497     FALSE   4.90340           c
+#&gt; 498     FALSE   4.66673           e
+#&gt; 499     FALSE   6.29441           a
+#&gt; 500     FALSE   8.33985           c</div><div class='input'>
 <span class='co'>## Stratified sampling without replacement</span>
 <span class='va'>x</span> <span class='op'>&lt;-</span> <span class='fu'><a href='makeExampleMatchedDataSet.html'>makeExampleMatchedDataSet</a></span><span class='op'>(</span>type <span class='op'>=</span> <span class='st'>'DataFrame'</span><span class='op'>)</span>
 <span class='fu'>matchRanges</span><span class='op'>(</span>focal <span class='op'>=</span> <span class='va'>x</span><span class='op'>[</span><span class='va'>x</span><span class='op'>$</span><span class='va'>feature1</span>,<span class='op'>]</span>,

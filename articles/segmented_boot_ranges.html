@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.18</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.19</span>
       </span>
     </div>
 
@@ -252,9 +252,9 @@
                  no_prop <span class="op">=</span> <span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">seg</span>, <span class="va">blockLength</span>, <span class="fl">1</span>, <span class="va">deny</span>, proportionLength <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
 <span class="op">)</span>, times<span class="op">=</span><span class="fl">10</span><span class="op">)</span></code></pre></div>
 <pre><code>## Unit: milliseconds
-##     expr      min       lq     mean   median       uq      max neval
-##     prop 248.7647 258.8849 405.4825 267.1588 372.0958 928.6583    10
-##  no_prop 238.6248 243.6903 251.6024 250.3676 259.6024 270.6379    10</code></pre>
+##     expr      min       lq     mean   median       uq       max neval
+##     prop 259.7589 274.6098 440.8438 281.3788 405.3503 1036.0159    10
+##  no_prop 254.3060 255.8110 267.7815 270.0674 274.5616  284.4735    10</code></pre>
 </div>
 <div id="visualizing-the-segmented-block-bootstrap" class="section level1">
 <h1 class="hasAnchor">
@@ -262,8 +262,12 @@
 <p>Below we present a toy example for visualizing the segmented block bootstrap.</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://phanstiellab.github.io/BentoBox">BentoBox</a></span><span class="op">)</span><span class="op">)</span>
+<span class="va">my_palette</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">n</span><span class="op">)</span> <span class="op">{</span>
+  <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="fu"><a href="https://phanstiellab.github.io/bentobox/reference/c.html">c</a></span><span class="op">(</span><span class="st">"red"</span>,<span class="st">"green3"</span>,<span class="st">"red3"</span>,<span class="st">"dodgerblue"</span>,
+         <span class="st">"blue2"</span>,<span class="st">"green4"</span>,<span class="st">"darkred"</span><span class="op">)</span>, <span class="va">n</span><span class="op">)</span>
+<span class="op">}</span>
 <span class="va">plotGRanges</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">gr</span><span class="op">)</span> <span class="op">{</span>
-  <span class="fu"><a href="https://phanstiellab.github.io/bentobox/reference/bb_pageCreate.html">bb_pageCreate</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fl">5</span>, height <span class="op">=</span> <span class="fl">2</span>, xgrid <span class="op">=</span> <span class="fl">0</span>,
+  <span class="fu"><a href="https://phanstiellab.github.io/bentobox/reference/bb_pageCreate.html">bb_pageCreate</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fl">5</span>, height <span class="op">=</span> <span class="fl">3</span>, xgrid <span class="op">=</span> <span class="fl">0</span>,
                 ygrid <span class="op">=</span> <span class="fl">0</span>, showGuides <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
   <span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq_along</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqinfo.html">seqlevels</a></span><span class="op">(</span><span class="va">gr</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span>
     <span class="va">chrom</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqinfo.html">seqlevels</a></span><span class="op">(</span><span class="va">gr</span><span class="op">)</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>
@@ -272,13 +276,12 @@
       <span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://phanstiellab.github.io/bentobox/reference/bb_params.html">bb_params</a></span><span class="op">(</span>chromstart <span class="op">=</span> <span class="fl">0</span>, chromend <span class="op">=</span> <span class="va">chromend</span>,
                      x <span class="op">=</span> <span class="fl">0.5</span>, width <span class="op">=</span> <span class="fl">4</span><span class="op">*</span><span class="va">chromend</span><span class="op">/</span><span class="fl">500</span>, height <span class="op">=</span> <span class="fl">0.6</span>,
                      at <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">chromend</span>, <span class="fl">50</span><span class="op">)</span>,
-                     fill <span class="op">=</span> <span class="va">cols</span><span class="op">)</span>
+                     fill <span class="op">=</span> <span class="fu"><a href="https://phanstiellab.github.io/bentobox/reference/colorby.html">colorby</a></span><span class="op">(</span><span class="st">"state_col"</span>, palette<span class="op">=</span><span class="va">my_palette</span><span class="op">)</span><span class="op">)</span>
       <span class="va">prngs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://phanstiellab.github.io/bentobox/reference/bb_plotRanges.html">bb_plotRanges</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">gr</span>, params <span class="op">=</span> <span class="va">p</span>,
                              chrom <span class="op">=</span> <span class="va">chrom</span>,
-                             y <span class="op">=</span> <span class="fl">0.6</span> <span class="op">+</span> <span class="op">(</span><span class="va">i</span><span class="op">-</span><span class="fl">1</span><span class="op">)</span>,
-                             just <span class="op">=</span> <span class="fu"><a href="https://phanstiellab.github.io/bentobox/reference/c.html">c</a></span><span class="op">(</span><span class="st">"left"</span>, <span class="st">"bottom"</span><span class="op">)</span>,
-                             colorby<span class="op">=</span><span class="fu"><a href="https://phanstiellab.github.io/bentobox/reference/colorby.html">colorby</a></span><span class="op">(</span><span class="st">"state_col"</span><span class="op">)</span><span class="op">)</span>
-      <span class="fu"><a href="https://phanstiellab.github.io/bentobox/reference/bb_annoGenomeLabel.html">bb_annoGenomeLabel</a></span><span class="op">(</span>plot <span class="op">=</span> <span class="va">prngs</span>, params <span class="op">=</span> <span class="va">p</span>, y <span class="op">=</span> <span class="fl">0.7</span> <span class="op">+</span> <span class="op">(</span><span class="va">i</span><span class="op">-</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span>
+                             y <span class="op">=</span> <span class="fl">1</span> <span class="op">+</span> <span class="fl">1.2</span> <span class="op">*</span> <span class="op">(</span><span class="va">i</span><span class="op">-</span><span class="fl">1</span><span class="op">)</span>,
+                             just <span class="op">=</span> <span class="fu"><a href="https://phanstiellab.github.io/bentobox/reference/c.html">c</a></span><span class="op">(</span><span class="st">"left"</span>, <span class="st">"bottom"</span><span class="op">)</span><span class="op">)</span>
+      <span class="fu"><a href="https://phanstiellab.github.io/bentobox/reference/bb_annoGenomeLabel.html">bb_annoGenomeLabel</a></span><span class="op">(</span>plot <span class="op">=</span> <span class="va">prngs</span>, params <span class="op">=</span> <span class="va">p</span>, y <span class="op">=</span> <span class="fl">1.1</span> <span class="op">+</span> <span class="fl">1.2</span> <span class="op">*</span> <span class="op">(</span><span class="va">i</span><span class="op">-</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span>
     <span class="op">}</span><span class="op">)</span>
   <span class="op">}</span>
 <span class="op">}</span></code></pre></div>
@@ -291,23 +294,12 @@
           width <span class="op">=</span> <span class="fu"><a href="https://phanstiellab.github.io/bentobox/reference/c.html">c</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">100</span>, <span class="fl">200</span>, <span class="fl">100</span>, <span class="fl">200</span>, <span class="fl">100</span>, <span class="fl">100</span><span class="op">)</span><span class="op">)</span>,
   seqlengths<span class="op">=</span><span class="fu"><a href="https://phanstiellab.github.io/bentobox/reference/c.html">c</a></span><span class="op">(</span>chr1<span class="op">=</span><span class="fl">500</span>,chr2<span class="op">=</span><span class="fl">400</span><span class="op">)</span>,
   state <span class="op">=</span> <span class="fu"><a href="https://phanstiellab.github.io/bentobox/reference/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span>,<span class="fl">1</span>,<span class="fl">3</span>,<span class="fl">3</span>,<span class="fl">2</span>,<span class="fl">1</span><span class="op">)</span>,
-  state_col <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">7</span>
+  state_col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">7</span><span class="op">)</span>
 <span class="op">)</span></code></pre></div>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">fixBBPlots</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span>
-  <span class="fu"><a href="https://rdrr.io/r/base/sort.html">sort</a></span><span class="op">(</span>
-    <span class="fu"><a href="https://phanstiellab.github.io/bentobox/reference/c.html">c</a></span><span class="op">(</span><span class="va">x</span>,
-      <span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html">GRanges</a></span><span class="op">(</span><span class="st">"chr1"</span>, <span class="fu">IRanges</span><span class="op">(</span><span class="fl">2</span><span class="op">*</span><span class="fl">1</span><span class="op">:</span><span class="fl">7</span>,width<span class="op">=</span><span class="fl">1</span><span class="op">)</span>, state<span class="op">=</span><span class="fl">1</span><span class="op">:</span><span class="fl">7</span>, state_col<span class="op">=</span><span class="fl">1</span><span class="op">:</span><span class="fl">7</span>, block<span class="op">=</span><span class="fl">1</span><span class="op">:</span><span class="fl">7</span><span class="op">)</span>,
-      <span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html">GRanges</a></span><span class="op">(</span><span class="st">"chr2"</span>, <span class="fu">IRanges</span><span class="op">(</span><span class="fl">2</span><span class="op">*</span><span class="fl">1</span><span class="op">:</span><span class="fl">7</span>,width<span class="op">=</span><span class="fl">1</span><span class="op">)</span>, state<span class="op">=</span><span class="fl">1</span><span class="op">:</span><span class="fl">7</span>, state_col<span class="op">=</span><span class="fl">1</span><span class="op">:</span><span class="fl">7</span>, block<span class="op">=</span><span class="fl">1</span><span class="op">:</span><span class="fl">7</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
-<span class="op">}</span></code></pre></div>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://phanstiellab.github.io/bentobox/reference/c.html">c</a></span><span class="op">(</span><span class="st">"red"</span>,<span class="st">"green3"</span>,<span class="st">"red3"</span>,<span class="st">"dodgerblue"</span>,
-          <span class="st">"blue2"</span>,<span class="st">"green4"</span>,<span class="st">"darkred"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">cols</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fl">1</span><span class="op">:</span><span class="fl">7</span>
-<span class="fu">plotGRanges</span><span class="op">(</span><span class="fu">fixBBPlots</span><span class="op">(</span><span class="va">seg</span><span class="op">)</span><span class="op">)</span></code></pre></div>
-<pre><code>## Warning: Not enough plotting space for all provided elements.</code></pre>
+<code class="sourceCode R"><span class="fu">plotGRanges</span><span class="op">(</span><span class="va">seg</span><span class="op">)</span></code></pre></div>
 <p><img src="segmented_boot_ranges_files/figure-html/toysegments-1.png"><!-- --></p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">50</span>
 <span class="va">gr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html">GRanges</a></span><span class="op">(</span>
   seqnames<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/sort.html">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html">sample</a></span><span class="op">(</span><span class="fu"><a href="https://phanstiellab.github.io/bentobox/reference/c.html">c</a></span><span class="op">(</span><span class="st">"chr1"</span>,<span class="st">"chr2"</span><span class="op">)</span>, <span class="va">n</span>, <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>,
@@ -320,31 +312,25 @@
 <span class="va">gr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html">sort</a></span><span class="op">(</span><span class="va">gr</span><span class="op">)</span>
 <span class="va">idx</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/findOverlaps-methods.html">findOverlaps</a></span><span class="op">(</span><span class="va">gr</span>, <span class="va">seg</span>, select<span class="op">=</span><span class="st">"first"</span><span class="op">)</span>
 <span class="va">gr</span><span class="op">$</span><span class="va">state</span> <span class="op">&lt;-</span> <span class="va">seg</span><span class="op">$</span><span class="va">state</span><span class="op">[</span><span class="va">idx</span><span class="op">]</span>
-<span class="va">gr</span><span class="op">$</span><span class="va">state_col</span> <span class="op">&lt;-</span> <span class="va">seg</span><span class="op">$</span><span class="va">state_col</span><span class="op">[</span><span class="va">idx</span><span class="op">]</span>
-<span class="fu">plotGRanges</span><span class="op">(</span><span class="fu">fixBBPlots</span><span class="op">(</span><span class="va">gr</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<span class="va">gr</span><span class="op">$</span><span class="va">state_col</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span><span class="op">(</span><span class="va">seg</span><span class="op">$</span><span class="va">state_col</span><span class="op">[</span><span class="va">idx</span><span class="op">]</span><span class="op">)</span>
+<span class="fu">plotGRanges</span><span class="op">(</span><span class="va">gr</span><span class="op">)</span></code></pre></div>
 <p><img src="segmented_boot_ranges_files/figure-html/toyranges-1.png"><!-- --></p>
 <div id="not-scaling-blocks-to-segmentation-length" class="section level2">
 <h2 class="hasAnchor">
 <a href="#not-scaling-blocks-to-segmentation-length" class="anchor"></a>Not scaling blocks to segmentation length</h2>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">gr_prime</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">gr</span>, <span class="va">seg</span>, blockLength <span class="op">=</span> <span class="fl">25</span>, R <span class="op">=</span> <span class="fl">1</span>, 
                        proportionLength <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>
-<span class="fu">plotGRanges</span><span class="op">(</span><span class="fu">fixBBPlots</span><span class="op">(</span><span class="va">gr_prime</span><span class="op">)</span><span class="op">)</span></code></pre></div>
-<pre><code>## Warning: Not enough plotting space for all provided elements.
-
-## Warning: Not enough plotting space for all provided elements.</code></pre>
+<span class="fu">plotGRanges</span><span class="op">(</span><span class="va">gr_prime</span><span class="op">)</span></code></pre></div>
 <p><img src="segmented_boot_ranges_files/figure-html/toy-no-prop-1.png"><!-- --></p>
 </div>
 <div id="scaling-blocks-to-segmentation-length" class="section level2">
 <h2 class="hasAnchor">
 <a href="#scaling-blocks-to-segmentation-length" class="anchor"></a>Scaling blocks to segmentation length</h2>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">gr_prime</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">gr</span>, <span class="va">seg</span>, blockLength <span class="op">=</span> <span class="fl">50</span>, R <span class="op">=</span> <span class="fl">1</span>, 
                        proportionLength <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>
-<span class="fu">plotGRanges</span><span class="op">(</span><span class="fu">fixBBPlots</span><span class="op">(</span><span class="va">gr_prime</span><span class="op">)</span><span class="op">)</span></code></pre></div>
-<pre><code>## Warning: Not enough plotting space for all provided elements.
-
-## Warning: Not enough plotting space for all provided elements.</code></pre>
+<span class="fu">plotGRanges</span><span class="op">(</span><span class="va">gr_prime</span><span class="op">)</span></code></pre></div>
 <p><img src="segmented_boot_ranges_files/figure-html/toy-prop-1.png"><!-- --></p>
 </div>
 </div>

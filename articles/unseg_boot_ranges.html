@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.18</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.19</span>
       </span>
     </div>
 
@@ -159,11 +159,11 @@
                  b_across<span class="op">=</span><span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">pks</span>, blockLength<span class="op">=</span><span class="va">blockLength</span>, withinChrom<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span>
 <span class="op">)</span>, times<span class="op">=</span><span class="fl">10</span><span class="op">)</span></code></pre></div>
 <pre><code>## Unit: milliseconds
-##      expr       min        lq      mean    median        uq       max neval
-##  p_within 1164.1039 1193.5387 1408.0751 1211.5919 1864.3245 1888.5861    10
-##  b_within 1079.2524 1122.1512 1282.8000 1138.8501 1377.3986 1795.9857    10
-##  p_across  228.4899  245.3126  386.4642  255.1224  314.4655  924.4567    10
-##  b_across  244.9682  260.9722  463.3390  278.4690  908.2162  938.9359    10</code></pre>
+##      expr       min       lq      mean    median        uq      max neval
+##  p_within 1344.1653 1372.239 1542.2472 1397.1826 1483.4228 2152.800    10
+##  b_within 1224.7434 1306.256 1486.6230 1346.3921 1586.1355 2057.179    10
+##  p_across  235.1045  248.782  421.4507  262.5052  338.5268 1070.775    10
+##  b_across  255.1226  271.757  500.7083  283.1422 1010.2358 1045.833    10</code></pre>
 </div>
 <div id="visualize-on-synthetic-data" class="section level1">
 <h1 class="hasAnchor">
@@ -180,7 +180,7 @@
                               <span class="fl">20</span>, <span class="fl">5</span>, <span class="fl">5</span>, <span class="fl">5</span>, <span class="fl">30</span>,
                               <span class="fl">80</span>, <span class="fl">40</span><span class="op">)</span><span class="op">)</span>,
               seqlengths<span class="op">=</span><span class="fu"><a href="https://phanstiellab.github.io/bentobox/reference/c.html">c</a></span><span class="op">(</span>chr1<span class="op">=</span><span class="fl">300</span>,chr2<span class="op">=</span><span class="fl">450</span>,chr3<span class="op">=</span><span class="fl">200</span><span class="op">)</span>,
-              chrom<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/integer.html">as.integer</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span><span class="op">(</span><span class="va">seq_nms</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+              chrom<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span><span class="op">(</span><span class="va">seq_nms</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p>The following function uses functionality from <em>BentoBox</em> to plot the ranges.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://phanstiellab.github.io/BentoBox">BentoBox</a></span><span class="op">)</span><span class="op">)</span>
@@ -194,12 +194,11 @@
       <span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://phanstiellab.github.io/bentobox/reference/bb_params.html">bb_params</a></span><span class="op">(</span>chromstart <span class="op">=</span> <span class="fl">0</span>, chromend <span class="op">=</span> <span class="va">chromend</span>,
                      x <span class="op">=</span> <span class="fl">0.5</span>, width <span class="op">=</span> <span class="fl">4</span><span class="op">*</span><span class="va">chromend</span><span class="op">/</span><span class="fl">500</span>, height <span class="op">=</span> <span class="fl">0.5</span>,
                      at <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">chromend</span>, <span class="fl">50</span><span class="op">)</span>,
-                     fill <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/palette.html">palette</a></span><span class="op">(</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span><span class="op">)</span>
+                     fill <span class="op">=</span> <span class="fu"><a href="https://phanstiellab.github.io/bentobox/reference/colorby.html">colorby</a></span><span class="op">(</span><span class="st">"chrom"</span>, palette<span class="op">=</span><span class="va">palette.colors</span><span class="op">)</span><span class="op">)</span>
       <span class="va">prngs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://phanstiellab.github.io/bentobox/reference/bb_plotRanges.html">bb_plotRanges</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">gr</span>, params <span class="op">=</span> <span class="va">p</span>,
                              chrom <span class="op">=</span> <span class="va">chrom</span>,
                              y <span class="op">=</span> <span class="fl">0.25</span> <span class="op">+</span> <span class="op">(</span><span class="va">i</span><span class="op">-</span><span class="fl">1</span><span class="op">)</span><span class="op">*</span><span class="fl">.7</span>,
-                             just <span class="op">=</span> <span class="fu"><a href="https://phanstiellab.github.io/bentobox/reference/c.html">c</a></span><span class="op">(</span><span class="st">"left"</span>, <span class="st">"bottom"</span><span class="op">)</span>,
-                             colorby<span class="op">=</span><span class="fu"><a href="https://phanstiellab.github.io/bentobox/reference/colorby.html">colorby</a></span><span class="op">(</span><span class="st">"chrom"</span><span class="op">)</span><span class="op">)</span>
+                             just <span class="op">=</span> <span class="fu"><a href="https://phanstiellab.github.io/bentobox/reference/c.html">c</a></span><span class="op">(</span><span class="st">"left"</span>, <span class="st">"bottom"</span><span class="op">)</span><span class="op">)</span>
       <span class="fu"><a href="https://phanstiellab.github.io/bentobox/reference/bb_annoGenomeLabel.html">bb_annoGenomeLabel</a></span><span class="op">(</span>plot <span class="op">=</span> <span class="va">prngs</span>, params <span class="op">=</span> <span class="va">p</span>, y <span class="op">=</span> <span class="fl">0.30</span> <span class="op">+</span> <span class="op">(</span><span class="va">i</span><span class="op">-</span><span class="fl">1</span><span class="op">)</span><span class="op">*</span><span class="fl">.7</span><span class="op">)</span>
     <span class="op">}</span><span class="op">)</span>
   <span class="op">}</span>
