@@ -175,21 +175,21 @@ my_palette <- function(n) {
          "blue2","green4","darkred"), n)
 }
 plotGRanges <- function(gr) {
-  bb_pageCreate(width = 5, height = 3, xgrid = 0,
-                ygrid = 0, showGuides = FALSE)
+  bb_pageCreate(width = 5, height = 5, xgrid = 0,
+                ygrid = 0, showGuides = TRUE)
   for (i in seq_along(seqlevels(gr))) {
     chrom <- seqlevels(gr)[i]
     chromend <- seqlengths(gr)[[chrom]]
     suppressMessages({
       p <- bb_params(chromstart = 0, chromend = chromend,
-                     x = 0.5, width = 4*chromend/500, height = 0.6,
+                     x = 0.5, width = 4*chromend/500, height = 2,
                      at = seq(0, chromend, 50),
                      fill = colorby("state_col", palette=my_palette))
       prngs <- bb_plotRanges(data = gr, params = p,
                              chrom = chrom,
-                             y = 1 + 1.2 * (i-1),
+                             y = 2 * i,
                              just = c("left", "bottom"))
-      bb_annoGenomeLabel(plot = prngs, params = p, y = 1.1 + 1.2 * (i-1))
+      bb_annoGenomeLabel(plot = prngs, params = p, y = 0.1 + 2 * i)
     })
   }
 }
@@ -213,7 +213,8 @@ plotGRanges(seg)
 ```
 
 ```{r toyranges}
-n <- 50
+set.seed(1)
+n <- 200
 gr <- GRanges(
   seqnames=sort(sample(c("chr1","chr2"), n, TRUE)),
   IRanges(start=round(runif(n, 1, 500-10+1)), width=10)
@@ -223,7 +224,9 @@ suppressWarnings({
 })
 gr <- gr[!(seqnames(gr) == "chr2" & end(gr) > 400)]
 gr <- sort(gr)
-idx <- findOverlaps(gr, seg, select="first")
+idx <- findOverlaps(gr, seg, type="within", select="first")
+gr <- gr[!is.na(idx)]
+idx <- idx[!is.na(idx)]
 gr$state <- seg$state[idx]
 gr$state_col <- factor(seg$state_col[idx])
 plotGRanges(gr)
@@ -232,6 +235,7 @@ plotGRanges(gr)
 ## Not scaling blocks to segmentation length
 
 ```{r toy-no-prop}
+set.seed(1)
 gr_prime <- bootRanges(gr, seg, blockLength = 25, R = 1, 
                        proportionLength = FALSE)[[1]]
 plotGRanges(gr_prime)
@@ -240,7 +244,9 @@ plotGRanges(gr_prime)
 ## Scaling blocks to segmentation length
 
 ```{r toy-prop}
+set.seed(1)
 gr_prime <- bootRanges(gr, seg, blockLength = 50, R = 1, 
                        proportionLength = TRUE)[[1]]
 plotGRanges(gr_prime)
 ```
+

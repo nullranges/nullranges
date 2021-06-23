@@ -132,7 +132,7 @@ setClassUnion("DF_OR_df_OR_dt", c("DFrame", "data.frame", "data.table"))
 #' @template matched-class-details
 #' @template matched-subclass-details
 #' 
-#' @rdname matchedDataFrame
+#' @rdname MatchedDataFrame
 #' @rawNamespace import(data.table, except = c(between, shift, first, second, indices))
 #' @export
 MatchedDataFrame <- setClass(Class = "MatchedDataFrame",
@@ -209,7 +209,7 @@ setMethod("initialize", "MatchedDataFrame",
 #' @template matched-class-details
 #' @template matched-subclass-details
 #'
-#' @rdname matchedGRanges
+#' @rdname MatchedGRanges
 #' @import GenomicRanges
 #' @export
 MatchedGRanges <- setClass(Class = "MatchedGRanges",
@@ -282,7 +282,7 @@ setMethod("initialize", "MatchedGRanges",
 #' @template matched-class-details
 #' @template matched-subclass-details
 #' 
-#' @rdname matchedGInteractions
+#' @rdname MatchedGInteractions
 #' @import InteractionSet
 #' @export
 MatchedGInteractions <- setClass(Class = "MatchedGInteractions",
