@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.19</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.20</span>
       </span>
     </div>
 
@@ -107,7 +107,7 @@
       <h1 data-toc-skip>Un-segmented block bootstrap</h1>
                         <h4 class="author">Michael Love</h4>
             
-            <h4 class="date">06/23/2021</h4>
+            <h4 class="date">06/24/2021</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/master/vignettes/unseg_boot_ranges.Rmd"><code>vignettes/unseg_boot_ranges.Rmd</code></a></small>
       <div class="hidden name"><code>unseg_boot_ranges.Rmd</code></div>
@@ -152,18 +152,19 @@
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span> <span class="co"># reproducibility</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/joshuaulrich/microbenchmark/">microbenchmark</a></span><span class="op">)</span>
 <span class="va">blockLength</span> <span class="op">&lt;-</span> <span class="fl">5e5</span>
-<span class="fu"><a href="https://rdrr.io/pkg/microbenchmark/man/microbenchmark.html">microbenchmark</a></span><span class="op">(</span>list<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">alist</a></span><span class="op">(</span>
-                 p_within<span class="op">=</span><span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">pks</span>, blockLength<span class="op">=</span><span class="va">blockLength</span>, withinChrom<span class="op">=</span><span class="cn">TRUE</span>, type<span class="op">=</span><span class="st">"permute"</span><span class="op">)</span>,
-                 b_within<span class="op">=</span><span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">pks</span>, blockLength<span class="op">=</span><span class="va">blockLength</span>, withinChrom<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>,
-                 p_across<span class="op">=</span><span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">pks</span>, blockLength<span class="op">=</span><span class="va">blockLength</span>, withinChrom<span class="op">=</span><span class="cn">FALSE</span>, type<span class="op">=</span><span class="st">"permute"</span><span class="op">)</span>,
-                 b_across<span class="op">=</span><span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">pks</span>, blockLength<span class="op">=</span><span class="va">blockLength</span>, withinChrom<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span>
-<span class="op">)</span>, times<span class="op">=</span><span class="fl">10</span><span class="op">)</span></code></pre></div>
+<span class="fu"><a href="https://rdrr.io/pkg/microbenchmark/man/microbenchmark.html">microbenchmark</a></span><span class="op">(</span>
+  list<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">alist</a></span><span class="op">(</span>
+    p_within<span class="op">=</span><span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">pks</span>, blockLength<span class="op">=</span><span class="va">blockLength</span>, withinChrom<span class="op">=</span><span class="cn">TRUE</span>, type<span class="op">=</span><span class="st">"permute"</span><span class="op">)</span>,
+    b_within<span class="op">=</span><span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">pks</span>, blockLength<span class="op">=</span><span class="va">blockLength</span>, withinChrom<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>,
+    p_across<span class="op">=</span><span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">pks</span>, blockLength<span class="op">=</span><span class="va">blockLength</span>, withinChrom<span class="op">=</span><span class="cn">FALSE</span>, type<span class="op">=</span><span class="st">"permute"</span><span class="op">)</span>,
+    b_across<span class="op">=</span><span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">pks</span>, blockLength<span class="op">=</span><span class="va">blockLength</span>, withinChrom<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span>
+  <span class="op">)</span>, times<span class="op">=</span><span class="fl">10</span><span class="op">)</span></code></pre></div>
 <pre><code>## Unit: milliseconds
 ##      expr       min        lq      mean    median        uq      max neval
-##  p_within 1183.4001 1216.0324 1369.1738 1227.3709 1295.1211 1963.683    10
-##  b_within 1091.2288 1126.9246 1319.0764 1173.9663 1389.3618 1895.064    10
-##  p_across  235.4607  249.2146  411.5529  259.7736  326.5599 1016.601    10
-##  b_across  254.4636  269.1484  499.5022  287.0022 1004.0472 1048.898    10</code></pre>
+##  p_within 1347.0521 1364.0974 1446.3479 1384.9664 1398.5894 2052.432    10
+##  b_within 1216.1871 1244.3013 1447.3767 1283.4619 1539.6754 2058.086    10
+##  p_across  255.1468  287.0757  434.2438  301.8039  329.6699 1002.173    10
+##  b_across  286.4887  306.6952  528.6806  313.7124 1031.9506 1065.453    10</code></pre>
 </div>
 <div id="visualize-on-synthetic-data" class="section level1">
 <h1 class="hasAnchor">
