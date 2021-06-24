@@ -15,6 +15,10 @@ vignette: |
 
 # Introduction to segmented block bootstrap
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(fig.width=5, fig.height=5)
+```
+
 As proposed by Bickel et al (2010), *nullranges* contains an
 implementation of a block bootstrap, such that features are sampled
 from the genome in blocks. Blocks are sampled and placed within
@@ -157,9 +161,10 @@ seqlengths(x) <- seqlengths(seg)
 
 ```{r}
 library(microbenchmark)
-microbenchmark(list=alist(
-                 prop = bootRanges(x, seg, blockLength, 1, deny, proportionLength = TRUE),
-                 no_prop = bootRanges(x, seg, blockLength, 1, deny, proportionLength = FALSE)
+microbenchmark(
+  list=alist(
+    prop = bootRanges(x, seg, blockLength, 1, deny, proportionLength = TRUE),
+    no_prop = bootRanges(x, seg, blockLength, 1, deny, proportionLength = FALSE)
 ), times=10)
 ```
 

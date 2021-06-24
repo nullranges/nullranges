@@ -13,10 +13,6 @@ vignette: |
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, echo=FALSE, results="hide"}
-knitr::opts_chunk$set(tidy=FALSE, cache=FALSE)
-```
-
 In this vignette, we demonstrate the un-segmented block bootstrap
 functionality implemented in *nullranges*. "Un-segmented" refers to
 the fact that this implementation does not consider segmentation of
@@ -71,12 +67,13 @@ default). The default `type` is bootstrap.
 set.seed(5) # reproducibility
 library(microbenchmark)
 blockLength <- 5e5
-microbenchmark(list=alist(
-                 p_within=bootRanges(pks, blockLength=blockLength, withinChrom=TRUE, type="permute"),
-                 b_within=bootRanges(pks, blockLength=blockLength, withinChrom=TRUE),
-                 p_across=bootRanges(pks, blockLength=blockLength, withinChrom=FALSE, type="permute"),
-                 b_across=bootRanges(pks, blockLength=blockLength, withinChrom=FALSE)
-), times=10)
+microbenchmark(
+  list=alist(
+    p_within=bootRanges(pks, blockLength=blockLength, withinChrom=TRUE, type="permute"),
+    b_within=bootRanges(pks, blockLength=blockLength, withinChrom=TRUE),
+    p_across=bootRanges(pks, blockLength=blockLength, withinChrom=FALSE, type="permute"),
+    b_across=bootRanges(pks, blockLength=blockLength, withinChrom=FALSE)
+  ), times=10)
 ```
 
 # Visualize on synthetic data
