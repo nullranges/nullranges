@@ -33,7 +33,7 @@ Here, we generate a set of null-hypothesis ranges to more rigorously test the co
 
 Using these annotations and the `matchRanges()` function, we can compare CTCF motif orientations between pairs of genomic regions that are 1) connected by loops, 2) not connected by loops, 3) randomly chosen, or 4) not connected by loops, but matched for the strength of CTCF sites and distance between loop anchors.
 
-```{r, message=FALSE, warning=FALSE, echo=FALSE, fig.width=8.5, fig.height=6.5, eval=FALSE}
+```{r, message=FALSE, warning=FALSE, echo=FALSE, fig.width=8.5, fig.height=6.5, eval=TRUE}
 ## Define colors
 colors <- c("#e19995", "#adaf64", "#4fbe9b", "#6eb3d9", "#d098d7")
 
@@ -86,11 +86,10 @@ p <- bb_params(chrom = "chr1", chromstart = 1, chromend = 1000)
 
 
 ## Pool set
-poolSet <- bb_plotPairsArches(data = pool,
-                              params = p, alpha = 1, linecolor = NA,
-                              fill = colors[pool$color],
-                              archHeight = pool$distance,
-                              x = 1, y = 1.25, width = 2.5, height = 2.25)
+poolSet <- bb_plotPairs(data = pool,
+                        params = p,
+                        fill = colors[pool$color],
+                        x = 1, y = 1.25, width = 2.5, height = 2.25)
 bb_annoGenomeLabel(plot = poolSet, x = 1, y = 3.55)
 bb_plotText(label = "Pool Set",
             x = 2.25, y = 0.9,
@@ -100,11 +99,10 @@ bb_plotText(label = "Pool Set",
             fontfamily = 'mono')
 
 ## Focal set
-focalSet <- bb_plotPairsArches(data = focal,
-                               params = p, alpha = 1, linecolor = NA,
-                               fill = colors[focal$color],
-                               archHeight = focal$distance,
-                               x = 5, y = 1.1, width = 2.5, height = 0.9)
+focalSet <- bb_plotPairs(data = focal,
+                         params = p,
+                         fill = colors[focal$color],
+                         x = 5, y = 1.1, width = 2.5, height = 0.9)
 bb_annoGenomeLabel(plot = focalSet, x = 5, y = 2.05)
 bb_plotText(label = "Focal Set",
             x = 6.25, y = 0.9,
@@ -115,11 +113,10 @@ bb_plotText(label = "Focal Set",
 
 
 ## Matched set
-matchedSet <- bb_plotPairsArches(data = x,
-                                 params = p, alpha = 1, linecolor = NA,
-                                 fill = colors[x$color],
-                                 archHeight = x$distance,
-                                 x = 5, y = 2.6, width = 2.5, height = 0.9)
+matchedSet <- bb_plotPairs(data = x,
+                           params = p,
+                           fill = colors[x$color],
+                           x = 5, y = 2.6, width = 2.5, height = 0.9)
 bb_annoGenomeLabel(plot = matchedSet, x = 5, y = 3.55)
 bb_plotText(label = "Matched Set",
             x = 6.25, y = 2.50,
@@ -287,7 +284,7 @@ Reduce('/', plots)
 
 Using our matched ranges, we can compare the percent of looped pairs with at least one convergent CTCF site against unlooped pairs, randomly selected pairs, and pairs that are unlooped but have been matched for our covariates. The accessor function `focal()` and `pool()` can be used to conveniently extract these matched sets:
 
-```{r, fig.width=5, fig.height=5}
+```{r, fig.width=6, fig.height=5}
 ## Generate a randomly selected set from all binPairs
 all <- c(focal(mgi), pool(mgi))
 set.seed(123)
@@ -310,11 +307,4 @@ barplot(height = c(g1, g2, g3, g4),
         las = 1)
 ```
 
-It looks like the converget rule holds, even when controlling for CTCF signal strength and bin pair distance. Our looped group has \> 90% convergent CTCF sites, while our other groups have about 25% per CTCF site on average:
-
-```{r, results='hold'}
-mean(focal(mgi)$n_sites)
-mean(pool(mgi)$n_sites)
-mean(random$n_sites)
-mean(mgi$n_sites)
-```
+It looks like the converget rule holds, even when controlling for CTCF signal strength and bin pair distance. Our looped group has \> 90% convergent CTCF sites, while our other groups have about 25% per CTCF site on average.

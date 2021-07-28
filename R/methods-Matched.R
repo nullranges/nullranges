@@ -270,6 +270,7 @@ parse_plot_args <- function(sets, x){
   ## Extract matched data & subset by sets
   md <- matchedData(x)
   md <- md[md[["set"]] %in% sets]
+  lty <- lty[names(cols) %in% sets]
   cols <- cols[names(cols) %in% sets]
   
   ## Return args

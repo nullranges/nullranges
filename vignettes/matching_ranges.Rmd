@@ -17,9 +17,9 @@ vignette: |
 
 ## Introduction
 
-We often want to know the causal relationship between one or more genomic features. Most statistical tests incorrectly assume that features are randomly distributed across the genome. In fact many features break this assumption because they covary or have different underlying distributions after being subset by another feature. It is therefore critical to isolate the feature of interest by assembling a null set that is matched for confounding covariates. To address this question the `nullranges` package implements `matchRanges()`, an efficient and convenient tool for selecting a covariate-matched set of null hypothesis ranges from a pool of background ranges within the Bioconductor framework.
+When performing statistical analysis on any set of genomic ranges it is often important to compare focal sets to null sets that are carefully matched for possible covariates that may influence the analysis. To address this need, the `nullranges` package implements `matchRanges()`, an efficient and convenient tool for selecting a covariate-matched set of null hypothesis ranges from a pool of background ranges within the Bioconductor framework.
 
-In this vignette, we provide an overview of `matchRanges()` and its associated functions. We start with a simulated example generated with the utility function `makeExampleMatchedDataSet()`. We also provide an overview of the class struture and a guide for choosing among the supported matching methods. To see `matchedRanges()` used in real biological examples, visit the [Case study I: CTCF enrichment](matching_granges.html), and [Case study II: CTCF orientation](matching_ginteractions.html) vignettes.
+In this vignette, we provide an overview of `matchRanges()` and its associated functions. We start with a simulated example generated with the utility function `makeExampleMatchedDataSet()`. We also provide an overview of the class struture and a guide for choosing among the supported matching methods. To see `matchedRanges()` used in real biological examples, visit the [Case study I: CTCF occupancy](matching_granges.html), and [Case study II: CTCF orientation](matching_ginteractions.html) vignettes.
 
 ```{r, message=FALSE, warning=FALSE, echo=FALSE, fig.width=8.5, fig.height=6.5}
 
@@ -300,7 +300,7 @@ There are currently 3 available methods for selecting a matched set:
 
 3.  Stratified sampling with/without replacement
 
-Currently, nearest-neighbor matching without replacement is not implemented, but stratified sampling without replacement is a fairly good substitute.
+Currently, nearest-neighbor matching without replacement is not implemented, but stratified sampling without replacement is a suitable substitute.
 
 ### Nearest-neighbor matching
 
@@ -317,7 +317,7 @@ nn <- overview(mgr)
 plotPropensity(mgr)
 ```
 
-This method is best if you have a very large dataset because it is usually the fastest matching method. However, because sampling is done with replacement the user should be careful to assess the number of duplicate ranges pulled. This can be done fairly easily using the `indices()` function:
+This method is best if you have a very large dataset because it is usually the fastest matching method. However, because sampling is done with replacement the user should be careful to assess the number of duplicate ranges pulled. This can be done using the `indices()` function:
 
 ```{r, results='hold'}
 ## Total number of duplicated indices
@@ -360,7 +360,7 @@ ss <- overview(mgr)
 plotPropensity(mgr)
 ```
 
-Stratified sampling is typically the slowest method since it involves iterative resampling. However, this is usually only noticable on very large datasets. Stratified sampling tends to work very well for discrete data, and often produces the best matches even on continuous data:
+For very large data sets, users might notice a slight increase in run time compared to the other methods. Stratified sampling tends to work very well for discrete data, and often produces the best matches even on continuous data:
 
 ```{r}
 ## Extract difference in propensity scores
