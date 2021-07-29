@@ -80,7 +80,7 @@ microbenchmark(
 
 We create some synthetic ranges in order to visualize the different
 options of un-segmented bootstrap.
-`chrom` will be used to color by chromosome of origin.
+`chr` will be used to color by chromosome of origin.
 
 ```{r}
 library(GenomicRanges)
@@ -93,7 +93,7 @@ gr <- GRanges(seqnames=seq_nms,
                               20, 5, 5, 5, 30,
                               80, 40)),
               seqlengths=c(chr1=300,chr2=450,chr3=200),
-              chrom=factor(seq_nms))
+              chr=factor(seq_nms))
 ```
 
 The following function uses functionality from *BentoBox* to plot the ranges.
@@ -110,7 +110,7 @@ plotGRanges <- function(gr) {
       p <- bb_params(chromstart = 0, chromend = chromend,
                      x = 0.5, width = 4*chromend/500, height = 0.5,
                      at = seq(0, chromend, 50),
-                     fill = colorby("chrom", palette=palette.colors))
+                     fill = colorby("chr", palette=palette.colors))
       prngs <- bb_plotRanges(data = gr, params = p,
                              chrom = chrom,
                              y = 0.25 + (i-1)*.7,
