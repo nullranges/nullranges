@@ -67,7 +67,7 @@
       <a href="../articles/matching_ranges.html">Overview of matchRanges</a>
     </li>
     <li>
-      <a href="../articles/matching_granges.html">Case study I: CTCF enrichment</a>
+      <a href="../articles/matching_granges.html">Case study I: CTCF occupancy</a>
     </li>
     <li>
       <a href="../articles/matching_ginteractions.html">Case study II: CTCF orientation</a>
@@ -107,7 +107,7 @@
       <h1 data-toc-skip>Case study II: CTCF orientation</h1>
                         <h4 class="author">Eric S. Davis</h4>
             
-            <h4 class="date">06/24/2021</h4>
+            <h4 class="date">07/29/2021</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/master/vignettes/matching_ginteractions.Rmd"><code>vignettes/matching_ginteractions.Rmd</code></a></small>
       <div class="hidden name"><code>matching_ginteractions.Rmd</code></div>
@@ -130,6 +130,7 @@
 <li>The prescence or absence of a loop between each bin pair.</li>
 </ul>
 <p>Using these annotations and the <code><a href="../reference/matchRanges.html">matchRanges()</a></code> function, we can compare CTCF motif orientations between pairs of genomic regions that are 1) connected by loops, 2) not connected by loops, 3) randomly chosen, or 4) not connected by loops, but matched for the strength of CTCF sites and distance between loop anchors.</p>
+<p><img src="matching_ginteractions_files/figure-html/unnamed-chunk-1-1.png"><!-- --></p>
 </div>
 <div id="matching-with-matchranges" class="section level2">
 <h2 class="hasAnchor">
@@ -310,27 +311,7 @@
         border <span class="op">=</span> <span class="cn">NA</span>,
         las <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></code></pre></div>
 <p><img src="matching_ginteractions_files/figure-html/unnamed-chunk-10-1.png"><!-- --></p>
-<p>It looks like the converget rule holds, even when controlling for CTCF signal strength and bin pair distance. Our looped group has &gt; 90% convergent CTCF sites, while our other groups have about 25% per CTCF site on average:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="fu"><a href="../reference/focal.html">focal</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span><span class="op">$</span><span class="va">n_sites</span><span class="op">)</span></code></pre></div>
-<pre><code>## Warning in mean.default(focal(mgi)$n_sites): argument is not numeric or logical:
-## returning NA</code></pre>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="fu"><a href="../reference/pool.html">pool</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span><span class="op">$</span><span class="va">n_sites</span><span class="op">)</span></code></pre></div>
-<pre><code>## Warning in mean.default(pool(mgi)$n_sites): argument is not numeric or logical:
-## returning NA</code></pre>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">random</span><span class="op">$</span><span class="va">n_sites</span><span class="op">)</span></code></pre></div>
-<pre><code>## Warning in mean.default(random$n_sites): argument is not numeric or logical:
-## returning NA</code></pre>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">$</span><span class="va">n_sites</span><span class="op">)</span></code></pre></div>
-<pre><code>## Warning in mean.default(mgi$n_sites): argument is not numeric or logical:
-## returning NA</code></pre>
-<pre><code>## [1] NA
-## [1] NA
-## [1] NA
-## [1] NA</code></pre>
+<p>It looks like the converget rule holds, even when controlling for CTCF signal strength and bin pair distance. Our looped group has &gt; 90% convergent CTCF sites, while our other groups have about 25% per CTCF site on average.</p>
 </div>
   </div>
 

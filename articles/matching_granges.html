@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Case study I: CTCF enrichment • nullranges</title>
+<title>Case study I: CTCF occupancy • nullranges</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
 <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png">
@@ -17,7 +17,7 @@
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="Case study I: CTCF enrichment">
+<script src="../pkgdown.js"></script><meta property="og:title" content="Case study I: CTCF occupancy">
 <meta property="og:description" content="nullranges">
 <meta property="og:image" content="https://nullranges.github.io/nullranges/logo.png">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
@@ -67,7 +67,7 @@
       <a href="../articles/matching_ranges.html">Overview of matchRanges</a>
     </li>
     <li>
-      <a href="../articles/matching_granges.html">Case study I: CTCF enrichment</a>
+      <a href="../articles/matching_granges.html">Case study I: CTCF occupancy</a>
     </li>
     <li>
       <a href="../articles/matching_ginteractions.html">Case study II: CTCF orientation</a>
@@ -104,10 +104,10 @@
       </header><script src="matching_granges_files/header-attrs-2.9/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1 data-toc-skip>Case study I: CTCF enrichment</h1>
+      <h1 data-toc-skip>Case study I: CTCF occupancy</h1>
                         <h4 class="author">Eric S. Davis</h4>
             
-            <h4 class="date">06/24/2021</h4>
+            <h4 class="date">07/29/2021</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/master/vignettes/matching_granges.Rmd"><code>vignettes/matching_granges.Rmd</code></a></small>
       <div class="hidden name"><code>matching_granges.Rmd</code></div>
@@ -116,13 +116,13 @@
 
     
     
-<p>In this vignette we demonstrate generating covariate-matched, null-hypothesis GRanges using the <code><a href="../reference/matchRanges.html">matchRanges()</a></code> function to test for the enrichment of CCCTC-binding factor (CTCF) at chromatin loop anchors.</p>
+<p>In this vignette we demonstrate generating covariate-matched, null-hypothesis GRanges using the <code><a href="../reference/matchRanges.html">matchRanges()</a></code> function to test for the occupancy of CCCTC-binding factor (CTCF) at chromatin loop anchors.</p>
 <div id="background" class="section level2">
 <h2 class="hasAnchor">
 <a href="#background" class="anchor"></a>Background</h2>
 <p>One of the fundamental principles of chromatin-looping suggests that most loops are bound at both ends by the CTCF transcription factor (TF). CTCF-bound loops can be formed by loop-extrusion, where the ring-like cohesin complex extrudes chromatin until stopped by bound CTCF. By this mechanism, we expect most loop anchors will be bound by CTCF.</p>
-<p>While we could test this hypothesis by simple overlap or permutation testing, these approaches fail to account for non-randomly distributed covariate genomic features. For example, loop anchors are commonly bound by CTCF and located in open chromatin regions. We can use <code><a href="../reference/matchRanges.html">matchRanges()</a></code> to test for CTCF enrichment at loop anchors independently from open chromatin regions.</p>
-<p>Here, we generate a set of null-hypothesis GRanges to more rigorously test CTCF enrichment at loop anchors independently from open chromatin regions. We use the <code>hg19_10kb_bins</code> dataset from the <code>nullrangesData</code> package, which contains ranges for every 10Kb bin along the genome with CTCF, DNase, and loop feature annotations from GM12878 (see <code><a href="https://rdrr.io/pkg/nullrangesData/man/hg19_10kb_bins.html">?nullrangesData::hg19_10kb_bins</a></code>).</p>
+<p>While we could test this hypothesis by simple overlap or permutation testing, these approaches fail to account for non-randomly distributed covariate genomic features. For example, loop anchors are commonly bound by CTCF and located in open chromatin regions. We can use <code><a href="../reference/matchRanges.html">matchRanges()</a></code> to test for CTCF occupancy at loop anchors independently from open chromatin regions.</p>
+<p>Here, we generate a set of null-hypothesis GRanges to more rigorously test CTCF occupancy at loop anchors independently from open chromatin regions. We use the <code>hg19_10kb_bins</code> dataset from the <code>nullrangesData</code> package, which contains ranges for every 10Kb bin along the genome with CTCF, DNase, and loop feature annotations from GM12878 (see <code><a href="https://rdrr.io/pkg/nullrangesData/man/hg19_10kb_bins.html">?nullrangesData::hg19_10kb_bins</a></code>).</p>
 <p><img src="matching_granges_files/figure-html/unnamed-chunk-1-1.png"><!-- --></p>
 </div>
 <div id="matching-with-matchranges" class="section level2">
@@ -269,7 +269,7 @@
 <div id="compare-ctcf-sites" class="section level2">
 <h2 class="hasAnchor">
 <a href="#compare-ctcf-sites" class="anchor"></a>Compare CTCF sites</h2>
-<p>Using our matched ranges, we can compare enrichment of CTCF between bins that 1) contain a loop anchor (i.e. looped), 2) don’t contain a loop anchor (i.e. unlooped), or 3) don’t contain a loop anchor, but are also matched for the strength and number of DNase sites (i.e. matched). In this case, we calculate CTCF enrichment as the percent of bins that contain CTCF among our 3 sets by using the <code><a href="../reference/focal.html">focal()</a></code> and <code><a href="../reference/pool.html">pool()</a></code> accessor functions:</p>
+<p>Using our matched ranges, we can compare CTCF occupancy in bins that 1) contain a loop anchor (i.e. looped), 2) don’t contain a loop anchor (i.e. unlooped), or 3) don’t contain a loop anchor, but are also matched for the strength and number of DNase sites (i.e. matched). In this case, we calculate CTCF occupancy as the percent of bins that contain CTCF among our 3 sets by using the <code><a href="../reference/focal.html">focal()</a></code> and <code><a href="../reference/pool.html">pool()</a></code> accessor functions:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">## Percent of bins with CTCF</span>
 <span class="va">g1</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="fu"><a href="../reference/focal.html">focal</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span><span class="op">$</span><span class="va">n_ctcf_sites</span> <span class="op">&gt;=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="../reference/focal.html">focal</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span>
@@ -281,7 +281,7 @@
         names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'looped\n(focal)'</span>, <span class="st">'unlooped\n(pool)'</span>, <span class="st">'unlooped\n(matched)'</span><span class="op">)</span>,
         ylab <span class="op">=</span> <span class="st">"CTCF occupied bins (%)"</span>,
         col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'#1F78B4'</span>, <span class="st">'#33A02C'</span>, <span class="st">'#A6CEE3'</span><span class="op">)</span>,
-        main <span class="op">=</span> <span class="st">'CTCF enrichment'</span>,
+        main <span class="op">=</span> <span class="st">'CTCF occupancy'</span>,
         border <span class="op">=</span> <span class="cn">NA</span>,
         las <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></code></pre></div>
 <p><img src="matching_granges_files/figure-html/unnamed-chunk-8-1.png"><!-- --></p>

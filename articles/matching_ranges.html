@@ -67,7 +67,7 @@
       <a href="../articles/matching_ranges.html">Overview of matchRanges</a>
     </li>
     <li>
-      <a href="../articles/matching_granges.html">Case study I: CTCF enrichment</a>
+      <a href="../articles/matching_granges.html">Case study I: CTCF occupancy</a>
     </li>
     <li>
       <a href="../articles/matching_ginteractions.html">Case study II: CTCF orientation</a>
@@ -107,7 +107,7 @@
       <h1 data-toc-skip>Overview of matchRanges</h1>
                         <h4 class="author">Eric S. Davis</h4>
             
-            <h4 class="date">06/24/2021</h4>
+            <h4 class="date">07/29/2021</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/master/vignettes/matching_ranges.Rmd"><code>vignettes/matching_ranges.Rmd</code></a></small>
       <div class="hidden name"><code>matching_ranges.Rmd</code></div>
@@ -119,8 +119,8 @@
 <div id="introduction" class="section level2">
 <h2 class="hasAnchor">
 <a href="#introduction" class="anchor"></a>Introduction</h2>
-<p>We often want to know the causal relationship between one or more genomic features. Most statistical tests incorrectly assume that features are randomly distributed across the genome. In fact many features break this assumption because they covary or have different underlying distributions after being subset by another feature. It is therefore critical to isolate the feature of interest by assembling a null set that is matched for confounding covariates. To address this question the <code>nullranges</code> package implements <code><a href="../reference/matchRanges.html">matchRanges()</a></code>, an efficient and convenient tool for selecting a covariate-matched set of null hypothesis ranges from a pool of background ranges within the Bioconductor framework.</p>
-<p>In this vignette, we provide an overview of <code><a href="../reference/matchRanges.html">matchRanges()</a></code> and its associated functions. We start with a simulated example generated with the utility function <code><a href="../reference/makeExampleMatchedDataSet.html">makeExampleMatchedDataSet()</a></code>. We also provide an overview of the class struture and a guide for choosing among the supported matching methods. To see <code>matchedRanges()</code> used in real biological examples, visit the <a href="matching_granges.html">Case study I: CTCF enrichment</a>, and <a href="matching_ginteractions.html">Case study II: CTCF orientation</a> vignettes.</p>
+<p>When performing statistical analysis on any set of genomic ranges it is often important to compare focal sets to null sets that are carefully matched for possible covariates that may influence the analysis. To address this need, the <code>nullranges</code> package implements <code><a href="../reference/matchRanges.html">matchRanges()</a></code>, an efficient and convenient tool for selecting a covariate-matched set of null hypothesis ranges from a pool of background ranges within the Bioconductor framework.</p>
+<p>In this vignette, we provide an overview of <code><a href="../reference/matchRanges.html">matchRanges()</a></code> and its associated functions. We start with a simulated example generated with the utility function <code><a href="../reference/makeExampleMatchedDataSet.html">makeExampleMatchedDataSet()</a></code>. We also provide an overview of the class struture and a guide for choosing among the supported matching methods. To see <code>matchedRanges()</code> used in real biological examples, visit the <a href="matching_granges.html">Case study I: CTCF occupancy</a>, and <a href="matching_ginteractions.html">Case study II: CTCF orientation</a> vignettes.</p>
 <p><img src="matching_ranges_files/figure-html/unnamed-chunk-1-1.png"><!-- --></p>
 </div>
 <div id="using-matchranges" class="section level2">
@@ -282,7 +282,7 @@
 <li><p>Rejection sampling with/without replacement</p></li>
 <li><p>Stratified sampling with/without replacement</p></li>
 </ol>
-<p>Currently, nearest-neighbor matching without replacement is not implemented, but stratified sampling without replacement is a fairly good substitute.</p>
+<p>Currently, nearest-neighbor matching without replacement is not implemented, but stratified sampling without replacement is a suitable substitute.</p>
 <div id="nearest-neighbor-matching" class="section level3">
 <h3 class="hasAnchor">
 <a href="#nearest-neighbor-matching" class="anchor"></a>Nearest-neighbor matching</h3>
@@ -297,7 +297,7 @@
 <span class="va">nn</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/overview.html">overview</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span>
 <span class="fu"><a href="../reference/plotPropensity.html">plotPropensity</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span></code></pre></div>
 <p><img src="matching_ranges_files/figure-html/unnamed-chunk-13-1.png"><!-- --></p>
-<p>This method is best if you have a very large dataset because it is usually the fastest matching method. However, because sampling is done with replacement the user should be careful to assess the number of duplicate ranges pulled. This can be done fairly easily using the <code><a href="../reference/indices.html">indices()</a></code> function:</p>
+<p>This method is best if you have a very large dataset because it is usually the fastest matching method. However, because sampling is done with replacement the user should be careful to assess the number of duplicate ranges pulled. This can be done using the <code><a href="../reference/indices.html">indices()</a></code> function:</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">## Total number of duplicated indices</span>
 <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/duplicated.html">duplicated</a></span><span class="op">(</span><span class="fu"><a href="../reference/indices.html">indices</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
@@ -340,7 +340,7 @@
 <span class="va">ss</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/overview.html">overview</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span>
 <span class="fu"><a href="../reference/plotPropensity.html">plotPropensity</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span></code></pre></div>
 <p><img src="matching_ranges_files/figure-html/unnamed-chunk-16-1.png"><!-- --></p>
-<p>Stratified sampling is typically the slowest method since it involves iterative resampling. However, this is usually only noticable on very large datasets. Stratified sampling tends to work very well for discrete data, and often produces the best matches even on continuous data:</p>
+<p>For very large data sets, users might notice a slight increase in run time compared to the other methods. Stratified sampling tends to work very well for discrete data, and often produces the best matches even on continuous data:</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">## Extract difference in propensity scores</span>
 <span class="co">## between focal and matched sets</span>
