@@ -3,7 +3,7 @@
 #' @param x the input gene GRanges
 #' @param n the number of states
 #' @param L_s segment length
-#' @param deny GRanges of deny region
+#' @param exclude GRanges of deny region
 #' @param type the type of segmentation, either "cbs" (which will
 #' use DNAcopy to segment) or "hmm" (which will use RcppHMM).
 #' The packages are not imported by nullranges, but must be installed
@@ -18,7 +18,7 @@
 #' @importFrom plyranges filter join_overlap_intersect
 #'
 #' @export
-segmentDensity <- function(x, n, L_s = 1e6, deny,
+segmentDensity <- function(x, n, L_s = 1e6, exclude,
                            type = c("cbs", "hmm")) {
   query <- GenomicRanges::tileGenome(seqlengths(x)[seqnames(x)@values],
     tilewidth = L_s,
@@ -29,12 +29,12 @@ segmentDensity <- function(x, n, L_s = 1e6, deny,
     warning("unsorted x")
   }
   ## gap will create whole chromosome length ranges
-  ## TODO: need to keep the gaps with same deny strand,
-  ## here is special case that all strand(deny) ="*"
-  gap <- gaps(deny, end = seqlengths(x))
+  ## TODO: need to keep the gaps with same exclude strand,
+  ## here is special case that all strand(exclude) ="*"
+  gap <- gaps(exclude, end = seqlengths(x))
   gap <- plyranges::filter(gap, strand == "*")
 
-  ## the region remove deny regions
+  ## the region remove exclude regions
   query_accept <- filter(plyranges::join_overlap_intersect(query, gap),
                          width > L_s / 100)
 

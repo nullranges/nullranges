@@ -4,12 +4,17 @@
 \alias{plotSegment}
 \title{Genomic segmentation based on gene density}
 \usage{
-plotSegment(seg, deny, type = c("ranges", "barplot", "boxplot"), region = NULL)
+plotSegment(
+  seg,
+  exclude,
+  type = c("ranges", "barplot", "boxplot"),
+  region = NULL
+)
 }
 \arguments{
 \item{seg}{the segmentation GRanges returned by \code{segmentDensity} function}
 
-\item{deny}{GRanges of deny region}
+\item{exclude}{GRanges of deny region}
 
 \item{type}{the type of plot returned. Choices are segmentation plot
 included ranges information, barplot showing segmentation states' distribution across chromosome,

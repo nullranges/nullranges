@@ -9,8 +9,8 @@ bootRanges(
   seg = NULL,
   blockLength,
   R = 1,
-  deny = NULL,
-  denyOption = c("drop", "trim"),
+  exclude = NULL,
+  excludeOption = c("drop", "trim"),
   proportionLength = TRUE,
   type = c("bootstrap", "permute"),
   withinChrom = FALSE
@@ -27,10 +27,10 @@ is the maximal length of block)}
 
 \item{R}{the number of bootstrap samples to generate}
 
-\item{deny}{the GRanges of deny regions (optional)}
+\item{exclude}{the GRanges of deny regions (optional)}
 
-\item{denyOption}{whether to "drop" or "trim" bootstrap
-ranges that overlap a deny region}
+\item{excludeOption}{whether to "drop" or "trim" bootstrap
+ranges that overlap a exclude region}
 
 \item{proportionLength}{for segmented block bootstrap,
 whether to use scaled block length, (scaling by the proportion

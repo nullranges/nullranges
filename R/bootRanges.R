@@ -10,9 +10,9 @@
 #' @param blockLength the length of the blocks (for proportional blocks, this
 #' is the maximal length of block)
 #' @param R the number of bootstrap samples to generate
-#' @param deny the GRanges of deny regions (optional)
-#' @param denyOption whether to "drop" or "trim" bootstrap
-#' ranges that overlap a deny region
+#' @param exclude the GRanges of deny regions (optional)
+#' @param excludeOption whether to "drop" or "trim" bootstrap
+#' ranges that overlap a exclude region
 #' @param proportionLength for segmented block bootstrap,
 #' whether to use scaled block length, (scaling by the proportion
 #' of the segmentation state out of the total genome length)
@@ -32,17 +32,17 @@
 #' 
 #' @export
 bootRanges <- function(x, seg = NULL, blockLength, R=1,
-                       deny = NULL,
-                       denyOption = c("drop", "trim"),
+                       exclude = NULL,
+                       excludeOption = c("drop", "trim"),
                        proportionLength = TRUE,
                        type = c("bootstrap", "permute"),
                        withinChrom = FALSE) {
 
   chr_lens <- seqlengths(x)
   stopifnot(all(!is.na(chr_lens)))
-  denyOption <- match.arg(denyOption)
-  if (denyOption == "trim") {
-    stopifnot(all(strand(deny) == "*"))
+  excludeOption <- match.arg(denyOption)
+  if (excludeOption == "trim") {
+    stopifnot(all(strand(exclude) == "*"))
   }
 
   br <- replicate(R, {
@@ -57,13 +57,13 @@ bootRanges <- function(x, seg = NULL, blockLength, R=1,
                                  within_chrom = withinChrom)
     }
     
-    # deal with deny regions:
-    if (!is.null(deny)) {
-      if (denyOption == "drop") {
-        x_prime <- x_prime[!overlapsAny(x_prime, deny, type = "any")]
-      } else if (denyOption == "trim") {
+    # deal with exclude regions:
+    if (!is.null(exclude)) {
+      if (excludeOption == "drop") {
+        x_prime <- x_prime[!overlapsAny(x_prime, exclude, type = "any")]
+      } else if (excludeOption == "trim") {
         # TODO: place outside of this function, doing gaps once?
-        gap <- gaps(deny, end = seqlengths(x))
+        gap <- gaps(exclude, end = seqlengths(x))
         gap <- plyranges::filter(gap, strand=="*")
         x_prime <- plyranges::join_overlap_intersect(x_prime, gap)
       }

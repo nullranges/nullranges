@@ -1,7 +1,7 @@
 #' Genomic segmentation based on gene density
 #'
 #' @param seg the segmentation GRanges returned by \code{segmentDensity} function
-#' @param deny GRanges of deny region
+#' @param exclude GRanges of deny region
 #' @param type the type of plot returned. Choices are segmentation plot 
 #' included ranges information, barplot showing segmentation states' distribution across chromosome, 
 #' or a box plot indicating average density within each states. 
@@ -16,26 +16,26 @@
 #' @importFrom scales breaks_extended label_comma
 #'
 #' @export
-plotSegment <- function(seg, deny, type = c("ranges","barplot","boxplot"),
+plotSegment <- function(seg, exclude, type = c("ranges","barplot","boxplot"),
                         region = NULL) {
   
   type <- match.arg(type, c("ranges","barplot","boxplot"))
   counts <- mcols(seg)$counts
-  mcols(deny)$state <- "deny region"
+  mcols(exclude)$state <- "deny region"
   
   if(!is.null(region)){
     seg_fo <- findOverlaps(seg, region)
     seg <- join_overlap_intersect(seg[queryHits(seg_fo)], region)
-    deny <- join_overlap_intersect(deny, region)
+    exclude <- join_overlap_intersect(deny, region)
     counts <- counts[queryHits(seg_fo)]
   }
-  full_query <- c(seg, deny)
+  full_query <- c(seg, exclude)
   q <- quantile(sqrt(counts), .975)
   seq2 <- pmin(sqrt(counts), q)
   
   dat <- data.frame(
     chr = seqnames(full_query),
-    counts = c(seq2, rep(0, length(deny))),
+    counts = c(seq2, rep(0, length(exclude))),
     state = factor(full_query$state),
     start = IRanges::start(full_query),
     end = IRanges::end(full_query),

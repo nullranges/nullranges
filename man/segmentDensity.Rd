@@ -4,7 +4,7 @@
 \alias{segmentDensity}
 \title{Genomic segmentation based on gene density}
 \usage{
-segmentDensity(x, n, L_s = 1e+06, deny, type = c("cbs", "hmm"))
+segmentDensity(x, n, L_s = 1e+06, exclude, type = c("cbs", "hmm"))
 }
 \arguments{
 \item{x}{the input gene GRanges}
@@ -13,7 +13,7 @@ segmentDensity(x, n, L_s = 1e+06, deny, type = c("cbs", "hmm"))
 
 \item{L_s}{segment length}
 
-\item{deny}{GRanges of deny region}
+\item{exclude}{GRanges of deny region}
 
 \item{type}{the type of segmentation, either "cbs" (which will
 use DNAcopy to segment) or "hmm" (which will use RcppHMM).
