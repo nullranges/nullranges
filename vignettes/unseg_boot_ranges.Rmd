@@ -96,26 +96,26 @@ gr <- GRanges(seqnames=seq_nms,
               chr=factor(seq_nms))
 ```
 
-The following function uses functionality from *BentoBox* to plot the ranges.
+The following function uses functionality from *plotgardener* to plot the ranges.
 
 ```{r}
-suppressPackageStartupMessages(library(BentoBox))
+suppressPackageStartupMessages(library(plotgardener))
 plotGRanges <- function(gr) {
-  bb_pageCreate(width = 5, height = 2, xgrid = 0,
+  pageCreate(width = 5, height = 2, xgrid = 0,
                 ygrid = 0, showGuides = FALSE)
   for (i in seq_along(seqlevels(gr))) {
     chrom <- seqlevels(gr)[i]
     chromend <- seqlengths(gr)[[chrom]]
     suppressMessages({
-      p <- bb_params(chromstart = 0, chromend = chromend,
-                     x = 0.5, width = 4*chromend/500, height = 0.5,
-                     at = seq(0, chromend, 50),
-                     fill = colorby("chr", palette=palette.colors))
-      prngs <- bb_plotRanges(data = gr, params = p,
-                             chrom = chrom,
-                             y = 0.25 + (i-1)*.7,
-                             just = c("left", "bottom"))
-      bb_annoGenomeLabel(plot = prngs, params = p, y = 0.30 + (i-1)*.7)
+      p <- pgParams(chromstart = 0, chromend = chromend,
+                    x = 0.5, width = 4*chromend/500, height = 0.5,
+                    at = seq(0, chromend, 50),
+                    fill = colorby("chr", palette=palette.colors))
+      prngs <- plotRanges(data = gr, params = p,
+                          chrom = chrom,
+                          y = 0.25 + (i-1)*.7,
+                          just = c("left", "bottom"))
+      annoGenomeLabel(plot = prngs, params = p, y = 0.30 + (i-1)*.7)
     })
   }
 }

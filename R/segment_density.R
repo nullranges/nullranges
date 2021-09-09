@@ -3,7 +3,7 @@
 #' @param x the input gene GRanges
 #' @param n the number of states
 #' @param L_s segment length
-#' @param exclude GRanges of deny region
+#' @param exclude GRanges of excluded region
 #' @param type the type of segmentation, either "cbs" (which will
 #' use DNAcopy to segment) or "hmm" (which will use RcppHMM).
 #' The packages are not imported by nullranges, but must be installed

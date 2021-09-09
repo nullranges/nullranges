@@ -177,30 +177,30 @@ microbenchmark(
 # Visualizing the segmented block bootstrap
 
 Below we present a toy example for visualizing the segmented block
-bootstrap.
+bootstrap, visualized with *plotgardener*.
 
 ```{r}
-suppressPackageStartupMessages(library(BentoBox))
+suppressPackageStartupMessages(library(plotgardener))
 my_palette <- function(n) {
   head(c("red","green3","red3","dodgerblue",
          "blue2","green4","darkred"), n)
 }
 plotGRanges <- function(gr) {
-  bb_pageCreate(width = 5, height = 5, xgrid = 0,
+  pageCreate(width = 5, height = 5, xgrid = 0,
                 ygrid = 0, showGuides = TRUE)
   for (i in seq_along(seqlevels(gr))) {
     chrom <- seqlevels(gr)[i]
     chromend <- seqlengths(gr)[[chrom]]
     suppressMessages({
-      p <- bb_params(chromstart = 0, chromend = chromend,
-                     x = 0.5, width = 4*chromend/500, height = 2,
-                     at = seq(0, chromend, 50),
-                     fill = colorby("state_col", palette=my_palette))
-      prngs <- bb_plotRanges(data = gr, params = p,
-                             chrom = chrom,
-                             y = 2 * i,
-                             just = c("left", "bottom"))
-      bb_annoGenomeLabel(plot = prngs, params = p, y = 0.1 + 2 * i)
+      p <- pgParams(chromstart = 0, chromend = chromend,
+                    x = 0.5, width = 4*chromend/500, height = 2,
+                    at = seq(0, chromend, 50),
+                    fill = colorby("state_col", palette=my_palette))
+      prngs <- plotRanges(data = gr, params = p,
+                          chrom = chrom,
+                          y = 2 * i,
+                          just = c("left", "bottom"))
+      annoGenomeLabel(plot = prngs, params = p, y = 0.1 + 2 * i)
     })
   }
 }

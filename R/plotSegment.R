@@ -1,7 +1,7 @@
 #' Genomic segmentation based on gene density
 #'
 #' @param seg the segmentation GRanges returned by \code{segmentDensity} function
-#' @param exclude GRanges of deny region
+#' @param exclude GRanges of excluded region
 #' @param type the type of plot returned. Choices are segmentation plot 
 #' included ranges information, barplot showing segmentation states' distribution across chromosome, 
 #' or a box plot indicating average density within each states. 
@@ -21,12 +21,12 @@ plotSegment <- function(seg, exclude, type = c("ranges","barplot","boxplot"),
   
   type <- match.arg(type, c("ranges","barplot","boxplot"))
   counts <- mcols(seg)$counts
-  mcols(exclude)$state <- "deny region"
+  mcols(exclude)$state <- "excluded"
   
   if(!is.null(region)){
     seg_fo <- findOverlaps(seg, region)
     seg <- join_overlap_intersect(seg[queryHits(seg_fo)], region)
-    exclude <- join_overlap_intersect(deny, region)
+    exclude <- join_overlap_intersect(exclude, region)
     counts <- counts[queryHits(seg_fo)]
   }
   full_query <- c(seg, exclude)

@@ -10,7 +10,7 @@
 #' @param blockLength the length of the blocks (for proportional blocks, this
 #' is the maximal length of block)
 #' @param R the number of bootstrap samples to generate
-#' @param exclude the GRanges of deny regions (optional)
+#' @param exclude the GRanges of excluded regions (optional)
 #' @param excludeOption whether to "drop" or "trim" bootstrap
 #' ranges that overlap a exclude region
 #' @param proportionLength for segmented block bootstrap,
@@ -40,7 +40,7 @@ bootRanges <- function(x, seg = NULL, blockLength, R=1,
 
   chr_lens <- seqlengths(x)
   stopifnot(all(!is.na(chr_lens)))
-  excludeOption <- match.arg(denyOption)
+  excludeOption <- match.arg(excludeOption)
   if (excludeOption == "trim") {
     stopifnot(all(strand(exclude) == "*"))
   }
