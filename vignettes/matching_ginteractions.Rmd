@@ -29,7 +29,7 @@ Here, we generate a set of null-hypothesis ranges to more rigorously test the co
 -   The number of CTCF sites in each bin.
 -   The distance between bin pairs.
 -   Whether at least one CTCF site is convergent between each bin pair.
--   The prescence or absence of a loop between each bin pair.
+-   The presence or absence of a loop between each bin pair.
 
 Using these annotations and the `matchRanges()` function, we can compare CTCF motif orientations between pairs of genomic regions that are 1) connected by loops, 2) not connected by loops, 3) randomly chosen, or 4) not connected by loops, but matched for the strength of CTCF sites and distance between loop anchors.
 
@@ -252,7 +252,7 @@ ov <- overview(mgi)
 ov
 ```
 
-In addition to provding a printed overview, the overview data can be extracted for convenience. For example, the `quality` property shows the absolute value of the mean difference between focal and matched sets. Therefore, the lower this value, the better the matching quality:
+In addition to providing a printed overview, the overview data can be extracted for convenience. For example, the `quality` property shows the absolute value of the mean difference between focal and matched sets. Therefore, the lower this value, the better the matching quality:
 
 ```{r}
 ov$quality
