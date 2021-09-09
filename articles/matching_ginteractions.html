@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.20</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.22</span>
       </span>
     </div>
 
@@ -101,13 +101,13 @@
 
       
 
-      </header><script src="matching_ginteractions_files/header-attrs-2.9/header-attrs.js"></script><div class="row">
+      </header><script src="matching_ginteractions_files/header-attrs-2.10/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Case study II: CTCF orientation</h1>
                         <h4 class="author">Eric S. Davis</h4>
             
-            <h4 class="date">07/29/2021</h4>
+            <h4 class="date">09/09/2021</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/master/vignettes/matching_ginteractions.Rmd"><code>vignettes/matching_ginteractions.Rmd</code></a></small>
       <div class="hidden name"><code>matching_ginteractions.Rmd</code></div>
@@ -127,7 +127,7 @@
 <li>The number of CTCF sites in each bin.</li>
 <li>The distance between bin pairs.</li>
 <li>Whether at least one CTCF site is convergent between each bin pair.</li>
-<li>The prescence or absence of a loop between each bin pair.</li>
+<li>The presence or absence of a loop between each bin pair.</li>
 </ul>
 <p>Using these annotations and the <code><a href="../reference/matchRanges.html">matchRanges()</a></code> function, we can compare CTCF motif orientations between pairs of genomic regions that are 1) connected by loops, 2) not connected by loops, 3) randomly chosen, or 4) not connected by loops, but matched for the strength of CTCF sites and distance between loop anchors.</p>
 <p><img src="matching_ginteractions_files/figure-html/unnamed-chunk-1-1.png"><!-- --></p>
@@ -262,7 +262,7 @@
 ##         -2.8e-05        -0.047          -250      -26000         0         0
 ##  n_sites.2 n_sites.3 n_sites.4 n_sites.5 n_sites.6 n_sites.7+  ps.mean    ps.sd
 ##        -24        15         7         2         1         -1 -1.7e-07 -7.4e-07</code></pre>
-<p>In addition to provding a printed overview, the overview data can be extracted for convenience. For example, the <code>quality</code> property shows the absolute value of the mean difference between focal and matched sets. Therefore, the lower this value, the better the matching quality:</p>
+<p>In addition to providing a printed overview, the overview data can be extracted for convenience. For example, the <code>quality</code> property shows the absolute value of the mean difference between focal and matched sets. Therefore, the lower this value, the better the matching quality:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">ov</span><span class="op">$</span><span class="va">quality</span></code></pre></div>
 <pre><code>## [1] 1.7e-07</code></pre>

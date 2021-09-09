@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.20</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.22</span>
       </span>
     </div>
 
@@ -101,13 +101,13 @@
 
       
 
-      </header><script src="segmented_boot_ranges_files/header-attrs-2.9/header-attrs.js"></script><div class="row">
+      </header><script src="segmented_boot_ranges_files/header-attrs-2.10/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Segmented block bootstrap</h1>
                         <h4 class="author">Wancen Mu</h4>
             
-            <h4 class="date">07/29/2021</h4>
+            <h4 class="date">09/09/2021</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/master/vignettes/segmented_boot_ranges.Rmd"><code>vignettes/segmented_boot_ranges.Rmd</code></a></small>
       <div class="hidden name"><code>segmented_boot_ranges.Rmd</code></div>
@@ -136,7 +136,7 @@
 <span class="va">edb</span> <span class="op">&lt;-</span> <span class="va">EnsDb.Hsapiens.v86</span>
 <span class="va">filt</span> <span class="op">&lt;-</span> <span class="fu">AnnotationFilterList</span><span class="op">(</span><span class="fu">GeneIdFilter</span><span class="op">(</span><span class="st">"ENSG"</span>, <span class="st">"startsWith"</span><span class="op">)</span><span class="op">)</span>
 <span class="va">g</span> <span class="op">&lt;-</span> <span class="fu">genes</span><span class="op">(</span><span class="va">edb</span>, filter <span class="op">=</span> <span class="va">filt</span><span class="op">)</span></code></pre></div>
-<p>Some processing to align these features with our deny regions and our features of interest (DHS, defined below).</p>
+<p>Some processing to align these features with our excluded regions and our features of interest (DHS, defined below).</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://bioconductor.org/packages/GenomeInfoDb">GenomeInfoDb</a></span><span class="op">)</span>
 <span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqlevels-wrappers.html">keepStandardChromosomes</a></span><span class="op">(</span><span class="va">g</span>, pruning.mode <span class="op">=</span> <span class="st">"coarse"</span><span class="op">)</span>
@@ -152,15 +152,16 @@
 ##  5194  3971  3010  2505  2868  2863  2867  2353  2242  2204  3235  2940  1304 
 ## chr14 chr15 chr16 chr17 chr18 chr19 chr20 chr21 chr22  chrX  chrY 
 ##  2224  2152  2511  2995  1170  2926  1386   835  1318  2359   523</code></pre>
-<div id="import-deny-region" class="section level2">
+<div id="import-excluded-region" class="section level2">
 <h2 class="hasAnchor">
-<a href="#import-deny-region" class="anchor"></a>Import deny region</h2>
-<p>Here we import deny regions (as created by Kundaje et al).</p>
-<p>TODO: here instead use Mikhail’s <em>denyranges</em> package, once it is available.</p>
+<a href="#import-excluded-region" class="anchor"></a>Import excluded region</h2>
+<p>Here we import excluded regions (as created by Kundaje et al).</p>
+<p>TODO: here instead use Mikhail’s <em>excluderanges</em> package, once it is available.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">nullrangesData</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"deny"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqinfo.html">seqnames</a></span><span class="op">(</span><span class="va">deny</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<span class="va">exclude</span> <span class="op">&lt;-</span> <span class="va">deny</span>
+<span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqinfo.html">seqnames</a></span><span class="op">(</span><span class="va">exclude</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code>## 
 ##  chr1  chr2  chr3  chr4  chr5  chr6  chr7  chr8  chr9 chr10 chr11 chr12 chr13 
 ##    54   141    47    69    41    32    68    51    45    38    31    23    22 
@@ -175,18 +176,19 @@
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/nullranges/nullranges">nullranges</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com">patchwork</a></span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">plyranges</span><span class="op">)</span><span class="op">)</span></code></pre></div>
-<p>We subset the deny ranges to those which are 500 bp or larger.</p>
+<p>We subset the excluded ranges to those which are 500 bp or larger.</p>
 <p>TODO: discuss motivation for this.</p>
 <p>We use a CBS segmentation as implemented in <em>DNAcopy</em> (cite).</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span>
-<span class="va">deny2</span> <span class="op">&lt;-</span> <span class="va">deny</span> <span class="op">%&gt;%</span> <span class="fu">plyranges</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">filter</a></span><span class="op">(</span><span class="fu">width</span><span class="op">(</span><span class="va">deny</span><span class="op">)</span> <span class="op">&gt;=</span> <span class="fl">500</span><span class="op">)</span>
+<span class="va">exclude</span> <span class="op">&lt;-</span> <span class="va">exclude</span> <span class="op">%&gt;%</span>
+  <span class="fu">plyranges</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">filter</a></span><span class="op">(</span><span class="fu">width</span><span class="op">(</span><span class="va">exclude</span><span class="op">)</span> <span class="op">&gt;=</span> <span class="fl">500</span><span class="op">)</span>
 <span class="va">L_s</span> <span class="op">&lt;-</span> <span class="fl">1e6</span>
 <span class="va">seg</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/segmentDensity.html">segmentDensity</a></span><span class="op">(</span><span class="va">g</span>, n <span class="op">=</span> <span class="fl">3</span>, L_s <span class="op">=</span> <span class="va">L_s</span>,
-                          deny <span class="op">=</span> <span class="va">deny2</span>, type <span class="op">=</span> <span class="st">"cbs"</span><span class="op">)</span></code></pre></div>
+                      exclude <span class="op">=</span> <span class="va">exclude</span>, type <span class="op">=</span> <span class="st">"cbs"</span><span class="op">)</span></code></pre></div>
 <pre><code>## Analyzing: Sample.1</code></pre>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"ranges"</span>,<span class="st">"barplot"</span>,<span class="st">"boxplot"</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">t</span><span class="op">)</span> <span class="fu"><a href="../reference/plotSegment.html">plotSegment</a></span><span class="op">(</span><span class="va">seg</span>,<span class="va">deny2</span>, type <span class="op">=</span> <span class="va">t</span><span class="op">)</span><span class="op">)</span>
+<code class="sourceCode R"><span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"ranges"</span>,<span class="st">"barplot"</span>,<span class="st">"boxplot"</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">t</span><span class="op">)</span> <span class="fu"><a href="../reference/plotSegment.html">plotSegment</a></span><span class="op">(</span><span class="va">seg</span>, <span class="va">exclude</span>, type <span class="op">=</span> <span class="va">t</span><span class="op">)</span><span class="op">)</span>
 <span class="va">plots</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></code></pre></div>
 <p><img src="segmented_boot_ranges_files/figure-html/seg-cbs-1.png"><!-- --></p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
@@ -194,8 +196,8 @@
 <p><img src="segmented_boot_ranges_files/figure-html/seg-cbs-2.png"><!-- --></p>
 <p>Note here, the default <em>ranges</em> plot gives whole genome and every fractured bind regions represents state transformations happens. However, some transformations within small ranges cannot be visualized, e.g 1kb. If user want to look into specific ranges of segmentation state, the <em>region</em> argument is flexible to support.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">region</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html">GRanges</a></span><span class="op">(</span><span class="st">"chr16"</span>,<span class="fu">IRanges</span><span class="op">(</span><span class="fl">3e7</span>,<span class="fl">4e7</span><span class="op">)</span><span class="op">)</span>
-<span class="fu"><a href="../reference/plotSegment.html">plotSegment</a></span><span class="op">(</span><span class="va">seg</span>,<span class="va">deny2</span>,type<span class="op">=</span><span class="st">"ranges"</span>,region<span class="op">=</span><span class="va">region</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="va">region</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html">GRanges</a></span><span class="op">(</span><span class="st">"chr16"</span>, <span class="fu">IRanges</span><span class="op">(</span><span class="fl">3e7</span>,<span class="fl">4e7</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="../reference/plotSegment.html">plotSegment</a></span><span class="op">(</span><span class="va">seg</span>, <span class="va">exclude</span>, type<span class="op">=</span><span class="st">"ranges"</span>, region<span class="op">=</span><span class="va">region</span><span class="op">)</span></code></pre></div>
 <p><img src="segmented_boot_ranges_files/figure-html/unnamed-chunk-5-1.png"><!-- --></p>
 </div>
 <div id="alternatively-hmm-segmentation" class="section level2">
@@ -204,10 +206,10 @@
 <p>Here we use an alternative segmentation implemented in <em>RcppHMM</em> (cite).</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">seg_hmm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/segmentDensity.html">segmentDensity</a></span><span class="op">(</span><span class="va">g</span>, n <span class="op">=</span> <span class="fl">3</span>, L_s <span class="op">=</span> <span class="va">L_s</span>,
-                          deny <span class="op">=</span> <span class="va">deny2</span>, type <span class="op">=</span> <span class="st">"hmm"</span><span class="op">)</span></code></pre></div>
+                          exclude <span class="op">=</span> <span class="va">exclude</span>, type <span class="op">=</span> <span class="st">"hmm"</span><span class="op">)</span></code></pre></div>
 <pre><code>## Finished at Iteration: 73 with Error: 9.78676e-06</code></pre>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"ranges"</span>,<span class="st">"barplot"</span>,<span class="st">"boxplot"</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">t</span><span class="op">)</span> <span class="fu"><a href="../reference/plotSegment.html">plotSegment</a></span><span class="op">(</span><span class="va">seg_hmm</span>,<span class="va">deny2</span>, type <span class="op">=</span> <span class="va">t</span><span class="op">)</span><span class="op">)</span>
+<code class="sourceCode R"><span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"ranges"</span>,<span class="st">"barplot"</span>,<span class="st">"boxplot"</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">t</span><span class="op">)</span> <span class="fu"><a href="../reference/plotSegment.html">plotSegment</a></span><span class="op">(</span><span class="va">seg_hmm</span>, <span class="va">exclude</span>, type <span class="op">=</span> <span class="va">t</span><span class="op">)</span><span class="op">)</span>
 <span class="va">plots</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></code></pre></div>
 <p><img src="segmented_boot_ranges_files/figure-html/seg-hmm-1.png"><!-- --></p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
@@ -249,52 +251,52 @@
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/joshuaulrich/microbenchmark/">microbenchmark</a></span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/pkg/microbenchmark/man/microbenchmark.html">microbenchmark</a></span><span class="op">(</span>
   list<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">alist</a></span><span class="op">(</span>
-    prop <span class="op">=</span> <span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">seg</span>, <span class="va">blockLength</span>, <span class="fl">1</span>, <span class="va">deny</span>, proportionLength <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,
-    no_prop <span class="op">=</span> <span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">seg</span>, <span class="va">blockLength</span>, <span class="fl">1</span>, <span class="va">deny</span>, proportionLength <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
+    prop <span class="op">=</span> <span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">seg</span>, <span class="va">blockLength</span>, <span class="fl">1</span>, <span class="va">exclude</span>, proportionLength <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,
+    no_prop <span class="op">=</span> <span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">seg</span>, <span class="va">blockLength</span>, <span class="fl">1</span>, <span class="va">exclude</span>, proportionLength <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
 <span class="op">)</span>, times<span class="op">=</span><span class="fl">10</span><span class="op">)</span></code></pre></div>
 <pre><code>## Unit: milliseconds
-##     expr      min       lq     mean   median       uq      max neval
-##     prop 308.8112 312.9559 475.3066 317.8789 441.0408 1046.717    10
-##  no_prop 285.7032 288.1554 374.1309 299.7420 323.8805 1028.790    10</code></pre>
+##     expr      min       lq     mean   median        uq       max neval
+##     prop 238.6266 248.5001 496.3057 264.3524 1023.7091 1032.0263    10
+##  no_prop 232.6570 243.7896 250.0494 248.4005  259.2032  270.9566    10</code></pre>
 </div>
 <div id="visualizing-the-segmented-block-bootstrap" class="section level1">
 <h1 class="hasAnchor">
 <a href="#visualizing-the-segmented-block-bootstrap" class="anchor"></a>Visualizing the segmented block bootstrap</h1>
-<p>Below we present a toy example for visualizing the segmented block bootstrap.</p>
+<p>Below we present a toy example for visualizing the segmented block bootstrap, visualized with <em>plotgardener</em>.</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://phanstiellab.github.io/BentoBox">BentoBox</a></span><span class="op">)</span><span class="op">)</span>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://phanstiellab.github.io/plotgardener">plotgardener</a></span><span class="op">)</span><span class="op">)</span>
 <span class="va">my_palette</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">n</span><span class="op">)</span> <span class="op">{</span>
-  <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="fu"><a href="https://phanstiellab.github.io/bentobox/reference/c.html">c</a></span><span class="op">(</span><span class="st">"red"</span>,<span class="st">"green3"</span>,<span class="st">"red3"</span>,<span class="st">"dodgerblue"</span>,
+  <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/c.html">c</a></span><span class="op">(</span><span class="st">"red"</span>,<span class="st">"green3"</span>,<span class="st">"red3"</span>,<span class="st">"dodgerblue"</span>,
          <span class="st">"blue2"</span>,<span class="st">"green4"</span>,<span class="st">"darkred"</span><span class="op">)</span>, <span class="va">n</span><span class="op">)</span>
 <span class="op">}</span>
 <span class="va">plotGRanges</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">gr</span><span class="op">)</span> <span class="op">{</span>
-  <span class="fu"><a href="https://phanstiellab.github.io/bentobox/reference/bb_pageCreate.html">bb_pageCreate</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fl">5</span>, height <span class="op">=</span> <span class="fl">5</span>, xgrid <span class="op">=</span> <span class="fl">0</span>,
+  <span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/pageCreate.html">pageCreate</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fl">5</span>, height <span class="op">=</span> <span class="fl">5</span>, xgrid <span class="op">=</span> <span class="fl">0</span>,
                 ygrid <span class="op">=</span> <span class="fl">0</span>, showGuides <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
   <span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq_along</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqinfo.html">seqlevels</a></span><span class="op">(</span><span class="va">gr</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span>
     <span class="va">chrom</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqinfo.html">seqlevels</a></span><span class="op">(</span><span class="va">gr</span><span class="op">)</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>
     <span class="va">chromend</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqinfo.html">seqlengths</a></span><span class="op">(</span><span class="va">gr</span><span class="op">)</span><span class="op">[[</span><span class="va">chrom</span><span class="op">]</span><span class="op">]</span>
     <span class="fu"><a href="https://rdrr.io/r/base/message.html">suppressMessages</a></span><span class="op">(</span><span class="op">{</span>
-      <span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://phanstiellab.github.io/bentobox/reference/bb_params.html">bb_params</a></span><span class="op">(</span>chromstart <span class="op">=</span> <span class="fl">0</span>, chromend <span class="op">=</span> <span class="va">chromend</span>,
-                     x <span class="op">=</span> <span class="fl">0.5</span>, width <span class="op">=</span> <span class="fl">4</span><span class="op">*</span><span class="va">chromend</span><span class="op">/</span><span class="fl">500</span>, height <span class="op">=</span> <span class="fl">2</span>,
-                     at <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">chromend</span>, <span class="fl">50</span><span class="op">)</span>,
-                     fill <span class="op">=</span> <span class="fu"><a href="https://phanstiellab.github.io/bentobox/reference/colorby.html">colorby</a></span><span class="op">(</span><span class="st">"state_col"</span>, palette<span class="op">=</span><span class="va">my_palette</span><span class="op">)</span><span class="op">)</span>
-      <span class="va">prngs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://phanstiellab.github.io/bentobox/reference/bb_plotRanges.html">bb_plotRanges</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">gr</span>, params <span class="op">=</span> <span class="va">p</span>,
-                             chrom <span class="op">=</span> <span class="va">chrom</span>,
-                             y <span class="op">=</span> <span class="fl">2</span> <span class="op">*</span> <span class="va">i</span>,
-                             just <span class="op">=</span> <span class="fu"><a href="https://phanstiellab.github.io/bentobox/reference/c.html">c</a></span><span class="op">(</span><span class="st">"left"</span>, <span class="st">"bottom"</span><span class="op">)</span><span class="op">)</span>
-      <span class="fu"><a href="https://phanstiellab.github.io/bentobox/reference/bb_annoGenomeLabel.html">bb_annoGenomeLabel</a></span><span class="op">(</span>plot <span class="op">=</span> <span class="va">prngs</span>, params <span class="op">=</span> <span class="va">p</span>, y <span class="op">=</span> <span class="fl">0.1</span> <span class="op">+</span> <span class="fl">2</span> <span class="op">*</span> <span class="va">i</span><span class="op">)</span>
+      <span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/pgParams.html">pgParams</a></span><span class="op">(</span>chromstart <span class="op">=</span> <span class="fl">0</span>, chromend <span class="op">=</span> <span class="va">chromend</span>,
+                    x <span class="op">=</span> <span class="fl">0.5</span>, width <span class="op">=</span> <span class="fl">4</span><span class="op">*</span><span class="va">chromend</span><span class="op">/</span><span class="fl">500</span>, height <span class="op">=</span> <span class="fl">2</span>,
+                    at <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">chromend</span>, <span class="fl">50</span><span class="op">)</span>,
+                    fill <span class="op">=</span> <span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/colorby.html">colorby</a></span><span class="op">(</span><span class="st">"state_col"</span>, palette<span class="op">=</span><span class="va">my_palette</span><span class="op">)</span><span class="op">)</span>
+      <span class="va">prngs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/plotRanges.html">plotRanges</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">gr</span>, params <span class="op">=</span> <span class="va">p</span>,
+                          chrom <span class="op">=</span> <span class="va">chrom</span>,
+                          y <span class="op">=</span> <span class="fl">2</span> <span class="op">*</span> <span class="va">i</span>,
+                          just <span class="op">=</span> <span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/c.html">c</a></span><span class="op">(</span><span class="st">"left"</span>, <span class="st">"bottom"</span><span class="op">)</span><span class="op">)</span>
+      <span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/annoGenomeLabel.html">annoGenomeLabel</a></span><span class="op">(</span>plot <span class="op">=</span> <span class="va">prngs</span>, params <span class="op">=</span> <span class="va">p</span>, y <span class="op">=</span> <span class="fl">0.1</span> <span class="op">+</span> <span class="fl">2</span> <span class="op">*</span> <span class="va">i</span><span class="op">)</span>
     <span class="op">}</span><span class="op">)</span>
   <span class="op">}</span>
 <span class="op">}</span></code></pre></div>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://bioconductor.org/packages/GenomicRanges">GenomicRanges</a></span><span class="op">)</span>
-<span class="va">seq_nms</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fu"><a href="https://phanstiellab.github.io/bentobox/reference/c.html">c</a></span><span class="op">(</span><span class="st">"chr1"</span>,<span class="st">"chr2"</span><span class="op">)</span>, <span class="fu"><a href="https://phanstiellab.github.io/bentobox/reference/c.html">c</a></span><span class="op">(</span><span class="fl">4</span>,<span class="fl">3</span><span class="op">)</span><span class="op">)</span>
+<span class="va">seq_nms</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/c.html">c</a></span><span class="op">(</span><span class="st">"chr1"</span>,<span class="st">"chr2"</span><span class="op">)</span>, <span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/c.html">c</a></span><span class="op">(</span><span class="fl">4</span>,<span class="fl">3</span><span class="op">)</span><span class="op">)</span>
 <span class="va">seg</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html">GRanges</a></span><span class="op">(</span>
   seqnames <span class="op">=</span> <span class="va">seq_nms</span>,
-  <span class="fu">IRanges</span><span class="op">(</span>start <span class="op">=</span> <span class="fu"><a href="https://phanstiellab.github.io/bentobox/reference/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">101</span>, <span class="fl">201</span>, <span class="fl">401</span>, <span class="fl">1</span>, <span class="fl">201</span>, <span class="fl">301</span><span class="op">)</span>,
-          width <span class="op">=</span> <span class="fu"><a href="https://phanstiellab.github.io/bentobox/reference/c.html">c</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">100</span>, <span class="fl">200</span>, <span class="fl">100</span>, <span class="fl">200</span>, <span class="fl">100</span>, <span class="fl">100</span><span class="op">)</span><span class="op">)</span>,
-  seqlengths<span class="op">=</span><span class="fu"><a href="https://phanstiellab.github.io/bentobox/reference/c.html">c</a></span><span class="op">(</span>chr1<span class="op">=</span><span class="fl">500</span>,chr2<span class="op">=</span><span class="fl">400</span><span class="op">)</span>,
-  state <span class="op">=</span> <span class="fu"><a href="https://phanstiellab.github.io/bentobox/reference/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span>,<span class="fl">1</span>,<span class="fl">3</span>,<span class="fl">3</span>,<span class="fl">2</span>,<span class="fl">1</span><span class="op">)</span>,
+  <span class="fu">IRanges</span><span class="op">(</span>start <span class="op">=</span> <span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">101</span>, <span class="fl">201</span>, <span class="fl">401</span>, <span class="fl">1</span>, <span class="fl">201</span>, <span class="fl">301</span><span class="op">)</span>,
+          width <span class="op">=</span> <span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/c.html">c</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">100</span>, <span class="fl">200</span>, <span class="fl">100</span>, <span class="fl">200</span>, <span class="fl">100</span>, <span class="fl">100</span><span class="op">)</span><span class="op">)</span>,
+  seqlengths<span class="op">=</span><span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/c.html">c</a></span><span class="op">(</span>chr1<span class="op">=</span><span class="fl">500</span>,chr2<span class="op">=</span><span class="fl">400</span><span class="op">)</span>,
+  state <span class="op">=</span> <span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span>,<span class="fl">1</span>,<span class="fl">3</span>,<span class="fl">3</span>,<span class="fl">2</span>,<span class="fl">1</span><span class="op">)</span>,
   state_col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">7</span><span class="op">)</span>
 <span class="op">)</span></code></pre></div>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
@@ -304,7 +306,7 @@
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>
 <span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">200</span>
 <span class="va">gr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html">GRanges</a></span><span class="op">(</span>
-  seqnames<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/sort.html">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html">sample</a></span><span class="op">(</span><span class="fu"><a href="https://phanstiellab.github.io/bentobox/reference/c.html">c</a></span><span class="op">(</span><span class="st">"chr1"</span>,<span class="st">"chr2"</span><span class="op">)</span>, <span class="va">n</span>, <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>,
+  seqnames<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/sort.html">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html">sample</a></span><span class="op">(</span><span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/c.html">c</a></span><span class="op">(</span><span class="st">"chr1"</span>,<span class="st">"chr2"</span><span class="op">)</span>, <span class="va">n</span>, <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>,
   <span class="fu">IRanges</span><span class="op">(</span>start<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html">runif</a></span><span class="op">(</span><span class="va">n</span>, <span class="fl">1</span>, <span class="fl">500</span><span class="op">-</span><span class="fl">10</span><span class="op">+</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span>, width<span class="op">=</span><span class="fl">10</span><span class="op">)</span>
 <span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/warning.html">suppressWarnings</a></span><span class="op">(</span><span class="op">{</span>
