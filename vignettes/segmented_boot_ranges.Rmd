@@ -52,7 +52,7 @@ filt <- AnnotationFilterList(GeneIdFilter("ENSG", "startsWith"))
 g <- genes(edb, filter = filt)
 ```
 
-Some processing to align these features with our deny regions and our
+Some processing to align these features with our excluded regions and our
 features of interest (DHS, defined below).
 
 ```{r}
@@ -67,16 +67,17 @@ g <- sort(g)
 table(seqnames(g))
 ```
 
-## Import deny region
+## Import excluded region
 
-Here we import deny regions (as created by Kundaje et al). 
+Here we import excluded regions (as created by Kundaje et al). 
 
-TODO: here instead use Mikhail's *denyranges* package, once it is available.
+TODO: here instead use Mikhail's *excluderanges* package, once it is available.
 
 ```{r}
 library(nullrangesData)
 data("deny")
-table(seqnames(deny))
+exclude <- deny
+table(seqnames(exclude))
 ```
 
 ## CBS segmentation
@@ -89,28 +90,33 @@ library(patchwork)
 suppressPackageStartupMessages(library(plyranges))
 ```
 
-We subset the deny ranges to those which are 500 bp or larger. 
+We subset the excluded ranges to those which are 500 bp or larger. 
 
 TODO: discuss motivation for this.
 
 We use a CBS segmentation as implemented in *DNAcopy* (cite). 
 
 ```{r seg-cbs}
+library(plyranges)
 set.seed(5)
-deny2 <- deny %>% plyranges::filter(width(deny) >= 500)
+exclude <- exclude %>% filter(width(exclude) >= 500)
 L_s <- 1e6
 seg <- segmentDensity(g, n = 3, L_s = L_s,
-                          deny = deny2, type = "cbs")
-plots <- lapply(c("ranges","barplot","boxplot"), function(t) plotSegment(seg,deny2, type = t))
+                      exclude = exclude, type = "cbs")
+plots <- lapply(c("ranges","barplot","boxplot"), function(t) plotSegment(seg, exclude, type = t))
 plots[[1]]
 plots[[2]] + plots[[3]]
 ```
 
-Note here, the default *ranges* plot gives whole genome and every fractured bind regions represents state transformations happens. However, some transformations within small ranges cannot be visualized, e.g 1kb. If user want to look into specific ranges of segmentation state, the *region* argument is flexible to support. 
+Note here, the default *ranges* plot gives whole genome and every
+fractured bind regions represents state transformations
+happens. However, some transformations within small ranges cannot be
+visualized, e.g 1kb. If user want to look into specific ranges of
+segmentation state, the *region* argument is flexible to support.
 
 ```{r}
-region=GRanges("chr16",IRanges(3e7,4e7))
-plotSegment(seg,deny2,type="ranges",region=region)
+region <- GRanges("chr16", IRanges(3e7,4e7))
+plotSegment(seg, exclude, type="ranges", region=region)
 ```
 
 
@@ -120,8 +126,8 @@ Here we use an alternative segmentation implemented in *RcppHMM* (cite).
 
 ```{r seg-hmm}
 seg_hmm <- segmentDensity(g, n = 3, L_s = L_s,
-                          deny = deny2, type = "hmm")
-plots <- lapply(c("ranges","barplot","boxplot"), function(t) plotSegment(seg_hmm,deny2, type = t))
+                          exclude = exclude, type = "hmm")
+plots <- lapply(c("ranges","barplot","boxplot"), function(t) plotSegment(seg_hmm, exclude, type = t))
 plots[[1]]
 plots[[2]] + plots[[3]]
 ```
@@ -163,8 +169,8 @@ seqlengths(x) <- seqlengths(seg)
 library(microbenchmark)
 microbenchmark(
   list=alist(
-    prop = bootRanges(x, seg, blockLength, 1, deny, proportionLength = TRUE),
-    no_prop = bootRanges(x, seg, blockLength, 1, deny, proportionLength = FALSE)
+    prop = bootRanges(x, seg, blockLength, 1, exclude, proportionLength = TRUE),
+    no_prop = bootRanges(x, seg, blockLength, 1, exclude, proportionLength = FALSE)
 ), times=10)
 ```
 
