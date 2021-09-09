@@ -56,21 +56,21 @@ x <- matchRanges(focal = focal,
                  method = 'n', replace = TRUE)
 
 ## Visualize sets
-library(BentoBox)
+library(plotgardener)
 library(grid)
 set.seed(123)
-bb_pageCreate(width = 8.5, height = 6.5, showGuides = FALSE, xgrid = 0, ygrid = 0)
+pageCreate(width = 8.5, height = 6.5, showGuides = FALSE, xgrid = 0, ygrid = 0)
 
 ## Define common parameters
-p <- bb_params(chrom = "chr1", chromstart = 1, chromend = 1000)
+p <- pgParams(chrom = "chr1", chromstart = 1, chromend = 1000)
 
 ## Pool set
-poolSet <- bb_plotRanges(data = pool, params = p,
+poolSet <- plotRanges(data = pool, params = p,
                          x = 1, y = 1, width = 2.5, height = 2.5,
                          fill = colors,
                          colorby = colorby("color"))
-bb_annoGenomeLabel(plot = poolSet, x = 1, y = 3.55)
-bb_plotText(label = "Pool Set",
+annoGenomeLabel(plot = poolSet, x = 1, y = 3.55)
+plotText(label = "Pool Set",
             x = 2.25, y = 0.9,
             just = c("center", "bottom"),
             fontcolor = "#33A02C",
@@ -78,12 +78,12 @@ bb_plotText(label = "Pool Set",
             fontfamily = 'mono')
 
 ## Focal set
-focalSet <- bb_plotRanges(data = focal, params = p,
+focalSet <- plotRanges(data = focal, params = p,
                           x = 5, y = 1, width = 2.5, height = 1,
                           fill = colors,
                           colorby = colorby("color"))
-bb_annoGenomeLabel(plot = focalSet, x = 5, y = 2.05)
-bb_plotText(label = "Focal Set",
+annoGenomeLabel(plot = focalSet, x = 5, y = 2.05)
+plotText(label = "Focal Set",
             x = 6.25, y = 0.9,
             just = c("center", "bottom"),
             fontcolor = "#1F78B4",
@@ -92,12 +92,12 @@ bb_plotText(label = "Focal Set",
 
 
 ## Matched set
-matchedSet <- bb_plotRanges(data = matched(x), params = p,
+matchedSet <- plotRanges(data = matched(x), params = p,
                             x = 5, y = 2.5, width = 2.5, height = 1,
                             fill = colors,
                             colorby = colorby("color"))
-bb_annoGenomeLabel(plot = matchedSet, x = 5, y = 3.55)
-bb_plotText(label = "Matched Set",
+annoGenomeLabel(plot = matchedSet, x = 5, y = 3.55)
+plotText(label = "Matched Set",
             x = 6.25, y = 2.75,
             just = c("center", "bottom"),
             fontcolor = "#A6CEE3",
@@ -106,11 +106,11 @@ bb_plotText(label = "Matched Set",
 
 
 ## Arrow and matchRanges label
-bb_plotSegments(x0 = 3.5, y0 = 3,
+plotSegments(x0 = 3.5, y0 = 3,
                 x1 = 5, y1 = 3,
                 arrow = arrow(type = "closed", length = unit(0.1, "inches")),
                 fill = "black", lwd = 2)
-bb_plotText(label = "matchRanges()", fontfamily = 'mono',
+plotText(label = "matchRanges()", fontfamily = 'mono',
             x = 4.25, y = 2.9, just = c("center", "bottom"))
 
 
@@ -142,36 +142,36 @@ plot3 <-
 
 
 ## Propensity scores
-bb_plotText(label = "plotPropensity()",
+plotText(label = "plotPropensity()",
             x = 1.10, y = 4.24,
             just = c("left", "bottom"),
             fontface = "bold",
             fontfamily = 'mono')
-bb_plotText(label = "~color + length",
+plotText(label = "~color + length",
             x = 1.25, y = 4.5,
             just = c("left", "bottom"),
             fontsize = 10,
             fontfamily = "mono")
-bb_plotGG(plot = plot1,
+plotGG(plot = plot1,
           x = 1, y = 4.5, width = 2.5, height = 1.5,
           just = c("left", "top"))
 
 ## Covariate balance
-bb_plotText(label = "plotCovariate()",
+plotText(label = "plotCovariate()",
             x = 3.75, y = 4.24,
             just = c("left", "bottom"),
             fontface = "bold",
             fontfamily = "mono")
-bb_plotText(label = covariates(x),
+plotText(label = covariates(x),
             x = c(4, 5.9), y = 4.5,
             just = c("left", "bottom"),
             fontsize = 10,
             fontfamily = "mono")
-bb_plotGG(plot = plot2,
+plotGG(plot = plot2,
           x = 3.50, y = 4.5, width = 1.8, height = 1.5,
           just = c("left", "top"))
 
-bb_plotGG(plot = plot3,
+plotGG(plot = plot3,
           x = 5.30, y = 4.5, width = 2.75, height = 1.5,
           just = c("left", "top"))
 ```
