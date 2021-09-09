@@ -1,0 +1,75 @@
+url: https://nullranges.github.io/nullranges
+
+title: nullranges
+
+authors:
+  Michael Love:
+    href: https://mikelove.github.io
+  Wancen Mu:
+    href: https://twitter.com/wancenm
+  Eric Davis:
+    href: https://ericscottdavis.com
+  Douglas Phanstiel:
+    href: http://phanstiel-lab.med.unc.edu
+  Stuart Lee:
+    href: https://stuartlee.org
+  Mikhail Dozmorov:
+    href: https://dozmorovlab.github.io
+  Tim Triche:
+    href: https://trichelab.vai.org
+  CZI:
+    href: https://chanzuckerberg.com
+    
+articles:
+  - title: Articles
+    navbar: ~
+    contents:
+      - intro
+      - matching_ranges
+      - matching_granges
+      - matching_ginteractions
+      - segmented_boot_ranges
+      - unseg_boot_ranges
+  
+figures:
+  fig.width: 5.5
+  fig.retina: 1
+  
+reference:
+  - title: "Matching Ranges"
+    desc: >
+      Use a propensity score-based method to match ranges
+      by one or more covariates.
+    contents:
+      - matchRanges
+  - subtitle: "Matched classes"
+    contents:
+      - Matched-class
+      - MatchedDataFrame-class
+      - MatchedGRanges-class
+      - MatchedGInteractions-class
+  - subtitle: "Assessing matching quality"
+    contents:
+      - overview
+      - plotCovariate
+      - plotPropensity
+  - subtitle: "Accessor functions"
+    contents:
+      - matchedData
+      - covariates
+      - method
+      - withReplacement
+      - indices
+      - focal
+      - pool
+      - matched
+      - unmatched
+  - subtitle: "Utility functions"
+    contents:
+      - combnCov
+      - makeExampleMatchedDataSet
+  - title: "Bootstrapping Ranges"
+    desc: "Block bootstrap ranges optionally within segmentation"
+    contents:
+      - bootRanges
+      - segmentDensity

@@ -7,8 +7,6 @@ output:
     highlight: tango
     toc: true
     toc_float: true	
-    fig_width: 5
-    fig_height: 3
 vignette: |
   %\VignetteIndexEntry{Segmented block bootstrap}
   %\VignetteEngine{knitr::rmarkdown}
@@ -16,6 +14,10 @@ vignette: |
 ---
 
 # Introduction to segmented block bootstrap
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(fig.width=5, fig.height=5)
+```
 
 As proposed by Bickel et al (2010), *nullranges* contains an
 implementation of a block bootstrap, such that features are sampled
@@ -50,7 +52,7 @@ filt <- AnnotationFilterList(GeneIdFilter("ENSG", "startsWith"))
 g <- genes(edb, filter = filt)
 ```
 
-Some processing to align these features with our deny regions and our
+Some processing to align these features with our excluded regions and our
 features of interest (DHS, defined below).
 
 ```{r}
@@ -65,16 +67,17 @@ g <- sort(g)
 table(seqnames(g))
 ```
 
-## Import deny region
+## Import excluded region
 
-Here we import deny regions (as created by Kundaje et al). 
+Here we import excluded regions (as created by Kundaje et al). 
 
-TODO: here instead use Mikhail's *denyranges* package, once it is available.
+TODO: here instead use Mikhail's *excluderanges* package, once it is available.
 
 ```{r}
 library(nullrangesData)
 data("deny")
-table(seqnames(deny))
+exclude <- deny
+table(seqnames(exclude))
 ```
 
 ## CBS segmentation
@@ -83,26 +86,39 @@ We load *nullranges* and *plyranges* packages:
 
 ```{r}
 library(nullranges)
+library(patchwork)
 suppressPackageStartupMessages(library(plyranges))
 ```
 
-We subset the deny ranges to those which are 500 bp or larger. 
+We subset the excluded ranges to those which are 500 bp or larger. 
 
 TODO: discuss motivation for this.
 
-We use a CBS segmentation as implemented in *DNAcopy* (cite).
+We use a CBS segmentation as implemented in *DNAcopy* (cite). 
 
 ```{r seg-cbs}
+library(plyranges)
 set.seed(5)
-deny2 <- deny %>% plyranges::filter(width(deny) >= 500)
+exclude <- exclude %>% filter(width(exclude) >= 500)
 L_s <- 1e6
-seg_fit <- segmentDensity(g, n = 3, L_s = L_s,
-                          deny = deny2, type = "cbs",
-                          returnPlot = TRUE)
-seg <- seg_fit$seg
-print(seg_fit$p1)
-print(seg_fit$p2)
+seg <- segmentDensity(g, n = 3, L_s = L_s,
+                      exclude = exclude, type = "cbs")
+plots <- lapply(c("ranges","barplot","boxplot"), function(t) plotSegment(seg, exclude, type = t))
+plots[[1]]
+plots[[2]] + plots[[3]]
 ```
+
+Note here, the default *ranges* plot gives whole genome and every
+fractured bind regions represents state transformations
+happens. However, some transformations within small ranges cannot be
+visualized, e.g 1kb. If user want to look into specific ranges of
+segmentation state, the *region* argument is flexible to support.
+
+```{r}
+region <- GRanges("chr16", IRanges(3e7,4e7))
+plotSegment(seg, exclude, type="ranges", region=region)
+```
+
 
 ## Alternatively: HMM segmentation
 
@@ -110,10 +126,10 @@ Here we use an alternative segmentation implemented in *RcppHMM* (cite).
 
 ```{r seg-hmm}
 seg_hmm <- segmentDensity(g, n = 3, L_s = L_s,
-                          deny = deny2, type = "hmm",
-                          returnPlot = TRUE)
-print(seg_hmm$p1)
-print(seg_hmm$p2)
+                          exclude = exclude, type = "hmm")
+plots <- lapply(c("ranges","barplot","boxplot"), function(t) plotSegment(seg_hmm, exclude, type = t))
+plots[[1]]
+plots[[2]] + plots[[3]]
 ```
 
 # Segmented block bootstrap within chromosome
@@ -143,7 +159,7 @@ use in a workflow).
 Testing the segmented block bootstrap:
 
 ```{r}
-L_b <- 5e5
+blockLength <- 5e5
 # TODO 'x' has no seqlengths
 x <- DHSA549Hg38
 seqlengths(x) <- seqlengths(seg)
@@ -151,9 +167,10 @@ seqlengths(x) <- seqlengths(seg)
 
 ```{r}
 library(microbenchmark)
-microbenchmark(list=alist(
-                 prop = bootRanges(x, seg, L_b, 1, deny, proportion_length = TRUE),
-                 no_prop = bootRanges(x, seg, L_b, 1, deny, proportion_length = FALSE)
+microbenchmark(
+  list=alist(
+    prop = bootRanges(x, seg, blockLength, 1, exclude, proportionLength = TRUE),
+    no_prop = bootRanges(x, seg, blockLength, 1, exclude, proportionLength = FALSE)
 ), times=10)
 ```
 
@@ -164,23 +181,26 @@ bootstrap.
 
 ```{r}
 suppressPackageStartupMessages(library(BentoBox))
+my_palette <- function(n) {
+  head(c("red","green3","red3","dodgerblue",
+         "blue2","green4","darkred"), n)
+}
 plotGRanges <- function(gr) {
-  bb_pageCreate(width = 5, height = 2, xgrid = 0,
-                ygrid = 0, showGuides = FALSE)
+  bb_pageCreate(width = 5, height = 5, xgrid = 0,
+                ygrid = 0, showGuides = TRUE)
   for (i in seq_along(seqlevels(gr))) {
     chrom <- seqlevels(gr)[i]
     chromend <- seqlengths(gr)[[chrom]]
     suppressMessages({
       p <- bb_params(chromstart = 0, chromend = chromend,
-                     x = 0.5, width = 4*chromend/500, height = 0.6,
+                     x = 0.5, width = 4*chromend/500, height = 2,
                      at = seq(0, chromend, 50),
-                     fill = cols)
+                     fill = colorby("state_col", palette=my_palette))
       prngs <- bb_plotRanges(data = gr, params = p,
                              chrom = chrom,
-                             y = 0.6 + (i-1),
-                             just = c("left", "bottom"),
-                             colorby=colorby("state_col"))
-      bb_annoGenomeLabel(plot = prngs, params = p, y = 0.7 + (i-1))
+                             y = 2 * i,
+                             just = c("left", "bottom"))
+      bb_annoGenomeLabel(plot = prngs, params = p, y = 0.1 + 2 * i)
     })
   }
 }
@@ -195,28 +215,17 @@ seg <- GRanges(
           width = c(100, 100, 200, 100, 200, 100, 100)),
   seqlengths=c(chr1=500,chr2=400),
   state = c(1,2,1,3,3,2,1),
-  state_col = 1:7
+  state_col = factor(1:7)
 )
 ```
 
-```{r}
-fixBBPlots <- function(x) {
-  sort(
-    c(x,
-      GRanges("chr1", IRanges(2*1:7,width=1), state=1:7, state_col=1:7, block=1:7),
-      GRanges("chr2", IRanges(2*1:7,width=1), state=1:7, state_col=1:7, block=1:7)))
-}
-```
-
 ```{r toysegments}
-cols <- c("red","green3","red3","dodgerblue",
-          "blue2","green4","darkred")
-names(cols) <- 1:7
-plotGRanges(fixBBPlots(seg))
+plotGRanges(seg)
 ```
 
 ```{r toyranges}
-n <- 50
+set.seed(1)
+n <- 200
 gr <- GRanges(
   seqnames=sort(sample(c("chr1","chr2"), n, TRUE)),
   IRanges(start=round(runif(n, 1, 500-10+1)), width=10)
@@ -226,24 +235,29 @@ suppressWarnings({
 })
 gr <- gr[!(seqnames(gr) == "chr2" & end(gr) > 400)]
 gr <- sort(gr)
-idx <- findOverlaps(gr, seg, select="first")
+idx <- findOverlaps(gr, seg, type="within", select="first")
+gr <- gr[!is.na(idx)]
+idx <- idx[!is.na(idx)]
 gr$state <- seg$state[idx]
-gr$state_col <- seg$state_col[idx]
-plotGRanges(fixBBPlots(gr))
+gr$state_col <- factor(seg$state_col[idx])
+plotGRanges(gr)
 ```
 
 ## Not scaling blocks to segmentation length
 
 ```{r toy-no-prop}
-gr_prime <- bootRanges(gr, seg, L_b = 25, R = 1, 
-                       proportion_length = FALSE)[[1]]
-plotGRanges(fixBBPlots(gr_prime))
+set.seed(1)
+gr_prime <- bootRanges(gr, seg, blockLength = 25, R = 1, 
+                       proportionLength = FALSE)[[1]]
+plotGRanges(gr_prime)
 ```
 
 ## Scaling blocks to segmentation length
 
 ```{r toy-prop}
-gr_prime <- bootRanges(gr, seg, L_b = 50, R = 1, 
-                       proportion_length = TRUE)[[1]]
-plotGRanges(fixBBPlots(gr_prime))
+set.seed(1)
+gr_prime <- bootRanges(gr, seg, blockLength = 50, R = 1, 
+                       proportionLength = TRUE)[[1]]
+plotGRanges(gr_prime)
 ```
+

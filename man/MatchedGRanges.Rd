@@ -4,7 +4,124 @@
 \name{MatchedGRanges-class}
 \alias{MatchedGRanges-class}
 \alias{MatchedGRanges}
-\title{MatchedGRanges}
+\title{MatchedGRanges objects}
 \description{
-MatchedGRanges
+The \code{MatchedGRanges} class is a subclass of both
+\code{Matched} and \code{GRanges}. Therefore, it contains slots
+and methods for both of these classes.
+}
+\details{
+The \code{MatchedGRanges} class uses a delegate object
+during initialization to assign its \code{GRanges} slots.
+\code{MatchedGRanges} behaves as a \code{GRanges} but also
+includes additional \code{Matched} object functionality
+(see \code{?Matched}). For more information about
+\code{GRanges} see \code{?GenomicRanges::GRanges}.
+}
+\section{Slots}{
+
+\describe{
+\item{\code{focal}}{A \code{GRanges} object containing the focal
+data to match.}
+
+\item{\code{pool}}{A \code{GRanges} object containing the pool
+from which to select matches.}
+
+\item{\code{delegate}}{A \code{GRanges} object used to initialize
+\code{GRanges}-specific slots. \code{matchRanges()} assigns
+the matched set to the slot.}
+
+\item{\code{matchedData}}{A \code{data.table} with matched data}
+
+\item{\code{matchedIndex}}{An integer vector corresponding
+to the indices in the \code{pool} which comprise the
+\code{matched} set.}
+
+\item{\code{covar}}{A character vector describing the covariates
+used for matching.}
+
+\item{\code{method}}{Character describing replacement method
+used for matching.}
+
+\item{\code{replace}}{TRUE/FALSE describing if matching was
+done with or without replacement.}
+
+\item{\code{seqnames}}{\code{seqnames(delegate)}}
+
+\item{\code{ranges}}{\code{ranges(delegate)}}
+
+\item{\code{strand}}{\code{strand(delegate)}}
+
+\item{\code{seqinfo}}{\code{seqinfo(delegate)}}
+
+\item{\code{elementMetadata}}{\code{elementMetadata(delegate)}}
+
+\item{\code{elementType}}{\code{elementType(delegate)}}
+
+\item{\code{metadata}}{\code{metadata(delegate)}}
+}}
+
+\section{Accessor methods for Matched Class}{
+
+Functions that get data from Matched subclasses (\code{x})
+such as MatchedDataFrame, MatchedGRanges,
+and MatchedGInteractions are listed below:
+\itemize{
+\item{\code{matchedData(x)}: }{Get matched data from a Matched object}
+\item{\code{covariates(x)}: }{Get covariates from a Matched object}
+\item{\code{method(x)}: }{Get matching method used for Matched object}
+\item{\code{withReplacement(x)}: }{Get replace method}
+\item{\code{indices(x, set)}: }{Get indices of matched set}
+}
+For more detail check the help pages for these functions.
+}
+
+\section{Accessor methods for Matched subclass objects}{
+
+Additional functions that get data from Matched subclasses
+(\code{x}) such as MatchedDataFrame, MatchedGRanges,
+and MatchedGInteractions include:
+\itemize{
+\item{\code{focal(x)}: }{Get focal set from a Matched object}
+\item{\code{pool(x)}: }{Get pool set from a Matched object}
+\item{\code{matched(x)}: }{Get matched set from a Matched object}
+\item{\code{unmatched(x)}: }{Get unmatched set from a Matched object}
+}
+For more detail check the help pages for these functions.
+}
+
+\examples{
+## Contructing MatchedGRanges with matchRanges
+gr <- makeExampleMatchedDataSet(type = "GRanges")
+mgr <- matchRanges(focal = gr[gr$feature1,],
+                   pool = gr[!gr$feature1,],
+                   covar = ~feature2 + feature3,
+                   method = 'rejection',
+                   replace = FALSE)
+class(mgr)
+
+## Make MatchedGRanges example
+x <- makeExampleMatchedDataSet(type = 'GRanges', matched = TRUE)
+
+## Accessor functions for Matched class
+matchedData(x)
+covariates(x)
+method(x)
+withReplacement(x)
+head(indices(x, set = 'matched'))
+
+## Accessor functions for Matched subclasses
+focal(x)
+pool(x)
+matched(x)
+unmatched(x)
+
+}
+\seealso{
+\link[GenomicRanges:GRanges-class]{GenomicRanges::GRanges}
+
+\link{matchedData}, \link{covariates}, \link{method},
+\link{withReplacement}, \link{indices}
+
+\link{focal}, \link{pool}, \link{matched}, \link{unmatched}
 }

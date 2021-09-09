@@ -4,14 +4,7 @@
 \alias{segmentDensity}
 \title{Genomic segmentation based on gene density}
 \usage{
-segmentDensity(
-  x,
-  n,
-  L_s = 1e+06,
-  deny,
-  type = c("cbs", "hmm"),
-  returnPlot = FALSE
-)
+segmentDensity(x, n, L_s = 1e+06, exclude, type = c("cbs", "hmm"))
 }
 \arguments{
 \item{x}{the input gene GRanges}
@@ -20,15 +13,19 @@ segmentDensity(
 
 \item{L_s}{segment length}
 
-\item{deny}{GRanges of deny region}
+\item{exclude}{GRanges of deny region}
 
 \item{type}{the type of segmentation, either "cbs" (which will
 use DNAcopy to segment) or "hmm" (which will use RcppHMM).
 The packages are not imported by nullranges, but must be installed
 by the user}
-
-\item{returnPlot}{indicate whether return segmentation by chromosome
-plot and boxplot. If true, plot element will be stored in the result list.}
+}
+\value{
+a GRanges with metadata columns containing:
+\itemize{
+\item{state} {segmentation state}
+\item{counts} {average number of genes}
+}
 }
 \description{
 Genomic segmentation based on gene density

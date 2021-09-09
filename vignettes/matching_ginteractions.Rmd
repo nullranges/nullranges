@@ -1,0 +1,310 @@
+---
+title: "Case study II: CTCF orientation"
+author: "Eric S. Davis"
+date: "`r format(Sys.Date(), '%m/%d/%Y')`"
+output:
+  rmarkdown::html_document:
+    highlight: tango
+    toc: true
+    toc_float: true	
+    fig_width: 5
+    fig_height: 3
+vignette: |
+  %\VignetteIndexEntry{Case study II: CTCF orientation}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+In this vignette, we demonstrate the generation of covariate-matched null ranges by using the `matchRanges()` function to test the "covergence rule" of CTCF-bound chromatin loops, first described in Rao et al. 2014.
+
+## Background
+
+In 2014, in situ Hi-C was used to probe the spatial organization of the human genome and identify 3D structures - such as chromatin loops - characterized by high contact frequency. Chromatin loops can be formed by loop-extrusion, where the ring-like cohesin complex extrudes chromatin until stopped by a bound CTCF transcription factor. Therefore, most validated loops are bound at both ends by a CTCF motif. The convergence rule purports that the vast majority (\>90%) of CTCF-bound loops occur in a convergent orientation, where the asymetric CTCF motifs at each anchor face one another. This is a highly significant finding since we would only expect to find convergently-oriented CTCF motifs 25% of the time by chance.
+
+Here, we generate a set of null-hypothesis ranges to more rigorously test the convergence rule. We will use `hg19_10kb_ctcfBoundBinPairs` data from the `nullrangesData` package which contains features from the GM12878 cell line aligned to hg19. `hg19_10kb_ctcfBoundBinPairs` is a `GInteractions` object with all interactions between ctcf-bound 10Kb bins within 1Mb annotated with the following features:
+
+-   The total CTCF signal in each bin.
+-   The number of CTCF sites in each bin.
+-   The distance between bin pairs.
+-   Whether at least one CTCF site is convergent between each bin pair.
+-   The presence or absence of a loop between each bin pair.
+
+Using these annotations and the `matchRanges()` function, we can compare CTCF motif orientations between pairs of genomic regions that are 1) connected by loops, 2) not connected by loops, 3) randomly chosen, or 4) not connected by loops, but matched for the strength of CTCF sites and distance between loop anchors.
+
+```{r, message=FALSE, warning=FALSE, echo=FALSE, fig.width=8.5, fig.height=6.5, eval=TRUE}
+## Define colors
+colors <- c("#e19995", "#adaf64", "#4fbe9b", "#6eb3d9", "#d098d7")
+
+## Create artificial GInteractions
+library(InteractionSet)
+set.seed(5)
+pool <- GInteractions(
+  anchor1 = GRanges(seqnames = "chr1",
+                    ranges = IRanges(start = sample(1:990, 120, replace = TRUE),
+                                     width = 10)),
+  anchor2 = GRanges(seqnames = "chr1",
+                    ranges = IRanges(start = sample(1:990, 120, replace = TRUE),
+                                     width = 10)),
+  mode = "strict",
+  color = sample(1:5, 120, replace = TRUE)
+)
+
+focal <- GInteractions(
+  anchor1 = GRanges(seqnames = "chr1",
+                    ranges = IRanges(start = sample(1:990, 16, replace = TRUE),
+                                     width = 10)),
+  anchor2 = GRanges(seqnames = "chr1",
+                    ranges = IRanges(start = sample(1:990, 16, replace = TRUE),
+                                     width = 10)),
+  mode = "strict",
+  color = sample(1:5, 16, replace = TRUE)
+)
+
+
+## Add distance to metadata
+pool$distance <- pairdist(pool)
+focal$distance <- pairdist(focal)
+
+## Match ranges
+library(nullranges)
+set.seed(123)
+x <- matchRanges(focal = focal,
+                 pool = pool,
+                 covar = ~color + distance,
+                 method = 'n', replace = TRUE)
+
+## Visualize sets
+library(BentoBox)
+library(grid)
+set.seed(123)
+bb_pageCreate(width = 8.5, height = 6.5, showGuides = FALSE, xgrid = 0, ygrid = 0)
+
+## Define common parameters
+p <- bb_params(chrom = "chr1", chromstart = 1, chromend = 1000)
+
+
+## Pool set
+poolSet <- bb_plotPairs(data = pool,
+                        params = p,
+                        fill = colors[pool$color],
+                        x = 1, y = 1.25, width = 2.5, height = 2.25)
+bb_annoGenomeLabel(plot = poolSet, x = 1, y = 3.55)
+bb_plotText(label = "Pool Set",
+            x = 2.25, y = 0.9,
+            just = c("center", "bottom"),
+            fontcolor = "#33A02C",
+            fontface = "bold",
+            fontfamily = 'mono')
+
+## Focal set
+focalSet <- bb_plotPairs(data = focal,
+                         params = p,
+                         fill = colors[focal$color],
+                         x = 5, y = 1.1, width = 2.5, height = 0.9)
+bb_annoGenomeLabel(plot = focalSet, x = 5, y = 2.05)
+bb_plotText(label = "Focal Set",
+            x = 6.25, y = 0.9,
+            just = c("center", "bottom"),
+            fontcolor = "#1F78B4",
+            fontface = "bold",
+            fontfamily = 'mono')
+
+
+## Matched set
+matchedSet <- bb_plotPairs(data = x,
+                           params = p,
+                           fill = colors[x$color],
+                           x = 5, y = 2.6, width = 2.5, height = 0.9)
+bb_annoGenomeLabel(plot = matchedSet, x = 5, y = 3.55)
+bb_plotText(label = "Matched Set",
+            x = 6.25, y = 2.50,
+            just = c("center", "bottom"),
+            fontcolor = "#A6CEE3",
+            fontface = "bold",
+            fontfamily = 'mono')
+
+
+## Arrow and matchRanges label
+bb_plotSegments(x0 = 3.5, y0 = 3,
+                x1 = 5, y1 = 3,
+                arrow = arrow(type = "closed", length = unit(0.1, "inches")),
+                fill = "black", lwd = 2)
+bb_plotText(label = "matchRanges()", fontfamily = 'mono',
+            x = 4.25, y = 2.9, just = c("center", "bottom"))
+
+
+
+## Matching plots
+library(ggplot2)
+smallText <- theme(legend.title = element_text(size=8),
+                   legend.text=element_text(size=8),
+                   title = element_text(size=8),
+                   axis.title.x = element_text(size=8),
+                   axis.title.y = element_text(size=8))
+
+plot1 <-
+  plotPropensity(x, sets=c('f','m','p')) +
+  smallText +
+  theme(legend.key.size = unit(0.5, 'lines'),
+        title = element_blank())
+
+plot2 <-
+  plotCovariate(x=x, covar=covariates(x)[1], sets=c('f','m','p')) +
+  smallText +
+  theme(legend.text = element_blank(),
+        legend.position = 'none')
+
+plot3 <-
+  plotCovariate(x=x, covar=covariates(x)[2], sets=c('f','m','p'))+
+  smallText + 
+  theme(legend.key.size = unit(0.5, 'lines'))
+
+
+## Propensity scores
+bb_plotText(label = "plotPropensity()",
+            x = 1.10, y = 4.24,
+            just = c("left", "bottom"),
+            fontface = "bold",
+            fontfamily = 'mono')
+bb_plotText(label = "~color + distance",
+            x = 1.25, y = 4.5,
+            just = c("left", "bottom"),
+            fontsize = 10,
+            fontfamily = "mono")
+bb_plotGG(plot = plot1,
+          x = 1, y = 4.5, width = 2.5, height = 1.5,
+          just = c("left", "top"))
+
+## Covariate balance
+bb_plotText(label = "plotCovariate()",
+            x = 3.75, y = 4.24,
+            just = c("left", "bottom"),
+            fontface = "bold",
+            fontfamily = "mono")
+bb_plotText(label = covariates(x),
+            x = c(4, 5.9), y = 4.5,
+            just = c("left", "bottom"),
+            fontsize = 10,
+            fontfamily = "mono")
+bb_plotGG(plot = plot2,
+          x = 3.50, y = 4.5, width = 1.8, height = 1.5,
+          just = c("left", "top"))
+
+bb_plotGG(plot = plot3,
+          x = 5.30, y = 4.5, width = 2.75, height = 1.5,
+          just = c("left", "top"))
+```
+
+## Matching with `matchRanges()`
+
+Before we generate our null ranges, let's take a look at our example dataset:
+
+```{r, message=FALSE, warning=FALSE}
+library(nullrangesData)
+
+## Load example data
+data("hg19_10kb_ctcfBoundBinPairs")
+binPairs <- hg19_10kb_ctcfBoundBinPairs
+
+binPairs
+```
+
+Let's start by defining our focal set (i.e. looped bin-pairs), our pool set (i.e un-looped bin-pairs), and our covariates of interest (i.e. `ctcfSignal` and `distance`):
+
+```{r, message=FALSE, warning=FALSE}
+library(nullranges)
+set.seed(123)
+mgi <- matchRanges(focal = binPairs[binPairs$looped],
+                   pool = binPairs[!binPairs$looped],
+                   covar = ~ctcfSignal + distance + n_sites,
+                   method = 'stratified')
+mgi
+```
+
+When the focal and pool arguments are `GInteractions` objects, `matchRanges()` returns a `MatchedGInteractions` object. The `MatchedGInteractions` class extends `GInteractions` so all of the same operations can be applied:
+
+```{r, message=FALSE, warning=FALSE}
+library(plyranges)
+library(ggplot2)
+
+## Summarize ctcfSignal by n_sites
+mgi %>%
+  regions() %>%
+  group_by(n_sites) %>%
+  summarize(ctcfSignal = mean(ctcfSignal)) %>%
+  as.data.frame() %>%
+  ggplot(aes(x = n_sites, y = ctcfSignal)) +
+    geom_line() +
+    geom_point(shape = 21, stroke = 1,  fill = 'white') +
+    theme_minimal() +
+    theme(panel.border = element_rect(color = 'black',
+                                      fill = NA))
+```
+
+## Assessing quality of matching
+
+We can get a quick summary of the matching quality with `overview()`:
+
+```{r}
+ov <- overview(mgi)
+ov
+```
+
+In addition to providing a printed overview, the overview data can be extracted for convenience. For example, the `quality` property shows the absolute value of the mean difference between focal and matched sets. Therefore, the lower this value, the better the matching quality:
+
+```{r}
+ov$quality
+```
+
+### Visualizing matching results
+
+Let's visualize overall matching quality by plotting propensity scores for the focal, pool, and matched sets:
+
+```{r, message=FALSE}
+plotPropensity(mgi, sets = c('f', 'p', 'm'))
+```
+
+Log transformations can be applied to 'x', 'y', or both (`c('x', 'y')`) for plotting functions to make it easier to assess quality. It is clear that the matched set is very well matched to the focal set:
+
+```{r}
+plotPropensity(mgi, sets = c('f', 'p', 'm'), log = 'x')
+```
+
+We can ensure that covariate distributions have been matched appropriately by using the `covariates()` function to extract matched covariates along with `patchwork` and `plotCovarite` to visualize all distributions:
+
+```{r, message=FALSE, warning=FALSE, fig.height=8, fig.width=5}
+library(patchwork)
+plots <- lapply(covariates(mgi), plotCovariate, x=mgi, sets = c('f', 'm', 'p'))
+Reduce('/', plots)
+```
+
+## Compare CTCF site orientation
+
+Using our matched ranges, we can compare the percent of looped pairs with at least one convergent CTCF site against unlooped pairs, randomly selected pairs, and pairs that are unlooped but have been matched for our covariates. The accessor function `focal()` and `pool()` can be used to conveniently extract these matched sets:
+
+```{r, fig.width=6, fig.height=5}
+## Generate a randomly selected set from all binPairs
+all <- c(focal(mgi), pool(mgi))
+set.seed(123)
+random <- all[sample(1:length(all), length(mgi), replace = FALSE)]
+
+## Calculate the percent of convergent CTCF sites for each group
+g1 <- (sum(focal(mgi)$convergent) / length(focal(mgi))) * 100
+g2 <- (sum(pool(mgi)$convergent) / length(pool(mgi))) * 100
+g3 <- (sum(random$convergent) / length(random)) * 100
+g4 <- (sum(mgi$convergent) / length(mgi)) * 100
+
+## Visualize
+barplot(height = c(g1, g2, g3, g4),
+        names.arg = c('looped\n(focal)', 'unlooped\n(pool)',
+                      'all pairs\n(random)', 'unlooped\n(matched)'),
+        col = c('#1F78B4', '#33A02C', 'orange2', '#A6CEE3'), 
+        ylab = "Convergent CTCF Sites (%)",
+        main = "Testing the Convergence Rule",
+        border = NA,
+        las = 1)
+```
+
+It looks like the converget rule holds, even when controlling for CTCF signal strength and bin pair distance. Our looped group has \> 90% convergent CTCF sites, while our other groups have about 25% per CTCF site on average.

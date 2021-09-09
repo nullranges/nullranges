@@ -2,40 +2,110 @@
 % Please edit documentation in R/AllGenerics.R, R/methods-matchRanges.R
 \name{matchRanges}
 \alias{matchRanges}
-\alias{matchRanges,DF_OR_df_OR_dt,DF_OR_df_OR_dt,formula,character,logical-method}
-\alias{matchRanges,GRanges,GRanges,formula,character,logical-method}
-\alias{matchRanges,GInteractions,GInteractions,formula,character,logical-method}
-\title{matchRanges}
+\alias{matchRanges,DF_OR_df_OR_dt,DF_OR_df_OR_dt,formula,character_OR_missing,logical_OR_missing-method}
+\alias{matchRanges,GRanges,GRanges,formula,character_OR_missing,logical_OR_missing-method}
+\alias{matchRanges,GInteractions,GInteractions,formula,character_OR_missing,logical_OR_missing-method}
+\title{Generate a covariate-matched control set of ranges}
 \usage{
-matchRanges(focal, pool, covar, method, replace, ...)
+matchRanges(focal, pool, covar, method = "rejection", replace = FALSE, ...)
 
-\S4method{matchRanges}{DF_OR_df_OR_dt,DF_OR_df_OR_dt,formula,character,logical}(focal, pool, covar, method, replace)
+\S4method{matchRanges}{DF_OR_df_OR_dt,DF_OR_df_OR_dt,formula,character_OR_missing,logical_OR_missing}(focal, pool, covar, method, replace)
 
-\S4method{matchRanges}{GRanges,GRanges,formula,character,logical}(focal, pool, covar, method, replace)
+\S4method{matchRanges}{GRanges,GRanges,formula,character_OR_missing,logical_OR_missing}(focal, pool, covar, method, replace)
 
-\S4method{matchRanges}{GInteractions,GInteractions,formula,character,logical}(focal, pool, covar, method, replace)
+\S4method{matchRanges}{GInteractions,GInteractions,formula,character_OR_missing,logical_OR_missing}(focal, pool, covar, method, replace)
 }
 \arguments{
-\item{focal}{a DataFrame, GRanges, or GInteractions object containing
+\item{focal}{A DataFrame, GRanges, or GInteractions object containing
 the focal data to match.}
 
-\item{pool}{a DataFrame, GRanges, or GInteractions object containing
+\item{pool}{A DataFrame, GRanges, or GInteractions object containing
 the pool from which to select matches.}
 
-\item{covar}{a rhs formula with covariates on which to match.}
+\item{covar}{A rhs formula with covariates on which to match.}
 
-\item{method}{character describing which matching method to use.
+\item{method}{A character describing which matching method to use.
 supported options are either 'nearest', 'rejection', or 'stratified'.}
 
-\item{replace}{logical describing whether to select matches with or without
+\item{replace}{TRUE/FALSE describing whether to select matches with or without
 replacement.}
 
-\item{...}{additional arguments}
+\item{...}{Additional arguments.}
 }
 \value{
-a covariate-matched control set of data
+A covariate-matched control set of data.
 }
 \description{
-A function that generates a covariate-matched control
-set of the same datatype.
+\code{matchRanges()} uses a propensity score-based method to
+generate a covariate-matched control set of DataFrame,
+GRanges, or GInteractions objects.
+}
+\details{
+Available inputs for \code{focal} and \code{pool} include \code{data.frame},
+\code{data.table}, \code{DataFrame}, \code{GRanges}, or \code{GInteractions}.
+\code{data.frame} and \code{data.table} inputs are coerced to \code{DataFrame}
+objects and returned as \code{MatchedDataFrame} while \code{GRanges} and
+\code{GInteractions} objects are returned as \code{MatchedGRanges} or
+\code{MatchedGInteractions}, respectively.
+}
+\section{Matching methods}{
+
+\itemize{
+\item{\code{method = 'nearest'}: }{Nearest neighbor matching
+with replacement. Finds the nearest neighbor by using a
+rolling join with \code{data.table}. Matching without replacement
+is not currently supported.}
+\item{\code{method = 'rejection'}: }{(Default) Rejection sampling
+with or without replacement. Uses a probability-based approach
+to select options in the \code{pool} that match the \code{focal} distribition.}
+\item{\code{method = 'stratified'}: }{Iterative stratified sampling
+with or without replacement. Bins \code{focal} and \code{pool} propensity
+scores by value and selects matches within bins until all \code{focal}
+items have a corresponding match in \code{pool}.}
+}
+}
+
+\examples{
+## Match with DataFrame
+x <- makeExampleMatchedDataSet(type = 'DataFrame')
+matchRanges(focal = x[x$feature1,],
+            pool = x[!x$feature1,],
+            covar = ~feature2 + feature3)
+
+## Match with GRanges
+x <- makeExampleMatchedDataSet(type = "GRanges")
+matchRanges(focal = x[x$feature1,],
+            pool = x[!x$feature1,],
+            covar = ~feature2 + feature3)
+
+## Match with GInteractions
+x <- makeExampleMatchedDataSet(type = "GInteractions")
+matchRanges(focal = x[x$feature1,],
+            pool = x[!x$feature1,],
+            covar = ~feature2 + feature3)
+
+## Nearest neighbor matching with replacement
+x <- makeExampleMatchedDataSet(type = 'DataFrame')
+matchRanges(focal = x[x$feature1,],
+            pool = x[!x$feature1,],
+            covar = ~feature2 + feature3,
+            method = 'nearest',
+            replace = TRUE)
+
+## Rejection sampling without replacement
+x <- makeExampleMatchedDataSet(type = 'DataFrame')
+matchRanges(focal = x[x$feature1,],
+            pool = x[!x$feature1,],
+            covar = ~feature2 + feature3,
+            method = 'rejection',
+            replace = FALSE)
+
+## Stratified sampling without replacement
+x <- makeExampleMatchedDataSet(type = 'DataFrame')
+matchRanges(focal = x[x$feature1,],
+            pool = x[!x$feature1,],
+            covar = ~feature2 + feature3,
+            method = 'stratified',
+            replace = FALSE)
+
 }

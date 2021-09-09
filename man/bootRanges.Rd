@@ -7,13 +7,13 @@
 bootRanges(
   x,
   seg = NULL,
-  L_b,
+  blockLength,
   R = 1,
-  deny = NULL,
-  deny_option = c("drop", "trim"),
-  proportion_length = TRUE,
+  exclude = NULL,
+  excludeOption = c("drop", "trim"),
+  proportionLength = TRUE,
   type = c("bootstrap", "permute"),
-  within_chrom = FALSE
+  withinChrom = FALSE
 )
 }
 \arguments{
@@ -22,23 +22,23 @@ bootRanges(
 \item{seg}{the segmentation GRanges, with a column ("state")
 indicating segmentation state (optional)}
 
-\item{L_b}{the length of the blocks (for proportional blocks, this
+\item{blockLength}{the length of the blocks (for proportional blocks, this
 is the maximal length of block)}
 
 \item{R}{the number of bootstrap samples to generate}
 
-\item{deny}{the GRanges of deny regions (optional)}
+\item{exclude}{the GRanges of deny regions (optional)}
 
-\item{deny_option}{whether to "drop" or "trim" bootstrap
-ranges that overlap a deny region}
+\item{excludeOption}{whether to "drop" or "trim" bootstrap
+ranges that overlap a exclude region}
 
-\item{proportion_length}{for segmented block bootstrap,
+\item{proportionLength}{for segmented block bootstrap,
 whether to use scaled block length, (scaling by the proportion
 of the segmentation state out of the total genome length)}
 
 \item{type}{the type of null generation (unsegmented only)}
 
-\item{within_chrom}{whether to re-sample (bootstrap) ranges
+\item{withinChrom}{whether to re-sample (bootstrap) ranges
 across chromosomes (default) or only within chromosomes (unsegmented only)}
 }
 \value{

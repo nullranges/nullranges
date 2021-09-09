@@ -7,17 +7,17 @@
 #' @param x the input GRanges
 #' @param seg the segmentation GRanges, with a column ("state")
 #' indicating segmentation state (optional)
-#' @param L_b the length of the blocks (for proportional blocks, this
+#' @param blockLength the length of the blocks (for proportional blocks, this
 #' is the maximal length of block)
 #' @param R the number of bootstrap samples to generate
-#' @param deny the GRanges of deny regions (optional)
-#' @param deny_option whether to "drop" or "trim" bootstrap
-#' ranges that overlap a deny region
-#' @param proportion_length for segmented block bootstrap,
+#' @param exclude the GRanges of deny regions (optional)
+#' @param excludeOption whether to "drop" or "trim" bootstrap
+#' ranges that overlap a exclude region
+#' @param proportionLength for segmented block bootstrap,
 #' whether to use scaled block length, (scaling by the proportion
 #' of the segmentation state out of the total genome length)
 #' @param type the type of null generation (unsegmented only)
-#' @param within_chrom whether to re-sample (bootstrap) ranges
+#' @param withinChrom whether to re-sample (bootstrap) ranges
 #' across chromosomes (default) or only within chromosomes (unsegmented only)
 #'
 #' @return bootRanges: a GRangesList of length R with the bootstrapped ranges
@@ -25,45 +25,45 @@
 #' @importFrom IRanges overlapsAny
 #' @importFrom stats as.formula binomial kmeans predict
 #' quantile rbinom rnorm runif terms
+#' @importFrom S4Vectors Rle
 #' @importFrom IRanges IRanges successiveIRanges mid
 #' @importFrom GenomicRanges tileGenome sort GRangesList
 #' @importFrom GenomeInfoDb seqlengths seqlengths<- seqlevels sortSeqlevels
 #' 
 #' @export
-bootRanges <- function(x, seg = NULL, L_b, R=1,
-                       deny = NULL,
-                       deny_option = c("drop", "trim"),
-                       proportion_length = TRUE,
+bootRanges <- function(x, seg = NULL, blockLength, R=1,
+                       exclude = NULL,
+                       excludeOption = c("drop", "trim"),
+                       proportionLength = TRUE,
                        type = c("bootstrap", "permute"),
-                       within_chrom = FALSE) {
+                       withinChrom = FALSE) {
 
   chr_lens <- seqlengths(x)
   stopifnot(all(!is.na(chr_lens)))
-  deny_option <- match.arg(deny_option)
+  excludeOption <- match.arg(denyOption)
+  if (excludeOption == "trim") {
+    stopifnot(all(strand(exclude) == "*"))
+  }
 
   br <- replicate(R, {
     if (!is.null(seg)) {
       x_prime <- seg_bootstrap(x = x, seg = ranges(seg),
-                               state = seg$state, L_b = L_b,
+                               state = seg$state, L_b = blockLength,
                                chr_names = seqnames(seg),
                                chr_lens = chr_lens,
-                               proportion_length = proportion_length)
+                               proportion_length = proportionLength)
     } else {
-      x_prime <- unseg_bootstrap(x = x, L_b = L_b, type = type,
-                                 within_chrom = within_chrom)
+      x_prime <- unseg_bootstrap(x = x, L_b = blockLength, type = type,
+                                 within_chrom = withinChrom)
     }
     
-    # deal with deny regions:
-    if (!is.null(deny)) {
-      if (deny_option == "drop") {
-        x_prime <- x_prime[!overlapsAny(x_prime, deny, type = "any")]
-      } else if (deny_option == "trim") {
-        # res <- setdiff(res,deny) # TODO: cannot reserve metadata column
-        # and whether to use ignore.strand=TRUE...
-        # TODO: need to keep the gaps with same deny strand,
-        # here is special case that all strand(deny) ="*"
-        # TODO: need to place outstide of R, doing gaps once!
-        gap <- gaps(deny, end = seqlengths(x))
+    # deal with exclude regions:
+    if (!is.null(exclude)) {
+      if (excludeOption == "drop") {
+        x_prime <- x_prime[!overlapsAny(x_prime, exclude, type = "any")]
+      } else if (excludeOption == "trim") {
+        # TODO: place outside of this function, doing gaps once?
+        gap <- gaps(exclude, end = seqlengths(x))
         gap <- plyranges::filter(gap, strand=="*")
         x_prime <- plyranges::join_overlap_intersect(x_prime, gap)
       }
@@ -75,8 +75,8 @@ bootRanges <- function(x, seg = NULL, L_b, R=1,
 
 
   br <- GRangesList(br)
-  metadata(br) <- list("blockLength" = L_b,
-                       segmented = !is.null(seg))
+  mcols(br)$blockLength <- Rle(as.integer(blockLength))
+  mcols(br)$iter <- seq_len(R)
   new("bootRanges", br)
 }
 
