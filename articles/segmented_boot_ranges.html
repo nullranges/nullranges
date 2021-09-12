@@ -107,7 +107,7 @@
       <h1 data-toc-skip>Segmented block bootstrap</h1>
                         <h4 class="author">Wancen Mu</h4>
             
-            <h4 class="date">09/10/2021</h4>
+            <h4 class="date">09/12/2021</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/master/vignettes/segmented_boot_ranges.Rmd"><code>vignettes/segmented_boot_ranges.Rmd</code></a></small>
       <div class="hidden name"><code>segmented_boot_ranges.Rmd</code></div>
@@ -159,8 +159,7 @@
 <p>TODO: here instead use Mikhail’s <em>excluderanges</em> package, once it is available.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">nullrangesData</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"deny"</span><span class="op">)</span>
-<span class="va">exclude</span> <span class="op">&lt;-</span> <span class="va">deny</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"exclude"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqinfo.html">seqnames</a></span><span class="op">(</span><span class="va">exclude</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code>## 
 ##  chr1  chr2  chr3  chr4  chr5  chr6  chr7  chr8  chr9 chr10 chr11 chr12 chr13 
@@ -256,8 +255,8 @@
 <span class="op">)</span>, times<span class="op">=</span><span class="fl">10</span><span class="op">)</span></code></pre></div>
 <pre><code>## Unit: milliseconds
 ##     expr      min       lq     mean   median       uq       max neval
-##     prop 276.8634 295.0936 458.6428 310.5229 422.1543 1030.9954    10
-##  no_prop 275.1619 286.7036 293.9083 292.7867 300.0007  315.0147    10</code></pre>
+##     prop 282.2236 293.5316 454.2330 303.1629 412.6304 1032.9934    10
+##  no_prop 269.8781 279.4593 286.7215 282.2119 295.5571  317.0072    10</code></pre>
 </div>
 <div id="visualizing-the-segmented-block-bootstrap" class="section level1">
 <h1 class="hasAnchor">
