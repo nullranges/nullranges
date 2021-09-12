@@ -75,8 +75,7 @@ TODO: here instead use Mikhail's *excluderanges* package, once it is available.
 
 ```{r}
 library(nullrangesData)
-data("deny")
-exclude <- deny
+data("exclude")
 table(seqnames(exclude))
 ```
 

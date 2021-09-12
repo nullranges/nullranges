@@ -14,7 +14,7 @@ plotSegment(
 \arguments{
 \item{seg}{the segmentation GRanges returned by \code{segmentDensity} function}
 
-\item{exclude}{GRanges of deny region}
+\item{exclude}{GRanges of excluded region}
 
 \item{type}{the type of plot returned. Choices are segmentation plot
 included ranges information, barplot showing segmentation states' distribution across chromosome,

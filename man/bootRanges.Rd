@@ -27,7 +27,7 @@ is the maximal length of block)}
 
 \item{R}{the number of bootstrap samples to generate}
 
-\item{exclude}{the GRanges of deny regions (optional)}
+\item{exclude}{the GRanges of excluded regions (optional)}
 
 \item{excludeOption}{whether to "drop" or "trim" bootstrap
 ranges that overlap a exclude region}

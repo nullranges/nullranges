@@ -73,3 +73,6 @@ reference:
     contents:
       - bootRanges
       - segmentDensity
+  - subtitle: "Assessing bootstrap quality"
+    contents:
+      - plotSegment

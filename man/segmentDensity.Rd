@@ -13,7 +13,7 @@ segmentDensity(x, n, L_s = 1e+06, exclude, type = c("cbs", "hmm"))
 
 \item{L_s}{segment length}
 
-\item{exclude}{GRanges of deny region}
+\item{exclude}{GRanges of excluded region}
 
 \item{type}{the type of segmentation, either "cbs" (which will
 use DNAcopy to segment) or "hmm" (which will use RcppHMM).
