@@ -107,7 +107,7 @@
       <h1 data-toc-skip>Segmented block bootstrap</h1>
                         <h4 class="author">Wancen Mu</h4>
             
-            <h4 class="date">09/12/2021</h4>
+            <h4 class="date">09/14/2021</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/master/vignettes/segmented_boot_ranges.Rmd"><code>vignettes/segmented_boot_ranges.Rmd</code></a></small>
       <div class="hidden name"><code>segmented_boot_ranges.Rmd</code></div>
@@ -175,8 +175,7 @@
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/nullranges/nullranges">nullranges</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com">patchwork</a></span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">plyranges</span><span class="op">)</span><span class="op">)</span></code></pre></div>
-<p>We subset the excluded ranges to those which are 500 bp or larger.</p>
-<p>TODO: discuss motivation for this.</p>
+<p>We subset the excluded ranges to those which are 500 bp or larger. The motivation for this step is to avoid segmenting the genome into many small pieces due to an abundance of short excluded regions. Note that we re-save the excluded ranges to <code>exclude</code>.</p>
 <p>We use a CBS segmentation as implemented in <em>DNAcopy</em> (cite).</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span>
@@ -187,7 +186,9 @@
                       exclude <span class="op">=</span> <span class="va">exclude</span>, type <span class="op">=</span> <span class="st">"cbs"</span><span class="op">)</span></code></pre></div>
 <pre><code>## Analyzing: Sample.1</code></pre>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"ranges"</span>,<span class="st">"barplot"</span>,<span class="st">"boxplot"</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">t</span><span class="op">)</span> <span class="fu"><a href="../reference/plotSegment.html">plotSegment</a></span><span class="op">(</span><span class="va">seg</span>, <span class="va">exclude</span>, type <span class="op">=</span> <span class="va">t</span><span class="op">)</span><span class="op">)</span>
+<code class="sourceCode R"><span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"ranges"</span>,<span class="st">"barplot"</span>,<span class="st">"boxplot"</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">t</span><span class="op">)</span> <span class="op">{</span>
+  <span class="fu"><a href="../reference/plotSegment.html">plotSegment</a></span><span class="op">(</span><span class="va">seg</span>, <span class="va">exclude</span>, type <span class="op">=</span> <span class="va">t</span><span class="op">)</span>
+<span class="op">}</span><span class="op">)</span>
 <span class="va">plots</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></code></pre></div>
 <p><img src="segmented_boot_ranges_files/figure-html/seg-cbs-1.png"><!-- --></p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
@@ -239,13 +240,14 @@
 ## 15240 14436  9549  6034  9714  8043  9549  8463  8247  8924  8618 10597  2732 
 ## chr14 chr15 chr16 chr17 chr18 chr19 chr20 chr21 chr22  chrX  chrY 
 ##  5785  6929  6596 11438  2643  8818  5986  1471  3010  4024   239</code></pre>
-<p>Now e apply a segmented block bootstrap with blocks of size 500kb, to the peaks. We are currently interested in profiling the speed of this operation (future vignette iterations will also demonstrate its use in a workflow).</p>
+<p>Now we apply a segmented block bootstrap with blocks of size 500kb, to the peaks. We are currently interested in profiling the speed of this operation (future vignette iterations will also demonstrate its use in a workflow).</p>
 <p>Testing the segmented block bootstrap:</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">blockLength</span> <span class="op">&lt;-</span> <span class="fl">5e5</span>
 <span class="co"># TODO 'x' has no seqlengths</span>
 <span class="va">x</span> <span class="op">&lt;-</span> <span class="va">DHSA549Hg38</span>
 <span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqinfo.html">seqlengths</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqinfo.html">seqlengths</a></span><span class="op">(</span><span class="va">seg</span><span class="op">)</span></code></pre></div>
+<p>Here, we test the speed of the various options for bootstrapping. Note that we use the <code>exclude</code> object from the previous step, which does not contain small ranges. If you wanted to also avoid generation of bootstrapped features that overlap small excluded ranges, then omit this filtering step (use the original, complete <code>exclude</code> feature set).</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/joshuaulrich/microbenchmark/">microbenchmark</a></span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/pkg/microbenchmark/man/microbenchmark.html">microbenchmark</a></span><span class="op">(</span>
@@ -255,8 +257,8 @@
 <span class="op">)</span>, times<span class="op">=</span><span class="fl">10</span><span class="op">)</span></code></pre></div>
 <pre><code>## Unit: milliseconds
 ##     expr      min       lq     mean   median       uq       max neval
-##     prop 282.2236 293.5316 454.2330 303.1629 412.6304 1032.9934    10
-##  no_prop 269.8781 279.4593 286.7215 282.2119 295.5571  317.0072    10</code></pre>
+##     prop 259.3320 276.9489 444.0997 282.5305 389.7675 1072.0669    10
+##  no_prop 254.1845 266.3347 271.5284 271.1531 277.1485  295.2963    10</code></pre>
 </div>
 <div id="visualizing-the-segmented-block-bootstrap" class="section level1">
 <h1 class="hasAnchor">
