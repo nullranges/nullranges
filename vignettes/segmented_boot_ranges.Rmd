@@ -89,9 +89,10 @@ library(patchwork)
 suppressPackageStartupMessages(library(plyranges))
 ```
 
-We subset the excluded ranges to those which are 500 bp or larger. 
-
-TODO: discuss motivation for this.
+We subset the excluded ranges to those which are 500 bp or larger. The
+motivation for this step is to avoid segmenting the genome into many
+small pieces due to an abundance of short excluded regions. Note that
+we re-save the excluded ranges to `exclude`.
 
 We use a CBS segmentation as implemented in *DNAcopy* (cite).
 
@@ -102,7 +103,9 @@ exclude <- exclude %>%
 L_s <- 1e6
 seg <- segmentDensity(g, n = 3, L_s = L_s,
                       exclude = exclude, type = "cbs")
-plots <- lapply(c("ranges","barplot","boxplot"), function(t) plotSegment(seg, exclude, type = t))
+plots <- lapply(c("ranges","barplot","boxplot"), function(t) {
+  plotSegment(seg, exclude, type = t)
+})
 plots[[1]]
 plots[[2]] + plots[[3]]
 ```
@@ -150,7 +153,7 @@ data("DHSA549Hg38")
 table(seqnames(DHSA549Hg38))
 ```
 
-Now e apply a segmented block bootstrap with blocks of size 500kb,
+Now we apply a segmented block bootstrap with blocks of size 500kb,
 to the peaks. We are currently interested in profiling the speed of
 this operation (future vignette iterations will also demonstrate its
 use in a workflow).
@@ -163,6 +166,13 @@ blockLength <- 5e5
 x <- DHSA549Hg38
 seqlengths(x) <- seqlengths(seg)
 ```
+
+Here, we test the speed of the various options for bootstrapping. Note
+that we use the `exclude` object from the previous step, which does
+not contain small ranges. If you wanted to also avoid generation of
+bootstrapped features that overlap small excluded ranges, then omit
+this filtering step (use the original, complete `exclude` feature
+set).
 
 ```{r}
 library(microbenchmark)
