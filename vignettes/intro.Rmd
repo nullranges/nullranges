@@ -2,6 +2,7 @@
 title: "Introduction to nullranges"
 output:
   rmarkdown::html_document
+bibliography: library.bib
 vignette: |
   %\VignetteIndexEntry{Introduction to null ranges}
   %\VignetteEngine{knitr::rmarkdown}
@@ -12,8 +13,36 @@ The *nullranges* package contains functions for generation of feature
 sets (genomic regions) for exploring the null hypothesis of overlap or 
 colocalization of two observed feature sets.
 
-The package has two branches of functionality: matching and
-bootstrapping. Suppose we want to examine the significance of overlaps
+The package has two branches of functionality: *matching* or
+*bootstrapping* to generate null feature sets. The decision about
+which approach to use is ultimately up to the bioinformatics analyst.
+Here we describe the two different approaches briefly. 
+
+## Related work
+
+For general considerations of generation of null feature sets or
+segmentation for enrichment or colocalization analysis, consider the
+papers of @de_2014, @haiminen_2007,
+@huen_2010, and @kanduri_2019 (with links in references below).
+Other Bioconductor packages that offer randomization techniques for 
+enrichment analysis include 
+[LOLA](https://bioconductor.org/packages/LOLA) [@LOLA] and 
+[regionR](https://bioconductor.org/packages/regioneR) [@regioneR]. 
+Methods implemented outside of Bioconductor include 
+[GAT](https://github.com/AndreasHeger/gat) [@GAT],
+[GSC](https://www.encodeproject.org/software/gsc/) [@bickel_2010],
+[GREAT](http://bejerano.stanford.edu/great/public/html/) [@GREAT],
+[GenometriCorr](https://github.com/favorov/GenometriCorr) [@GenometriCorr],
+or [ChIP-Enrich](http://chip-enrich.med.umich.edu/) [@ChIP-Enrich].
+We note that our block bootstrapping approach closely follows that of 
+[GSC](https://www.encodeproject.org/software/gsc/), while offering
+additional features/visualizations, and is re-implemented within
+R/Bioconductor with efficient vectorized code for operation on 
+*GRanges* objects [@granges].
+
+## Brief description of methods
+
+Suppose we want to examine the significance of overlaps
 of genomic sets of features $x$ and $y$. To test the significance of
 this overlap, we calculate the overlap expected under the null by
 generating a null feature set $y'$ (potentially many times). The null
@@ -24,11 +53,20 @@ features in $y'$ may be characterized by:
    is the "matching" case. Note that the features in $y'$ are original
    features, just drawn from a different pool than y.
 2. Generating a new set of genomic features $y'$, constructing them
-   from the original set $y$ by drawing blocks of the genome with
-   replacement (i.e. features can be sampled more than once). This is
-   the "bootstrapping" case. Note that, in this case, $y'$ is an
+   from the original set $y$ by selecting blocks of the genome with
+   replacement, i.e. such that features can be sampled more than once.
+   This is the "bootstrapping" case. Note that, in this case, $y'$ is an
    artificial feature set, although the re-sampled features can retain
    covariates such as score from the original feature set $y$.
+
+## In other words
+
+1. Matching -- drawing from a pool of features but controlling for 
+   certain characteristics
+2. Bootstrapping -- placing a number of artificial features in the 
+   genome but controlling for their spatial distribution
+
+## Options and features
 
 We provide a number of vignettes to describe the different matching
 and bootstrapping use cases. In the matching case, we have implemented
@@ -40,6 +78,14 @@ provide a function to segment the genome by density of features. For
 example, supposing that $x$ is a subset of genes, we may want to
 generate $y'$ from $y$ such that features are re-sampled in blocks
 from segments across the genome with similar gene density.  
-
 In both cases, we provide a number of functions for performing quality
 control via visual inspection of diagnostic plots.
+
+## Consideration of excluded regions
+
+Finally, we recommend to incorporate list of regions where artificial
+features should *not* be placed, including the ENCODE Exclusion List
+[@encode_exclude]. This is demonstrated further in the bootstrapping
+vignettes.
+
+# References
