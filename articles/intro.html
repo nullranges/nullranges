@@ -115,18 +115,92 @@
     
     
 <p>The <em>nullranges</em> package contains functions for generation of feature sets (genomic regions) for exploring the null hypothesis of overlap or colocalization of two observed feature sets.</p>
-<p>The package has two branches of functionality: matching and bootstrapping. Suppose we want to examine the significance of overlaps of genomic sets of features <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span>. To test the significance of this overlap, we calculate the overlap expected under the null by generating a null feature set <span class="math inline">\(y'\)</span> (potentially many times). The null features in <span class="math inline">\(y'\)</span> may be characterized by:</p>
+<p>The package has two branches of functionality: <em>matching</em> or <em>bootstrapping</em> to generate null feature sets. The decision about which approach to use is ultimately up to the bioinformatics analyst. Here we describe the two different approaches briefly.</p>
+<div id="related-work" class="section level2">
+<h2 class="hasAnchor">
+<a href="#related-work" class="anchor"></a>Related work</h2>
+<p>For general considerations of generation of null feature sets or segmentation for enrichment or colocalization analysis, consider the papers of <span class="citation">De, Pedersen, and Kechris (2014)</span>, <span class="citation">Haiminen, Mannila, and Terzi (2007)</span>, <span class="citation">Huen and Russell (2010)</span>, and <span class="citation">Kanduri et al. (2019)</span> (with links in references below). Other Bioconductor packages that offer randomization techniques for enrichment analysis include <a href="https://bioconductor.org/packages/LOLA">LOLA</a> <span class="citation">(Sheffield and Bock 2016)</span> and <a href="https://bioconductor.org/packages/regioneR">regionR</a> <span class="citation">(Gel et al. 2016)</span>. Methods implemented outside of Bioconductor include <a href="https://github.com/AndreasHeger/gat">GAT</a> <span class="citation">(Heger et al. 2013)</span>, <a href="https://www.encodeproject.org/software/gsc/">GSC</a> <span class="citation">(Bickel et al. 2010)</span>, <a href="http://bejerano.stanford.edu/great/public/html/">GREAT</a> <span class="citation">(McLean et al. 2010)</span>, <a href="https://github.com/favorov/GenometriCorr">GenometriCorr</a> <span class="citation">(Favorov et al. 2012)</span>, or <a href="http://chip-enrich.med.umich.edu/">ChIP-Enrich</a> <span class="citation">(Welch et al. 2014)</span>. We note that our block bootstrapping approach closely follows that of <a href="https://www.encodeproject.org/software/gsc/">GSC</a>, while offering additional features/visualizations, and is re-implemented within R/Bioconductor with efficient vectorized code for operation on <em>GRanges</em> objects <span class="citation">(Lawrence 2013)</span>.</p>
+</div>
+<div id="brief-description-of-methods" class="section level2">
+<h2 class="hasAnchor">
+<a href="#brief-description-of-methods" class="anchor"></a>Brief description of methods</h2>
+<p>Suppose we want to examine the significance of overlaps of genomic sets of features <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span>. To test the significance of this overlap, we calculate the overlap expected under the null by generating a null feature set <span class="math inline">\(y'\)</span> (potentially many times). The null features in <span class="math inline">\(y'\)</span> may be characterized by:</p>
 <ol style="list-style-type: decimal">
 <li>Drawing from a larger pool <span class="math inline">\(z\)</span> (<span class="math inline">\(y' \subset z\)</span>), such that <span class="math inline">\(y\)</span> and <span class="math inline">\(y'\)</span> have a similar distribution over one or more covariates. This is the “matching” case. Note that the features in <span class="math inline">\(y'\)</span> are original features, just drawn from a different pool than y.</li>
-<li>Generating a new set of genomic features <span class="math inline">\(y'\)</span>, constructing them from the original set <span class="math inline">\(y\)</span> by drawing blocks of the genome with replacement (i.e. features can be sampled more than once). This is the “bootstrapping” case. Note that, in this case, <span class="math inline">\(y'\)</span> is an artificial feature set, although the re-sampled features can retain covariates such as score from the original feature set <span class="math inline">\(y\)</span>.</li>
+<li>Generating a new set of genomic features <span class="math inline">\(y'\)</span>, constructing them from the original set <span class="math inline">\(y\)</span> by selecting blocks of the genome with replacement, i.e. such that features can be sampled more than once. This is the “bootstrapping” case. Note that, in this case, <span class="math inline">\(y'\)</span> is an artificial feature set, although the re-sampled features can retain covariates such as score from the original feature set <span class="math inline">\(y\)</span>.</li>
 </ol>
-<p>We provide a number of vignettes to describe the different matching and bootstrapping use cases. In the matching case, we have implemented a number of options, including nearest neighbor matching or rejection sampling based matching. In the bootstrapping case, we have implemented options for bootstrapping across or within chromosomes, and bootstrapping only within states of a segmented genome. We also provide a function to segment the genome by density of features. For example, supposing that <span class="math inline">\(x\)</span> is a subset of genes, we may want to generate <span class="math inline">\(y'\)</span> from <span class="math inline">\(y\)</span> such that features are re-sampled in blocks from segments across the genome with similar gene density.</p>
-<p>In both cases, we provide a number of functions for performing quality control via visual inspection of diagnostic plots.</p>
+</div>
+<div id="in-other-words" class="section level2">
+<h2 class="hasAnchor">
+<a href="#in-other-words" class="anchor"></a>In other words</h2>
+<ol style="list-style-type: decimal">
+<li>Matching – drawing from a pool of features but controlling for certain characteristics</li>
+<li>Bootstrapping – placing a number of artificial features in the genome but controlling for their spatial distribution</li>
+</ol>
+</div>
+<div id="options-and-features" class="section level2">
+<h2 class="hasAnchor">
+<a href="#options-and-features" class="anchor"></a>Options and features</h2>
+<p>We provide a number of vignettes to describe the different matching and bootstrapping use cases. In the matching case, we have implemented a number of options, including nearest neighbor matching or rejection sampling based matching. In the bootstrapping case, we have implemented options for bootstrapping across or within chromosomes, and bootstrapping only within states of a segmented genome. We also provide a function to segment the genome by density of features. For example, supposing that <span class="math inline">\(x\)</span> is a subset of genes, we may want to generate <span class="math inline">\(y'\)</span> from <span class="math inline">\(y\)</span> such that features are re-sampled in blocks from segments across the genome with similar gene density.<br>
+In both cases, we provide a number of functions for performing quality control via visual inspection of diagnostic plots.</p>
+</div>
+<div id="consideration-of-excluded-regions" class="section level2">
+<h2 class="hasAnchor">
+<a href="#consideration-of-excluded-regions" class="anchor"></a>Consideration of excluded regions</h2>
+<p>Finally, we recommend to incorporate list of regions where artificial features should <em>not</em> be placed, including the ENCODE Exclusion List <span class="citation">(Amemiya, Kundaje, and Boyle 2019)</span>. This is demonstrated further in the bootstrapping vignettes.</p>
+</div>
+<div id="references" class="section level1 unnumbered">
+<h1 class="hasAnchor">
+<a href="#references" class="anchor"></a>References</h1>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-encode_exclude" class="csl-entry">
+Amemiya, Haley M, Anshul Kundaje, and Alan P Boyle. 2019. <span>“The <span>ENCODE</span> Blacklist: Identification of Problematic Regions of the Genome.”</span> <em>Scientific Reports</em> 9 (1): 9354. <a href="https://doi.org/10.1038/s41598-019-45839-z">https://doi.org/10.1038/s41598-019-45839-z</a>.
+</div>
+<div id="ref-bickel_2010" class="csl-entry">
+Bickel, Peter J., Nathan Boley, James B. Brown, Haiyan Huang, and Nancy R. Zhang. 2010. <span>“Subsampling Methods for Genomic Inference.”</span> <em>The Annals of Applied Statistics</em> 4 (4): 1660–97. <a href="https://doi.org/10.1214/10-%7BAOAS363%7D">https://doi.org/10.1214/10-{AOAS363}</a>.
+</div>
+<div id="ref-de_2014" class="csl-entry">
+De, Subhajyoti, Brent S Pedersen, and Katerina Kechris. 2014. <span>“The Dilemma of Choosing the Ideal Permutation Strategy While Estimating Statistical Significance of Genome-Wide Enrichment.”</span> <em>Briefings in Bioinformatics</em> 15 (6): 919–28. <a href="https://doi.org/10.1093/bib/bbt053">https://doi.org/10.1093/bib/bbt053</a>.
+</div>
+<div id="ref-GenometriCorr" class="csl-entry">
+Favorov, Alexander, Loris Mularoni, Leslie M Cope, Yulia Medvedeva, Andrey A Mironov, Vsevolod J Makeev, and Sarah J Wheelan. 2012. <span>“Exploring Massive, Genome Scale Datasets with the <span>GenometriCorr</span> Package.”</span> <em><span>PLoS</span> Computational Biology</em> 8 (5): e1002529. <a href="https://doi.org/10.1371/journal.pcbi.1002529">https://doi.org/10.1371/journal.pcbi.1002529</a>.
+</div>
+<div id="ref-regioneR" class="csl-entry">
+Gel, Bernat, Anna Díez-Villanueva, Eduard Serra, Marcus Buschbeck, Miguel A Peinado, and Roberto Malinverni. 2016. <span>“<span class="nocase">regioneR</span>: An r/Bioconductor Package for the Association Analysis of Genomic Regions Based on Permutation Tests.”</span> <em>Bioinformatics</em> 32 (2): 289–91. <a href="https://doi.org/10.1093/bioinformatics/btv562">https://doi.org/10.1093/bioinformatics/btv562</a>.
+</div>
+<div id="ref-haiminen_2007" class="csl-entry">
+Haiminen, Niina, Heikki Mannila, and Evimaria Terzi. 2007. <span>“Comparing Segmentations by Applying Randomization Techniques.”</span> <em><span>BMC</span> Bioinformatics</em> 8 (May): 171. <a href="https://doi.org/10.1186/1471-2105-8-171">https://doi.org/10.1186/1471-2105-8-171</a>.
+</div>
+<div id="ref-GAT" class="csl-entry">
+Heger, Andreas, Caleb Webber, Martin Goodson, Chris P Ponting, and Gerton Lunter. 2013. <span>“<span>GAT</span>: A Simulation Framework for Testing the Association of Genomic Intervals.”</span> <em>Bioinformatics</em> 29 (16): 2046–48. <a href="https://doi.org/10.1093/bioinformatics/btt343">https://doi.org/10.1093/bioinformatics/btt343</a>.
+</div>
+<div id="ref-huen_2010" class="csl-entry">
+Huen, David S, and Steven Russell. 2010. <span>“On the Use of Resampling Tests for Evaluating Statistical Significance of Binding-Site Co-Occurrence.”</span> <em><span>BMC</span> Bioinformatics</em> 11 (June): 359. <a href="https://doi.org/10.1186/1471-2105-11-359">https://doi.org/10.1186/1471-2105-11-359</a>.
+</div>
+<div id="ref-kanduri_2019" class="csl-entry">
+Kanduri, Chakravarthi, Christoph Bock, Sveinung Gundersen, Eivind Hovig, and Geir Kjetil Sandve. 2019. <span>“Colocalization Analyses of Genomic Elements: Approaches, Recommendations and Challenges.”</span> <em>Bioinformatics</em> 35 (9): 1615–24. <a href="https://doi.org/10.1093/bioinformatics/bty835">https://doi.org/10.1093/bioinformatics/bty835</a>.
+</div>
+<div id="ref-granges" class="csl-entry">
+Lawrence, Wolfgang AND Pagès, Michael AND Huber. 2013. <span>“Software for Computing and Annotating Genomic Ranges.”</span> <em>PLOS Computational Biology</em> 9 (8): 1–10. <a href="https://doi.org/10.1371/journal.pcbi.1003118">https://doi.org/10.1371/journal.pcbi.1003118</a>.
+</div>
+<div id="ref-GREAT" class="csl-entry">
+McLean, Cory Y., Dave Bristor, Michael Hiller, Shoa L. Clarke, Bruce T. Schaar, Craig B. Lowe, Aaron M. Wenger, and Gill Bejerano. 2010. <span>“GREAT Improves Functional Interpretation of Cis-Regulatory Regions.”</span> <em>Nature Biotechnology</em> 28 (5): 495–501. <a href="https://doi.org/10.1038/nbt.1630">https://doi.org/10.1038/nbt.1630</a>.
+</div>
+<div id="ref-LOLA" class="csl-entry">
+Sheffield, Nathan C, and Christoph Bock. 2016. <span>“<span>LOLA</span>: Enrichment Analysis for Genomic Region Sets and Regulatory Elements in r and Bioconductor.”</span> <em>Bioinformatics</em> 32 (4): 587–89. <a href="https://doi.org/10.1093/bioinformatics/btv612">https://doi.org/10.1093/bioinformatics/btv612</a>.
+</div>
+<div id="ref-ChIP-Enrich" class="csl-entry">
+Welch, Ryan P., Chee Lee, Paul M. Imbriano, Snehal Patil, Terry E. Weymouth, R. Alex Smith, Laura J. Scott, and Maureen A. Sartor. 2014. <span>“<span class="nocase">ChIP-Enrich: gene set enrichment testing for ChIP-seq data</span>.”</span> <em>Nucleic Acids Research</em> 42 (13): e105–5. <a href="https://doi.org/10.1093/nar/gku463">https://doi.org/10.1093/nar/gku463</a>.
+</div>
+</div>
+</div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
 
-      </div>
+        <nav id="toc" data-toggle="toc"><h2 data-toc-skip>Contents</h2>
+    </nav>
+</div>
 
 </div>
 
