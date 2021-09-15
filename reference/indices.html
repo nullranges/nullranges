@@ -81,7 +81,7 @@ from a Matched object." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.22</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.23</span>
       </span>
     </div>
 
@@ -128,12 +128,7 @@ from a Matched object." />
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        <li>
-  <a href="https://github.com/nullranges/nullranges/">
-    <span class="fab fa-github fa-lg"></span>
-     
-  </a>
-</li>
+        
       </ul>
       
     </div><!--/.nav-collapse -->
@@ -148,7 +143,7 @@ from a Matched object." />
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Get indices of matched set</h1>
-    <small class="dont-index">Source: <a href='https://github.com/nullranges/nullranges/blob/master/R/AllGenerics.R'><code>R/AllGenerics.R</code></a>, <a href='https://github.com/nullranges/nullranges/blob/master/R/methods-Matched.R'><code>R/methods-Matched.R</code></a></small>
+    
     <div class="hidden name"><code>indices.Rd</code></div>
     </div>
 
@@ -196,11 +191,11 @@ from the <code>pool</code> set.</p>
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='va'>mdf</span> <span class='op'>&lt;-</span> <span class='fu'><a href='makeExampleMatchedDataSet.html'>makeExampleMatchedDataSet</a></span><span class='op'>(</span>matched <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
 <span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span><span class='fu'>indices</span><span class='op'>(</span><span class='va'>mdf</span><span class='op'>)</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; [1] 3691 3168 9736 7951 5158 8196</div><div class='input'>
+</div><div class='output co'>#&gt; [1] 3691 3168 9716 7909 5158 8190</div><div class='input'>
 <span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span><span class='fu'>indices</span><span class='op'>(</span><span class='va'>mdf</span>, set <span class='op'>=</span> <span class='st'>'focal'</span><span class='op'>)</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; [1] 1 2 3 4 5 6</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span><span class='fu'>indices</span><span class='op'>(</span><span class='va'>mdf</span>, set <span class='op'>=</span> <span class='st'>'pool'</span><span class='op'>)</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; [1] 1 2 3 4 5 6</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span><span class='fu'>indices</span><span class='op'>(</span><span class='va'>mdf</span>, set <span class='op'>=</span> <span class='st'>'matched'</span><span class='op'>)</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; [1] 3691 3168 9736 7951 5158 8196</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span><span class='fu'>indices</span><span class='op'>(</span><span class='va'>mdf</span>, set <span class='op'>=</span> <span class='st'>'unmatched'</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; [1] 3691 3168 9716 7909 5158 8190</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span><span class='fu'>indices</span><span class='op'>(</span><span class='va'>mdf</span>, set <span class='op'>=</span> <span class='st'>'unmatched'</span><span class='op'>)</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; [1] 1 2 3 4 5 6</div><div class='input'>
 </div></pre>
   </div>
