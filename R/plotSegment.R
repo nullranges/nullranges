@@ -15,6 +15,13 @@
 #' @importFrom plyranges summarise group_by %>%
 #' @importFrom scales breaks_extended label_comma
 #'
+#' @examples
+#'
+#' example("segmentDensity")
+#' plotSegment(seg, exclude, type="ranges")
+#' plotSegment(seg, exclude, type="barplot")
+#' plotSegment(seg, exclude, type="boxplot")
+#' 
 #' @export
 plotSegment <- function(seg, exclude, type = c("ranges","barplot","boxplot"),
                         region = NULL) {

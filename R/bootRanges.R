@@ -30,6 +30,14 @@
 #' @importFrom GenomicRanges tileGenome sort GRangesList
 #' @importFrom GenomeInfoDb seqlengths seqlengths<- seqlevels sortSeqlevels
 #'
+#' @examples
+#'
+#' set.seed(1)
+#' library(GenomicRanges)
+#' gr <- GRanges("chr1", IRanges(0:4 * 10 + 1, width=5),
+#'               seqlengths=c(chr1=50))
+#' br <- bootRanges(gr, blockLength=10)
+#' 
 #' @export
 bootRanges <- function(x, seg = NULL, blockLength, R = 1,
                        exclude = NULL,

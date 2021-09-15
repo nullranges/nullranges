@@ -146,7 +146,9 @@ rsMatch <- function(fps, pps, replace) {
       npps <- pmax(0, pmin(npps, 1))
 
       ## Try rejection sampling
-      accept <- suppressWarnings(rejectSample(nfps, npps))
+      # Mike: I'm taking off the suppressWarnings,
+      #   we can instead catch these upstream?
+      accept <- rejectSample(nfps, npps)
 
       ## Keep trying until there are enough options
       if (any(is.na(accept))) next
@@ -212,15 +214,9 @@ stratify <- function(fm, pm, n) {
 #' @inherit nnMatch params return
 #' @noRd
 ssMatch <- function(fps, pps, replace) {
-
   ## Suppress R CMD CHECK Note
-  fpsN <- NULL
-  ppsN <- NULL
-  fpsIndices <- NULL
-  ppsIndices <- NULL
-  bin <- NULL
-  fpsIndex <- NULL
-  ppsIndex <- NULL
+  fpsN <- ppsN <- bin <- NULL 
+  fpsIndices <- ppsIndices <- fpsIndex <- ppsIndex <- NULL
 
   ## Initialize results, fpsOptions and ppsOptions
   results <- data.table(bin=integer(), fpsIndex=integer(), ppsIndex=integer())
@@ -238,14 +234,12 @@ ssMatch <- function(fps, pps, replace) {
   pb$tick(0)
 
   while (nrow(results) != length(fps)) {
-
     ## Update n
     if (skip)  n <- floor(n/2)
     if (!skip) n <- length(unique(c(fpsOptions$fps, ppsOptions$pps)))
 
     ## Stratify ps by bins and match focal and pool
     strata <- stratify(fpsOptions, ppsOptions, n)
-
     while (nrow(strata[!is.na(fpsN) & fpsN <= ppsN]) == 0) {
       ## Enter faster n searching
       skip <- TRUE
@@ -254,7 +248,6 @@ ssMatch <- function(fps, pps, replace) {
       ## Stratify ps by bins and match focal and pool
       strata <- stratify(fpsOptions, ppsOptions, n)
     }
-
     ## Update progress
     pb$update(tokens=list(step=sprintf('Iteration %s, %s bin(s)', i, n)),
               ratio = nrow(results)/length(fps))
@@ -273,7 +266,6 @@ ssMatch <- function(fps, pps, replace) {
     ## Remove assigned indices from options
     fpsOptions <- fpsOptions[!fpsIndex %in% result$fpsIndex]
     ppsOptions <- ppsOptions[!ppsIndex %in% result$ppsIndex]
-
   }
 
   ## Close progress bar

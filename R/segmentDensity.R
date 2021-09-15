@@ -17,6 +17,18 @@
 #'
 #' @importFrom plyranges filter join_overlap_intersect
 #'
+#' @examples
+#'
+#' n <- 10000
+#' library(GenomicRanges)
+#' gr <- GRanges("chr1", IRanges(round(
+#'   c(runif(n/4,1,991), runif(n/4,1001,3991),
+#'     runif(n/4,4001,4991), runif(n/4,7001,9991))),
+#'   width=10), seqlengths=c(chr1=10000))
+#' gr <- sort(gr)
+#' exclude <- GRanges("chr1", IRanges(5001,6000), seqlengths=c(chr1=10000))
+#' seg <- segmentDensity(gr, n=3, L_s=100, exclude=exclude, type="cbs")
+#' 
 #' @export
 segmentDensity <- function(x, n, L_s = 1e6, exclude,
                            type = c("cbs", "hmm")) {
@@ -38,7 +50,7 @@ segmentDensity <- function(x, n, L_s = 1e6, exclude,
   query_accept <- filter(plyranges::join_overlap_intersect(query, gap),
                          width > L_s / 100)
 
-  # TODO what does "nostand" mean? Answer: not standardized
+  # "nostand" = not standardized
   counts_nostand <- GenomicRanges::countOverlaps(query_accept, x, minoverlap = 8)
   counts <- counts_nostand / width(query_accept) * L_s
 
@@ -59,7 +71,7 @@ segmentDensity <- function(x, n, L_s = 1e6, exclude,
     )
 
     seq <- rep(scna$output$seg.mean, scna$output$num.mark)
-    km <- kmeans(seq, n)
+    km <- kmeans(seq, centers=n, nstart=10)
     mcols(query_accept)$states <- km$cluster
   } else if (type == "hmm") {
     if (!requireNamespace("RcppHMM", quietly = TRUE)) {

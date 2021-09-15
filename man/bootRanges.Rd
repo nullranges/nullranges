@@ -49,3 +49,12 @@ Performs a block bootstrap (R times) optionally with respect
 to a genome segmentation. Returns a bootRanges object, which
 is essentially a GRangesList of length R.
 }
+\examples{
+
+set.seed(1)
+library(GenomicRanges)
+gr <- GRanges("chr1", IRanges(0:4 * 10 + 1, width=5),
+              seqlengths=c(chr1=50))
+br <- bootRanges(gr, blockLength=10)
+
+}
