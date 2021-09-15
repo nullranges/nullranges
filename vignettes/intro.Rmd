@@ -27,7 +27,7 @@ papers of @de_2014, @haiminen_2007,
 Other Bioconductor packages that offer randomization techniques for 
 enrichment analysis include 
 [LOLA](https://bioconductor.org/packages/LOLA) [@LOLA] and 
-[regionR](https://bioconductor.org/packages/regioneR) [@regioneR]. 
+[regioneR](https://bioconductor.org/packages/regioneR) [@regioneR]. 
 Methods implemented outside of Bioconductor include 
 [GAT](https://github.com/AndreasHeger/gat) [@GAT],
 [GSC](https://www.encodeproject.org/software/gsc/) [@bickel_2010],
