@@ -91,7 +91,7 @@ segmentDensity <- function(x, n, L_s = 1e6, exclude,
   }
 
   # Combine nearby regions within same states
-  seg <- do.call(c, lapply(1:n, function(s) {
+  seg <- do.call(c, lapply(seq_len(n), function(s) {
     x <- reduce(query_accept[query_accept$states == s])
     mcols(x)$state <- s
     x
