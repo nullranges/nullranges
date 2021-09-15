@@ -206,6 +206,7 @@ We will use a simulated data set to demonstrate matching across covarying featur
 
 ```{r, message=FALSE, warning=FALSE}
 library(nullranges)
+set.seed(123)
 x <- makeExampleMatchedDataSet(type = 'GRanges')
 x
 ```

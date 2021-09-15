@@ -34,6 +34,7 @@ come from the \code{pool} set. Default returns the 'matched' indices
 from the \code{pool} set.
 }
 \examples{
+set.seed(123)
 mdf <- makeExampleMatchedDataSet(matched = TRUE)
 head(indices(mdf))
 

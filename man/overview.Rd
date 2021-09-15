@@ -37,6 +37,7 @@ Factor, character, or logical covariates are reported by
 N per set, rather than with mean and s.d.
 }
 \examples{
+set.seed(123)
 mdf <- makeExampleMatchedDataSet(matched = TRUE)
 overview(mdf)
 

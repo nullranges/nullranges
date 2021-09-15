@@ -91,6 +91,7 @@ For more detail check the help pages for these functions.
 \examples{
 ## Constructing MatchedDataFrame with matchRanges
 ## data.frame
+set.seed(123)
 x <- makeExampleMatchedDataSet(type = "data.frame")
 mx <- matchRanges(
   focal = x[x$feature1, ],
@@ -102,6 +103,7 @@ mx <- matchRanges(
 class(mx)
 
 ## data.table
+set.seed(123)
 x <- makeExampleMatchedDataSet(type = "data.table")
 mx <- matchRanges(
   focal = x[x$feature1],
@@ -113,6 +115,7 @@ mx <- matchRanges(
 class(mx)
 
 ## DataFrame
+set.seed(123)
 x <- makeExampleMatchedDataSet(type = "DataFrame")
 mx <- matchRanges(
   focal = x[x$feature1, ],
@@ -124,6 +127,7 @@ mx <- matchRanges(
 class(mx)
 
 ## Make MatchedDataFrame example
+set.seed(123)
 x <- makeExampleMatchedDataSet(type = "DataFrame", matched = TRUE)
 ## Accessor functions for Matched class
 matchedData(x)

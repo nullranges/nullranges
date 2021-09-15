@@ -67,24 +67,28 @@ items have a corresponding match in \code{pool}.}
 
 \examples{
 ## Match with DataFrame
+set.seed(123)
 x <- makeExampleMatchedDataSet(type = 'DataFrame')
 matchRanges(focal = x[x$feature1,],
             pool = x[!x$feature1,],
             covar = ~feature2 + feature3)
 
 ## Match with GRanges
+set.seed(123)
 x <- makeExampleMatchedDataSet(type = "GRanges")
 matchRanges(focal = x[x$feature1,],
             pool = x[!x$feature1,],
             covar = ~feature2 + feature3)
 
 ## Match with GInteractions
+set.seed(123)
 x <- makeExampleMatchedDataSet(type = "GInteractions")
 matchRanges(focal = x[x$feature1,],
             pool = x[!x$feature1,],
             covar = ~feature2 + feature3)
 
 ## Nearest neighbor matching with replacement
+set.seed(123)
 x <- makeExampleMatchedDataSet(type = 'DataFrame')
 matchRanges(focal = x[x$feature1,],
             pool = x[!x$feature1,],
@@ -93,6 +97,7 @@ matchRanges(focal = x[x$feature1,],
             replace = TRUE)
 
 ## Rejection sampling without replacement
+set.seed(123)
 x <- makeExampleMatchedDataSet(type = 'DataFrame')
 matchRanges(focal = x[x$feature1,],
             pool = x[!x$feature1,],
@@ -101,6 +106,7 @@ matchRanges(focal = x[x$feature1,],
             replace = FALSE)
 
 ## Stratified sampling without replacement
+set.seed(123)
 x <- makeExampleMatchedDataSet(type = 'DataFrame')
 matchRanges(focal = x[x$feature1,],
             pool = x[!x$feature1,],

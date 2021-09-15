@@ -5,6 +5,7 @@
 #' @inheritParams indices
 #' @return A `data.table` with matched data.
 #' @examples 
+#' set.seed(123)
 #' mdf <- makeExampleMatchedDataSet(matched = TRUE)
 #' matchedData(mdf)
 #'
@@ -19,6 +20,7 @@ setMethod("matchedData", "Matched", function(x, ...) {
 #' @inheritParams indices
 #' @return A character vector of covariates
 #' @examples 
+#' set.seed(123)
 #' mdf <- makeExampleMatchedDataSet(matched = TRUE)
 #' covariates(mdf)
 #' 
@@ -33,6 +35,7 @@ setMethod("covariates", "Matched", function(x, ...) {
 #' @inheritParams indices
 #' @return A character describing the matched method
 #' @examples 
+#' set.seed(123)
 #' mdf <- makeExampleMatchedDataSet(matched = TRUE)
 #' method(mdf)
 #'
@@ -51,6 +54,7 @@ setMethod("method", "Matched", function(x, ...) {
 #' @return TRUE/FALSE indicating whether matching
 #'   was done with or without replacement.
 #' @examples 
+#' set.seed(123)
 #' mdf <- makeExampleMatchedDataSet(matched = TRUE)
 #' withReplacement(mdf)
 #'
@@ -68,20 +72,20 @@ getIndices <- function(x, set) {
   set <- match.arg(set, choices=c("focal","matched","pool","unmatched"))
 
   ## Get the length of each focal and pool
-  n.focal <- nrow(x@matchedData[set == 'focal'])
-  n.pool  <- nrow(x@matchedData[set == 'pool'])
+  n_focal <- nrow(x@matchedData[set == 'focal'])
+  n_pool  <- nrow(x@matchedData[set == 'pool'])
 
   if (set == 'focal')
-    return(1:n.focal)
+    return(seq_len(n_focal))
 
   if (set == 'matched')
     return(x@matchedIndex)
 
   if (set == 'unmatched')
-    return(which(!(1:n.pool) %in% x@matchedIndex))
+    return(which(!(seq_len(n_pool)) %in% x@matchedIndex))
 
   if (set == 'pool')
-    return(1:n.pool)
+    return(seq_len(n_pool))
 }
 
 #' Get indices of matched set
@@ -105,6 +109,7 @@ getIndices <- function(x, set) {
 #'   "focal" or c("matched", "pool", "unmatched") sets.
 #'
 #' @examples 
+#' set.seed(123)
 #' mdf <- makeExampleMatchedDataSet(matched = TRUE)
 #' head(indices(mdf))
 #' 
@@ -195,6 +200,7 @@ overviewMatched <- function(x, digits) {
 #' * (Internally) a `MatchedOverview` object.
 #' 
 #' @examples
+#' set.seed(123)
 #' mdf <- makeExampleMatchedDataSet(matched = TRUE)
 #' overview(mdf)
 #' 
@@ -519,6 +525,7 @@ plot_covariate <- function(x, covar, sets, type, log, thresh = 12) {
 #' 
 #' @examples
 #' ## Matched example dataset
+#' set.seed(123)
 #' mdf <- makeExampleMatchedDataSet(matched = TRUE)
 #' 
 #' ## Visualize propensity scores
@@ -582,6 +589,7 @@ setMethod("plotPropensity",
 #' 
 #' @examples
 #' ## Matched example dataset
+#' set.seed(123)
 #' mdf <- makeExampleMatchedDataSet(matched = TRUE)
 #' 
 #' ## Visualize covariates

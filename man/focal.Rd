@@ -15,10 +15,15 @@ or \code{MatchedGInteractions} object.}
 
 \item{...}{Additional options.}
 }
+\value{
+An object of the same class as \code{x} representing
+the focal set.
+}
 \description{
 Get focal set from a Matched object
 }
 \examples{
+set.seed(123)
 x <- makeExampleMatchedDataSet(matched = TRUE)
 focal(x)
 

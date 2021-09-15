@@ -21,6 +21,7 @@ A character vector of covariates
 Get covariates from a Matched object
 }
 \examples{
+set.seed(123)
 mdf <- makeExampleMatchedDataSet(matched = TRUE)
 covariates(mdf)
 

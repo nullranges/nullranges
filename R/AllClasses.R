@@ -19,6 +19,7 @@ setValidity(
 #'
 #' @examples
 #' ## Make Matched example
+#' set.seed(123)
 #' x <- makeExampleMatchedDataSet(matched = TRUE)
 #' @template matched-class-slots
 #' @template matched-class-details
@@ -111,6 +112,7 @@ setClassUnion("DF_OR_df_OR_dt", c("DFrame", "data.frame", "data.table"))
 #' @examples
 #' ## Constructing MatchedDataFrame with matchRanges
 #' ## data.frame
+#' set.seed(123)
 #' x <- makeExampleMatchedDataSet(type = "data.frame")
 #' mx <- matchRanges(
 #'   focal = x[x$feature1, ],
@@ -122,6 +124,7 @@ setClassUnion("DF_OR_df_OR_dt", c("DFrame", "data.frame", "data.table"))
 #' class(mx)
 #'
 #' ## data.table
+#' set.seed(123)
 #' x <- makeExampleMatchedDataSet(type = "data.table")
 #' mx <- matchRanges(
 #'   focal = x[x$feature1],
@@ -133,6 +136,7 @@ setClassUnion("DF_OR_df_OR_dt", c("DFrame", "data.frame", "data.table"))
 #' class(mx)
 #'
 #' ## DataFrame
+#' set.seed(123)
 #' x <- makeExampleMatchedDataSet(type = "DataFrame")
 #' mx <- matchRanges(
 #'   focal = x[x$feature1, ],
@@ -144,6 +148,7 @@ setClassUnion("DF_OR_df_OR_dt", c("DFrame", "data.frame", "data.table"))
 #' class(mx)
 #'
 #' ## Make MatchedDataFrame example
+#' set.seed(123)
 #' x <- makeExampleMatchedDataSet(type = "DataFrame", matched = TRUE)
 #' @template matched-class-details
 #' @template matched-subclass-details
@@ -216,6 +221,7 @@ setMethod(
 #'
 #' @examples
 #' ## Contructing MatchedGRanges with matchRanges
+#' set.seed(123)
 #' gr <- makeExampleMatchedDataSet(type = "GRanges")
 #' mgr <- matchRanges(
 #'   focal = gr[gr$feature1, ],
@@ -227,6 +233,7 @@ setMethod(
 #' class(mgr)
 #'
 #' ## Make MatchedGRanges example
+#' set.seed(123)
 #' x <- makeExampleMatchedDataSet(type = "GRanges", matched = TRUE)
 #' @template matched-class-details
 #' @template matched-subclass-details
@@ -297,6 +304,7 @@ setMethod(
 #'
 #' @examples
 #' ## Constructing MatchedGInteractions with matchRanges
+#' set.seed(123)
 #' gi <- makeExampleMatchedDataSet(type = "GInteractions")
 #' mgi <- matchRanges(
 #'   focal = gi[gi$feature1, ],
@@ -308,6 +316,7 @@ setMethod(
 #' class(mgi)
 #'
 #' ## Make MatchedGInteractions example
+#' set.seed(123)
 #' x <- makeExampleMatchedDataSet(type = "GInteractions", matched = TRUE)
 #' @template matched-class-details
 #' @template matched-subclass-details

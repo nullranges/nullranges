@@ -63,6 +63,7 @@ manually.
 }
 \examples{
 ## Matched example dataset
+set.seed(123)
 mdf <- makeExampleMatchedDataSet(matched = TRUE)
 
 ## Visualize covariates

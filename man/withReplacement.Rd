@@ -23,6 +23,7 @@ Determine if a Matched object was created
 with or without replacement.
 }
 \examples{
+set.seed(123)
 mdf <- makeExampleMatchedDataSet(matched = TRUE)
 withReplacement(mdf)
 

@@ -48,7 +48,6 @@ make_example_matched_data_set <- function(type, matched, method, replace) {
                                       'GInteractions'))
   
   ## Generate example covariate data
-  set.seed(123)
   df <- data.frame(
     feature1 = c(rep(TRUE, 500),
                  rep(FALSE, 1e4)),

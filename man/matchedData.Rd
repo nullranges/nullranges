@@ -21,6 +21,7 @@ A \code{data.table} with matched data.
 Get matched data from a Matched object
 }
 \examples{
+set.seed(123)
 mdf <- makeExampleMatchedDataSet(matched = TRUE)
 matchedData(mdf)
 

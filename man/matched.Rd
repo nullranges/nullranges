@@ -15,10 +15,15 @@ or \code{MatchedGInteractions} object.}
 
 \item{...}{Additional options.}
 }
+\value{
+An object of the same class as \code{x} representing
+the matched set.
+}
 \description{
 Get matched set from a Matched object
 }
 \examples{
+set.seed(123)
 x <- makeExampleMatchedDataSet(matched = TRUE)
 matched(x)
 

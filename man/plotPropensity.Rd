@@ -56,6 +56,7 @@ These settings can also be overwritten manually.
 }
 \examples{
 ## Matched example dataset
+set.seed(123)
 mdf <- makeExampleMatchedDataSet(matched = TRUE)
 
 ## Visualize propensity scores

@@ -21,6 +21,7 @@ A character describing the matched method
 Get matching method used for Matched object
 }
 \examples{
+set.seed(123)
 mdf <- makeExampleMatchedDataSet(matched = TRUE)
 method(mdf)
 

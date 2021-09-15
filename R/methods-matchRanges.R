@@ -45,7 +45,7 @@ nnMatch <- function(fps, pps, replace) {
   N <- NULL
 
   ## Create data table with original pps index and setkey to sort
-  dt <- data.table(pps, val = pps, ppsIndex = 1:length(pps))
+  dt <- data.table(pps, val = pps, ppsIndex = seq_along(pps))
   setkey(dt, pps)
 
   ## Map ids to unique propensity scores
@@ -135,7 +135,7 @@ rsMatch <- function(fps, pps, replace) {
     stdev <- seq(1e-06, 0.1, length.out = 100)
 
     ## Iterate over possible noise levels
-    for(i in 1:length(stdev)) {
+    for(i in seq_along(stdev)) {
 
       ## Add noise to fps and pps
       nfps <- fps + (rnorm(length(fps), mean = 0, sd = stdev[i]))
@@ -230,7 +230,7 @@ ssMatch <- function(fps, pps, replace) {
   ## Start progress bar
   pb <- progress::progress_bar$new(
     format = "  :step [:bar] :percent elapsed: :elapsedfull",
-    clear = F, total = length(fps) + 1)
+    clear = FALSE, total = length(fps) + 1)
   pb$tick(0)
 
   while (nrow(results) != length(fps)) {
@@ -470,24 +470,28 @@ matchRanges_MatchedDataFrame <- function(focal, pool, covar, method, replace) {
 #' 
 #' @examples 
 #' ## Match with DataFrame
+#' set.seed(123)
 #' x <- makeExampleMatchedDataSet(type = 'DataFrame')
 #' matchRanges(focal = x[x$feature1,],
 #'             pool = x[!x$feature1,],
 #'             covar = ~feature2 + feature3)
 #' 
 #' ## Match with GRanges
+#' set.seed(123)
 #' x <- makeExampleMatchedDataSet(type = "GRanges")
 #' matchRanges(focal = x[x$feature1,],
 #'             pool = x[!x$feature1,],
 #'             covar = ~feature2 + feature3)
 #' 
 #' ## Match with GInteractions
+#' set.seed(123)
 #' x <- makeExampleMatchedDataSet(type = "GInteractions")
 #' matchRanges(focal = x[x$feature1,],
 #'             pool = x[!x$feature1,],
 #'             covar = ~feature2 + feature3)
 #' 
 #' ## Nearest neighbor matching with replacement
+#' set.seed(123)
 #' x <- makeExampleMatchedDataSet(type = 'DataFrame')
 #' matchRanges(focal = x[x$feature1,],
 #'             pool = x[!x$feature1,],
@@ -496,6 +500,7 @@ matchRanges_MatchedDataFrame <- function(focal, pool, covar, method, replace) {
 #'             replace = TRUE)
 #' 
 #' ## Rejection sampling without replacement
+#' set.seed(123)
 #' x <- makeExampleMatchedDataSet(type = 'DataFrame')
 #' matchRanges(focal = x[x$feature1,],
 #'             pool = x[!x$feature1,],
@@ -504,6 +509,7 @@ matchRanges_MatchedDataFrame <- function(focal, pool, covar, method, replace) {
 #'             replace = FALSE)
 #' 
 #' ## Stratified sampling without replacement
+#' set.seed(123)
 #' x <- makeExampleMatchedDataSet(type = 'DataFrame')
 #' matchRanges(focal = x[x$feature1,],
 #'             pool = x[!x$feature1,],
@@ -618,7 +624,11 @@ setMethod("matchRanges",
 #'   or `MatchedGInteractions` object.
 #' @param ... Additional options.
 #' 
+#' @return An object of the same class as `x` representing
+#'   the focal set.
+#' 
 #' @examples 
+#' set.seed(123)
 #' x <- makeExampleMatchedDataSet(matched = TRUE)
 #' focal(x)
 #' 
@@ -632,7 +642,11 @@ setMethod("focal", "MDF_OR_MGR_OR_MGI", function(x, ...) {
 #' 
 #' @inheritParams focal
 #' 
+#' @return An object of the same class as `x` representing
+#'   the pool set.
+#' 
 #' @examples 
+#' set.seed(123)
 #' x <- makeExampleMatchedDataSet(matched = TRUE)
 #' pool(x)
 #' 
@@ -646,7 +660,11 @@ setMethod("pool", "MDF_OR_MGR_OR_MGI", function(x, ...) {
 #' 
 #' @inheritParams focal
 #' 
+#' @return An object of the same class as `x` representing
+#'   the matched set.
+#' 
 #' @examples 
+#' set.seed(123)
 #' x <- makeExampleMatchedDataSet(matched = TRUE)
 #' matched(x)
 #' 
@@ -660,7 +678,11 @@ setMethod("matched", "MDF_OR_MGR_OR_MGI", function(x, ...) {
 #' 
 #' @inheritParams focal
 #' 
+#' @return An object of the same class as `x` representing
+#'   the unmatched set.
+#' 
 #' @examples 
+#' set.seed(123)
 #' x <- makeExampleMatchedDataSet(matched = TRUE)
 #' unmatched(x)
 #' 

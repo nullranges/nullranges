@@ -92,6 +92,7 @@ For more detail check the help pages for these functions.
 
 \examples{
 ## Contructing MatchedGRanges with matchRanges
+set.seed(123)
 gr <- makeExampleMatchedDataSet(type = "GRanges")
 mgr <- matchRanges(
   focal = gr[gr$feature1, ],
@@ -103,6 +104,7 @@ mgr <- matchRanges(
 class(mgr)
 
 ## Make MatchedGRanges example
+set.seed(123)
 x <- makeExampleMatchedDataSet(type = "GRanges", matched = TRUE)
 ## Accessor functions for Matched class
 matchedData(x)
