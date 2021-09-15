@@ -270,3 +270,8 @@ gr_prime <- bootRanges(gr, seg, blockLength = 50, R = 1,
 plotGRanges(gr_prime)
 ```
 
+# Session information
+
+```{r}
+sessionInfo()
+```

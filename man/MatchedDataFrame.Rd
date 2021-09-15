@@ -92,34 +92,39 @@ For more detail check the help pages for these functions.
 ## Constructing MatchedDataFrame with matchRanges
 ## data.frame
 x <- makeExampleMatchedDataSet(type = "data.frame")
-mx <- matchRanges(focal = x[x$feature1,],
-                   pool = x[!x$feature1,],
-                   covar = ~feature2 + feature3,
-                   method = 'rejection',
-                   replace = FALSE)
+mx <- matchRanges(
+  focal = x[x$feature1, ],
+  pool = x[!x$feature1, ],
+  covar = ~ feature2 + feature3,
+  method = "rejection",
+  replace = FALSE
+)
 class(mx)
 
 ## data.table
 x <- makeExampleMatchedDataSet(type = "data.table")
-mx <- matchRanges(focal = x[x$feature1],
-                   pool = x[!x$feature1],
-                   covar = ~feature2 + feature3,
-                   method = 'rejection',
-                   replace = FALSE)
+mx <- matchRanges(
+  focal = x[x$feature1],
+  pool = x[!x$feature1],
+  covar = ~ feature2 + feature3,
+  method = "rejection",
+  replace = FALSE
+)
 class(mx)
 
 ## DataFrame
 x <- makeExampleMatchedDataSet(type = "DataFrame")
-mx <- matchRanges(focal = x[x$feature1,],
-                   pool = x[!x$feature1,],
-                   covar = ~feature2 + feature3,
-                   method = 'rejection',
-                   replace = FALSE)
+mx <- matchRanges(
+  focal = x[x$feature1, ],
+  pool = x[!x$feature1, ],
+  covar = ~ feature2 + feature3,
+  method = "rejection",
+  replace = FALSE
+)
 class(mx)
 
 ## Make MatchedDataFrame example
-x <- makeExampleMatchedDataSet(type = 'DataFrame', matched = TRUE)
-
+x <- makeExampleMatchedDataSet(type = "DataFrame", matched = TRUE)
 ## Accessor functions for Matched class
 matchedData(x)
 covariates(x)

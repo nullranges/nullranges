@@ -93,16 +93,17 @@ For more detail check the help pages for these functions.
 \examples{
 ## Contructing MatchedGRanges with matchRanges
 gr <- makeExampleMatchedDataSet(type = "GRanges")
-mgr <- matchRanges(focal = gr[gr$feature1,],
-                   pool = gr[!gr$feature1,],
-                   covar = ~feature2 + feature3,
-                   method = 'rejection',
-                   replace = FALSE)
+mgr <- matchRanges(
+  focal = gr[gr$feature1, ],
+  pool = gr[!gr$feature1, ],
+  covar = ~ feature2 + feature3,
+  method = "rejection",
+  replace = FALSE
+)
 class(mgr)
 
 ## Make MatchedGRanges example
-x <- makeExampleMatchedDataSet(type = 'GRanges', matched = TRUE)
-
+x <- makeExampleMatchedDataSet(type = "GRanges", matched = TRUE)
 ## Accessor functions for Matched class
 matchedData(x)
 covariates(x)

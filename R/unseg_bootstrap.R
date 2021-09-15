@@ -66,6 +66,7 @@ unseg_bootstrap_within_chrom <- function(x, L_b, L_s=NULL, chr=NULL) {
   # use the bait to sample features in 'x'
   fo <- IRanges::findOverlaps(random_blocks, ranges(x))
   # shift the ranges in those bait blocks
+  # NOTE: we use suppress warnings, we will immediately perform a trim() operation
   suppressWarnings({
     x_prime <- shift(x[subjectHits(fo)], block_shift[queryHits(fo)])
   })
@@ -100,6 +101,7 @@ unseg_permute_within_chrom <- function(x, L_b, L_s=NULL, chr=NULL) {
   # the shift needed to move them
   block_shift <- start(permuted_blocks) - start(blocks)
   # shift the features in 'x'
+  # NOTE: we use suppress warnings, we will immediately perform a trim() operation  
   suppressWarnings({
     x_prime <- shift(x, block_shift[mcols(x)$block])
   })
@@ -173,8 +175,8 @@ shift_and_swap_chrom <- function(x, chr_names,
   block_shift <- rearranged_blocks_start - random_blocks_start
   idx <- mcols(x)$block
   chr_prime <- chr_names[idx]
-  # this creates out-of-bound ranges
-  # (but wait until we assign new chromosomes)
+  # this temporarily creates out-of-bound ranges
+  # NOTE: we use suppress warnings, we will immediately perform a trim() operation  
   suppressWarnings({
     x_prime <- shift(x, block_shift[idx])
     seqnames(x_prime) <- chr_prime

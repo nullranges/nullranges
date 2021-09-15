@@ -46,7 +46,6 @@ For more detail check the help pages for these functions.
 \examples{
 ## Make Matched example
 x <- makeExampleMatchedDataSet(matched = TRUE)
-
 ## Accessor functions for Matched class
 matchedData(x)
 covariates(x)

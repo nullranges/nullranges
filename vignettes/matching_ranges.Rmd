@@ -383,3 +383,9 @@ Since `matchRanges()` automatically constructs the relevant classes, this sectio
 Internally, each `Matched` subclass uses a "delegate" object of the same type to assign its slots. The delegate object used is the `matched` set. Therefore, the resulting `Matched*` object behaves as a combination of both its superclasses - with access to methods from both.
 
 For example, using `matchRanges()` on `GRanges` objects assigns a `GRanges` delegate object which is used to populate GRanges-specific slots. This results in a `MatchedGRanges` object, with access to both `Matched` functions (e.g. `plotCovariate`) as well as normal `GRanges` methods (e.g.s `seqnames`, `resize`, etc...).
+
+# Session information
+
+```{r}
+sessionInfo()
+```

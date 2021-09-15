@@ -308,3 +308,9 @@ barplot(height = c(g1, g2, g3, g4),
 ```
 
 It looks like the converget rule holds, even when controlling for CTCF signal strength and bin pair distance. Our looped group has \> 90% convergent CTCF sites, while our other groups have about 25% per CTCF site on average.
+
+# Session information
+
+```{r}
+sessionInfo()
+```

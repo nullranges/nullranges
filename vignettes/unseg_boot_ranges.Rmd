@@ -165,3 +165,9 @@ for (i in 1:2) {
   plotGRanges(gr_prime)
 }
 ```
+
+# Session information
+
+```{r}
+sessionInfo()
+```

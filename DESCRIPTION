@@ -1,6 +1,6 @@
 Package: nullranges
 Title: Generation of null ranges via bootstrapping or covariate matching
-Version: 0.0.22
+Version: 0.0.23
 Authors@R: c(
     person("Michael", "Love", role = c("aut", "cre"),
       email = "michaelisaiahlove@gmail.com",
@@ -56,8 +56,15 @@ Imports:
     data.table,
     progress,
     ggridges
-URL: https://github.com/nullranges/nullranges
-License: GPL (>= 3)
+URL: https://nullranges/github.com/nullranges
+biocViews: Visualization, GeneSetEnrichment,
+    FunctionalGenomics, Epigenetics,
+    GeneRegulation, GeneTarget,
+    GenomeAnnotation, Annotation,
+    GenomeWideAssociation, HistoneModification,
+    ChIPSeq, ATACSeq, DNaseSeq, RNASeq,
+    HiddenMarkovModel
+License: GPL-3
 Encoding: UTF-8
 LazyData: true
 VignetteBuilder: knitr

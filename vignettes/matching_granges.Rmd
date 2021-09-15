@@ -272,3 +272,9 @@ barplot(height = c(g1, g2, g3),
         border = NA,
         las = 1)
 ```
+
+# Session information
+
+```{r}
+sessionInfo()
+```
