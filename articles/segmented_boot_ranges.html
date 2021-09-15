@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.23</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.24</span>
       </span>
     </div>
 
@@ -200,7 +200,7 @@
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">seg_hmm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/segmentDensity.html">segmentDensity</a></span><span class="op">(</span><span class="va">g</span>, n <span class="op">=</span> <span class="fl">3</span>, L_s <span class="op">=</span> <span class="va">L_s</span>,
                           exclude <span class="op">=</span> <span class="va">exclude</span>, type <span class="op">=</span> <span class="st">"hmm"</span><span class="op">)</span></code></pre></div>
-<pre><code>## Finished at Iteration: 73 with Error: 9.78676e-06</code></pre>
+<pre><code>## Finished at Iteration: 100 with Error: 9.30798e-06</code></pre>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"ranges"</span>,<span class="st">"barplot"</span>,<span class="st">"boxplot"</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">t</span><span class="op">)</span> <span class="fu"><a href="../reference/plotSegment.html">plotSegment</a></span><span class="op">(</span><span class="va">seg_hmm</span>, <span class="va">exclude</span>, type <span class="op">=</span> <span class="va">t</span><span class="op">)</span><span class="op">)</span>
 <span class="va">plots</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></code></pre></div>
@@ -250,8 +250,8 @@
 <span class="op">)</span>, times<span class="op">=</span><span class="fl">10</span><span class="op">)</span></code></pre></div>
 <pre><code>## Unit: milliseconds
 ##     expr      min       lq     mean   median       uq       max neval
-##     prop 269.1985 287.9447 475.2105 302.5548 406.1112 1154.6447    10
-##  no_prop 261.9549 268.8259 277.8181 277.7937 286.4309  291.0779    10</code></pre>
+##     prop 279.9890 281.2491 301.1311 285.8039 311.6654  389.1873    10
+##  no_prop 252.3968 254.3840 431.6345 266.1587 307.4534 1093.3862    10</code></pre>
 </div>
 <div id="visualizing-the-segmented-block-bootstrap" class="section level1">
 <h1 class="hasAnchor">
@@ -363,7 +363,7 @@
 ## other attached packages:
 ##  [1] plotgardener_0.99.11      microbenchmark_1.4-7     
 ##  [3] plyranges_1.12.1          patchwork_1.1.1          
-##  [5] nullranges_0.0.23         nullrangesData_0.0.2     
+##  [5] nullranges_0.0.24         nullrangesData_0.0.2     
 ##  [7] EnsDb.Hsapiens.v86_2.99.0 ensembldb_2.16.4         
 ##  [9] AnnotationFilter_1.16.0   GenomicFeatures_1.44.2   
 ## [11] AnnotationDbi_1.54.1      Biobase_2.52.0           
