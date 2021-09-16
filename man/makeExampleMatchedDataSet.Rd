@@ -47,6 +47,7 @@ features that can be subset to perform matching.
 }
 \examples{
 ## Make examples for matchRanges() (i.e matched = FALSE)
+set.seed(123)
 makeExampleMatchedDataSet()
 head(makeExampleMatchedDataSet(type = 'data.frame', matched = FALSE))
 makeExampleMatchedDataSet(type = 'data.table', matched = FALSE)
@@ -55,6 +56,7 @@ makeExampleMatchedDataSet(type = 'GRanges', matched = FALSE)
 makeExampleMatchedDataSet(type = 'GInteractions', matched = FALSE)
 
 ## Make Matched class examples (i.e. matched = TRUE)
+set.seed(123)
 makeExampleMatchedDataSet(matched = TRUE)
 makeExampleMatchedDataSet(type = 'DataFrame', matched = TRUE,
                           method = 'rejection',
