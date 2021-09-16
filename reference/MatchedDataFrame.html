@@ -242,6 +242,7 @@ and MatchedGInteractions include:</p><ul>
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'>## Constructing MatchedDataFrame with matchRanges</span>
 <span class='co'>## data.frame</span>
+<span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span><span class='op'>(</span><span class='fl'>123</span><span class='op'>)</span>
 <span class='va'>x</span> <span class='op'>&lt;-</span> <span class='fu'><a href='makeExampleMatchedDataSet.html'>makeExampleMatchedDataSet</a></span><span class='op'>(</span>type <span class='op'>=</span> <span class='st'>"data.frame"</span><span class='op'>)</span>
 <span class='va'>mx</span> <span class='op'>&lt;-</span> <span class='fu'><a href='matchRanges.html'>matchRanges</a></span><span class='op'>(</span>
   focal <span class='op'>=</span> <span class='va'>x</span><span class='op'>[</span><span class='va'>x</span><span class='op'>$</span><span class='va'>feature1</span>, <span class='op'>]</span>,
@@ -255,6 +256,7 @@ and MatchedGInteractions include:</p><ul>
 #&gt; attr(,"package")
 #&gt; [1] "nullranges"</div><div class='input'>
 <span class='co'>## data.table</span>
+<span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span><span class='op'>(</span><span class='fl'>123</span><span class='op'>)</span>
 <span class='va'>x</span> <span class='op'>&lt;-</span> <span class='fu'><a href='makeExampleMatchedDataSet.html'>makeExampleMatchedDataSet</a></span><span class='op'>(</span>type <span class='op'>=</span> <span class='st'>"data.table"</span><span class='op'>)</span>
 <span class='va'>mx</span> <span class='op'>&lt;-</span> <span class='fu'><a href='matchRanges.html'>matchRanges</a></span><span class='op'>(</span>
   focal <span class='op'>=</span> <span class='va'>x</span><span class='op'>[</span><span class='va'>x</span><span class='op'>$</span><span class='va'>feature1</span><span class='op'>]</span>,
@@ -268,6 +270,7 @@ and MatchedGInteractions include:</p><ul>
 #&gt; attr(,"package")
 #&gt; [1] "nullranges"</div><div class='input'>
 <span class='co'>## DataFrame</span>
+<span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span><span class='op'>(</span><span class='fl'>123</span><span class='op'>)</span>
 <span class='va'>x</span> <span class='op'>&lt;-</span> <span class='fu'><a href='makeExampleMatchedDataSet.html'>makeExampleMatchedDataSet</a></span><span class='op'>(</span>type <span class='op'>=</span> <span class='st'>"DataFrame"</span><span class='op'>)</span>
 <span class='va'>mx</span> <span class='op'>&lt;-</span> <span class='fu'><a href='matchRanges.html'>matchRanges</a></span><span class='op'>(</span>
   focal <span class='op'>=</span> <span class='va'>x</span><span class='op'>[</span><span class='va'>x</span><span class='op'>$</span><span class='va'>feature1</span>, <span class='op'>]</span>,
@@ -281,6 +284,7 @@ and MatchedGInteractions include:</p><ul>
 #&gt; attr(,"package")
 #&gt; [1] "nullranges"</div><div class='input'>
 <span class='co'>## Make MatchedDataFrame example</span>
+<span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span><span class='op'>(</span><span class='fl'>123</span><span class='op'>)</span>
 <span class='va'>x</span> <span class='op'>&lt;-</span> <span class='fu'><a href='makeExampleMatchedDataSet.html'>makeExampleMatchedDataSet</a></span><span class='op'>(</span>type <span class='op'>=</span> <span class='st'>"DataFrame"</span>, matched <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
 <span class='co'>## Accessor functions for Matched class</span>
 <span class='fu'><a href='matchedData.html'>matchedData</a></span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span>

@@ -207,6 +207,7 @@ features that can be subset to perform matching.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'>## Make examples for matchRanges() (i.e matched = FALSE)</span>
+<span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span><span class='op'>(</span><span class='fl'>123</span><span class='op'>)</span>
 <span class='fu'>makeExampleMatchedDataSet</span><span class='op'>(</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; DataFrame with 10500 rows and 3 columns
 #&gt;        feature1  feature2    feature3
@@ -223,85 +224,86 @@ features that can be subset to perform matching.</p>
 #&gt; 10499     FALSE   2.21657           d
 #&gt; 10500     FALSE   5.33003           b</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span><span class='fu'>makeExampleMatchedDataSet</span><span class='op'>(</span>type <span class='op'>=</span> <span class='st'>'data.frame'</span>, matched <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span><span class='op'>)</span>
 </div><div class='output co'>#&gt;   feature1 feature2 feature3
-#&gt; 1     TRUE 2.879049        c
-#&gt; 2     TRUE 3.539645        c
-#&gt; 3     TRUE 7.117417        c
-#&gt; 4     TRUE 4.141017        a
-#&gt; 5     TRUE 4.258575        c
-#&gt; 6     TRUE 7.430130        c</div><div class='input'><span class='fu'>makeExampleMatchedDataSet</span><span class='op'>(</span>type <span class='op'>=</span> <span class='st'>'data.table'</span>, matched <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
-</div><div class='output co'>#&gt;        feature1 feature2 feature3
-#&gt;     1:     TRUE 2.879049        c
-#&gt;     2:     TRUE 3.539645        c
-#&gt;     3:     TRUE 7.117417        c
-#&gt;     4:     TRUE 4.141017        a
-#&gt;     5:     TRUE 4.258575        c
-#&gt;    ---                           
-#&gt; 10496:    FALSE 1.235781        b
-#&gt; 10497:    FALSE 1.696712        a
-#&gt; 10498:    FALSE 6.111404        a
-#&gt; 10499:    FALSE 2.216575        d
-#&gt; 10500:    FALSE 5.330029        b</div><div class='input'><span class='fu'>makeExampleMatchedDataSet</span><span class='op'>(</span>type <span class='op'>=</span> <span class='st'>'DataFrame'</span>, matched <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
+#&gt; 1     TRUE 3.636514        c
+#&gt; 2     TRUE 1.330261        c
+#&gt; 3     TRUE 4.236877        c
+#&gt; 4     TRUE 4.042873        b
+#&gt; 5     TRUE 3.081029        b
+#&gt; 6     TRUE 6.058335        c</div><div class='input'><span class='fu'>makeExampleMatchedDataSet</span><span class='op'>(</span>type <span class='op'>=</span> <span class='st'>'data.table'</span>, matched <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;        feature1  feature2 feature3
+#&gt;     1:     TRUE 0.2032325        c
+#&gt;     2:     TRUE 7.4856837        d
+#&gt;     3:     TRUE 1.8105119        b
+#&gt;     4:     TRUE 4.3514990        c
+#&gt;     5:     TRUE 8.1239122        b
+#&gt;    ---                            
+#&gt; 10496:    FALSE 2.2574409        a
+#&gt; 10497:    FALSE 7.0427986        b
+#&gt; 10498:    FALSE 9.5341569        d
+#&gt; 10499:    FALSE 5.0367807        a
+#&gt; 10500:    FALSE 1.7628214        b</div><div class='input'><span class='fu'>makeExampleMatchedDataSet</span><span class='op'>(</span>type <span class='op'>=</span> <span class='st'>'DataFrame'</span>, matched <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; DataFrame with 10500 rows and 3 columns
 #&gt;        feature1  feature2    feature3
 #&gt;       &lt;logical&gt; &lt;numeric&gt; &lt;character&gt;
-#&gt; 1          TRUE   2.87905           c
-#&gt; 2          TRUE   3.53965           c
-#&gt; 3          TRUE   7.11742           c
-#&gt; 4          TRUE   4.14102           a
-#&gt; 5          TRUE   4.25858           c
+#&gt; 1          TRUE   2.17220           c
+#&gt; 2          TRUE   4.15337           e
+#&gt; 3          TRUE   4.12367           c
+#&gt; 4          TRUE   3.43931           a
+#&gt; 5          TRUE   7.77699           a
 #&gt; ...         ...       ...         ...
-#&gt; 10496     FALSE   1.23578           b
-#&gt; 10497     FALSE   1.69671           a
-#&gt; 10498     FALSE   6.11140           a
-#&gt; 10499     FALSE   2.21657           d
-#&gt; 10500     FALSE   5.33003           b</div><div class='input'><span class='fu'>makeExampleMatchedDataSet</span><span class='op'>(</span>type <span class='op'>=</span> <span class='st'>'GRanges'</span>, matched <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
+#&gt; 10496     FALSE  1.046444           a
+#&gt; 10497     FALSE  8.549075           a
+#&gt; 10498     FALSE  0.454913           b
+#&gt; 10499     FALSE  0.358426           e
+#&gt; 10500     FALSE  4.262284           d</div><div class='input'><span class='fu'>makeExampleMatchedDataSet</span><span class='op'>(</span>type <span class='op'>=</span> <span class='st'>'GRanges'</span>, matched <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; GRanges object with 10500 ranges and 3 metadata columns:
 #&gt;           seqnames      ranges strand |  feature1  feature2    feature3
 #&gt;              &lt;Rle&gt;   &lt;IRanges&gt;  &lt;Rle&gt; | &lt;logical&gt; &lt;numeric&gt; &lt;character&gt;
-#&gt;       [1]     chr1       1-100      * |      TRUE   2.87905           c
-#&gt;       [2]     chr1       2-101      * |      TRUE   3.53965           c
-#&gt;       [3]     chr1       3-102      * |      TRUE   7.11742           c
-#&gt;       [4]     chr1       4-103      * |      TRUE   4.14102           a
-#&gt;       [5]     chr1       5-104      * |      TRUE   4.25858           c
+#&gt;       [1]     chr1       1-100      * |      TRUE   1.78381           c
+#&gt;       [2]     chr1       2-101      * |      TRUE   6.14991           c
+#&gt;       [3]     chr1       3-102      * |      TRUE   4.44694           d
+#&gt;       [4]     chr1       4-103      * |      TRUE   2.97590           c
+#&gt;       [5]     chr1       5-104      * |      TRUE   7.72256           b
 #&gt;       ...      ...         ...    ... .       ...       ...         ...
-#&gt;   [10496]     chr1 10496-10595      * |     FALSE   1.23578           b
-#&gt;   [10497]     chr1 10497-10596      * |     FALSE   1.69671           a
-#&gt;   [10498]     chr1 10498-10597      * |     FALSE   6.11140           a
-#&gt;   [10499]     chr1 10499-10598      * |     FALSE   2.21657           d
-#&gt;   [10500]     chr1 10500-10599      * |     FALSE   5.33003           b
+#&gt;   [10496]     chr1 10496-10595      * |     FALSE   6.25657           a
+#&gt;   [10497]     chr1 10497-10596      * |     FALSE   8.40767           b
+#&gt;   [10498]     chr1 10498-10597      * |     FALSE   5.10310           b
+#&gt;   [10499]     chr1 10499-10598      * |     FALSE   2.21031           b
+#&gt;   [10500]     chr1 10500-10599      * |     FALSE   9.02046           c
 #&gt;   -------
 #&gt;   seqinfo: 1 sequence from an unspecified genome; no seqlengths</div><div class='input'><span class='fu'>makeExampleMatchedDataSet</span><span class='op'>(</span>type <span class='op'>=</span> <span class='st'>'GInteractions'</span>, matched <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; GInteractions object with 10500 interactions and 3 metadata columns:
 #&gt;           seqnames1     ranges1     seqnames2     ranges2 |  feature1  feature2
 #&gt;               &lt;Rle&gt;   &lt;IRanges&gt;         &lt;Rle&gt;   &lt;IRanges&gt; | &lt;logical&gt; &lt;numeric&gt;
-#&gt;       [1]      chr1       1-100 ---      chr1       1-100 |      TRUE   2.87905
-#&gt;       [2]      chr1       2-101 ---      chr1       2-101 |      TRUE   3.53965
-#&gt;       [3]      chr1       3-102 ---      chr1       3-102 |      TRUE   7.11742
-#&gt;       [4]      chr1       4-103 ---      chr1       4-103 |      TRUE   4.14102
-#&gt;       [5]      chr1       5-104 ---      chr1       5-104 |      TRUE   4.25858
+#&gt;       [1]      chr1       1-100 ---      chr1       1-100 |      TRUE   3.68136
+#&gt;       [2]      chr1       2-101 ---      chr1       2-101 |      TRUE   6.20206
+#&gt;       [3]      chr1       3-102 ---      chr1       3-102 |      TRUE   3.18163
+#&gt;       [4]      chr1       4-103 ---      chr1       4-103 |      TRUE   3.12921
+#&gt;       [5]      chr1       5-104 ---      chr1       5-104 |      TRUE   5.95224
 #&gt;       ...       ...         ... ...       ...         ... .       ...       ...
-#&gt;   [10496]      chr1 10496-10595 ---      chr1 10496-10595 |     FALSE   1.23578
-#&gt;   [10497]      chr1 10497-10596 ---      chr1 10497-10596 |     FALSE   1.69671
-#&gt;   [10498]      chr1 10498-10597 ---      chr1 10498-10597 |     FALSE   6.11140
-#&gt;   [10499]      chr1 10499-10598 ---      chr1 10499-10598 |     FALSE   2.21657
-#&gt;   [10500]      chr1 10500-10599 ---      chr1 10500-10599 |     FALSE   5.33003
+#&gt;   [10496]      chr1 10496-10595 ---      chr1 10496-10595 |     FALSE   5.58682
+#&gt;   [10497]      chr1 10497-10596 ---      chr1 10497-10596 |     FALSE   6.65464
+#&gt;   [10498]      chr1 10498-10597 ---      chr1 10498-10597 |     FALSE   4.18161
+#&gt;   [10499]      chr1 10499-10598 ---      chr1 10499-10598 |     FALSE   4.87692
+#&gt;   [10500]      chr1 10500-10599 ---      chr1 10500-10599 |     FALSE   7.84910
 #&gt;              feature3
 #&gt;           &lt;character&gt;
-#&gt;       [1]           c
-#&gt;       [2]           c
+#&gt;       [1]           b
+#&gt;       [2]           a
 #&gt;       [3]           c
-#&gt;       [4]           a
+#&gt;       [4]           c
 #&gt;       [5]           c
 #&gt;       ...         ...
-#&gt;   [10496]           b
-#&gt;   [10497]           a
-#&gt;   [10498]           a
+#&gt;   [10496]           a
+#&gt;   [10497]           b
+#&gt;   [10498]           d
 #&gt;   [10499]           d
-#&gt;   [10500]           b
+#&gt;   [10500]           a
 #&gt;   -------
 #&gt;   regions: 10500 ranges and 0 metadata columns
 #&gt;   seqinfo: 1 sequence from an unspecified genome; no seqlengths</div><div class='input'>
 <span class='co'>## Make Matched class examples (i.e. matched = TRUE)</span>
+<span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span><span class='op'>(</span><span class='fl'>123</span><span class='op'>)</span>
 <span class='fu'>makeExampleMatchedDataSet</span><span class='op'>(</span>matched <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; MatchedDataFrame with 500 rows and 3 columns
 #&gt;      feature1  feature2    feature3
@@ -322,33 +324,33 @@ features that can be subset to perform matching.</p>
 </div><div class='output co'>#&gt; MatchedDataFrame with 500 rows and 3 columns
 #&gt;      feature1  feature2    feature3
 #&gt;     &lt;logical&gt; &lt;numeric&gt; &lt;character&gt;
-#&gt; 1       FALSE   5.60013           c
-#&gt; 2       FALSE   5.43395           c
-#&gt; 3       FALSE   4.47920           b
-#&gt; 4       FALSE   1.45446           c
-#&gt; 5       FALSE   2.99545           c
+#&gt; 1       FALSE   4.15878           b
+#&gt; 2       FALSE   3.40560           b
+#&gt; 3       FALSE   2.57481           e
+#&gt; 4       FALSE   5.76253           b
+#&gt; 5       FALSE   6.28716           d
 #&gt; ...       ...       ...         ...
-#&gt; 496     FALSE   4.90340           c
-#&gt; 497     FALSE   9.54752           b
-#&gt; 498     FALSE   4.64822           c
-#&gt; 499     FALSE   1.82828           d
-#&gt; 500     FALSE   7.02681           b</div><div class='input'><span class='fu'>makeExampleMatchedDataSet</span><span class='op'>(</span>type <span class='op'>=</span> <span class='st'>'GRanges'</span>, matched <span class='op'>=</span> <span class='cn'>TRUE</span>,
+#&gt; 496     FALSE   6.02015           c
+#&gt; 497     FALSE   1.60329           a
+#&gt; 498     FALSE   5.64211           d
+#&gt; 499     FALSE   4.68922           b
+#&gt; 500     FALSE   6.76833           d</div><div class='input'><span class='fu'>makeExampleMatchedDataSet</span><span class='op'>(</span>type <span class='op'>=</span> <span class='st'>'GRanges'</span>, matched <span class='op'>=</span> <span class='cn'>TRUE</span>,
                           method <span class='op'>=</span> <span class='st'>'rejection'</span>,
                           replace <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; MatchedGRanges object with 500 ranges and 3 metadata columns:
 #&gt;         seqnames      ranges strand |  feature1  feature2    feature3
 #&gt;            &lt;Rle&gt;   &lt;IRanges&gt;  &lt;Rle&gt; | &lt;logical&gt; &lt;numeric&gt; &lt;character&gt;
-#&gt;     [1]     chr1   4191-4290      * |     FALSE   5.60013           c
-#&gt;     [2]     chr1   3668-3767      * |     FALSE   5.43395           c
-#&gt;     [3]     chr1 10236-10335      * |     FALSE   4.47920           b
-#&gt;     [4]     chr1   8451-8550      * |     FALSE   1.45446           c
-#&gt;     [5]     chr1   5658-5757      * |     FALSE   2.99545           c
+#&gt;     [1]     chr1   7893-7992      * |     FALSE  4.235170           b
+#&gt;     [2]     chr1   8972-9071      * |     FALSE  8.854032           c
+#&gt;     [3]     chr1   3803-3902      * |     FALSE 10.799392           c
+#&gt;     [4]     chr1   9894-9993      * |     FALSE  0.591697           a
+#&gt;     [5]     chr1 10409-10508      * |     FALSE  3.157495           b
 #&gt;     ...      ...         ...    ... .       ...       ...         ...
-#&gt;   [496]     chr1   7472-7571      * |     FALSE   4.90340           c
-#&gt;   [497]     chr1   8316-8415      * |     FALSE   9.54752           b
-#&gt;   [498]     chr1   8987-9086      * |     FALSE   4.64822           c
-#&gt;   [499]     chr1   8288-8387      * |     FALSE   1.82828           d
-#&gt;   [500]     chr1     868-967      * |     FALSE   7.02681           b
+#&gt;   [496]     chr1     539-638      * |     FALSE   8.58361           c
+#&gt;   [497]     chr1 10064-10163      * |     FALSE   2.85104           b
+#&gt;   [498]     chr1 10353-10452      * |     FALSE   8.60838           c
+#&gt;   [499]     chr1   5180-5279      * |     FALSE   2.93179           c
+#&gt;   [500]     chr1   7675-7774      * |     FALSE   2.43856           b
 #&gt;   -------
 #&gt;   seqinfo: 1 sequence from an unspecified genome; no seqlengths</div><div class='input'><span class='fu'>makeExampleMatchedDataSet</span><span class='op'>(</span>type <span class='op'>=</span> <span class='st'>'GInteractions'</span>, matched <span class='op'>=</span> <span class='cn'>TRUE</span>,
                           method <span class='op'>=</span> <span class='st'>'rejection'</span>,
@@ -356,30 +358,30 @@ features that can be subset to perform matching.</p>
 </div><div class='output co'>#&gt; MatchedGInteractions object with 500 interactions and 3 metadata columns:
 #&gt;         seqnames1     ranges1     seqnames2     ranges2 |  feature1  feature2
 #&gt;             &lt;Rle&gt;   &lt;IRanges&gt;         &lt;Rle&gt;   &lt;IRanges&gt; | &lt;logical&gt; &lt;numeric&gt;
-#&gt;     [1]      chr1   4191-4290 ---      chr1   4191-4290 |     FALSE   5.60013
-#&gt;     [2]      chr1   3668-3767 ---      chr1   3668-3767 |     FALSE   5.43395
-#&gt;     [3]      chr1 10236-10335 ---      chr1 10236-10335 |     FALSE   4.47920
-#&gt;     [4]      chr1   8451-8550 ---      chr1   8451-8550 |     FALSE   1.45446
-#&gt;     [5]      chr1   5658-5757 ---      chr1   5658-5757 |     FALSE   2.99545
+#&gt;     [1]      chr1 10159-10258 ---      chr1 10159-10258 |     FALSE   3.88400
+#&gt;     [2]      chr1   2343-2442 ---      chr1   2343-2442 |     FALSE   3.82697
+#&gt;     [3]      chr1   6546-6645 ---      chr1   6546-6645 |     FALSE   1.92168
+#&gt;     [4]      chr1   8003-8102 ---      chr1   8003-8102 |     FALSE   3.69450
+#&gt;     [5]      chr1   7724-7823 ---      chr1   7724-7823 |     FALSE   5.59562
 #&gt;     ...       ...         ... ...       ...         ... .       ...       ...
-#&gt;   [496]      chr1   7472-7571 ---      chr1   7472-7571 |     FALSE   4.90340
-#&gt;   [497]      chr1   8316-8415 ---      chr1   8316-8415 |     FALSE   9.54752
-#&gt;   [498]      chr1   8987-9086 ---      chr1   8987-9086 |     FALSE   4.64822
-#&gt;   [499]      chr1   8288-8387 ---      chr1   8288-8387 |     FALSE   1.82828
-#&gt;   [500]      chr1     868-967 ---      chr1     868-967 |     FALSE   7.02681
+#&gt;   [496]      chr1   3827-3926 ---      chr1   3827-3926 |     FALSE   5.28262
+#&gt;   [497]      chr1   2313-2412 ---      chr1   2313-2412 |     FALSE   2.14207
+#&gt;   [498]      chr1   7959-8058 ---      chr1   7959-8058 |     FALSE   4.07154
+#&gt;   [499]      chr1   2780-2879 ---      chr1   2780-2879 |     FALSE   1.47631
+#&gt;   [500]      chr1   7756-7855 ---      chr1   7756-7855 |     FALSE   4.36648
 #&gt;            feature3
 #&gt;         &lt;character&gt;
 #&gt;     [1]           c
 #&gt;     [2]           c
-#&gt;     [3]           b
+#&gt;     [3]           d
 #&gt;     [4]           c
 #&gt;     [5]           c
 #&gt;     ...         ...
 #&gt;   [496]           c
 #&gt;   [497]           b
-#&gt;   [498]           c
-#&gt;   [499]           d
-#&gt;   [500]           b
+#&gt;   [498]           a
+#&gt;   [499]           e
+#&gt;   [500]           d
 #&gt;   -------
 #&gt;   regions: 10500 ranges and 0 metadata columns
 #&gt;   seqinfo: 1 sequence from an unspecified genome; no seqlengths</div><div class='input'>

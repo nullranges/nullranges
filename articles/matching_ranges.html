@@ -100,7 +100,7 @@
       <h1 data-toc-skip>Overview of matchRanges</h1>
                         <h4 class="author">Eric S. Davis</h4>
             
-            <h4 class="date">09/15/2021</h4>
+            <h4 class="date">09/16/2021</h4>
       
       
       <div class="hidden name"><code>matching_ranges.Rmd</code></div>
@@ -123,6 +123,7 @@
 <p>We will use a simulated data set to demonstrate matching across covarying features:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://nullranges/github.com/nullranges">nullranges</a></span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span>
 <span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/makeExampleMatchedDataSet.html">makeExampleMatchedDataSet</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">'GRanges'</span><span class="op">)</span>
 <span class="va">x</span></code></pre></div>
 <pre><code>## GRanges object with 10500 ranges and 3 metadata columns:
