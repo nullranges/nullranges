@@ -129,6 +129,7 @@ make_example_matched_data_set <- function(type, matched, method, replace) {
 #'
 #' @examples
 #' ## Make examples for matchRanges() (i.e matched = FALSE)
+#' set.seed(123)
 #' makeExampleMatchedDataSet()
 #' head(makeExampleMatchedDataSet(type = 'data.frame', matched = FALSE))
 #' makeExampleMatchedDataSet(type = 'data.table', matched = FALSE)
@@ -137,6 +138,7 @@ make_example_matched_data_set <- function(type, matched, method, replace) {
 #' makeExampleMatchedDataSet(type = 'GInteractions', matched = FALSE)
 #'
 #' ## Make Matched class examples (i.e. matched = TRUE)
+#' set.seed(123)
 #' makeExampleMatchedDataSet(matched = TRUE)
 #' makeExampleMatchedDataSet(type = 'DataFrame', matched = TRUE,
 #'                           method = 'rejection',
