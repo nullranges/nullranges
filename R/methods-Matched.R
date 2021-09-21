@@ -213,6 +213,7 @@ setMethod("overview", signature(x="Matched",
 #' Names S3 method for autocomplete
 #' @param x A `MatchedOverview` object.
 #' @rdname overview-methods
+#' @return different data or metadata concerning a MatchedOverview object
 #' @keywords internal
 #' @exportS3Method
 names.MatchedOverview <- function(x) slotNames(x)

@@ -24,6 +24,9 @@
 
 \item{object}{A \code{MatchedOverview} object.}
 }
+\value{
+different data or metadata concerning a MatchedOverview object
+}
 \description{
 Names S3 method for autocomplete
 

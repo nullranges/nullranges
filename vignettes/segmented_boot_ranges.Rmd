@@ -19,16 +19,23 @@ vignette: |
 knitr::opts_chunk$set(fig.width=5, fig.height=5)
 ```
 
+The following vignette describes the *nullranges* implementation of
+the block bootstrap with respect to a genomic segmentation. See the
+Introduction vignette for an overview of the idea of bootstrapping,
+and there is additionally a vignette on block boostrapping without
+respect to segmentation.
+
 As proposed by Bickel et al (2010), *nullranges* contains an
 implementation of a block bootstrap, such that features are sampled
 from the genome in blocks. Blocks are sampled and placed within
-regions of a genomic segmentation. That is, for a genome segmented
+regions of a genomic *segmentation*. That is, for a genome segmented
 into states 1,2,...,S, blocks from state $s$ will be used to tile the
 ranges of state $s$ in each bootstrap sample.
 
 The segmented block bootstrap has two options, either to:
 
-* Segment the genome using feature density, e.g. gene density
+* Perform a de-novo segmentation of the genome using feature density,
+  e.g. gene density
 * Use exiting segmentation (e.g. ChromHMM, etc.) downloaded from
   AnnotationHub or external to Bioconductor (BED files imported with
   *rtracklayer*)
@@ -38,8 +45,15 @@ Ensembl gene density, then we profile the time to generate a single
 block bootstrap sample. Finally, we use a toy dataset to visualize
 what a segmented block bootstrap sample looks like with respect to a
 genome segmentation. Future versions of this vignette will demonstrate
-the functions use within an overlap analysis. See also the unsegmented
-block bootstrap vignette in *nullranges*.
+the functions used within an overlap analysis. See also the unsegmented
+block bootstrap vignette in *nullranges*, if it is not desired to
+bootstrap with respect to a genome segmentation.
+
+A finally consideration is whether the blocks should scale
+proportionally to the segment state length (e.g. should segmentation
+states that make up less of the genome have smaller blocks, and
+vice-versa). This option is controlled by `proportionLength` and
+visualized at the end of this vignette.
 
 # Segmentation by gene density
 
@@ -52,14 +66,16 @@ filt <- AnnotationFilterList(GeneIdFilter("ENSG", "startsWith"))
 g <- genes(edb, filter = filt)
 ```
 
-Some processing to align these features with our excluded regions and our
-features of interest (DHS, defined below).
+We perform some processing to align these features with our excluded
+regions and our features of interest (DNase hypersensitive sites, or
+DHS, defined below).
 
 ```{r}
 library(GenomeInfoDb)
 g <- keepStandardChromosomes(g, pruning.mode = "coarse")
 seqlevels(g, pruning.mode="coarse") <- setdiff(seqlevels(g), "MT")
-# seqlevelsStyle(g) <- "UCSC" # host issues with NCBI
+# normally we would assign a new style, but for recent host issues
+## seqlevelsStyle(g) <- "UCSC" 
 seqlevels(g) <- paste0("chr", seqlevels(g))
 genome(g) <- "hg38"
 g <- sortSeqlevels(g)
@@ -69,9 +85,10 @@ table(seqnames(g))
 
 ## Import excluded region
 
-Here we import excluded regions (as created by Kundaje et al). 
+We next import excluded regions (as created by
+\citet{encode_exclude}). 
 
-TODO: here instead use Mikhail's *excluderanges* package, once it is available.
+<!-- instead use Mikhail's *excluderanges*, once it is available -->
 
 ```{r}
 library(nullrangesData)
@@ -81,12 +98,13 @@ table(seqnames(exclude))
 
 ## CBS segmentation
 
-We load *nullranges* and *plyranges* packages:
+We load the *nullranges* and *plyranges* packages, and *patchwork* in
+order to produce grids of plots.
 
 ```{r}
 library(nullranges)
-library(patchwork)
 suppressPackageStartupMessages(library(plyranges))
+library(patchwork)
 ```
 
 We subset the excluded ranges to those which are 500 bp or larger. The
@@ -94,7 +112,7 @@ motivation for this step is to avoid segmenting the genome into many
 small pieces due to an abundance of short excluded regions. Note that
 we re-save the excluded ranges to `exclude`.
 
-We use a CBS segmentation as implemented in *DNAcopy* (cite).
+We use a CBS segmentation as implemented in *DNAcopy* \citep{dnacopy}.
 
 ```{r seg-cbs}
 set.seed(5)
@@ -124,12 +142,16 @@ plotSegment(seg, exclude, type="ranges", region=region)
 
 ## Alternatively: HMM segmentation
 
-Here we use an alternative segmentation implemented in *RcppHMM* (cite).
+Here we use an alternative segmentation implemented in the *RcppHMM*
+CRAN package, using the `initGHMM`, `learnEM`, and `viterbi`
+functions. 
 
 ```{r seg-hmm}
 seg_hmm <- segmentDensity(g, n = 3, L_s = L_s,
                           exclude = exclude, type = "hmm")
-plots <- lapply(c("ranges","barplot","boxplot"), function(t) plotSegment(seg_hmm, exclude, type = t))
+plots <- lapply(c("ranges","barplot","boxplot"), function(t) {
+  plotSegment(seg_hmm, exclude, type = t)
+})
 plots[[1]]
 plots[[2]] + plots[[3]]
 ```
@@ -142,11 +164,13 @@ Here, we use a set of DNase hypersensitivity sites (DHS) from the
 ENCODE project in A549 cell line. Here, for speed, we load an existing
 data object which has been processed with the following steps:
 
-* Download DNase hypersensitivity peaks in A549 from *AnnotationHub* 
-* Subset to standard chromosomes and remove mitochondria (more work
-needed to handle these cases internally).
+* Download DNase hypersensitive peaks in A549 from *AnnotationHub* 
+* Subset to standard chromosomes and remove mitochondrial DNA
 * Use a chain file from UCSC to lift ranges from hg19 to hg38
 * Sort the DHS features to be bootstrapped
+
+These steps are included in *nullrangesData* in the
+`scripts/DHSA549Hg38.R` script.
 
 ```{r}
 data("DHSA549Hg38")
@@ -158,18 +182,18 @@ to the peaks. We are currently interested in profiling the speed of
 this operation (future vignette iterations will also demonstrate its
 use in a workflow).
 
-Testing the segmented block bootstrap:
+We prepare the objects below, note that we must add seqlengths for
+block bootstrapping, as we need to create tiles along the genome. 
 
 ```{r}
 blockLength <- 5e5
-# TODO 'x' has no seqlengths
 x <- DHSA549Hg38
 seqlengths(x) <- seqlengths(seg)
 ```
 
 Here, we test the speed of the various options for bootstrapping. Note
 that we use the `exclude` object from the previous step, which does
-not contain small ranges. If you wanted to also avoid generation of
+not contain small ranges. If one wanted to also avoid generation of
 bootstrapped features that overlap small excluded ranges, then omit
 this filtering step (use the original, complete `exclude` feature
 set).
@@ -187,6 +211,11 @@ microbenchmark(
 
 Below we present a toy example for visualizing the segmented block
 bootstrap, visualized with *plotgardener*.
+
+Define a helper function for plotting *GRanges* using
+*plotgardener*. A key aspect here is that we color the original and
+bootstrapped ranges by the genomic state (the state of the
+segmentation that the original ranges fall in).
 
 ```{r}
 suppressPackageStartupMessages(library(plotgardener))
@@ -215,6 +244,8 @@ plotGRanges <- function(gr) {
 }
 ```
 
+Create a genome segmentation:
+
 ```{r}
 library(GenomicRanges)
 seq_nms <- rep(c("chr1","chr2"), c(4,3))
@@ -228,9 +259,13 @@ seg <- GRanges(
 )
 ```
 
+We can visualize with our helper function:
+
 ```{r toysegments}
 plotGRanges(seg)
 ```
+
+Now create small ranges distributed uniformly across the toy genome:
 
 ```{r toyranges}
 set.seed(1)
@@ -254,6 +289,9 @@ plotGRanges(gr)
 
 ## Not scaling blocks to segmentation length
 
+We can visualize block bootstrapped ranges when the blocks do not
+scale to segment state length:
+
 ```{r toy-no-prop}
 set.seed(1)
 gr_prime <- bootRanges(gr, seg, blockLength = 25, R = 1, 
@@ -262,6 +300,8 @@ plotGRanges(gr_prime)
 ```
 
 ## Scaling blocks to segmentation length
+
+Again, this time the blocks scale to the segment state length:
 
 ```{r toy-prop}
 set.seed(1)
