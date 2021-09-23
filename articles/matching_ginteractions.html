@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.25</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.26</span>
       </span>
     </div>
 
@@ -100,7 +100,7 @@
       <h1 data-toc-skip>Case study II: CTCF orientation</h1>
                         <h4 class="author">Eric S. Davis</h4>
             
-            <h4 class="date">09/21/2021</h4>
+            <h4 class="date">09/23/2021</h4>
       
       
       <div class="hidden name"><code>matching_ginteractions.Rmd</code></div>
@@ -114,7 +114,7 @@
 <h2 class="hasAnchor">
 <a href="#background" class="anchor"></a>Background</h2>
 <p>In 2014, in situ Hi-C was used to probe the spatial organization of the human genome and identify 3D structures - such as chromatin loops - characterized by high contact frequency. Chromatin loops can be formed by loop-extrusion, where the ring-like cohesin complex extrudes chromatin until stopped by a bound CTCF transcription factor. Therefore, most validated loops are bound at both ends by a CTCF motif. The convergence rule purports that the vast majority (&gt;90%) of CTCF-bound loops occur in a convergent orientation, where the asymetric CTCF motifs at each anchor face one another. This is a highly significant finding since we would only expect to find convergently-oriented CTCF motifs 25% of the time by chance.</p>
-<p>Here, we generate a set of null-hypothesis ranges to more rigorously test the convergence rule. We will use <code>hg19_10kb_ctcfBoundBinPairs</code> data from the <code>nullrangesData</code> package which contains features from the GM12878 cell line aligned to hg19. <code>hg19_10kb_ctcfBoundBinPairs</code> is a <code>GInteractions</code> object with all interactions between ctcf-bound 10Kb bins within 1Mb annotated with the following features:</p>
+<p>Here, we generate a set of null-hypothesis ranges to more rigorously test the convergence rule. We will use <code>hg19_10kb_ctcfBoundBinPairs</code> data from the <code>nullrangesOldData</code> package which contains features from the GM12878 cell line aligned to hg19. <code>hg19_10kb_ctcfBoundBinPairs</code> is a <code>GInteractions</code> object with all interactions between ctcf-bound 10Kb bins within 1Mb annotated with the following features:</p>
 <ul>
 <li>The total CTCF signal in each bin.</li>
 <li>The number of CTCF sites in each bin.</li>
@@ -131,7 +131,7 @@
 </h2>
 <p>Before we generate our null ranges, let’s take a look at our example dataset:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">nullrangesData</span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">nullrangesOldData</span><span class="op">)</span>
 
 <span class="co">## Load example data</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"hg19_10kb_ctcfBoundBinPairs"</span><span class="op">)</span>
@@ -332,8 +332,8 @@
 ## 
 ## other attached packages:
 ##  [1] patchwork_1.1.1             plyranges_1.12.1           
-##  [3] nullrangesData_0.0.5        ggplot2_3.3.5              
-##  [5] plotgardener_0.99.11        nullranges_0.0.25          
+##  [3] nullrangesOldData_0.0.5     ggplot2_3.3.5              
+##  [5] plotgardener_0.99.11        nullranges_0.0.26          
 ##  [7] InteractionSet_1.20.0       SummarizedExperiment_1.22.0
 ##  [9] Biobase_2.52.0              MatrixGenerics_1.4.3       
 ## [11] matrixStats_0.61.0          GenomicRanges_1.44.0       
@@ -362,7 +362,7 @@
 ## [55] Rcpp_1.0.7               munsell_0.5.0            fansi_0.5.0             
 ## [58] lifecycle_1.0.0          stringi_1.7.4            yaml_2.2.1              
 ## [61] MASS_7.3-54              zlibbioc_1.38.0          plyr_1.8.6              
-## [64] crayon_1.4.1             lattice_0.20-44          Biostrings_2.60.2       
+## [64] crayon_1.4.1             lattice_0.20-45          Biostrings_2.60.2       
 ## [67] hms_1.1.0                knitr_1.34               pillar_1.6.2            
 ## [70] rjson_0.2.20             strawr_0.0.9             XML_3.99-0.8            
 ## [73] glue_1.4.2               evaluate_0.14            data.table_1.14.0       

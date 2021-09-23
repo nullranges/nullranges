@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.25</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.26</span>
       </span>
     </div>
 
@@ -100,7 +100,7 @@
       <h1 data-toc-skip>Un-segmented block bootstrap</h1>
                         <h4 class="author">Michael Love</h4>
             
-            <h4 class="date">09/21/2021</h4>
+            <h4 class="date">09/23/2021</h4>
       
       
       <div class="hidden name"><code>unseg_boot_ranges.Rmd</code></div>
@@ -113,9 +113,9 @@
 <div id="timing-on-dhs-peaks" class="section level1">
 <h1 class="hasAnchor">
 <a href="#timing-on-dhs-peaks" class="anchor"></a>Timing on DHS peaks</h1>
-<p>First we use the DNase hypersensitivity peaks in A549 downloaded from <em>AnnotationHub</em>, and pre-processed as described in the <em>nullrangesData</em> package.</p>
+<p>First we use the DNase hypersensitivity peaks in A549 downloaded from <em>AnnotationHub</em>, and pre-processed as described in the <em>nullrangesOldData</em> package.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">nullrangesData</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">nullrangesOldData</span><span class="op">)</span></code></pre></div>
 <pre><code>## Loading required package: GenomicRanges</code></pre>
 <pre><code>## Loading required package: stats4</code></pre>
 <pre><code>## Loading required package: BiocGenerics</code></pre>
@@ -218,10 +218,10 @@
   <span class="op">)</span>, times<span class="op">=</span><span class="fl">10</span><span class="op">)</span></code></pre></div>
 <pre><code>## Unit: milliseconds
 ##      expr       min        lq      mean    median        uq      max neval
-##  p_within 1209.6008 1229.0914 1378.9512 1239.1417 1250.2621 1979.502    10
-##  b_within 1115.4882 1127.7896 1256.0063 1163.0892 1205.1233 1940.681    10
-##  p_across  241.3039  258.2686  344.2884  266.6117  279.3922 1011.924    10
-##  b_across  258.1684  278.0318  364.1187  288.6717  297.1426 1033.054    10</code></pre>
+##  p_within 1176.1018 1183.8521 1339.3504 1192.9790 1200.8484 1950.188    10
+##  b_within 1074.5968 1088.8559 1213.6498 1117.8110 1152.1536 1915.634    10
+##  p_across  237.1077  247.6306  334.3931  249.6896  262.6628 1031.738    10
+##  b_across  249.7800  262.0837  352.7375  271.2413  284.3951 1045.507    10</code></pre>
 </div>
 <div id="visualize-on-synthetic-data" class="section level1">
 <h1 class="hasAnchor">
@@ -327,10 +327,10 @@
 ## 
 ## other attached packages:
 ##  [1] plotgardener_0.99.11        microbenchmark_1.4-7       
-##  [3] nullranges_0.0.25           EnsDb.Hsapiens.v86_2.99.0  
+##  [3] nullranges_0.0.26           EnsDb.Hsapiens.v86_2.99.0  
 ##  [5] ensembldb_2.16.4            AnnotationFilter_1.16.0    
 ##  [7] GenomicFeatures_1.44.2      AnnotationDbi_1.54.1       
-##  [9] nullrangesData_0.0.5        InteractionSet_1.20.0      
+##  [9] nullrangesOldData_0.0.5     InteractionSet_1.20.0      
 ## [11] SummarizedExperiment_1.22.0 Biobase_2.52.0             
 ## [13] MatrixGenerics_1.4.3        matrixStats_0.61.0         
 ## [15] GenomicRanges_1.44.0        GenomeInfoDb_1.28.4        
@@ -362,7 +362,7 @@
 ##  [64] BiocIO_1.2.0             desc_1.3.0               filelock_1.0.2          
 ##  [67] BiocParallel_1.26.2      rlang_0.4.11             pkgconfig_2.0.3         
 ##  [70] systemfonts_1.0.2        bitops_1.0-7             pracma_2.3.3            
-##  [73] evaluate_0.14            lattice_0.20-44          purrr_0.3.4             
+##  [73] evaluate_0.14            lattice_0.20-45          purrr_0.3.4             
 ##  [76] GenomicAlignments_1.28.0 ks_1.13.2                bit_4.0.4               
 ##  [79] tidyselect_1.1.1         plyr_1.8.6               magrittr_2.0.1          
 ##  [82] R6_2.5.1                 generics_0.1.0           DelayedArray_0.18.0     

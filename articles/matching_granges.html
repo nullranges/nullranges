@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.25</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.26</span>
       </span>
     </div>
 
@@ -100,7 +100,7 @@
       <h1 data-toc-skip>Case study I: CTCF occupancy</h1>
                         <h4 class="author">Eric S. Davis</h4>
             
-            <h4 class="date">09/21/2021</h4>
+            <h4 class="date">09/23/2021</h4>
       
       
       <div class="hidden name"><code>matching_granges.Rmd</code></div>
@@ -115,7 +115,7 @@
 <a href="#background" class="anchor"></a>Background</h2>
 <p>One of the fundamental principles of chromatin-looping suggests that most loops are bound at both ends by the CTCF transcription factor (TF). CTCF-bound loops can be formed by loop-extrusion, where the ring-like cohesin complex extrudes chromatin until stopped by bound CTCF. By this mechanism, we expect most loop anchors will be bound by CTCF.</p>
 <p>While we could test this hypothesis by simple overlap or permutation testing, these approaches fail to account for non-randomly distributed covariate genomic features. For example, loop anchors are commonly bound by CTCF and located in open chromatin regions. We can use <code><a href="../reference/matchRanges.html">matchRanges()</a></code> to test for CTCF occupancy at loop anchors independently from open chromatin regions.</p>
-<p>Here, we generate a set of null-hypothesis GRanges to more rigorously test CTCF occupancy at loop anchors independently from open chromatin regions. We use the <code>hg19_10kb_bins</code> dataset from the <code>nullrangesData</code> package, which contains ranges for every 10Kb bin along the genome with CTCF, DNase, and loop feature annotations from GM12878 (see <code><a href="https://rdrr.io/pkg/nullrangesData/man/hg19_10kb_bins.html">?nullrangesData::hg19_10kb_bins</a></code>).</p>
+<p>Here, we generate a set of null-hypothesis GRanges to more rigorously test CTCF occupancy at loop anchors independently from open chromatin regions. We use the <code>hg19_10kb_bins</code> dataset from the <code>nullrangesOldData</code> package, which contains ranges for every 10Kb bin along the genome with CTCF, DNase, and loop feature annotations from GM12878 (see <code><a href="https://rdrr.io/pkg/nullrangesOldData/man/hg19_10kb_bins.html">?nullrangesOldData::hg19_10kb_bins</a></code>).</p>
 <p><img src="matching_granges_files/figure-html/unnamed-chunk-1-1.png"><!-- --></p>
 </div>
 <div id="matching-with-matchranges" class="section level2">
@@ -124,7 +124,7 @@
 </h2>
 <p>Before we generate our null ranges, let’s take a look at our example dataset:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">nullrangesData</span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">nullrangesOldData</span><span class="op">)</span>
 
 <span class="co">## Load example data</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"hg19_10kb_bins"</span><span class="op">)</span>
@@ -305,11 +305,11 @@
 ## 
 ## other attached packages:
 ##  [1] patchwork_1.1.1             plyranges_1.12.1           
-##  [3] nullrangesData_0.0.5        InteractionSet_1.20.0      
+##  [3] nullrangesOldData_0.0.5     InteractionSet_1.20.0      
 ##  [5] SummarizedExperiment_1.22.0 Biobase_2.52.0             
 ##  [7] MatrixGenerics_1.4.3        matrixStats_0.61.0         
 ##  [9] ggplot2_3.3.5               plotgardener_0.99.11       
-## [11] nullranges_0.0.25           GenomicRanges_1.44.0       
+## [11] nullranges_0.0.26           GenomicRanges_1.44.0       
 ## [13] GenomeInfoDb_1.28.4         IRanges_2.26.0             
 ## [15] S4Vectors_0.30.0            BiocGenerics_0.38.0        
 ## 
@@ -334,7 +334,7 @@
 ## [52] Matrix_1.3-4             Rcpp_1.0.7               munsell_0.5.0           
 ## [55] fansi_0.5.0              lifecycle_1.0.0          stringi_1.7.4           
 ## [58] yaml_2.2.1               MASS_7.3-54              zlibbioc_1.38.0         
-## [61] plyr_1.8.6               crayon_1.4.1             lattice_0.20-44         
+## [61] plyr_1.8.6               crayon_1.4.1             lattice_0.20-45         
 ## [64] Biostrings_2.60.2        knitr_1.34               pillar_1.6.2            
 ## [67] rjson_0.2.20             strawr_0.0.9             XML_3.99-0.8            
 ## [70] glue_1.4.2               evaluate_0.14            data.table_1.14.0       

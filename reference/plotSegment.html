@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.25</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.26</span>
       </span>
     </div>
 
@@ -204,11 +204,10 @@ The y axis <code>"density"</code> represent square root of overlap counts within
 #&gt; sgmntD&gt; exclude &lt;- GRanges("chr1", IRanges(5001,6000), seqlengths=c(chr1=10000))
 #&gt; 
 #&gt; sgmntD&gt; seg &lt;- segmentDensity(gr, n=3, L_s=100, exclude=exclude, type="cbs")
-#&gt; Analyzing: Sample.1 </div><div class='input'><span class='fu'>plotSegment</span><span class='op'>(</span><span class='va'>seg</span>, <span class='va'>exclude</span>, type<span class='op'>=</span><span class='st'>"ranges"</span><span class='op'>)</span>
-</div><div class='img'><img src='plotSegment-1.png' alt='' width='528' height='326' /></div><div class='input'><span class='fu'>plotSegment</span><span class='op'>(</span><span class='va'>seg</span>, <span class='va'>exclude</span>, type<span class='op'>=</span><span class='st'>"barplot"</span><span class='op'>)</span>
-</div><div class='img'><img src='plotSegment-2.png' alt='' width='528' height='326' /></div><div class='input'><span class='fu'>plotSegment</span><span class='op'>(</span><span class='va'>seg</span>, <span class='va'>exclude</span>, type<span class='op'>=</span><span class='st'>"boxplot"</span><span class='op'>)</span>
-</div><div class='img'><img src='plotSegment-3.png' alt='' width='528' height='326' /></div><div class='input'>
-</div></pre>
+#&gt; Analyzing: Sample.1 </div><div class='input'><span class='fu'>plotSegment</span><span class='op'>(</span><span class='va'>seg</span>, <span class='va'>exclude</span>, type <span class='op'>=</span> <span class='st'>"ranges"</span><span class='op'>)</span>
+</div><div class='img'><img src='plotSegment-1.png' alt='' width='528' height='326' /></div><div class='input'><span class='fu'>plotSegment</span><span class='op'>(</span><span class='va'>seg</span>, <span class='va'>exclude</span>, type <span class='op'>=</span> <span class='st'>"barplot"</span><span class='op'>)</span>
+</div><div class='img'><img src='plotSegment-2.png' alt='' width='528' height='326' /></div><div class='input'><span class='fu'>plotSegment</span><span class='op'>(</span><span class='va'>seg</span>, <span class='va'>exclude</span>, type <span class='op'>=</span> <span class='st'>"boxplot"</span><span class='op'>)</span>
+</div><div class='img'><img src='plotSegment-3.png' alt='' width='528' height='326' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
