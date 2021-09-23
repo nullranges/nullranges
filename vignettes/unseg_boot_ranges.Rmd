@@ -23,10 +23,10 @@ vignette for the alternative implementation.
 
 First we use the DNase hypersensitivity peaks in A549 downloaded from
 *AnnotationHub*, and pre-processed as described in the
-*nullrangesData* package.
+*nullrangesOldData* package.
 
 ```{r}
-library(nullrangesData)
+library(nullrangesOldData)
 data("DHSA549Hg38")
 pks <- DHSA549Hg38
 ```

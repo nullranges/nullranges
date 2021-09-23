@@ -23,7 +23,7 @@ In this vignette, we demonstrate the generation of covariate-matched null ranges
 
 In 2014, in situ Hi-C was used to probe the spatial organization of the human genome and identify 3D structures - such as chromatin loops - characterized by high contact frequency. Chromatin loops can be formed by loop-extrusion, where the ring-like cohesin complex extrudes chromatin until stopped by a bound CTCF transcription factor. Therefore, most validated loops are bound at both ends by a CTCF motif. The convergence rule purports that the vast majority (\>90%) of CTCF-bound loops occur in a convergent orientation, where the asymetric CTCF motifs at each anchor face one another. This is a highly significant finding since we would only expect to find convergently-oriented CTCF motifs 25% of the time by chance.
 
-Here, we generate a set of null-hypothesis ranges to more rigorously test the convergence rule. We will use `hg19_10kb_ctcfBoundBinPairs` data from the `nullrangesData` package which contains features from the GM12878 cell line aligned to hg19. `hg19_10kb_ctcfBoundBinPairs` is a `GInteractions` object with all interactions between ctcf-bound 10Kb bins within 1Mb annotated with the following features:
+Here, we generate a set of null-hypothesis ranges to more rigorously test the convergence rule. We will use `hg19_10kb_ctcfBoundBinPairs` data from the `nullrangesOldData` package which contains features from the GM12878 cell line aligned to hg19. `hg19_10kb_ctcfBoundBinPairs` is a `GInteractions` object with all interactions between ctcf-bound 10Kb bins within 1Mb annotated with the following features:
 
 -   The total CTCF signal in each bin.
 -   The number of CTCF sites in each bin.
@@ -202,7 +202,7 @@ plotGG(plot = plot3,
 Before we generate our null ranges, let's take a look at our example dataset:
 
 ```{r, message=FALSE, warning=FALSE}
-library(nullrangesData)
+library(nullrangesOldData)
 
 ## Load example data
 data("hg19_10kb_ctcfBoundBinPairs")

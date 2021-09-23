@@ -33,8 +33,7 @@ Genomic segmentation based on gene density
 \examples{
 
 example("segmentDensity")
-plotSegment(seg, exclude, type="ranges")
-plotSegment(seg, exclude, type="barplot")
-plotSegment(seg, exclude, type="boxplot")
-
+plotSegment(seg, exclude, type = "ranges")
+plotSegment(seg, exclude, type = "barplot")
+plotSegment(seg, exclude, type = "boxplot")
 }

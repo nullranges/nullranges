@@ -25,7 +25,7 @@ One of the fundamental principles of chromatin-looping suggests that most loops 
 
 While we could test this hypothesis by simple overlap or permutation testing, these approaches fail to account for non-randomly distributed covariate genomic features. For example, loop anchors are commonly bound by CTCF and located in open chromatin regions. We can use `matchRanges()` to test for CTCF occupancy at loop anchors independently from open chromatin regions.
 
-Here, we generate a set of null-hypothesis GRanges to more rigorously test CTCF occupancy at loop anchors independently from open chromatin regions. We use the `hg19_10kb_bins` dataset from the `nullrangesData` package, which contains ranges for every 10Kb bin along the genome with CTCF, DNase, and loop feature annotations from GM12878 (see `?nullrangesData::hg19_10kb_bins`).
+Here, we generate a set of null-hypothesis GRanges to more rigorously test CTCF occupancy at loop anchors independently from open chromatin regions. We use the `hg19_10kb_bins` dataset from the `nullrangesOldData` package, which contains ranges for every 10Kb bin along the genome with CTCF, DNase, and loop feature annotations from GM12878 (see `?nullrangesOldData::hg19_10kb_bins`).
 
 ```{r, message=FALSE, warning=FALSE, echo=FALSE, fig.width=8.5, fig.height=6.5}
 ## Define colors
@@ -181,7 +181,7 @@ plotGG(plot = plot3,
 Before we generate our null ranges, let's take a look at our example dataset:
 
 ```{r, message=FALSE, warning=FALSE}
-library(nullrangesData)
+library(nullrangesOldData)
 
 ## Load example data
 data("hg19_10kb_bins")

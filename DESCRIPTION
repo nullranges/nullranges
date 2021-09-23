@@ -1,6 +1,6 @@
 Package: nullranges
 Title: Generation of null ranges via bootstrapping or covariate matching
-Version: 0.0.25
+Version: 0.0.26
 Authors@R: c(
     person("Michael", "Love", role = c("aut", "cre"),
       email = "michaelisaiahlove@gmail.com",
@@ -32,7 +32,7 @@ Suggests:
     AnnotationHub,
     DNAcopy,
     RcppHMM,
-    nullrangesData,
+    nullrangesOldData,
     EnsDb.Hsapiens.v86,
     microbenchmark,
     patchwork,

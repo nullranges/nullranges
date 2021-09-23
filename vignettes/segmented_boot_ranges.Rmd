@@ -91,7 +91,7 @@ We next import excluded regions (as created by
 <!-- instead use Mikhail's *excluderanges*, once it is available -->
 
 ```{r}
-library(nullrangesData)
+library(nullrangesOldData)
 data("exclude")
 table(seqnames(exclude))
 ```
@@ -169,7 +169,7 @@ data object which has been processed with the following steps:
 * Use a chain file from UCSC to lift ranges from hg19 to hg38
 * Sort the DHS features to be bootstrapped
 
-These steps are included in *nullrangesData* in the
+These steps are included in *nullrangesOldData* in the
 `scripts/DHSA549Hg38.R` script.
 
 ```{r}
