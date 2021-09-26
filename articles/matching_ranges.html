@@ -100,7 +100,7 @@
       <h1 data-toc-skip>Overview of matchRanges</h1>
                         <h4 class="author">Eric S. Davis</h4>
             
-            <h4 class="date">09/23/2021</h4>
+            <h4 class="date">09/26/2021</h4>
       
       
       <div class="hidden name"><code>matching_ranges.Rmd</code></div>
@@ -186,10 +186,11 @@
 ##   -------
 ##   seqinfo: 1 sequence from an unspecified genome; no seqlengths</code></pre>
 <p>We can change the <code>type</code> argument of <code>makeExampleMatchedDataSet</code> to input data.frames, data.tables, DataFrames, GRanges and GInteractions objects - all of which work as inputs for <code>matchRanges</code>. These produce either <code>MatchedDataFrame</code>, <code>MatchedGRanges</code>, or <code>MatchedGInteractions</code> objects. For more information about the <code>Matched</code> class structure and available methods, see the <a href="#class-structure">Class structure</a> section below or the help documentation for each class, <code><a href="../reference/MatchedDataFrame-class.html">?MatchedDataFrame</a></code>, <code><a href="../reference/MatchedGRanges-class.html">?MatchedGRanges</a></code>, or <code><a href="../reference/MatchedGInteractions-class.html">?MatchedGInteractions</a></code>.</p>
+<p><code><a href="../reference/matchRanges.html">matchRanges()</a></code> uses <a href="https://en.wikipedia.org/wiki/Propensity_score_matching">propensity scores</a> to select matches using one of three available matching options: “nearest”, “rejection”, or “stratified” with or without replacement. For more information see the section on [Choosing the method parameter] below.</p>
 <div id="assessing-quality-of-matching" class="section level3">
 <h3 class="hasAnchor">
 <a href="#assessing-quality-of-matching" class="anchor"></a>Assessing quality of matching</h3>
-<p>We can assess the quality of <code>Matched</code> classes with <code><a href="../reference/overview.html">overview()</a></code>, <code><a href="../reference/plotCovariate.html">plotCovariate()</a></code>, and <code><a href="../reference/plotPropensity.html">plotPropensity()</a></code>. <code><a href="../reference/overview.html">overview()</a></code> provides a quick assessment of overall matching quality by reporting the mean and standard deviation for covariates and propensity scores of the focal, pool, matched, and unmatched sets. It also reports the mean difference in focal-matched sets:</p>
+<p>We can assess the quality of <code>Matched</code> classes with <code><a href="../reference/overview.html">overview()</a></code>, <code><a href="../reference/plotCovariate.html">plotCovariate()</a></code>, and <code><a href="../reference/plotPropensity.html">plotPropensity()</a></code>. <code><a href="../reference/overview.html">overview()</a></code> provides a quick assessment of overall matching quality by reporting the mean and standard deviation for covariates and propensity scores of the focal, pool, matched, and unmatched sets. For factor, character, or logical covariates (e.g. categorical covariates) the N per set (frequency) is returned. It also reports the mean difference in focal-matched sets:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/overview.html">overview</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span></code></pre></div>
 <pre><code>## MatchedGRanges object: 
@@ -303,11 +304,13 @@
 ## [1] 51
 ## [1] 8
 ## [1] 0</code></pre>
+<p>Duplicate ranges can be pulled since this method selects the closest matching propensity-score in the focal set to each range in the pool set. It is important to inspect the duplicates when using this method particularly when there are very few well-matching options to select from in your pool set to ensure your matched set has a diverse set of ranges.</p>
+<p>Nearest neighbor matching without replacement is not currently supported due to its computational complexity. However, stratified sampling without replacement is an acceptable alternative.</p>
 </div>
 <div id="rejection-sampling" class="section level3">
 <h3 class="hasAnchor">
 <a href="#rejection-sampling" class="anchor"></a>Rejection sampling</h3>
-<p>Uses a probability-based approach to select options in the <code>pool</code> that distributionally match the <code>focal</code> set based on propensity scores. If <code>method</code> or <code>replace</code> is not supplied, the default values are rejection sampling without replacement.</p>
+<p>Uses a probability-based approach to select options in the <code>pool</code> that distributionally match the <code>focal</code> set based on propensity scores. The rejection sampling method first generates kernal-density estimates for both the focal and pool sets. Then a scale factor is determined by finding the point at which the difference in focal and pool densitites is maximized. This scale factor is then applied such that the pool distribution covers the focal distribution at all points. Random sampling is then conducted, with probability of accepting a pool range into the matched set given by the ratio between the height of the density and the scaled (covering) density. If <code>method</code> or <code>replace</code> is not supplied, the default values are rejection sampling without replacement.</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span>
 <span class="va">mgr</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/matchRanges.html">matchRanges</a></span><span class="op">(</span>focal <span class="op">=</span> <span class="va">x</span><span class="op">[</span><span class="va">x</span><span class="op">$</span><span class="va">feature1</span><span class="op">]</span>,
@@ -318,12 +321,12 @@
 <span class="va">rs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/overview.html">overview</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span>
 <span class="fu"><a href="../reference/plotPropensity.html">plotPropensity</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span></code></pre></div>
 <p><img src="matching_ranges_files/figure-html/unnamed-chunk-15-1.png"><!-- --></p>
-<p>Rejection sampling is typically the fastest available matching method. Therefore, it is ideal to use on large datasets when sampling without replacement is important. However, this method can be unstable, particularly when the pool set is not much larger than the focal set. In those cases, the best method to use is stratified sampling.</p>
+<p>Rejection sampling is the fastest available matching method for sampling without replacement. Therefore, it is ideal to use on large datasets when sampling without replacement is important. However, this method can be unstable, particularly when the pool set is not much larger than the focal set. In those cases, the best method to use is stratified sampling.</p>
 </div>
 <div id="stratified-sampling" class="section level3">
 <h3 class="hasAnchor">
 <a href="#stratified-sampling" class="anchor"></a>Stratified sampling</h3>
-<p>Performs iterative sampling on increasingly large bins of data. <code>focal</code> and <code>pool</code> propensity scores are binned by their value with high granularity, options are randomly selected (with or without replacement) within each bin and subsequently removed from the pool of available options. This procedure is repeated, decreasing the number of bins (and increasing bin size) until the number of selected matches is equal to the focal set.</p>
+<p>Performs iterative sampling on increasingly large bins of data. <code>focal</code> and <code>pool</code> propensity scores are binned by their value with high granularity, options are randomly selected (with or without replacement) within each bin and subsequently removed from the pool of available options. This procedure is repeated, decreasing the number of bins (and increasing bin size) until the number of selected matches is equal to the focal set. While matches are being found in each bin the bins stay small. However, as the number of bins with no matches increases the algorithm expands bin size faster, which maintains matching quality while decreasing run-time.</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span>
 <span class="va">mgr</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/matchRanges.html">matchRanges</a></span><span class="op">(</span>focal <span class="op">=</span> <span class="va">x</span><span class="op">[</span><span class="va">x</span><span class="op">$</span><span class="va">feature1</span><span class="op">]</span>,
@@ -383,7 +386,7 @@
 ## other attached packages:
 ## [1] patchwork_1.1.1      GenomicRanges_1.44.0 GenomeInfoDb_1.28.4 
 ## [4] IRanges_2.26.0       S4Vectors_0.30.0     BiocGenerics_0.38.0 
-## [7] ggplot2_3.3.5        plotgardener_0.99.11 nullranges_0.0.26   
+## [7] ggplot2_3.3.5        plotgardener_0.99.12 nullranges_0.0.26   
 ## 
 ## loaded via a namespace (and not attached):
 ##  [1] bitops_1.0-7                matrixStats_0.61.0         
@@ -403,7 +406,7 @@
 ## [29] ggridges_0.5.3              pkgdown_1.6.1              
 ## [31] speedglm_0.3-3              yulab.utils_0.0.2          
 ## [33] systemfonts_1.0.2           stringr_1.4.0              
-## [35] digest_0.6.27               Rsamtools_2.8.0            
+## [35] digest_0.6.28               Rsamtools_2.8.0            
 ## [37] rmarkdown_2.11              XVector_0.32.0             
 ## [39] pkgconfig_2.0.3             htmltools_0.5.2            
 ## [41] MatrixGenerics_1.4.3        highr_0.9                  
