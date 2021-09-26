@@ -23,7 +23,7 @@ In this vignette we demonstrate generating covariate-matched, null-hypothesis GR
 
 One of the fundamental principles of chromatin-looping suggests that most loops are bound at both ends by the CTCF transcription factor (TF). CTCF-bound loops can be formed by loop-extrusion, where the ring-like cohesin complex extrudes chromatin until stopped by bound CTCF. By this mechanism, we expect most loop anchors will be bound by CTCF.
 
-While we could test this hypothesis by simple overlap or permutation testing, these approaches fail to account for non-randomly distributed covariate genomic features. For example, loop anchors are commonly bound by CTCF and located in open chromatin regions. We can use `matchRanges()` to test for CTCF occupancy at loop anchors independently from open chromatin regions.
+While we could test this hypothesis by simple overlap or permutation testing, these approaches fail to account for non-uniformly distributed covariate genomic features. For example, loop anchors are commonly bound by CTCF and located in open chromatin regions. We can use `matchRanges()` to test for CTCF occupancy at loop anchors controlling for open chromatin regions.
 
 Here, we generate a set of null-hypothesis GRanges to more rigorously test CTCF occupancy at loop anchors independently from open chromatin regions. We use the `hg19_10kb_bins` dataset from the `nullrangesOldData` package, which contains ranges for every 10Kb bin along the genome with CTCF, DNase, and loop feature annotations from GM12878 (see `?nullrangesOldData::hg19_10kb_bins`).
 
@@ -222,6 +222,8 @@ mgr %>%
     theme(panel.border = element_rect(color = 'black',
                                       fill = NA))
 ```
+
+Here, we utilize the [`plyranges` package](https://sa-lee.github.io/plyranges/) which provides a set of "tidy" verbs for manipulating genomic ranges for a seamless and integrated genomic analysis workflow.
 
 ## Assessing quality of matching
 
