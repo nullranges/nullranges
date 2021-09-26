@@ -17,15 +17,33 @@ editor_options:
   chunk_output_type: console
 ---
 
-In this vignette we demonstrate generating covariate-matched, null-hypothesis GRanges using the `matchRanges()` function to test for the occupancy of CCCTC-binding factor (CTCF) at chromatin loop anchors.
+In this vignette we demonstrate generating covariate-matched,
+null-hypothesis GRanges using the `matchRanges()` function to test for
+the occupancy of CCCTC-binding factor (CTCF) at chromatin loop
+anchors. 
 
 ## Background
 
-One of the fundamental principles of chromatin-looping suggests that most loops are bound at both ends by the CTCF transcription factor (TF). CTCF-bound loops can be formed by loop-extrusion, where the ring-like cohesin complex extrudes chromatin until stopped by bound CTCF. By this mechanism, we expect most loop anchors will be bound by CTCF.
+One of the fundamental principles of chromatin-looping suggests that
+most loops are bound at both ends by the CTCF transcription factor
+(TF). CTCF-bound loops can be formed by loop-extrusion, where the
+ring-like cohesin complex extrudes chromatin until stopped by bound
+CTCF. By this mechanism, we expect most loop anchors will be bound by
+CTCF. 
 
-While we could test this hypothesis by simple overlap or permutation testing, these approaches fail to account for non-uniformly distributed covariate genomic features. For example, loop anchors are commonly bound by CTCF and located in open chromatin regions. We can use `matchRanges()` to test for CTCF occupancy at loop anchors controlling for open chromatin regions.
+While we could test this hypothesis by simple overlap or permutation
+testing, these approaches fail to account for non-uniformly
+distributed covariate genomic features. For example, loop anchors are
+commonly bound by CTCF and located in open chromatin regions. We can
+use `matchRanges()` to test for CTCF occupancy at loop anchors
+controlling for open chromatin regions. 
 
-Here, we generate a set of null-hypothesis GRanges to more rigorously test CTCF occupancy at loop anchors independently from open chromatin regions. We use the `hg19_10kb_bins` dataset from the `nullrangesOldData` package, which contains ranges for every 10Kb bin along the genome with CTCF, DNase, and loop feature annotations from GM12878 (see `?nullrangesOldData::hg19_10kb_bins`).
+Here, we generate a set of null-hypothesis GRanges to more rigorously
+test CTCF occupancy at loop anchors independently from open chromatin
+regions. We use the `hg19_10kb_bins` dataset from the
+`nullrangesOldData` package, which contains ranges for every 10Kb bin
+along the genome with CTCF, DNase, and loop feature annotations from
+GM12878 (see `?nullrangesOldData::hg19_10kb_bins`). 
 
 ```{r, message=FALSE, warning=FALSE, echo=FALSE, fig.width=8.5, fig.height=6.5}
 ## Define colors
@@ -190,7 +208,11 @@ bins <- hg19_10kb_bins
 bins
 ```
 
-`matchRanges()` works by selecting a set of covariate-matched controls from a pool of options based on an input focal set of interest. Here, we define `focal` as bins that contain a loop anchor, `pool` as bins that don't contain a loop anchor, and `covar` as DNase signal and number of DNase sites per bin:
+`matchRanges()` works by selecting a set of covariate-matched controls
+from a pool of options based on an input focal set of interest. Here,
+we define `focal` as bins that contain a loop anchor, `pool` as bins
+that don't contain a loop anchor, and `covar` as DNase signal and
+number of DNase sites per bin: 
 
 ```{r}
 library(nullranges)
@@ -203,7 +225,10 @@ mgr <- matchRanges(focal = bins[bins$looped],
 mgr
 ```
 
-When the focal and pool arguments are `GRanges` objects, `matchRanges()` returns a `MatchedGRanges` object. The `MatchedGRanges` class extends `GRanges`, so all of the same operations can be applied:
+When the focal and pool arguments are `GRanges` objects,
+`matchRanges()` returns a `MatchedGRanges` object. The
+`MatchedGRanges` class extends `GRanges`, so all of the same
+operations can be applied: 
 
 ```{r, message=FALSE, warning=FALSE}
 library(GenomicRanges)
@@ -223,7 +248,10 @@ mgr %>%
                                       fill = NA))
 ```
 
-Here, we utilize the [`plyranges` package](https://sa-lee.github.io/plyranges/) which provides a set of "tidy" verbs for manipulating genomic ranges for a seamless and integrated genomic analysis workflow.
+Here, we utilize
+the [`plyranges` package](https://sa-lee.github.io/plyranges/) which
+provides a set of "tidy" verbs for manipulating genomic ranges for a
+seamless and integrated genomic analysis workflow. 
 
 ## Assessing quality of matching
 
@@ -233,13 +261,20 @@ We can get a quick summary of the matching quality with `overview()`:
 overview(mgr)
 ```
 
-For continuous covariates (such as `dnaseSignal`), `overview()` shows the mean and standard deviation between each matched set. For categorical covariates, such as `n_dnase_sites`, `overview()` reports the number of observations per category and matched set. The bottom section shows the mean and s.d (or n, for factors) difference between focal and matched sets.
+For continuous covariates (such as `dnaseSignal`), `overview()` shows
+the mean and standard deviation between each matched set. For
+categorical covariates, such as `n_dnase_sites`, `overview()` reports
+the number of observations per category and matched set. The bottom
+section shows the mean and s.d (or n, for factors) difference between
+focal and matched sets. 
 
-`overview()` also summarizes the propensity scores for each set to give a quick idea of overall matching quality.
+`overview()` also summarizes the propensity scores for each set to
+give a quick idea of overall matching quality. 
 
 ### Visualizing matching results
 
-Let's visualize overall matching quality by plotting propensity scores for the focal, pool, and matched sets:
+Let's visualize overall matching quality by plotting propensity scores
+for the focal, pool, and matched sets: 
 
 ```{r, message=FALSE}
 plotPropensity(mgr, sets = c('f', 'p', 'm'), type = 'ridges')
@@ -247,7 +282,10 @@ plotPropensity(mgr, sets = c('f', 'p', 'm'), type = 'ridges')
 
 From this plot, it is clear that the matched set is much closer to the focal set than the pool set.
 
-We can ensure that covariate distributions have been matched appropriately by using the `covariates()` function to extract matched covariates along with `patchwork` and `plotCovarite` to visualize all distributions:
+We can ensure that covariate distributions have been matched
+appropriately by using the `covariates()` function to extract matched
+covariates along with `patchwork` and `plotCovarite` to visualize all
+distributions: 
 
 ```{r, message=FALSE, warning=FALSE, fig.height=6, fig.width=5}
 library(patchwork)
@@ -257,7 +295,13 @@ Reduce('/', plots)
 
 ## Compare CTCF sites
 
-Using our matched ranges, we can compare CTCF occupancy in bins that 1) contain a loop anchor (i.e. looped), 2) don't contain a loop anchor (i.e. unlooped), or 3) don't contain a loop anchor, but are also matched for the strength and number of DNase sites (i.e. matched). In this case, we calculate CTCF occupancy as the percent of bins that contain CTCF among our 3 sets by using the `focal()` and `pool()` accessor functions:
+Using our matched ranges, we can compare CTCF occupancy in bins that
+1) contain a loop anchor (i.e. looped), 2) don't contain a loop anchor
+(i.e. unlooped), or 3) don't contain a loop anchor, but are also
+matched for the strength and number of DNase sites (i.e. matched). In
+this case, we calculate CTCF occupancy as the percent of bins that
+contain CTCF among our 3 sets by using the `focal()` and `pool()`
+accessor functions: 
 
 ```{r fig.width=4.5, fig.height=5}
 ## Percent of bins with CTCF
