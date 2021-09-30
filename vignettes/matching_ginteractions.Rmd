@@ -38,7 +38,7 @@ convergently-oriented CTCF motifs 25% of the time by chance.
 
 Here, we generate a set of null-hypothesis ranges to more rigorously
 test the convergence rule. We will use `hg19_10kb_ctcfBoundBinPairs`
-data from the `nullrangesOldData` package which contains features from
+data from the `nullrangesData` package which contains features from
 the GM12878 cell line aligned to hg19 as well as CTCF motif data from the
 [CTCF data package](https://bioconductor.org/packages/devel/data/annotation/html/CTCF.html) 
 available on Bioconductor. `hg19_10kb_ctcfBoundBinPairs` is a
@@ -227,11 +227,10 @@ plotGG(plot = plot3,
 Before we generate our null ranges, let's take a look at our example dataset:
 
 ```{r, message=FALSE, warning=FALSE}
-library(nullrangesOldData)
+library(nullrangesData)
 
 ## Load example data
-data("hg19_10kb_ctcfBoundBinPairs")
-binPairs <- hg19_10kb_ctcfBoundBinPairs
+binPairs <- hg19_10kb_ctcfBoundBinPairs()
 
 binPairs
 ```

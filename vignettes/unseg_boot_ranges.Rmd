@@ -26,25 +26,8 @@ First we use the DNase hypersensitivity peaks in A549 downloaded from
 *nullrangesOldData* package.
 
 ```{r}
-library(nullrangesOldData)
-data("DHSA549Hg38")
-pks <- DHSA549Hg38
-```
-
-The following code is used to obtain `seqlengths` for the DHS peaks,
-as these are needed for block bootstrapping.
-
-```{r}
-suppressPackageStartupMessages(library(EnsDb.Hsapiens.v86))
-edb <- EnsDb.Hsapiens.v86
-filt <- AnnotationFilterList(GeneIdFilter("ENSG", "startsWith"))
-g <- genes(edb, filter = filt)
-g <- keepStandardChromosomes(g, pruning.mode = "coarse")
-seqlevels(g, pruning.mode="coarse") <- setdiff(seqlevels(g), "MT")
-seqlevels(g) <- paste0("chr", seqlevels(g))
-genome(g) <- "hg38"
-g <- sortSeqlevels(g)
-seqlengths(pks) <- seqlengths(g)
+library(nullrangesData)
+dhs <- DHSA549Hg38()
 ```
 
 ```{r}
@@ -63,13 +46,13 @@ library(microbenchmark)
 blockLength <- 5e5
 microbenchmark(
   list=alist(
-    p_within=bootRanges(pks, blockLength=blockLength,
+    p_within=bootRanges(dhs, blockLength=blockLength,
                         type="permute", withinChrom=TRUE),
-    b_within=bootRanges(pks, blockLength=blockLength,
+    b_within=bootRanges(dhs, blockLength=blockLength,
                         type="bootstrap", withinChrom=TRUE),
-    p_across=bootRanges(pks, blockLength=blockLength,
+    p_across=bootRanges(dhs, blockLength=blockLength,
                         type="permute", withinChrom=FALSE),
-    b_across=bootRanges(pks, blockLength=blockLength,
+    b_across=bootRanges(dhs, blockLength=blockLength,
                         type="bootstrap", withinChrom=FALSE)
   ), times=10)
 ```

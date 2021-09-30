@@ -41,9 +41,9 @@ controlling for open chromatin regions.
 Here, we generate a set of null-hypothesis GRanges to more rigorously
 test CTCF occupancy at loop anchors independently from open chromatin
 regions. We use the `hg19_10kb_bins` dataset from the
-`nullrangesOldData` package, which contains ranges for every 10Kb bin
+`nullrangesData` package, which contains ranges for every 10Kb bin
 along the genome with CTCF, DNase, and loop feature annotations from
-GM12878 (see `?nullrangesOldData::hg19_10kb_bins`). 
+GM12878 (see `?nullrangesData::hg19_10kb_bins`). 
 
 ```{r, message=FALSE, warning=FALSE, echo=FALSE, fig.width=8.5, fig.height=6.5}
 ## Define colors
@@ -199,11 +199,10 @@ plotGG(plot = plot3,
 Before we generate our null ranges, let's take a look at our example dataset:
 
 ```{r, message=FALSE, warning=FALSE}
-library(nullrangesOldData)
+library(nullrangesData)
 
 ## Load example data
-data("hg19_10kb_bins")
-bins <- hg19_10kb_bins
+bins <- hg19_10kb_bins()
 
 bins
 ```
