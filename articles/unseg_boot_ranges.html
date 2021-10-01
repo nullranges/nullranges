@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.26</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.27</span>
       </span>
     </div>
 
@@ -84,7 +84,14 @@
   <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
-<ul class="nav navbar-nav navbar-right"></ul>
+<ul class="nav navbar-nav navbar-right">
+<li>
+  <a href="https://github.com/nullranges/nullranges/">
+    <span class="fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
 </div>
 <!--/.nav-collapse -->
   </div>
@@ -100,9 +107,9 @@
       <h1 data-toc-skip>Un-segmented block bootstrap</h1>
                         <h4 class="author">Michael Love</h4>
             
-            <h4 class="date">09/26/2021</h4>
+            <h4 class="date">10/01/2021</h4>
       
-      
+      <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/master/vignettes/unseg_boot_ranges.Rmd"><code>vignettes/unseg_boot_ranges.Rmd</code></a></small>
       <div class="hidden name"><code>unseg_boot_ranges.Rmd</code></div>
 
     </div>
@@ -115,8 +122,33 @@
 <a href="#timing-on-dhs-peaks" class="anchor"></a>Timing on DHS peaks</h1>
 <p>First we use the DNase hypersensitivity peaks in A549 downloaded from <em>AnnotationHub</em>, and pre-processed as described in the <em>nullrangesOldData</em> package.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">nullrangesOldData</span><span class="op">)</span></code></pre></div>
-<pre><code>## Loading required package: GenomicRanges</code></pre>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">nullrangesData</span><span class="op">)</span>
+<span class="va">dhs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/nullrangesData/man/DHSA549Hg38.html">DHSA549Hg38</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/nullranges/nullranges">nullranges</a></span><span class="op">)</span></code></pre></div>
+<p>The following chunk of code evaluates various types of bootstrap/permutation schemes, first within chromosome, and then across chromosome (the default). The default <code>type</code> is bootstrap, and the default for <code>withinChrom</code> is <code>FALSE</code> (bootstrapping with blocks moving across chromosomes).</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span> <span class="co"># reproducibility</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/joshuaulrich/microbenchmark/">microbenchmark</a></span><span class="op">)</span>
+<span class="va">blockLength</span> <span class="op">&lt;-</span> <span class="fl">5e5</span>
+<span class="fu"><a href="https://rdrr.io/pkg/microbenchmark/man/microbenchmark.html">microbenchmark</a></span><span class="op">(</span>
+  list<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">alist</a></span><span class="op">(</span>
+    p_within<span class="op">=</span><span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">dhs</span>, blockLength<span class="op">=</span><span class="va">blockLength</span>,
+                        type<span class="op">=</span><span class="st">"permute"</span>, withinChrom<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>,
+    b_within<span class="op">=</span><span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">dhs</span>, blockLength<span class="op">=</span><span class="va">blockLength</span>,
+                        type<span class="op">=</span><span class="st">"bootstrap"</span>, withinChrom<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>,
+    p_across<span class="op">=</span><span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">dhs</span>, blockLength<span class="op">=</span><span class="va">blockLength</span>,
+                        type<span class="op">=</span><span class="st">"permute"</span>, withinChrom<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span>,
+    b_across<span class="op">=</span><span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">dhs</span>, blockLength<span class="op">=</span><span class="va">blockLength</span>,
+                        type<span class="op">=</span><span class="st">"bootstrap"</span>, withinChrom<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span>
+  <span class="op">)</span>, times<span class="op">=</span><span class="fl">10</span><span class="op">)</span></code></pre></div>
+</div>
+<div id="visualize-on-synthetic-data" class="section level1">
+<h1 class="hasAnchor">
+<a href="#visualize-on-synthetic-data" class="anchor"></a>Visualize on synthetic data</h1>
+<p>We create some synthetic ranges in order to visualize the different options of the un-segmented bootstrap implemented in <em>nullranges</em>.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://bioconductor.org/packages/GenomicRanges">GenomicRanges</a></span><span class="op">)</span></code></pre></div>
 <pre><code>## Loading required package: stats4</code></pre>
 <pre><code>## Loading required package: BiocGenerics</code></pre>
 <pre><code>## Loading required package: parallel</code></pre>
@@ -146,90 +178,8 @@
 ##     expand.grid, I, unname</code></pre>
 <pre><code>## Loading required package: IRanges</code></pre>
 <pre><code>## Loading required package: GenomeInfoDb</code></pre>
-<pre><code>## Loading required package: InteractionSet</code></pre>
-<pre><code>## Loading required package: SummarizedExperiment</code></pre>
-<pre><code>## Loading required package: MatrixGenerics</code></pre>
-<pre><code>## Loading required package: matrixStats</code></pre>
-<pre><code>## 
-## Attaching package: 'MatrixGenerics'</code></pre>
-<pre><code>## The following objects are masked from 'package:matrixStats':
-## 
-##     colAlls, colAnyNAs, colAnys, colAvgsPerRowSet, colCollapse,
-##     colCounts, colCummaxs, colCummins, colCumprods, colCumsums,
-##     colDiffs, colIQRDiffs, colIQRs, colLogSumExps, colMadDiffs,
-##     colMads, colMaxs, colMeans2, colMedians, colMins, colOrderStats,
-##     colProds, colQuantiles, colRanges, colRanks, colSdDiffs, colSds,
-##     colSums2, colTabulates, colVarDiffs, colVars, colWeightedMads,
-##     colWeightedMeans, colWeightedMedians, colWeightedSds,
-##     colWeightedVars, rowAlls, rowAnyNAs, rowAnys, rowAvgsPerColSet,
-##     rowCollapse, rowCounts, rowCummaxs, rowCummins, rowCumprods,
-##     rowCumsums, rowDiffs, rowIQRDiffs, rowIQRs, rowLogSumExps,
-##     rowMadDiffs, rowMads, rowMaxs, rowMeans2, rowMedians, rowMins,
-##     rowOrderStats, rowProds, rowQuantiles, rowRanges, rowRanks,
-##     rowSdDiffs, rowSds, rowSums2, rowTabulates, rowVarDiffs, rowVars,
-##     rowWeightedMads, rowWeightedMeans, rowWeightedMedians,
-##     rowWeightedSds, rowWeightedVars</code></pre>
-<pre><code>## Loading required package: Biobase</code></pre>
-<pre><code>## Welcome to Bioconductor
-## 
-##     Vignettes contain introductory material; view with
-##     'browseVignettes()'. To cite Bioconductor, see
-##     'citation("Biobase")', and for packages 'citation("pkgname")'.</code></pre>
-<pre><code>## 
-## Attaching package: 'Biobase'</code></pre>
-<pre><code>## The following object is masked from 'package:MatrixGenerics':
-## 
-##     rowMedians</code></pre>
-<pre><code>## The following objects are masked from 'package:matrixStats':
-## 
-##     anyMissing, rowMedians</code></pre>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"DHSA549Hg38"</span><span class="op">)</span>
-<span class="va">pks</span> <span class="op">&lt;-</span> <span class="va">DHSA549Hg38</span></code></pre></div>
-<p>The following code is used to obtain <code>seqlengths</code> for the DHS peaks, as these are needed for block bootstrapping.</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">EnsDb.Hsapiens.v86</span><span class="op">)</span><span class="op">)</span>
-<span class="va">edb</span> <span class="op">&lt;-</span> <span class="va">EnsDb.Hsapiens.v86</span>
-<span class="va">filt</span> <span class="op">&lt;-</span> <span class="fu">AnnotationFilterList</span><span class="op">(</span><span class="fu">GeneIdFilter</span><span class="op">(</span><span class="st">"ENSG"</span>, <span class="st">"startsWith"</span><span class="op">)</span><span class="op">)</span>
-<span class="va">g</span> <span class="op">&lt;-</span> <span class="fu">genes</span><span class="op">(</span><span class="va">edb</span>, filter <span class="op">=</span> <span class="va">filt</span><span class="op">)</span>
-<span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqlevels-wrappers.html">keepStandardChromosomes</a></span><span class="op">(</span><span class="va">g</span>, pruning.mode <span class="op">=</span> <span class="st">"coarse"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqinfo.html">seqlevels</a></span><span class="op">(</span><span class="va">g</span>, pruning.mode<span class="op">=</span><span class="st">"coarse"</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/setops-methods.html">setdiff</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqinfo.html">seqlevels</a></span><span class="op">(</span><span class="va">g</span><span class="op">)</span>, <span class="st">"MT"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqinfo.html">seqlevels</a></span><span class="op">(</span><span class="va">g</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"chr"</span>, <span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqinfo.html">seqlevels</a></span><span class="op">(</span><span class="va">g</span><span class="op">)</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqinfo.html">genome</a></span><span class="op">(</span><span class="va">g</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"hg38"</span>
-<span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqinfo.html">sortSeqlevels</a></span><span class="op">(</span><span class="va">g</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqinfo.html">seqlengths</a></span><span class="op">(</span><span class="va">pks</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqinfo.html">seqlengths</a></span><span class="op">(</span><span class="va">g</span><span class="op">)</span></code></pre></div>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://nullranges/github.com/nullranges">nullranges</a></span><span class="op">)</span></code></pre></div>
-<p>The following chunk of code evaluates various types of bootstrap/permutation schemes, first within chromosome, and then across chromosome (the default). The default <code>type</code> is bootstrap, and the default for <code>withinChrom</code> is <code>FALSE</code> (bootstrapping with blocks moving across chromosomes).</p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span> <span class="co"># reproducibility</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/joshuaulrich/microbenchmark/">microbenchmark</a></span><span class="op">)</span>
-<span class="va">blockLength</span> <span class="op">&lt;-</span> <span class="fl">5e5</span>
-<span class="fu"><a href="https://rdrr.io/pkg/microbenchmark/man/microbenchmark.html">microbenchmark</a></span><span class="op">(</span>
-  list<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">alist</a></span><span class="op">(</span>
-    p_within<span class="op">=</span><span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">pks</span>, blockLength<span class="op">=</span><span class="va">blockLength</span>,
-                        type<span class="op">=</span><span class="st">"permute"</span>, withinChrom<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>,
-    b_within<span class="op">=</span><span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">pks</span>, blockLength<span class="op">=</span><span class="va">blockLength</span>,
-                        type<span class="op">=</span><span class="st">"bootstrap"</span>, withinChrom<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>,
-    p_across<span class="op">=</span><span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">pks</span>, blockLength<span class="op">=</span><span class="va">blockLength</span>,
-                        type<span class="op">=</span><span class="st">"permute"</span>, withinChrom<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span>,
-    b_across<span class="op">=</span><span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">pks</span>, blockLength<span class="op">=</span><span class="va">blockLength</span>,
-                        type<span class="op">=</span><span class="st">"bootstrap"</span>, withinChrom<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span>
-  <span class="op">)</span>, times<span class="op">=</span><span class="fl">10</span><span class="op">)</span></code></pre></div>
-<pre><code>## Unit: milliseconds
-##      expr       min        lq      mean    median        uq       max neval
-##  p_within 1195.8048 1229.9829 1403.4117 1288.3916 1296.2060 1989.8085    10
-##  b_within 1116.9323 1136.3927 1280.5447 1188.0724 1228.6604 1947.4850    10
-##  p_across  228.3794  265.0138  340.9447  267.6917  279.2499  953.4606    10
-##  b_across  252.8105  266.5844  351.8236  283.9201  288.2206  964.5827    10</code></pre>
-</div>
-<div id="visualize-on-synthetic-data" class="section level1">
-<h1 class="hasAnchor">
-<a href="#visualize-on-synthetic-data" class="anchor"></a>Visualize on synthetic data</h1>
-<p>We create some synthetic ranges in order to visualize the different options of the un-segmented bootstrap implemented in <em>nullranges</em>.</p>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://bioconductor.org/packages/GenomicRanges">GenomicRanges</a></span><span class="op">)</span>
-<span class="va">seq_nms</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/c.html">c</a></span><span class="op">(</span><span class="st">"chr1"</span>,<span class="st">"chr2"</span>,<span class="st">"chr3"</span><span class="op">)</span>,<span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/c.html">c</a></span><span class="op">(</span><span class="fl">4</span>,<span class="fl">5</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">seq_nms</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/c.html">c</a></span><span class="op">(</span><span class="st">"chr1"</span>,<span class="st">"chr2"</span>,<span class="st">"chr3"</span><span class="op">)</span>,<span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/c.html">c</a></span><span class="op">(</span><span class="fl">4</span>,<span class="fl">5</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span>
 <span class="va">gr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html">GRanges</a></span><span class="op">(</span>seqnames<span class="op">=</span><span class="va">seq_nms</span>,
               <span class="fu">IRanges</span><span class="op">(</span>start<span class="op">=</span><span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">101</span>,<span class="fl">121</span>,<span class="fl">201</span>,
                               <span class="fl">101</span>,<span class="fl">201</span>,<span class="fl">216</span>,<span class="fl">231</span>,<span class="fl">401</span>,
@@ -240,7 +190,7 @@
               seqlengths<span class="op">=</span><span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/c.html">c</a></span><span class="op">(</span>chr1<span class="op">=</span><span class="fl">300</span>,chr2<span class="op">=</span><span class="fl">450</span>,chr3<span class="op">=</span><span class="fl">200</span><span class="op">)</span>,
               chr<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span><span class="op">(</span><span class="va">seq_nms</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p>The following function uses functionality from <em>plotgardener</em> to plot the ranges. Note in the plotting helper function that <code>chr</code> will be used to color ranges by chromosome of origin.</p>
-<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://phanstiellab.github.io/plotgardener">plotgardener</a></span><span class="op">)</span><span class="op">)</span>
 <span class="va">plotGRanges</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">gr</span><span class="op">)</span> <span class="op">{</span>
   <span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/pageCreate.html">pageCreate</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fl">5</span>, height <span class="op">=</span> <span class="fl">2</span>, xgrid <span class="op">=</span> <span class="fl">0</span>,
@@ -261,21 +211,21 @@
     <span class="op">}</span><span class="op">)</span>
   <span class="op">}</span>
 <span class="op">}</span></code></pre></div>
-<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu">plotGRanges</span><span class="op">(</span><span class="va">gr</span><span class="op">)</span></code></pre></div>
 <p><img src="unseg_boot_ranges_files/figure-html/toyranges-1.png"><!-- --></p>
 <div id="within-chromosome" class="section level2">
 <h2 class="hasAnchor">
 <a href="#within-chromosome" class="anchor"></a>Within chromosome</h2>
 <p>Visualizing two permutations of blocks within chromosome:</p>
-<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span> <span class="op">{</span>
   <span class="va">gr_prime</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">gr</span>, blockLength<span class="op">=</span><span class="fl">100</span>, type<span class="op">=</span><span class="st">"permute"</span>, withinChrom<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>
   <span class="fu">plotGRanges</span><span class="op">(</span><span class="va">gr_prime</span><span class="op">)</span>
 <span class="op">}</span></code></pre></div>
 <p><img src="unseg_boot_ranges_files/figure-html/perm-within-1.png"><!-- --><img src="unseg_boot_ranges_files/figure-html/perm-within-2.png"><!-- --></p>
 <p>Visualizing two bootstraps within chromosome:</p>
-<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span> <span class="op">{</span>
   <span class="va">gr_prime</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">gr</span>, blockLength<span class="op">=</span><span class="fl">100</span>, withinChrom<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>
   <span class="fu">plotGRanges</span><span class="op">(</span><span class="va">gr_prime</span><span class="op">)</span>
@@ -286,14 +236,14 @@
 <h2 class="hasAnchor">
 <a href="#across-chromosome" class="anchor"></a>Across chromosome</h2>
 <p>Visualizing two permutations of blocks across chromosome. Here we use larger blocks than previously.</p>
-<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span> <span class="op">{</span>
   <span class="va">gr_prime</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">gr</span>, blockLength<span class="op">=</span><span class="fl">200</span>, type<span class="op">=</span><span class="st">"permute"</span>, withinChrom<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>
   <span class="fu">plotGRanges</span><span class="op">(</span><span class="va">gr_prime</span><span class="op">)</span>
 <span class="op">}</span></code></pre></div>
 <p><img src="unseg_boot_ranges_files/figure-html/perm-across-1.png"><!-- --><img src="unseg_boot_ranges_files/figure-html/perm-across-2.png"><!-- --></p>
 <p>Visualizing two bootstraps across chromosome:</p>
-<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span> <span class="op">{</span>
   <span class="va">gr_prime</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">gr</span>, blockLength<span class="op">=</span><span class="fl">200</span>, withinChrom<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>
   <span class="fu">plotGRanges</span><span class="op">(</span><span class="va">gr_prime</span><span class="op">)</span>
@@ -304,11 +254,11 @@
 <div id="session-information" class="section level1">
 <h1 class="hasAnchor">
 <a href="#session-information" class="anchor"></a>Session information</h1>
-<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
-<pre><code>## R version 4.1.0 (2021-05-18)
+<pre><code>## R version 4.1.1 (2021-08-10)
 ## Platform: x86_64-pc-linux-gnu (64-bit)
-## Running under: Ubuntu 20.04.2 LTS
+## Running under: Ubuntu 20.04.3 LTS
 ## 
 ## Matrix products: default
 ## BLAS/LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.8.so
@@ -326,53 +276,57 @@
 ## [8] methods   base     
 ## 
 ## other attached packages:
-##  [1] plotgardener_0.99.12        microbenchmark_1.4-7       
-##  [3] nullranges_0.0.26           EnsDb.Hsapiens.v86_2.99.0  
-##  [5] ensembldb_2.16.4            AnnotationFilter_1.16.0    
-##  [7] GenomicFeatures_1.44.2      AnnotationDbi_1.54.1       
-##  [9] nullrangesOldData_0.0.5     InteractionSet_1.20.0      
-## [11] SummarizedExperiment_1.22.0 Biobase_2.52.0             
-## [13] MatrixGenerics_1.4.3        matrixStats_0.61.0         
-## [15] GenomicRanges_1.44.0        GenomeInfoDb_1.28.4        
-## [17] IRanges_2.26.0              S4Vectors_0.30.0           
-## [19] BiocGenerics_0.38.0        
+## [1] plotgardener_0.99.13 GenomicRanges_1.44.0 GenomeInfoDb_1.28.4 
+## [4] IRanges_2.26.0       S4Vectors_0.30.1     BiocGenerics_0.38.0 
+## [7] nullranges_0.0.27   
 ## 
 ## loaded via a namespace (and not attached):
-##   [1] colorspace_2.0-2         rjson_0.2.20             ellipsis_0.3.2          
-##   [4] ggridges_0.5.3           mclust_5.4.7             rprojroot_2.0.2         
-##   [7] XVector_0.32.0           fs_1.5.0                 bit64_4.0.5             
-##  [10] fansi_0.5.0              mvtnorm_1.1-2            xml2_1.3.2              
-##  [13] cachem_1.0.6             knitr_1.34               jsonlite_1.7.2          
-##  [16] speedglm_0.3-3           Rsamtools_2.8.0          dbplyr_2.1.1            
-##  [19] png_0.1-7                compiler_4.1.0           httr_1.4.2              
-##  [22] assertthat_0.2.1         Matrix_1.3-4             fastmap_1.1.0           
-##  [25] lazyeval_0.2.2           htmltools_0.5.2          prettyunits_1.1.1       
-##  [28] tools_4.1.0              gtable_0.3.0             glue_1.4.2              
-##  [31] GenomeInfoDbData_1.2.6   dplyr_1.0.7              rappdirs_0.3.3          
-##  [34] Rcpp_1.0.7               jquerylib_0.1.4          pkgdown_1.6.1           
-##  [37] vctrs_0.3.8              Biostrings_2.60.2        strawr_0.0.9            
-##  [40] rtracklayer_1.52.1       xfun_0.26                stringr_1.4.0           
-##  [43] plyranges_1.12.1         lifecycle_1.0.0          restfulr_0.0.13         
-##  [46] XML_3.99-0.8             zlibbioc_1.38.0          MASS_7.3-54             
-##  [49] scales_1.1.1             ragg_1.1.3               hms_1.1.0               
-##  [52] ProtGenerics_1.24.0      RColorBrewer_1.1-2       yaml_2.2.1              
-##  [55] curl_4.3.2               memoise_2.0.0            ggplot2_3.3.5           
-##  [58] yulab.utils_0.0.2        sass_0.4.0               biomaRt_2.48.3          
-##  [61] stringi_1.7.4            RSQLite_2.2.8            highr_0.9               
-##  [64] BiocIO_1.2.0             desc_1.3.0               filelock_1.0.2          
-##  [67] BiocParallel_1.26.2      rlang_0.4.11             pkgconfig_2.0.3         
-##  [70] systemfonts_1.0.2        bitops_1.0-7             pracma_2.3.3            
-##  [73] evaluate_0.14            lattice_0.20-45          purrr_0.3.4             
-##  [76] GenomicAlignments_1.28.0 ks_1.13.2                bit_4.0.4               
-##  [79] tidyselect_1.1.1         plyr_1.8.6               magrittr_2.0.1          
-##  [82] R6_2.5.1                 generics_0.1.0           DelayedArray_0.18.0     
-##  [85] DBI_1.1.1                pillar_1.6.2             KEGGREST_1.32.0         
-##  [88] RCurl_1.98-1.5           tibble_3.1.4             crayon_1.4.1            
-##  [91] KernSmooth_2.23-20       utf8_1.2.2               BiocFileCache_2.0.0     
-##  [94] rmarkdown_2.11           progress_1.2.2           grid_4.1.0              
-##  [97] data.table_1.14.0        blob_1.2.2               digest_0.6.28           
-## [100] gridGraphics_0.5-1       textshaping_0.3.5        munsell_0.5.0           
-## [103] ggplotify_0.1.0          bslib_0.3.0</code></pre>
+##  [1] bitops_1.0-7                matrixStats_0.61.0         
+##  [3] fs_1.5.0                    RColorBrewer_1.1-2         
+##  [5] rprojroot_2.0.2             InteractionSet_1.20.0      
+##  [7] tools_4.1.1                 bslib_0.3.0                
+##  [9] utf8_1.2.2                  R6_2.5.1                   
+## [11] KernSmooth_2.23-20          DBI_1.1.1                  
+## [13] colorspace_2.0-2            tidyselect_1.1.1           
+## [15] curl_4.3.2                  compiler_4.1.1             
+## [17] textshaping_0.3.5           Biobase_2.52.0             
+## [19] desc_1.4.0                  DelayedArray_0.18.0        
+## [21] rtracklayer_1.52.1          sass_0.4.0                 
+## [23] scales_1.1.1                mvtnorm_1.1-2              
+## [25] ggridges_0.5.3              pkgdown_1.6.1              
+## [27] speedglm_0.3-3              yulab.utils_0.0.2          
+## [29] systemfonts_1.0.2           stringr_1.4.0              
+## [31] digest_0.6.28               Rsamtools_2.8.0            
+## [33] rmarkdown_2.11              XVector_0.32.0             
+## [35] pkgconfig_2.0.3             htmltools_0.5.2            
+## [37] MatrixGenerics_1.4.3        highr_0.9                  
+## [39] fastmap_1.1.0               rlang_0.4.11               
+## [41] gridGraphics_0.5-1          jquerylib_0.1.4            
+## [43] BiocIO_1.2.0                generics_0.1.0             
+## [45] jsonlite_1.7.2              mclust_5.4.7               
+## [47] BiocParallel_1.26.2         dplyr_1.0.7                
+## [49] RCurl_1.98-1.5              magrittr_2.0.1             
+## [51] ggplotify_0.1.0             GenomeInfoDbData_1.2.6     
+## [53] Matrix_1.3-4                Rcpp_1.0.7                 
+## [55] munsell_0.5.0               fansi_0.5.0                
+## [57] lifecycle_1.0.1             stringi_1.7.4              
+## [59] yaml_2.2.1                  MASS_7.3-54                
+## [61] SummarizedExperiment_1.22.0 zlibbioc_1.38.0            
+## [63] plyr_1.8.6                  grid_4.1.1                 
+## [65] crayon_1.4.1                lattice_0.20-45            
+## [67] Biostrings_2.60.2           knitr_1.36                 
+## [69] pillar_1.6.3                rjson_0.2.20               
+## [71] strawr_0.0.9                XML_3.99-0.8               
+## [73] glue_1.4.2                  evaluate_0.14              
+## [75] data.table_1.14.2           vctrs_0.3.8                
+## [77] gtable_0.3.0                purrr_0.3.4                
+## [79] assertthat_0.2.1            ks_1.13.2                  
+## [81] cachem_1.0.6                ggplot2_3.3.5              
+## [83] xfun_0.26                   restfulr_0.0.13            
+## [85] pracma_2.3.3                ragg_1.1.3                 
+## [87] tibble_3.1.4                GenomicAlignments_1.28.0   
+## [89] plyranges_1.12.1            memoise_2.0.0              
+## [91] ellipsis_0.3.2</code></pre>
 </div>
   </div>
 
