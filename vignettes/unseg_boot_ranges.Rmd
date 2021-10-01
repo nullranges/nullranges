@@ -25,7 +25,7 @@ First we use the DNase hypersensitivity peaks in A549 downloaded from
 *AnnotationHub*, and pre-processed as described in the
 *nullrangesOldData* package.
 
-```{r}
+```{r, eval=FALSE}
 library(nullrangesData)
 dhs <- DHSA549Hg38()
 ```
@@ -40,7 +40,7 @@ across chromosome (the default). The default `type` is bootstrap, and
 the default for `withinChrom` is `FALSE` (bootstrapping with blocks
 moving across chromosomes).
 
-```{r}
+```{r, eval=FALSE}
 set.seed(5) # reproducibility
 library(microbenchmark)
 blockLength <- 5e5

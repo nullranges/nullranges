@@ -198,7 +198,7 @@ plotGG(plot = plot3,
 
 Before we generate our null ranges, let's take a look at our example dataset:
 
-```{r, message=FALSE, warning=FALSE}
+```{r, message=FALSE, warning=FALSE, eval=FALSE}
 library(nullrangesData)
 
 ## Load example data
@@ -213,7 +213,7 @@ we define `focal` as bins that contain a loop anchor, `pool` as bins
 that don't contain a loop anchor, and `covar` as DNase signal and
 number of DNase sites per bin: 
 
-```{r}
+```{r, eval=FALSE}
 library(nullranges)
 
 ## Match ranges
@@ -229,7 +229,7 @@ When the focal and pool arguments are `GRanges` objects,
 `MatchedGRanges` class extends `GRanges`, so all of the same
 operations can be applied: 
 
-```{r, message=FALSE, warning=FALSE}
+```{r, message=FALSE, warning=FALSE, eval=FALSE}
 library(GenomicRanges)
 library(plyranges)
 library(ggplot2)
@@ -256,7 +256,7 @@ seamless and integrated genomic analysis workflow.
 
 We can get a quick summary of the matching quality with `overview()`:
 
-```{r}
+```{r, eval=FALSE}
 overview(mgr)
 ```
 
@@ -275,7 +275,7 @@ give a quick idea of overall matching quality.
 Let's visualize overall matching quality by plotting propensity scores
 for the focal, pool, and matched sets: 
 
-```{r, message=FALSE}
+```{r, message=FALSE, eval=FALSE}
 plotPropensity(mgr, sets = c('f', 'p', 'm'), type = 'ridges')
 ```
 
@@ -286,7 +286,7 @@ appropriately by using the `covariates()` function to extract matched
 covariates along with `patchwork` and `plotCovarite` to visualize all
 distributions: 
 
-```{r, message=FALSE, warning=FALSE, fig.height=6, fig.width=5}
+```{r, message=FALSE, warning=FALSE, fig.height=6, fig.width=5, eval=FALSE}
 library(patchwork)
 plots <- lapply(covariates(mgr), plotCovariate, x=mgr, sets = c('f', 'm', 'p'))
 Reduce('/', plots)
@@ -302,7 +302,7 @@ this case, we calculate CTCF occupancy as the percent of bins that
 contain CTCF among our 3 sets by using the `focal()` and `pool()`
 accessor functions: 
 
-```{r fig.width=4.5, fig.height=5}
+```{r fig.width=4.5, fig.height=5, eval=FALSE}
 ## Percent of bins with CTCF
 g1 <- (sum(focal(mgr)$n_ctcf_sites >= 1) / length(focal(mgr))) * 100
 g2 <- (sum(pool(mgr)$n_ctcf_sites >= 1) / length(pool(mgr))) * 100

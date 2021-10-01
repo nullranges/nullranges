@@ -30,26 +30,31 @@
 #' seg <- segmentDensity(gr, n=3, L_s=100, exclude=exclude, type="cbs")
 #' 
 #' @export
-segmentDensity <- function(x, n, L_s = 1e6, exclude,
+segmentDensity <- function(x, n, L_s = 1e6, exclude = NULL,
                            type = c("cbs", "hmm")) {
   query <- GenomicRanges::tileGenome(seqlengths(x)[seqnames(x)@values],
     tilewidth = L_s,
     cut.last.tile.in.chrom = TRUE
   )
-  # TODO: code assumes sorted 'x'
+  # TODO: workflow assumes sorted 'x', need to push this upstream
   if (any(x != GenomicRanges::sort(x))) {
     warning("unsorted x")
   }
-  ## gap will create whole chromosome length ranges
-  ## TODO: need to keep the gaps with same exclude strand,
-  ## here is special case that all strand(exclude) ="*"
-  gap <- gaps(exclude, end = seqlengths(x))
-  gap <- plyranges::filter(gap, strand == "*")
 
-  ## the region remove exclude regions
-  query_accept <- filter(plyranges::join_overlap_intersect(query, gap),
-                         width > L_s / 100)
-
+  if (!is.null(exclude)) {
+    ## gap will create whole chromosome length ranges
+    ## TODO: need to keep the gaps with same exclude strand,
+    ## here is special case that all strand(exclude) ="*"
+    gap <- gaps(exclude, end = seqlengths(x))
+    gap <- plyranges::filter(gap, strand == "*")
+    
+    ## the region remove exclude regions
+    query_accept <- filter(plyranges::join_overlap_intersect(query, gap),
+                           width > L_s / 100)
+  } else {
+    query_accept <- query
+  }
+  
   # "nostand" = not standardized
   counts_nostand <- GenomicRanges::countOverlaps(query_accept, x, minoverlap = 8)
   counts <- counts_nostand / width(query_accept) * L_s

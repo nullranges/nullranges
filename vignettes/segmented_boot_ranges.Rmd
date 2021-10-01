@@ -89,7 +89,7 @@ We next import excluded regions (as created by \citet{encode_exclude}).
 
 <!-- instead use Mikhail's *excluderanges*, once it is available -->
 
-```{r eval=FALSE}
+```{r, eval=FALSE}
 library(excluderanges)
 data("exclude")
 table(seqnames(exclude))
@@ -118,8 +118,10 @@ set.seed(5)
 #exclude <- exclude %>%
 #  plyranges::filter(width(exclude) >= 500)
 L_s <- 1e6
+#seg <- segmentDensity(g, n = 3, L_s = L_s,
+#                      exclude = exclude, type = "cbs")
 seg <- segmentDensity(g, n = 3, L_s = L_s,
-                      exclude = exclude, type = "cbs")
+                      exclude = NULL, type = "cbs")
 plots <- lapply(c("ranges","barplot","boxplot"), function(t) {
   #  plotSegment(seg, exclude, type = t)
   plotSegment(seg, type = t)
@@ -148,8 +150,10 @@ CRAN package, using the `initGHMM`, `learnEM`, and `viterbi`
 functions. 
 
 ```{r seg-hmm}
+#seg_hmm <- segmentDensity(g, n = 3, L_s = L_s,
+#                          exclude = exclude, type = "hmm")
 seg_hmm <- segmentDensity(g, n = 3, L_s = L_s,
-                          exclude = exclude, type = "hmm")
+                          exclude = NULL, type = "hmm")
 plots <- lapply(c("ranges","barplot","boxplot"), function(t) {
   # plotSegment(seg_hmm, exclude, type = t)
   plotSegment(seg_hmm, type = t)
@@ -174,7 +178,7 @@ data object which has been processed with the following steps:
 These steps are included in *nullrangesOldData* in the
 `scripts/DHSA549Hg38.R` script.
 
-```{r}
+```{r, eval=FALSE}
 library(nullrangesData)
 dhs <- DHSA549Hg38()
 table(seqnames(dhs))
@@ -196,7 +200,7 @@ bootstrapped features that overlap small excluded ranges, then omit
 this filtering step (use the original, complete `exclude` feature
 set).
 
-```{r}
+```{r, eval=FALSE}
 library(microbenchmark)
 microbenchmark(
   list=alist(

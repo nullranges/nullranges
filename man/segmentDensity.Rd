@@ -4,7 +4,7 @@
 \alias{segmentDensity}
 \title{Genomic segmentation based on gene density}
 \usage{
-segmentDensity(x, n, L_s = 1e+06, exclude, type = c("cbs", "hmm"))
+segmentDensity(x, n, L_s = 1e+06, exclude = NULL, type = c("cbs", "hmm"))
 }
 \arguments{
 \item{x}{the input gene GRanges}

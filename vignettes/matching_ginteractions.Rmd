@@ -226,7 +226,7 @@ plotGG(plot = plot3,
 
 Before we generate our null ranges, let's take a look at our example dataset:
 
-```{r, message=FALSE, warning=FALSE}
+```{r, message=FALSE, warning=FALSE, eval=FALSE}
 library(nullrangesData)
 
 ## Load example data
@@ -239,7 +239,7 @@ Let's start by defining our focal set (i.e. looped bin-pairs), our
 pool set (i.e un-looped bin-pairs), and our covariates of interest
 (i.e. `ctcfSignal` and `distance`): 
 
-```{r, message=FALSE, warning=FALSE}
+```{r, message=FALSE, warning=FALSE, eval=FALSE}
 library(nullranges)
 set.seed(123)
 mgi <- matchRanges(focal = binPairs[binPairs$looped],
@@ -254,7 +254,7 @@ When the focal and pool arguments are `GInteractions` objects,
 `MatchedGInteractions` class extends `GInteractions` so all of the
 same operations can be applied: 
 
-```{r, message=FALSE, warning=FALSE}
+```{r, message=FALSE, warning=FALSE, eval=FALSE}
 library(plyranges)
 library(ggplot2)
 
@@ -276,7 +276,7 @@ mgi %>%
 
 We can get a quick summary of the matching quality with `overview()`:
 
-```{r}
+```{r, eval=FALSE}
 ov <- overview(mgi)
 ov
 ```
@@ -287,7 +287,7 @@ the absolute value of the mean difference between focal and matched
 sets. Therefore, the lower this value, the better the matching
 quality: 
 
-```{r}
+```{r, eval=FALSE}
 ov$quality
 ```
 
@@ -296,7 +296,7 @@ ov$quality
 Let's visualize overall matching quality by plotting propensity scores
 for the focal, pool, and matched sets: 
 
-```{r, message=FALSE}
+```{r, message=FALSE, eval=FALSE}
 plotPropensity(mgi, sets = c('f', 'p', 'm'))
 ```
 
@@ -304,7 +304,7 @@ Log transformations can be applied to 'x', 'y', or both (`c('x',
 'y')`) for plotting functions to make it easier to assess quality. It
 is clear that the matched set is very well matched to the focal set: 
 
-```{r}
+```{r, eval=FALSE}
 plotPropensity(mgi, sets = c('f', 'p', 'm'), log = 'x')
 ```
 
@@ -313,7 +313,7 @@ appropriately by using the `covariates()` function to extract matched
 covariates along with `patchwork` and `plotCovarite` to visualize all
 distributions: 
 
-```{r, message=FALSE, warning=FALSE, fig.height=8, fig.width=5}
+```{r, message=FALSE, warning=FALSE, fig.height=8, fig.width=5, eval=FALSE}
 library(patchwork)
 plots <- lapply(covariates(mgi), plotCovariate, x=mgi, sets = c('f', 'm', 'p'))
 Reduce('/', plots)
@@ -327,7 +327,7 @@ randomly selected pairs, and pairs that are unlooped but have been
 matched for our covariates. The accessor function `focal()` and
 `pool()` can be used to conveniently extract these matched sets: 
 
-```{r, fig.width=6, fig.height=5}
+```{r, fig.width=6, fig.height=5, eval=FALSE}
 ## Generate a randomly selected set from all binPairs
 all <- c(focal(mgi), pool(mgi))
 set.seed(123)

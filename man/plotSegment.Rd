@@ -6,7 +6,7 @@
 \usage{
 plotSegment(
   seg,
-  exclude,
+  exclude = NULL,
   type = c("ranges", "barplot", "boxplot"),
   region = NULL
 )

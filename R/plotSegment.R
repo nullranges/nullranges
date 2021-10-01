@@ -23,25 +23,38 @@
 #' plotSegment(seg, exclude, type = "barplot")
 #' plotSegment(seg, exclude, type = "boxplot")
 #' @export
-plotSegment <- function(seg, exclude, type = c("ranges", "barplot", "boxplot"),
+plotSegment <- function(seg, exclude = NULL,
+                        type = c("ranges", "barplot", "boxplot"),
                         region = NULL) {
   type <- match.arg(type, c("ranges", "barplot", "boxplot"))
   counts <- mcols(seg)$counts
-  mcols(exclude)$state <- "excluded"
+  if (!is.null(exclude)) {
+    mcols(exclude)$state <- "excluded"
+  }
 
   if (!is.null(region)) {
     seg_fo <- findOverlaps(seg, region)
     seg <- join_overlap_intersect(seg[queryHits(seg_fo)], region)
-    exclude <- join_overlap_intersect(exclude, region)
     counts <- counts[queryHits(seg_fo)]
+    if (!is.null(exclude)) {
+      exclude <- join_overlap_intersect(exclude, region)
+    }
   }
-  full_query <- c(seg, exclude)
+
+  if (!is.null(exclude)) {
+    full_query <- c(seg, exclude)
+    len_exclude <- length(exclude)
+  } else {
+    full_query <- seg
+    len_exclude <- 0
+  }
+  
   q <- quantile(sqrt(counts), .975)
   seq2 <- pmin(sqrt(counts), q)
 
   dat <- data.frame(
     chr = seqnames(full_query),
-    counts = c(seq2, rep(0, length(exclude))),
+    counts = c(seq2, rep(0, len_exclude)),
     state = factor(full_query$state),
     start = IRanges::start(full_query),
     end = IRanges::end(full_query),

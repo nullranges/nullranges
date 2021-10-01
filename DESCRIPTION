@@ -32,7 +32,6 @@ Suggests:
     AnnotationHub,
     DNAcopy,
     RcppHMM,
-    nullrangesOldData,
     EnsDb.Hsapiens.v86,
     microbenchmark,
     patchwork,
@@ -56,7 +55,6 @@ Imports:
     data.table,
     progress,
     ggridges
-URL: https://nullranges/github.com/nullranges
 biocViews: Visualization, GeneSetEnrichment,
     FunctionalGenomics, Epigenetics,
     GeneRegulation, GeneTarget,
