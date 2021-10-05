@@ -85,11 +85,13 @@ table(seqnames(g))
 
 ## Import excluded region
 
-We next import excluded regions (as created by \citet{encode_exclude}). 
+We next import excluded regions (as created by \citet{encode_exclude}).
 
-<!-- instead use Mikhail's *excluderanges*, once it is available -->
+<!-- plan here is to use Mikhail's `excluderanges` once it is available -->
 
-```{r, eval=FALSE}
+<!-- for now we don't use `exclude`... -->
+
+```{r eval=FALSE}
 library(excluderanges)
 data("exclude")
 table(seqnames(exclude))
@@ -178,7 +180,7 @@ data object which has been processed with the following steps:
 These steps are included in *nullrangesOldData* in the
 `scripts/DHSA549Hg38.R` script.
 
-```{r, eval=FALSE}
+```{r}
 library(nullrangesData)
 dhs <- DHSA549Hg38()
 table(seqnames(dhs))
@@ -200,7 +202,7 @@ bootstrapped features that overlap small excluded ranges, then omit
 this filtering step (use the original, complete `exclude` feature
 set).
 
-```{r, eval=FALSE}
+```{r}
 library(microbenchmark)
 microbenchmark(
   list=alist(
