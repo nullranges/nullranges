@@ -1,6 +1,6 @@
 Package: nullranges
 Title: Generation of null ranges via bootstrapping or covariate matching
-Version: 0.99.3
+Version: 0.99.4
 Authors@R: c(
     person("Michael", "Love", role = c("aut", "cre"),
       email = "michaelisaiahlove@gmail.com",
@@ -50,6 +50,7 @@ Imports:
     scales,
     InteractionSet,
     ggplot2,
+    grDevices,
     plyranges,
     ks,
     speedglm,
