@@ -16,7 +16,12 @@ colocalization of two observed feature sets.
 The package has two branches of functionality: *matching* or
 *bootstrapping* to generate null feature sets. The decision about
 which approach to use is ultimately up to the bioinformatics analyst.
-Here we describe the two different approaches briefly. 
+Here we describe the two different approaches briefly. For a listing
+of all the vignettes in the package, one can type:
+
+```{r eval=FALSE}
+vignette(package="nullranges")
+```
 
 ## Related work
 
