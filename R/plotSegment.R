@@ -29,9 +29,12 @@ plotSegment <- function(seg, exclude = NULL,
                         type = c("ranges", "barplot", "boxplot"),
                         region = NULL) {
   type <- match.arg(type, c("ranges", "barplot", "boxplot"))
-  if("counts" %in% colnames(mcols(seg))){
+
+  if ("counts" %in% colnames(mcols(seg))) {
     counts <- mcols(seg)$counts
-  } else{counts =1}
+  } else {
+    counts <- 1
+  }
   
   if (!is.null(exclude)) {
     mcols(exclude)$state <- "excluded"
@@ -124,4 +127,41 @@ plotSegment <- function(seg, exclude = NULL,
     )
 
   ans
+}
+
+#' Combine nearby regions with same state
+#'
+#' @param x the input GRanges
+#' @param col the name of the column for the segment states
+#'
+#' @return a GRanges with metadata column \code{state}
+#' giving the segmentation state
+#'
+#' @examples
+#'
+#' n <- 10000
+#' library(GenomicRanges)
+#' gr <- GRanges("chr1", IRanges(round(
+#'   c(runif(n/4,1,991), runif(n/4,1001,3991),
+#'     runif(n/4,4001,4991), runif(n/4,7001,9991))),
+#'   width=10), seqlengths=c(chr1=10000))
+#' gr$name <- rep(1:4,each=10)
+#' gr <- sort(gr)
+#' seg <- reduceSegment(gr, col="name")
+#'
+#' @export
+reduceSegment <- function(x, col="state") {
+
+  n <- max(mcols(x)[,col])
+  
+  seg <- do.call(c, lapply(seq_len(n), function(s) {
+    x <- reduce(x[mcols(x)[,col] == s])
+    mcols(x)$state <- s
+    x
+  }))
+
+  seg <- sortSeqlevels(seg)
+  seg <- GenomicRanges::sort(seg)
+
+  return(seg)
 }

@@ -20,7 +20,8 @@ plotSegment(
 included ranges information, barplot showing segmentation states' distribution across chromosome,
 or a box plot indicating average density within each states.
 Default is all plots are displayed.
-The y axis \code{"density"} represent square root of overlap counts within segment length.}
+The y axis \code{"density"} represent square root of overlap counts within segment length. If a user defined
+segmentation GRanges is given, the y axis is default to be 1 for all states in segmentation plot.}
 
 \item{region}{GRanges of stricted region that want to be plotted.}
 }
