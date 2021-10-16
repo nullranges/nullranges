@@ -71,8 +71,7 @@ unseg_bootstrap_within_chrom <- function(x, L_b, L_s=NULL, chr=NULL) {
     x_prime <- shift(x[subjectHits(fo)], block_shift[queryHits(fo)])
   })
   x_prime <- trim(x_prime)
-  # sort outgoing ranges?
-  sort(x_prime)
+  x_prime
 }
 
 # Permute blocks of GRanges within chromosome
@@ -106,8 +105,7 @@ unseg_permute_within_chrom <- function(x, L_b, L_s=NULL, chr=NULL) {
     x_prime <- shift(x, block_shift[mcols(x)$block])
   })
   x_prime <- trim(x_prime)
-  # sort outgoing ranges?
-  GenomicRanges::sort(x_prime)
+  x_prime
 }
 
 # Block bootstrap GRanges across chromosome

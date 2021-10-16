@@ -8,6 +8,6 @@ test_that("trim excludeOption works as expected", {
                      seqlengths=c(chr1=100))
   x <- sort(x)
   x$block <- 1
-  b <- bootRanges(x, blockLength=20, exclude=exclude, excludeOption="trim")[[1]]
+  b <- bootRanges(x, blockLength=20, exclude=exclude, excludeOption="trim")
 
 })

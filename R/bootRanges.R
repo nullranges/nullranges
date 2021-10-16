@@ -80,8 +80,7 @@ bootRanges <- function(x, seg = NULL, blockLength, R = 1,
       }
     }
 
-    # sort outgoing ranges?
-    GenomicRanges::sort(x_prime)
+    x_prime
   })
 
 
