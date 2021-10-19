@@ -51,6 +51,9 @@ bootRanges <- function(x, seg = NULL, blockLength, R = 1,
   if (excludeOption == "trim") {
     stopifnot(all(strand(exclude) == "*"))
   }
+  if (!is.null(seg)) {
+    stopifnot("state" %in% names(mcols(seg)))
+  }
 
   br <- replicate(R, {
     if (!is.null(seg)) {
