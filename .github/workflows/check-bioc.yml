@@ -181,12 +181,12 @@ jobs:
 
       - name: Try downloading data
         run: |
-	  ## Attempt to download the data needed for vignette
-	  library(nullrangesData)
-	  dhs <- DHSA549Hg38()
-	  bins <- hg19_10kb_bins()
-	  binPairs <- hg19_10kb_ctcfBoundBinPairs()
-	shell: Rscript {0}
+          ## Attempt to download the data needed for vignette
+          library(nullrangesData)
+          dhs <- DHSA549Hg38()
+          bins <- hg19_10kb_bins()
+          binPairs <- hg19_10kb_ctcfBoundBinPairs()
+        shell: Rscript {0}
 
       - name: Install BiocGenerics
         if:  env.has_RUnit == 'true'
