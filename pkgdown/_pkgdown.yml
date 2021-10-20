@@ -44,7 +44,7 @@ reference:
   - subtitle: "Assessing bootstrap quality"
     contents:
       - plotSegment
-- title: "Matching Ranges"
+  - title: "Matching Ranges"
     desc: >
       Use a propensity score-based method to match ranges
       by one or more covariates.
