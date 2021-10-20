@@ -5,10 +5,10 @@
 \title{Block bootstrap genomic ranges}
 \usage{
 bootRanges(
-  x,
-  seg = NULL,
+  y,
   blockLength,
   R = 1,
+  seg = NULL,
   exclude = NULL,
   excludeOption = c("drop", "trim"),
   proportionLength = TRUE,
@@ -17,37 +17,39 @@ bootRanges(
 )
 }
 \arguments{
-\item{x}{the input GRanges}
+\item{y}{the GRanges to bootstrap sample}
+
+\item{blockLength}{the length of the blocks
+(for proportional blocks, this is the maximal length of a block)}
+
+\item{R}{the number of bootstrap samples to generate}
 
 \item{seg}{the segmentation GRanges, with a column ("state")
 indicating segmentation state (optional)}
 
-\item{blockLength}{the length of the blocks (for proportional blocks, this
-is the maximal length of block)}
-
-\item{R}{the number of bootstrap samples to generate}
-
 \item{exclude}{the GRanges of excluded regions (optional)}
 
-\item{excludeOption}{whether to "drop" or "trim" bootstrap
-ranges that overlap a exclude region}
+\item{excludeOption}{whether to \code{"drop"} or \code{"trim"}
+bootstrap ranges that overlap a excluded region}
 
-\item{proportionLength}{for segmented block bootstrap,
-whether to use scaled block length, (scaling by the proportion
+\item{proportionLength}{for the segmented block bootstrap,
+whether to use scaled block lengths, (scaling by the proportion
 of the segmentation state out of the total genome length)}
 
-\item{type}{the type of null generation (unsegmented only)}
+\item{type}{the type of null generation (un-segmented bootstrap only)}
 
 \item{withinChrom}{whether to re-sample (bootstrap) ranges
-across chromosomes (default) or only within chromosomes (unsegmented only)}
+across chromosomes (default) or only within chromosomes
+(un-segmented bootstrap only)}
 }
 \value{
-bootRanges: a GRangesList of length R with the bootstrapped ranges
+bootRanges: a GRangesList of length R with the bootstrapped ranges.
+iteration and block length are recorded as metadata columns
 }
 \description{
-Performs a block bootstrap (R times) optionally with respect
-to a genome segmentation. Returns a bootRanges object, which
-is essentially a GRangesList of length R.
+Performs a block bootstrap, optionally with respect
+to a genome segmentation. Returns a \code{bootRanges} object,
+which is essentially a GRangesList of length R.
 }
 \examples{
 

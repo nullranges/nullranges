@@ -206,8 +206,8 @@ set).
 library(microbenchmark)
 microbenchmark(
   list=alist(
-    prop = bootRanges(dhs, seg, blockLength, 1, exclude = NULL, proportionLength = TRUE),
-    no_prop = bootRanges(dhs, seg, blockLength, 1, exclude = NULL, proportionLength = FALSE)
+    prop = bootRanges(dhs, blockLength, seg = seg, proportionLength = TRUE),
+    no_prop = bootRanges(dhs, blockLength, seg = seg, proportionLength = FALSE)
 ), times=10)
 ```
 
@@ -298,7 +298,7 @@ scale to segment state length:
 
 ```{r toy-no-prop}
 set.seed(1)
-gr_prime <- bootRanges(gr, seg, blockLength = 25, R = 1, 
+gr_prime <- bootRanges(gr, blockLength = 25, seg = seg,
                        proportionLength = FALSE)[[1]]
 plotGRanges(gr_prime)
 ```
@@ -309,7 +309,7 @@ Again, this time the blocks scale to the segment state length:
 
 ```{r toy-prop}
 set.seed(1)
-gr_prime <- bootRanges(gr, seg, blockLength = 50, R = 1, 
+gr_prime <- bootRanges(gr, blockLength = 50, seg = seg,
                        proportionLength = TRUE)[[1]]
 plotGRanges(gr_prime)
 ```

@@ -1,26 +1,28 @@
 #' Block bootstrap genomic ranges
 #'
-#' Performs a block bootstrap (R times) optionally with respect
-#' to a genome segmentation. Returns a bootRanges object, which
-#' is essentially a GRangesList of length R.
+#' Performs a block bootstrap, optionally with respect
+#' to a genome segmentation. Returns a \code{bootRanges} object,
+#' which is essentially a GRangesList of length R.
 #'
-#' @param x the input GRanges
+#' @param y the GRanges to bootstrap sample
+#' @param blockLength the length of the blocks
+#' (for proportional blocks, this is the maximal length of a block)
+#' @param R the number of bootstrap samples to generate
 #' @param seg the segmentation GRanges, with a column ("state")
 #' indicating segmentation state (optional)
-#' @param blockLength the length of the blocks (for proportional blocks, this
-#' is the maximal length of block)
-#' @param R the number of bootstrap samples to generate
 #' @param exclude the GRanges of excluded regions (optional)
-#' @param excludeOption whether to "drop" or "trim" bootstrap
-#' ranges that overlap a exclude region
-#' @param proportionLength for segmented block bootstrap,
-#' whether to use scaled block length, (scaling by the proportion
+#' @param excludeOption whether to \code{"drop"} or \code{"trim"}
+#' bootstrap ranges that overlap a excluded region
+#' @param proportionLength for the segmented block bootstrap,
+#' whether to use scaled block lengths, (scaling by the proportion
 #' of the segmentation state out of the total genome length)
-#' @param type the type of null generation (unsegmented only)
+#' @param type the type of null generation (un-segmented bootstrap only)
 #' @param withinChrom whether to re-sample (bootstrap) ranges
-#' across chromosomes (default) or only within chromosomes (unsegmented only)
+#' across chromosomes (default) or only within chromosomes
+#' (un-segmented bootstrap only)
 #'
-#' @return bootRanges: a GRangesList of length R with the bootstrapped ranges
+#' @return bootRanges: a GRangesList of length R with the bootstrapped ranges.
+#' iteration and block length are recorded as metadata columns
 #'
 #' @importFrom IRanges overlapsAny
 #' @importFrom stats as.formula binomial kmeans predict
@@ -39,13 +41,14 @@
 #' br <- bootRanges(gr, blockLength=10)
 #' 
 #' @export
-bootRanges <- function(x, seg = NULL, blockLength, R = 1,
+bootRanges <- function(y, blockLength, R = 1,
+                       seg = NULL,
                        exclude = NULL,
                        excludeOption = c("drop", "trim"),
                        proportionLength = TRUE,
                        type = c("bootstrap", "permute"),
                        withinChrom = FALSE) {
-  chr_lens <- seqlengths(x)
+  chr_lens <- seqlengths(y)
   stopifnot(all(!is.na(chr_lens)))
   excludeOption <- match.arg(excludeOption)
   if (excludeOption == "trim") {
@@ -57,16 +60,16 @@ bootRanges <- function(x, seg = NULL, blockLength, R = 1,
 
   br <- replicate(R, {
     if (!is.null(seg)) {
-      x_prime <- seg_bootstrap(
-        x = x, seg = ranges(seg),
+      y_prime <- seg_bootstrap(
+        y = y, seg = ranges(seg),
         state = seg$state, L_b = blockLength,
         chr_names = seqnames(seg),
         chr_lens = chr_lens,
         proportion_length = proportionLength
       )
     } else {
-      x_prime <- unseg_bootstrap(
-        x = x, L_b = blockLength, type = type,
+      y_prime <- unseg_bootstrap(
+        y = y, L_b = blockLength, type = type,
         within_chrom = withinChrom
       )
     }
@@ -74,16 +77,16 @@ bootRanges <- function(x, seg = NULL, blockLength, R = 1,
     # deal with exclude regions:
     if (!is.null(exclude)) {
       if (excludeOption == "drop") {
-        x_prime <- x_prime[!overlapsAny(x_prime, exclude, type = "any")]
+        y_prime <- y_prime[!overlapsAny(y_prime, exclude, type = "any")]
       } else if (excludeOption == "trim") {
         # TODO: place outside of this function, doing gaps once?
-        gap <- gaps(exclude, end = seqlengths(x))
+        gap <- gaps(exclude, end = seqlengths(y))
         gap <- plyranges::filter(gap, strand == "*")
-        x_prime <- plyranges::join_overlap_intersect(x_prime, gap)
+        y_prime <- plyranges::join_overlap_intersect(y_prime, gap)
       }
     }
 
-    x_prime
+    y_prime
   })
 
 
@@ -95,7 +98,7 @@ bootRanges <- function(x, seg = NULL, blockLength, R = 1,
 
 # Segmentation block bootstrap sub-function
 #
-# @param x the input GRanges
+# @param y the input GRanges
 # @param seg the segmentation ranges
 # @param state the segmentation state (along seg)
 # @param L_b the length of the blocks
@@ -104,7 +107,7 @@ bootRanges <- function(x, seg = NULL, blockLength, R = 1,
 # @param proportion_length whether to use scaled block length
 #        (scaling by the proportion of the segmentation state
 #         out of the total genome length)
-seg_bootstrap <- function(x, seg, state, L_b,
+seg_bootstrap <- function(y, seg, state, L_b,
                           chr_names, chr_lens,
                           proportion_length = TRUE) {
 
@@ -125,18 +128,18 @@ seg_bootstrap <- function(x, seg, state, L_b,
   rearranged_blocks_start <- out$rearranged_blocks_start
 
   rearr_blocks_chr_names <- factor(rearr_blocks_chr_names,
-    levels = seqlevels(x)
+    levels = seqlevels(y)
   )
 
-  # use the bait to sample features in 'x'
-  fo <- findOverlaps(random_blocks, x)
-  # x has been sampled multiple times
-  x_mult_hits <- x[subjectHits(fo)]
+  # use the bait to sample features in 'y'
+  fo <- findOverlaps(random_blocks, y)
+  # y has been sampled multiple times
+  y_mult_hits <- y[subjectHits(fo)]
   # label which 'bait' block each feature hit in the re-sampling
-  mcols(x_mult_hits)$block <- queryHits(fo)
+  mcols(y_mult_hits)$block <- queryHits(fo)
   # shift the ranges in those bait blocks
   shift_and_swap_chrom(
-    x_mult_hits, rearr_blocks_chr_names,
+    y_mult_hits, rearr_blocks_chr_names,
     random_blocks_start, rearranged_blocks_start
   )
 }
