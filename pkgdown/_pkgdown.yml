@@ -36,7 +36,15 @@ figures:
   fig.retina: 1
   
 reference:
-  - title: "Matching Ranges"
+  - title: "Bootstrapping Ranges"
+    desc: "Block bootstrap ranges optionally within genome segmentation"
+    contents:
+      - bootRanges
+      - segmentDensity
+  - subtitle: "Assessing bootstrap quality"
+    contents:
+      - plotSegment
+- title: "Matching Ranges"
     desc: >
       Use a propensity score-based method to match ranges
       by one or more covariates.
@@ -68,11 +76,3 @@ reference:
     contents:
       - combnCov
       - makeExampleMatchedDataSet
-  - title: "Bootstrapping Ranges"
-    desc: "Block bootstrap ranges optionally within segmentation"
-    contents:
-      - bootRanges
-      - segmentDensity
-  - subtitle: "Assessing bootstrap quality"
-    contents:
-      - plotSegment

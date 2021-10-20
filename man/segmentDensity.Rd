@@ -2,12 +2,12 @@
 % Please edit documentation in R/segmentDensity.R
 \name{segmentDensity}
 \alias{segmentDensity}
-\title{Genomic segmentation based on gene density}
+\title{Genome segmentation based on feature density}
 \usage{
 segmentDensity(x, n, L_s = 1e+06, exclude = NULL, type = c("cbs", "hmm"))
 }
 \arguments{
-\item{x}{the input gene GRanges}
+\item{x}{the input GRanges, e.g. genes}
 
 \item{n}{the number of states}
 
@@ -15,9 +15,11 @@ segmentDensity(x, n, L_s = 1e+06, exclude = NULL, type = c("cbs", "hmm"))
 
 \item{exclude}{GRanges of excluded region}
 
-\item{type}{the type of segmentation, either "cbs" (which will
-use DNAcopy to segment) or "hmm" (which will use RcppHMM).
-The packages are not imported by nullranges, but must be installed
+\item{type}{the type of segmentation, either
+Circular Binary Segmentation \code{"cbs"}
+(which will use 'DNAcopy' to segment) or
+Hidden Markov Model \code{"hmm"} (which will use 'RcppHMM').
+These packages are not imported by nullranges, but must be installed
 by the user}
 }
 \value{
@@ -28,7 +30,8 @@ a GRanges with metadata columns containing:
 }
 }
 \description{
-Genomic segmentation based on gene density
+This function allows for various methods (see \code{type})
+of segmenting based on the density of features \code{x}.
 }
 \examples{
 

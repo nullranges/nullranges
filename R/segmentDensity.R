@@ -1,12 +1,17 @@
-#' Genomic segmentation based on gene density
+#' Genome segmentation based on feature density
 #'
-#' @param x the input gene GRanges
+#' This function allows for various methods (see \code{type})
+#' of segmenting based on the density of features \code{x}.
+#'
+#' @param x the input GRanges, e.g. genes
 #' @param n the number of states
 #' @param L_s segment length
 #' @param exclude GRanges of excluded region
-#' @param type the type of segmentation, either "cbs" (which will
-#' use DNAcopy to segment) or "hmm" (which will use RcppHMM).
-#' The packages are not imported by nullranges, but must be installed
+#' @param type the type of segmentation, either
+#' Circular Binary Segmentation \code{"cbs"}
+#' (which will use 'DNAcopy' to segment) or
+#' Hidden Markov Model \code{"hmm"} (which will use 'RcppHMM').
+#' These packages are not imported by nullranges, but must be installed
 #' by the user
 #' 
 #' @return a GRanges with metadata columns containing:
@@ -109,5 +114,6 @@ segmentDensity <- function(x, n, L_s = 1e6, exclude = NULL,
   counts_nostand <- GenomicRanges::countOverlaps(seg, x, minoverlap = 8)
   counts <- counts_nostand / width(seg) * L_s
   mcols(seg)$counts <- counts
-  return(seg)
+  
+  seg
 }

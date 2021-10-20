@@ -2,7 +2,7 @@
 % Please edit documentation in R/plotSegment.R
 \name{plotSegment}
 \alias{plotSegment}
-\title{Genomic segmentation based on gene density}
+\title{Plot genome segmentation}
 \usage{
 plotSegment(
   seg,
@@ -29,7 +29,7 @@ segmentation GRanges is given, the y axis is default to be 1 for all states in s
 A \code{ggplot} set by \code{type} argument
 }
 \description{
-Genomic segmentation based on gene density
+Plot genome segmentation
 }
 \examples{
 

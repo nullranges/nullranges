@@ -1,4 +1,4 @@
-#' Genomic segmentation based on gene density
+#' Plot genome segmentation
 #'
 #' @param seg the segmentation GRanges returned by \code{segmentDensity} function
 #' @param exclude GRanges of excluded region
