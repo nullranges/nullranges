@@ -64,6 +64,9 @@
     <loc>https://nullranges.github.io/nullranges/reference/pool.html</loc>
   </url>
   <url>
+    <loc>https://nullranges.github.io/nullranges/reference/reduceSegment.html</loc>
+  </url>
+  <url>
     <loc>https://nullranges.github.io/nullranges/reference/segmentDensity.html</loc>
   </url>
   <url>
@@ -73,9 +76,6 @@
     <loc>https://nullranges.github.io/nullranges/reference/withReplacement.html</loc>
   </url>
   <url>
-    <loc>https://nullranges.github.io/nullranges/articles/intro.html</loc>
-  </url>
-  <url>
     <loc>https://nullranges.github.io/nullranges/articles/matching_ginteractions.html</loc>
   </url>
   <url>
@@ -83,6 +83,9 @@
   </url>
   <url>
     <loc>https://nullranges.github.io/nullranges/articles/matching_ranges.html</loc>
+  </url>
+  <url>
+    <loc>https://nullranges.github.io/nullranges/articles/nullranges.html</loc>
   </url>
   <url>
     <loc>https://nullranges.github.io/nullranges/articles/segmented_boot_ranges.html</loc>

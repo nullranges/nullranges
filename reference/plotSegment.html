@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Genomic segmentation based on gene density — plotSegment • nullranges</title>
+<title>Plot genome segmentation — plotSegment • nullranges</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,8 +46,8 @@
 
 
 
-<meta property="og:title" content="Genomic segmentation based on gene density — plotSegment" />
-<meta property="og:description" content="Genomic segmentation based on gene density" />
+<meta property="og:title" content="Plot genome segmentation — plotSegment" />
+<meta property="og:description" content="Plot genome segmentation" />
 <meta property="og:image" content="https://nullranges.github.io/nullranges/logo.png" />
 
 
@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.16</span>
       </span>
     </div>
 
@@ -93,6 +93,9 @@
   </a>
 </li>
 <li>
+  <a href="../articles/nullranges.html">Get started</a>
+</li>
+<li>
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
@@ -102,9 +105,6 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
-    <li>
-      <a href="../articles/intro.html">Introduction to nullranges</a>
-    </li>
     <li>
       <a href="../articles/matching_ranges.html">Overview of matchRanges</a>
     </li>
@@ -146,13 +146,13 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Genomic segmentation based on gene density</h1>
+    <h1>Plot genome segmentation</h1>
     <small class="dont-index">Source: <a href='https://github.com/nullranges/nullranges/blob/master/R/plotSegment.R'><code>R/plotSegment.R</code></a></small>
     <div class="hidden name"><code>plotSegment.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Genomic segmentation based on gene density</p>
+    <p>Plot genome segmentation</p>
     </div>
 
     <pre class="usage"><span class='fu'>plotSegment</span><span class='op'>(</span>
@@ -179,7 +179,8 @@
 included ranges information, barplot showing segmentation states' distribution across chromosome,
 or a box plot indicating average density within each states.
 Default is all plots are displayed.
-The y axis <code>"density"</code> represent square root of overlap counts within segment length.</p></td>
+The y axis <code>"density"</code> represent square root of overlap counts within segment length. If a user defined
+segmentation GRanges is given, the y axis is default to be 1 for all states in segmentation plot.</p></td>
     </tr>
     <tr>
       <th>region</th>

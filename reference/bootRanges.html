@@ -47,9 +47,9 @@
 
 
 <meta property="og:title" content="Block bootstrap genomic ranges — bootRanges" />
-<meta property="og:description" content="Performs a block bootstrap (R times) optionally with respect
-to a genome segmentation. Returns a bootRanges object, which
-is essentially a GRangesList of length R." />
+<meta property="og:description" content="Performs a block bootstrap, optionally with respect
+to a genome segmentation. Returns a bootRanges object,
+which is essentially a GRangesList of length R." />
 <meta property="og:image" content="https://nullranges.github.io/nullranges/logo.png" />
 
 
@@ -82,7 +82,7 @@ is essentially a GRangesList of length R." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.16</span>
       </span>
     </div>
 
@@ -95,6 +95,9 @@ is essentially a GRangesList of length R." />
   </a>
 </li>
 <li>
+  <a href="../articles/nullranges.html">Get started</a>
+</li>
+<li>
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
@@ -104,9 +107,6 @@ is essentially a GRangesList of length R." />
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
-    <li>
-      <a href="../articles/intro.html">Introduction to nullranges</a>
-    </li>
     <li>
       <a href="../articles/matching_ranges.html">Overview of matchRanges</a>
     </li>
@@ -154,16 +154,16 @@ is essentially a GRangesList of length R." />
     </div>
 
     <div class="ref-description">
-    <p>Performs a block bootstrap (R times) optionally with respect
-to a genome segmentation. Returns a bootRanges object, which
-is essentially a GRangesList of length R.</p>
+    <p>Performs a block bootstrap, optionally with respect
+to a genome segmentation. Returns a <code>bootRanges</code> object,
+which is essentially a GRangesList of length R.</p>
     </div>
 
     <pre class="usage"><span class='fu'>bootRanges</span><span class='op'>(</span>
-  <span class='va'>x</span>,
-  seg <span class='op'>=</span> <span class='cn'>NULL</span>,
+  <span class='va'>y</span>,
   <span class='va'>blockLength</span>,
   R <span class='op'>=</span> <span class='fl'>1</span>,
+  seg <span class='op'>=</span> <span class='cn'>NULL</span>,
   exclude <span class='op'>=</span> <span class='cn'>NULL</span>,
   excludeOption <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"drop"</span>, <span class='st'>"trim"</span><span class='op'>)</span>,
   proportionLength <span class='op'>=</span> <span class='cn'>TRUE</span>,
@@ -175,8 +175,17 @@ is essentially a GRangesList of length R.</p>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>x</th>
-      <td><p>the input GRanges</p></td>
+      <th>y</th>
+      <td><p>the GRanges to bootstrap sample</p></td>
+    </tr>
+    <tr>
+      <th>blockLength</th>
+      <td><p>the length of the blocks
+(for proportional blocks, this is the maximal length of a block)</p></td>
+    </tr>
+    <tr>
+      <th>R</th>
+      <td><p>the number of bootstrap samples to generate</p></td>
     </tr>
     <tr>
       <th>seg</th>
@@ -184,54 +193,43 @@ is essentially a GRangesList of length R.</p>
 indicating segmentation state (optional)</p></td>
     </tr>
     <tr>
-      <th>blockLength</th>
-      <td><p>the length of the blocks (for proportional blocks, this
-is the maximal length of block)</p></td>
-    </tr>
-    <tr>
-      <th>R</th>
-      <td><p>the number of bootstrap samples to generate</p></td>
-    </tr>
-    <tr>
       <th>exclude</th>
       <td><p>the GRanges of excluded regions (optional)</p></td>
     </tr>
     <tr>
       <th>excludeOption</th>
-      <td><p>whether to "drop" or "trim" bootstrap
-ranges that overlap a exclude region</p></td>
+      <td><p>whether to <code>"drop"</code> or <code>"trim"</code>
+bootstrap ranges that overlap a excluded region</p></td>
     </tr>
     <tr>
       <th>proportionLength</th>
-      <td><p>for segmented block bootstrap,
-whether to use scaled block length, (scaling by the proportion
+      <td><p>for the segmented block bootstrap,
+whether to use scaled block lengths, (scaling by the proportion
 of the segmentation state out of the total genome length)</p></td>
     </tr>
     <tr>
       <th>type</th>
-      <td><p>the type of null generation (unsegmented only)</p></td>
+      <td><p>the type of null generation (un-segmented bootstrap only)</p></td>
     </tr>
     <tr>
       <th>withinChrom</th>
       <td><p>whether to re-sample (bootstrap) ranges
-across chromosomes (default) or only within chromosomes (unsegmented only)</p></td>
+across chromosomes (default) or only within chromosomes
+(un-segmented bootstrap only)</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>bootRanges: a GRangesList of length R with the bootstrapped ranges</p>
+    <p>bootRanges: a GRangesList of length R with the bootstrapped ranges.
+iteration and block length are recorded as metadata columns</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'>
 <span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>)</span>
 <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://bioconductor.org/packages/GenomicRanges'>GenomicRanges</a></span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='message'>Loading required package: stats4</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: BiocGenerics</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: parallel</span></div><div class='output co'>#&gt; <span class='message'></span>
-#&gt; <span class='message'>Attaching package: ‘BiocGenerics’</span></div><div class='output co'>#&gt; <span class='message'>The following objects are masked from ‘package:parallel’:</span>
-#&gt; <span class='message'></span>
-#&gt; <span class='message'>    clusterApply, clusterApplyLB, clusterCall, clusterEvalQ,</span>
-#&gt; <span class='message'>    clusterExport, clusterMap, parApply, parCapply, parLapply,</span>
-#&gt; <span class='message'>    parLapplyLB, parRapply, parSapply, parSapplyLB</span></div><div class='output co'>#&gt; <span class='message'>The following objects are masked from ‘package:stats’:</span>
+</div><div class='output co'>#&gt; <span class='message'>Loading required package: stats4</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: BiocGenerics</span></div><div class='output co'>#&gt; <span class='message'></span>
+#&gt; <span class='message'>Attaching package: ‘BiocGenerics’</span></div><div class='output co'>#&gt; <span class='message'>The following objects are masked from ‘package:stats’:</span>
 #&gt; <span class='message'></span>
 #&gt; <span class='message'>    IQR, mad, sd, var, xtabs</span></div><div class='output co'>#&gt; <span class='message'>The following objects are masked from ‘package:base’:</span>
 #&gt; <span class='message'></span>

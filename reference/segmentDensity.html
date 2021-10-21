@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Genomic segmentation based on gene density — segmentDensity • nullranges</title>
+<title>Genome segmentation based on feature density — segmentDensity • nullranges</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,8 +46,9 @@
 
 
 
-<meta property="og:title" content="Genomic segmentation based on gene density — segmentDensity" />
-<meta property="og:description" content="Genomic segmentation based on gene density" />
+<meta property="og:title" content="Genome segmentation based on feature density — segmentDensity" />
+<meta property="og:description" content="This function allows for various methods (see type)
+of segmenting based on the density of features x." />
 <meta property="og:image" content="https://nullranges.github.io/nullranges/logo.png" />
 
 
@@ -80,7 +81,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.16</span>
       </span>
     </div>
 
@@ -93,6 +94,9 @@
   </a>
 </li>
 <li>
+  <a href="../articles/nullranges.html">Get started</a>
+</li>
+<li>
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
@@ -102,9 +106,6 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
-    <li>
-      <a href="../articles/intro.html">Introduction to nullranges</a>
-    </li>
     <li>
       <a href="../articles/matching_ranges.html">Overview of matchRanges</a>
     </li>
@@ -146,13 +147,14 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Genomic segmentation based on gene density</h1>
+    <h1>Genome segmentation based on feature density</h1>
     <small class="dont-index">Source: <a href='https://github.com/nullranges/nullranges/blob/master/R/segmentDensity.R'><code>R/segmentDensity.R</code></a></small>
     <div class="hidden name"><code>segmentDensity.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Genomic segmentation based on gene density</p>
+    <p>This function allows for various methods (see <code>type</code>)
+of segmenting based on the density of features <code>x</code>.</p>
     </div>
 
     <pre class="usage"><span class='fu'>segmentDensity</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>n</span>, L_s <span class='op'>=</span> <span class='fl'>1e+06</span>, exclude <span class='op'>=</span> <span class='cn'>NULL</span>, type <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"cbs"</span>, <span class='st'>"hmm"</span><span class='op'>)</span><span class='op'>)</span></pre>
@@ -162,7 +164,7 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>x</th>
-      <td><p>the input gene GRanges</p></td>
+      <td><p>the input GRanges, e.g. genes</p></td>
     </tr>
     <tr>
       <th>n</th>
@@ -178,9 +180,11 @@
     </tr>
     <tr>
       <th>type</th>
-      <td><p>the type of segmentation, either "cbs" (which will
-use DNAcopy to segment) or "hmm" (which will use RcppHMM).
-The packages are not imported by nullranges, but must be installed
+      <td><p>the type of segmentation, either
+Circular Binary Segmentation <code>"cbs"</code>
+(which will use 'DNAcopy' to segment) or
+Hidden Markov Model <code>"hmm"</code> (which will use 'RcppHMM').
+These packages are not imported by nullranges, but must be installed
 by the user</p></td>
     </tr>
     </table>
