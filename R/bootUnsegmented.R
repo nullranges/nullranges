@@ -136,8 +136,10 @@ unseg_bootstrap_across_chrom <- function(y, L_b, L_s) {
   # label which 'bait' block each feature hit in the re-sampling
   mcols(y_mult_hits)$block <- queryHits(fo)
   # shift the ranges in those bait blocks
-  shift_and_swap_chrom(y_mult_hits, seqnames(rearranged_blocks),
-                       start(random_blocks), start(rearranged_blocks))
+  shift_and_swap_chrom(
+    y_mult_hits, seqnames(rearranged_blocks),
+    start(random_blocks), start(rearranged_blocks)
+  )
 }
 
 # Permute blocks of GRanges across chomosome
@@ -156,8 +158,10 @@ unseg_permute_across_chrom <- function(y, L_b, L_s) {
   # this operation loses some ranges:
   # those that are mapped to permuted blocks that
   # are cut by `cut.last.tile.in.chrom`
-  shift_and_swap_chrom(y, seqnames(rearranged_blocks),
-                       start(blocks), start(rearranged_blocks))
+  shift_and_swap_chrom(
+    y, seqnames(rearranged_blocks),
+    start(blocks), start(rearranged_blocks)
+  )
 }
 
 # function moves featues in 'y' that fall into 'blocks'

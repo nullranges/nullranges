@@ -22,16 +22,16 @@ knitr::opts_chunk$set(fig.width=5, fig.height=5)
 
 The following vignette describes the *nullranges* implementation of
 the block bootstrap with respect to a genomic segmentation. See the
-Introduction vignette for an overview of the idea of bootstrapping,
+main nullranges vignette for an overview of the idea of bootstrapping,
 and there is additionally a vignette on block boostrapping without
 respect to segmentation.
 
 As proposed by @bickel_2010, *nullranges* contains an
 implementation of a block bootstrap, such that features are sampled
 from the genome in blocks. Blocks are sampled and placed within
-regions of a genomic *segmentation*. That is, for a genome segmented
-into states 1,2,...,S, blocks from state $s$ will be used to tile the
-ranges of state $s$ in each bootstrap sample.
+regions of a genome *segmentation*. That is, for a genome segmented
+into states 1,2,...,S, blocks from state *s* will be used to tile the
+ranges of state *s* in each bootstrap sample.
 
 The segmented block bootstrap has two options, either:
 
@@ -51,10 +51,12 @@ block bootstrap vignette in *nullranges*, if it is not desired to
 bootstrap with respect to a genome segmentation.
 
 A finally consideration is whether the blocks should scale
-proportionally to the segment state length (e.g. should segmentation
-states that make up less of the genome have smaller blocks, and
-vice-versa). This option is controlled by `proportionLength` and
-visualized at the end of this vignette.
+proportionally to the segment state length, with the default setting 
+of `proportionLength=TRUE`. When blocks scale proportionally,
+`blockLength` provides the maximal length of a block, while the actual
+block length used for a segmentation state is proportional to the
+fraction of genomic basepairs covered by that state.
+This option is visualized on toy data at the end of this vignette.
 
 # Segmentation by gene density
 
@@ -223,7 +225,7 @@ microbenchmark(
 ), times=10)
 ```
 
-# Visualizing the bootstraps
+# Visualizing toy bootstrap samples
 
 Below we present a toy example for visualizing the segmented block bootstrap.
 First, we define a helper function for plotting *GRanges* using
@@ -327,6 +329,13 @@ gr_prime <- bootRanges(gr, blockLength = 50, seg = seg,
                        proportionLength = TRUE)
 plotGRanges(gr_prime)
 ```
+
+Note that some ranges from adjacent states are allowed to be placed
+within different states in the bootstrap sample. This is because,
+during the random sampling of blocks of original data, a block is
+allowed to extend beyond the segmentation region of the state being
+sampled, and features from adjacent states are not excluded from the
+sampled block.
 
 # Session information
 
