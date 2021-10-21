@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Block bootstrap genomic ranges — bootRanges • nullranges</title>
+<title>Block bootstrap for genomic ranges — bootRanges • nullranges</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,10 +46,11 @@
 
 
 
-<meta property="og:title" content="Block bootstrap genomic ranges — bootRanges" />
+<meta property="og:title" content="Block bootstrap for genomic ranges — bootRanges" />
 <meta property="og:description" content="Performs a block bootstrap, optionally with respect
 to a genome segmentation. Returns a bootRanges object,
-which is essentially a GRangesList of length R." />
+which is a GRanges object with all the ranges concatenated,
+and iteration and block length indicated by metadata columns" />
 <meta property="og:image" content="https://nullranges.github.io/nullranges/logo.png" />
 
 
@@ -148,7 +149,7 @@ which is essentially a GRangesList of length R." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Block bootstrap genomic ranges</h1>
+    <h1>Block bootstrap for genomic ranges</h1>
     <small class="dont-index">Source: <a href='https://github.com/nullranges/nullranges/blob/master/R/bootRanges.R'><code>R/bootRanges.R</code></a></small>
     <div class="hidden name"><code>bootRanges.Rd</code></div>
     </div>
@@ -156,7 +157,8 @@ which is essentially a GRangesList of length R." />
     <div class="ref-description">
     <p>Performs a block bootstrap, optionally with respect
 to a genome segmentation. Returns a <code>bootRanges</code> object,
-which is essentially a GRangesList of length R.</p>
+which is a GRanges object with all the ranges concatenated,
+and iteration and block length indicated by metadata columns</p>
     </div>
 
     <pre class="usage"><span class='fu'>bootRanges</span><span class='op'>(</span>
@@ -221,8 +223,8 @@ across chromosomes (default) or only within chromosomes
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>bootRanges: a GRangesList of length R with the bootstrapped ranges.
-iteration and block length are recorded as metadata columns</p>
+    <p>a bootRanges (GRanges object) with the bootstrapped ranges,
+where iteration and block length are recorded as metadata columns</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'>

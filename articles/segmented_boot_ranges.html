@@ -116,12 +116,12 @@
 
     
     
-<div id="introduction-to-segmented-block-bootstrap" class="section level1">
+<div id="introduction" class="section level1">
 <h1 class="hasAnchor">
-<a href="#introduction-to-segmented-block-bootstrap" class="anchor"></a>Introduction to segmented block bootstrap</h1>
+<a href="#introduction" class="anchor"></a>Introduction</h1>
 <p>The following vignette describes the <em>nullranges</em> implementation of the block bootstrap with respect to a genomic segmentation. See the Introduction vignette for an overview of the idea of bootstrapping, and there is additionally a vignette on block boostrapping without respect to segmentation.</p>
-<p>As proposed by Bickel et al (2010), <em>nullranges</em> contains an implementation of a block bootstrap, such that features are sampled from the genome in blocks. Blocks are sampled and placed within regions of a genomic <em>segmentation</em>. That is, for a genome segmented into states 1,2,…,S, blocks from state <span class="math inline">\(s\)</span> will be used to tile the ranges of state <span class="math inline">\(s\)</span> in each bootstrap sample.</p>
-<p>The segmented block bootstrap has two options, either to:</p>
+<p>As proposed by <span class="citation">Bickel et al. (2010)</span>, <em>nullranges</em> contains an implementation of a block bootstrap, such that features are sampled from the genome in blocks. Blocks are sampled and placed within regions of a genomic <em>segmentation</em>. That is, for a genome segmented into states 1,2,…,S, blocks from state <span class="math inline">\(s\)</span> will be used to tile the ranges of state <span class="math inline">\(s\)</span> in each bootstrap sample.</p>
+<p>The segmented block bootstrap has two options, either:</p>
 <ul>
 <li>Perform a de-novo segmentation of the genome using feature density, e.g. gene density</li>
 <li>Use exiting segmentation (e.g. ChromHMM, etc.) downloaded from AnnotationHub or external to Bioconductor (BED files imported with <em>rtracklayer</em>)</li>
@@ -132,13 +132,13 @@
 <div id="segmentation-by-gene-density" class="section level1">
 <h1 class="hasAnchor">
 <a href="#segmentation-by-gene-density" class="anchor"></a>Segmentation by gene density</h1>
-<p>First we obtain the Ensembl genes for segmenting by gene density.</p>
+<p>First we obtain the Ensembl genes <span class="citation">(Howe et al. 2020)</span> for segmenting by gene density. We obtain these using the <em>ensembldb</em> package <span class="citation">(Rainer, Gatto, and Weichenberger 2019)</span>.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">EnsDb.Hsapiens.v86</span><span class="op">)</span><span class="op">)</span>
 <span class="va">edb</span> <span class="op">&lt;-</span> <span class="va">EnsDb.Hsapiens.v86</span>
 <span class="va">filt</span> <span class="op">&lt;-</span> <span class="fu">AnnotationFilterList</span><span class="op">(</span><span class="fu">GeneIdFilter</span><span class="op">(</span><span class="st">"ENSG"</span>, <span class="st">"startsWith"</span><span class="op">)</span><span class="op">)</span>
 <span class="va">g</span> <span class="op">&lt;-</span> <span class="fu">genes</span><span class="op">(</span><span class="va">edb</span>, filter <span class="op">=</span> <span class="va">filt</span><span class="op">)</span></code></pre></div>
-<p>We perform some processing to align these features with our excluded regions and our features of interest (DNase hypersensitive sites, or DHS, defined below).</p>
+<p>We perform some processing to align the sequences (chromosomes) of <code>g</code> with our excluded regions and our features of interest (DNase hypersensitive sites, or DHS, defined below).</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://bioconductor.org/packages/GenomeInfoDb">GenomeInfoDb</a></span><span class="op">)</span>
 <span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqlevels-wrappers.html">keepStandardChromosomes</a></span><span class="op">(</span><span class="va">g</span>, pruning.mode <span class="op">=</span> <span class="st">"coarse"</span><span class="op">)</span>
@@ -155,151 +155,156 @@
 ##  5194  3971  3010  2505  2868  2863  2867  2353  2242  2204  3235  2940  1304 
 ## chr14 chr15 chr16 chr17 chr18 chr19 chr20 chr21 chr22  chrX  chrY 
 ##  2224  2152  2511  2995  1170  2926  1386   835  1318  2359   523</code></pre>
-<div id="import-excluded-region" class="section level2">
+<div id="import-excluded-regions" class="section level2">
 <h2 class="hasAnchor">
-<a href="#import-excluded-region" class="anchor"></a>Import excluded region</h2>
-<p>We next import excluded regions (as created by ).</p>
-<!-- plan here is to use Mikhail's `excluderanges` once it is available -->
-<!-- for now we don't use `exclude`... -->
+<a href="#import-excluded-regions" class="anchor"></a>Import excluded regions</h2>
+<p>We next import excluded regions, as created by <span class="citation">Amemiya, Kundaje, and Boyle (2019)</span>, and packaged for R/Bioconductor in the <em>excluderanges</em> package by Mikhail Dozmorov.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">excluderanges</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"exclude"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqinfo.html">seqnames</a></span><span class="op">(</span><span class="va">exclude</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">AnnotationHub</span><span class="op">)</span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mdozmorov/excluderanges">excluderanges</a></span><span class="op">)</span>
+<span class="va">ah</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/AnnotationHub/man/AnnotationHub-class.html">AnnotationHub</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
+<pre><code>## snapshotDate(): 2021-10-20</code></pre>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># `excludeGR.hg38.Kundaje.1` -- see excluderanges vignette</span>
+<span class="va">exclude</span> <span class="op">&lt;-</span> <span class="va">ah</span><span class="op">[[</span><span class="st">"AH95917"</span><span class="op">]</span><span class="op">]</span></code></pre></div>
+<pre><code>## loading from cache</code></pre>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/all.html">all</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqinfo.html">seqlengths</a></span><span class="op">(</span><span class="va">g</span><span class="op">)</span> <span class="op">==</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqinfo.html">seqlengths</a></span><span class="op">(</span><span class="va">exclude</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<pre><code>## [1] TRUE</code></pre>
 </div>
 <div id="cbs-segmentation" class="section level2">
 <h2 class="hasAnchor">
 <a href="#cbs-segmentation" class="anchor"></a>CBS segmentation</h2>
+<p>We first demonstrate the use a CBS segmentation as implemented in <em>DNAcopy</em> <span class="citation">(Olshen et al. 2004)</span>.</p>
 <p>We load the <em>nullranges</em> and <em>plyranges</em> packages, and <em>patchwork</em> in order to produce grids of plots.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/nullranges/nullranges">nullranges</a></span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">plyranges</span><span class="op">)</span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com">patchwork</a></span><span class="op">)</span></code></pre></div>
 <p>We subset the excluded ranges to those which are 500 bp or larger. The motivation for this step is to avoid segmenting the genome into many small pieces due to an abundance of short excluded regions. Note that we re-save the excluded ranges to <code>exclude</code>.</p>
-<p>We use a CBS segmentation as implemented in <em>DNAcopy</em> .</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span>
-<span class="co">#exclude &lt;- exclude %&gt;%</span>
-<span class="co">#  plyranges::filter(width(exclude) &gt;= 500)</span>
+<span class="va">exclude</span> <span class="op">&lt;-</span> <span class="va">exclude</span> <span class="op">%&gt;%</span>
+  <span class="fu">plyranges</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">filter</a></span><span class="op">(</span><span class="fu">width</span><span class="op">(</span><span class="va">exclude</span><span class="op">)</span> <span class="op">&gt;=</span> <span class="fl">500</span><span class="op">)</span>
 <span class="va">L_s</span> <span class="op">&lt;-</span> <span class="fl">1e6</span>
-<span class="co">#seg &lt;- segmentDensity(g, n = 3, L_s = L_s,</span>
-<span class="co">#                      exclude = exclude, type = "cbs")</span>
 <span class="va">seg</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/segmentDensity.html">segmentDensity</a></span><span class="op">(</span><span class="va">g</span>, n <span class="op">=</span> <span class="fl">3</span>, L_s <span class="op">=</span> <span class="va">L_s</span>,
-                      exclude <span class="op">=</span> <span class="cn">NULL</span>, type <span class="op">=</span> <span class="st">"cbs"</span><span class="op">)</span></code></pre></div>
+                      exclude <span class="op">=</span> <span class="va">exclude</span>, type <span class="op">=</span> <span class="st">"cbs"</span><span class="op">)</span></code></pre></div>
 <pre><code>## Analyzing: Sample.1</code></pre>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"ranges"</span>,<span class="st">"barplot"</span>,<span class="st">"boxplot"</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">t</span><span class="op">)</span> <span class="op">{</span>
-  <span class="co">#  plotSegment(seg, exclude, type = t)</span>
-  <span class="fu"><a href="../reference/plotSegment.html">plotSegment</a></span><span class="op">(</span><span class="va">seg</span>, type <span class="op">=</span> <span class="va">t</span><span class="op">)</span>
+  <span class="fu"><a href="../reference/plotSegment.html">plotSegment</a></span><span class="op">(</span><span class="va">seg</span>, <span class="va">exclude</span>, type <span class="op">=</span> <span class="va">t</span><span class="op">)</span>
 <span class="op">}</span><span class="op">)</span>
 <span class="va">plots</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></code></pre></div>
 <p><img src="segmented_boot_ranges_files/figure-html/seg-cbs-1.png"><!-- --></p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">plots</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span> <span class="op">+</span> <span class="va">plots</span><span class="op">[[</span><span class="fl">3</span><span class="op">]</span><span class="op">]</span></code></pre></div>
 <p><img src="segmented_boot_ranges_files/figure-html/seg-cbs-2.png"><!-- --></p>
 <p>Note here, the default <em>ranges</em> plot gives whole genome and every fractured bind regions represents state transformations happens. However, some transformations within small ranges cannot be visualized, e.g 1kb. If user want to look into specific ranges of segmentation state, the <em>region</em> argument is flexible to support.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">region</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html">GRanges</a></span><span class="op">(</span><span class="st">"chr16"</span>, <span class="fu">IRanges</span><span class="op">(</span><span class="fl">3e7</span>,<span class="fl">4e7</span><span class="op">)</span><span class="op">)</span>
-<span class="co">#plotSegment(seg, exclude, type="ranges", region=region)</span>
-<span class="fu"><a href="../reference/plotSegment.html">plotSegment</a></span><span class="op">(</span><span class="va">seg</span>, type <span class="op">=</span> <span class="st">"ranges"</span>, region <span class="op">=</span> <span class="va">region</span><span class="op">)</span></code></pre></div>
+<span class="fu"><a href="../reference/plotSegment.html">plotSegment</a></span><span class="op">(</span><span class="va">seg</span>, <span class="va">exclude</span>, type<span class="op">=</span><span class="st">"ranges"</span>, region<span class="op">=</span><span class="va">region</span><span class="op">)</span></code></pre></div>
 <p><img src="segmented_boot_ranges_files/figure-html/unnamed-chunk-5-1.png"><!-- --></p>
 </div>
 <div id="alternatively-hmm-segmentation" class="section level2">
 <h2 class="hasAnchor">
 <a href="#alternatively-hmm-segmentation" class="anchor"></a>Alternatively: HMM segmentation</h2>
 <p>Here we use an alternative segmentation implemented in the <em>RcppHMM</em> CRAN package, using the <code>initGHMM</code>, <code>learnEM</code>, and <code>viterbi</code> functions.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">#seg_hmm &lt;- segmentDensity(g, n = 3, L_s = L_s,</span>
-<span class="co">#                          exclude = exclude, type = "hmm")</span>
-<span class="va">seg_hmm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/segmentDensity.html">segmentDensity</a></span><span class="op">(</span><span class="va">g</span>, n <span class="op">=</span> <span class="fl">3</span>, L_s <span class="op">=</span> <span class="va">L_s</span>,
-                          exclude <span class="op">=</span> <span class="cn">NULL</span>, type <span class="op">=</span> <span class="st">"hmm"</span><span class="op">)</span></code></pre></div>
-<pre><code>## Finished at Iteration: 133 with Error: 9.79302e-06</code></pre>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">seg_hmm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/segmentDensity.html">segmentDensity</a></span><span class="op">(</span><span class="va">g</span>, n <span class="op">=</span> <span class="fl">3</span>, L_s <span class="op">=</span> <span class="va">L_s</span>,
+                          exclude <span class="op">=</span> <span class="va">exclude</span>, type <span class="op">=</span> <span class="st">"hmm"</span><span class="op">)</span></code></pre></div>
+<pre><code>## Finished at Iteration: 100 with Error: 9.31905e-06</code></pre>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"ranges"</span>,<span class="st">"barplot"</span>,<span class="st">"boxplot"</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">t</span><span class="op">)</span> <span class="op">{</span>
-  <span class="co"># plotSegment(seg_hmm, exclude, type = t)</span>
-  <span class="fu"><a href="../reference/plotSegment.html">plotSegment</a></span><span class="op">(</span><span class="va">seg_hmm</span>, type <span class="op">=</span> <span class="va">t</span><span class="op">)</span>
+  <span class="fu"><a href="../reference/plotSegment.html">plotSegment</a></span><span class="op">(</span><span class="va">seg_hmm</span>, <span class="va">exclude</span>, type <span class="op">=</span> <span class="va">t</span><span class="op">)</span>
 <span class="op">}</span><span class="op">)</span>
 <span class="va">plots</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></code></pre></div>
 <p><img src="segmented_boot_ranges_files/figure-html/seg-hmm-1.png"><!-- --></p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">plots</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span> <span class="op">+</span> <span class="va">plots</span><span class="op">[[</span><span class="fl">3</span><span class="op">]</span><span class="op">]</span></code></pre></div>
 <p><img src="segmented_boot_ranges_files/figure-html/seg-hmm-2.png"><!-- --></p>
 </div>
 </div>
-<div id="segmented-block-bootstrap-within-chromosome" class="section level1">
+<div id="segmented-block-bootstrap" class="section level1">
 <h1 class="hasAnchor">
-<a href="#segmented-block-bootstrap-within-chromosome" class="anchor"></a>Segmented block bootstrap within chromosome</h1>
-</div>
-<div id="timing-on-dhs-peaks" class="section level1">
-<h1 class="hasAnchor">
-<a href="#timing-on-dhs-peaks" class="anchor"></a>Timing on DHS peaks</h1>
-<p>Here, we use a set of DNase hypersensitivity sites (DHS) from the ENCODE project in A549 cell line. Here, for speed, we load an existing data object which has been processed with the following steps:</p>
+<a href="#segmented-block-bootstrap" class="anchor"></a>Segmented block bootstrap</h1>
+<p>We use a set of DNase hypersensitivity sites (DHS) from the ENCODE project <span class="citation">(ENCODE 2012)</span> in A549 cell line (ENCSR614GWM). Here, for speed, we work with a pre-processed data object from ExperimentHub, created using the following steps:</p>
 <ul>
-<li>Download DNase hypersensitive peaks in A549 from <em>AnnotationHub</em>
+<li>Download ENCODE DNase hypersensitive peaks in A549 from <em>AnnotationHub</em>
 </li>
 <li>Subset to standard chromosomes and remove mitochondrial DNA</li>
 <li>Use a chain file from UCSC to lift ranges from hg19 to hg38</li>
 <li>Sort the DHS features to be bootstrapped</li>
 </ul>
-<p>These steps are included in <em>nullrangesOldData</em> in the <code>scripts/DHSA549Hg38.R</code> script.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">nullrangesData</span><span class="op">)</span></code></pre></div>
-<pre><code>## Loading required package: ExperimentHub</code></pre>
-<pre><code>## Loading required package: AnnotationHub</code></pre>
-<pre><code>## Loading required package: BiocFileCache</code></pre>
-<pre><code>## Loading required package: dbplyr</code></pre>
-<pre><code>## 
-## Attaching package: 'AnnotationHub'</code></pre>
-<pre><code>## The following object is masked from 'package:Biobase':
-## 
-##     cache</code></pre>
-<pre><code>## Loading required package: InteractionSet</code></pre>
-<pre><code>## Loading required package: SummarizedExperiment</code></pre>
-<pre><code>## Loading required package: MatrixGenerics</code></pre>
-<pre><code>## Loading required package: matrixStats</code></pre>
-<pre><code>## 
-## Attaching package: 'matrixStats'</code></pre>
-<pre><code>## The following objects are masked from 'package:Biobase':
-## 
-##     anyMissing, rowMedians</code></pre>
-<pre><code>## 
-## Attaching package: 'MatrixGenerics'</code></pre>
-<pre><code>## The following objects are masked from 'package:matrixStats':
-## 
-##     colAlls, colAnyNAs, colAnys, colAvgsPerRowSet, colCollapse,
-##     colCounts, colCummaxs, colCummins, colCumprods, colCumsums,
-##     colDiffs, colIQRDiffs, colIQRs, colLogSumExps, colMadDiffs,
-##     colMads, colMaxs, colMeans2, colMedians, colMins, colOrderStats,
-##     colProds, colQuantiles, colRanges, colRanks, colSdDiffs, colSds,
-##     colSums2, colTabulates, colVarDiffs, colVars, colWeightedMads,
-##     colWeightedMeans, colWeightedMedians, colWeightedSds,
-##     colWeightedVars, rowAlls, rowAnyNAs, rowAnys, rowAvgsPerColSet,
-##     rowCollapse, rowCounts, rowCummaxs, rowCummins, rowCumprods,
-##     rowCumsums, rowDiffs, rowIQRDiffs, rowIQRs, rowLogSumExps,
-##     rowMadDiffs, rowMads, rowMaxs, rowMeans2, rowMedians, rowMins,
-##     rowOrderStats, rowProds, rowQuantiles, rowRanges, rowRanks,
-##     rowSdDiffs, rowSds, rowSums2, rowTabulates, rowVarDiffs, rowVars,
-##     rowWeightedMads, rowWeightedMeans, rowWeightedMedians,
-##     rowWeightedSds, rowWeightedVars</code></pre>
-<pre><code>## The following object is masked from 'package:Biobase':
-## 
-##     rowMedians</code></pre>
+<p>These steps are included in <em>nullrangesData</em> in the <code>inst/scripts/make-dhs-data.R</code> script.</p>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">nullrangesData</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code>## snapshotDate(): 2021-10-18</code></pre>
-<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">dhs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/nullrangesData/man/DHSA549Hg38.html">DHSA549Hg38</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
 <pre><code>## see ?nullrangesData and browseVignettes('nullrangesData') for documentation</code></pre>
 <pre><code>## loading from cache</code></pre>
-<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqinfo.html">seqnames</a></span><span class="op">(</span><span class="va">dhs</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code>## 
 ##  chr1  chr2  chr3  chr4  chr5  chr6  chr7  chr8  chr9 chr10 chr11 chr12 chr13 
 ## 15240 14436  9549  6034  9714  8043  9549  8463  8247  8924  8618 10597  2732 
 ## chr14 chr15 chr16 chr17 chr18 chr19 chr20 chr21 chr22  chrX  chrY 
 ##  5785  6929  6596 11438  2643  8818  5986  1471  3010  4024   239</code></pre>
-<p>Now we apply a segmented block bootstrap with blocks of size 500kb, to the peaks. We are currently interested in profiling the speed of this operation (future vignette iterations will also demonstrate its use in a workflow).</p>
-<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">blockLength</span> <span class="op">&lt;-</span> <span class="fl">5e5</span></code></pre></div>
-<p>Here, we test the speed of the various options for bootstrapping. Note that we use the <code>exclude</code> object from the previous step, which does not contain small ranges. If one wanted to also avoid generation of bootstrapped features that overlap small excluded ranges, then omit this filtering step (use the original, complete <code>exclude</code> feature set).</p>
-<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<p>Now we apply a segmented block bootstrap with blocks of size 500kb, to the peaks. Here we simply show generation of two iterations of a block bootstrap, while we plan in future sections of this vignette to demonstrate its use in a workflow including <em>plyranges</em> <span class="citation">(Lee, Cook, and Lawrence 2019)</span>.</p>
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">blockLength</span> <span class="op">&lt;-</span> <span class="fl">5e5</span>
+<span class="va">br</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">dhs</span>, <span class="va">blockLength</span>, R <span class="op">=</span> <span class="fl">2</span>, seg <span class="op">=</span> <span class="va">seg</span>, exclude<span class="op">=</span><span class="va">exclude</span><span class="op">)</span>
+<span class="va">br</span></code></pre></div>
+<pre><code>## bootRanges object with 354761 ranges and 9 metadata columns:
+##            seqnames            ranges strand |        name     score
+##               &lt;Rle&gt;         &lt;IRanges&gt;  &lt;Rle&gt; | &lt;character&gt; &lt;numeric&gt;
+##        [1]     chr1 55046962-55047111      * |        &lt;NA&gt;         0
+##        [2]     chr1 55066027-55066176      * |        &lt;NA&gt;         0
+##        [3]     chr1 55112487-55112636      * |        &lt;NA&gt;         0
+##        [4]     chr1 55179402-55179551      * |        &lt;NA&gt;         0
+##        [5]     chr1 55179862-55180011      * |        &lt;NA&gt;         0
+##        ...      ...               ...    ... .         ...       ...
+##   [354757]    chr22 50534629-50534778      * |        &lt;NA&gt;         0
+##   [354758]    chr22 50788902-50789051      * |        &lt;NA&gt;         0
+##   [354759]    chr22 50818469-50818468      * |        &lt;NA&gt;         0
+##   [354760]    chr22 50818469-50818468      * |        &lt;NA&gt;         0
+##   [354761]    chr22 50818469-50818468      * |        &lt;NA&gt;         0
+##            signalValue    pValue    qValue      peak     block  iter
+##              &lt;numeric&gt; &lt;numeric&gt; &lt;numeric&gt; &lt;numeric&gt; &lt;integer&gt; &lt;Rle&gt;
+##        [1]           3        -1        -1        -1         1     1
+##        [2]          18        -1        -1        -1         1     1
+##        [3]          13        -1        -1        -1         1     1
+##        [4]         166        -1        -1        -1         1     1
+##        [5]          41        -1        -1        -1         1     1
+##        ...         ...       ...       ...       ...       ...   ...
+##   [354757]          14        -1        -1        -1     12468     2
+##   [354758]          14        -1        -1        -1     12471     2
+##   [354759]          36        -1        -1        -1     12472     2
+##   [354760]          14        -1        -1        -1     12472     2
+##   [354761]          14        -1        -1        -1     12472     2
+##            blockLength
+##                  &lt;Rle&gt;
+##        [1]      500000
+##        [2]      500000
+##        [3]      500000
+##        [4]      500000
+##        [5]      500000
+##        ...         ...
+##   [354757]      500000
+##   [354758]      500000
+##   [354759]      500000
+##   [354760]      500000
+##   [354761]      500000
+##   -------
+##   seqinfo: 24 sequences from hg38 genome</code></pre>
+<p><strong>What is returned here?</strong> The <code>bootRanges</code> function returns a <em>bootRanges</em> object, which is a simple sub-class of <em>GRanges</em>. The iteration (<code>iter</code>) and the block length (<code>blockLength</code>) are recorded as metadata columns, accessible via <code>mcols</code>. We chose to return the bootstrapped ranges as <em>GRanges</em> rather than <em>GRangesList</em>, as the former is more compatible with downstream overlap joins with <em>plyranges</em>, where the iteration column can be used with <code>group_by</code> to provide per bootstrap summary statistics.</p>
+<p>Note that we use the <code>exclude</code> object from the previous step, which does not contain small ranges. If one wanted to also avoid generation of bootstrapped features that overlap small excluded ranges, then omit this filtering step (use the original, complete <code>exclude</code> feature set).</p>
+</div>
+<div id="timing-on-dhs-peaks" class="section level1">
+<h1 class="hasAnchor">
+<a href="#timing-on-dhs-peaks" class="anchor"></a>Timing on DHS peaks</h1>
+<p>Here, we test the speed of the various options for bootstrapping (see below for visualization of the difference).</p>
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/joshuaulrich/microbenchmark/">microbenchmark</a></span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/pkg/microbenchmark/man/microbenchmark.html">microbenchmark</a></span><span class="op">(</span>
   list<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">alist</a></span><span class="op">(</span>
@@ -308,15 +313,14 @@
 <span class="op">)</span>, times<span class="op">=</span><span class="fl">10</span><span class="op">)</span></code></pre></div>
 <pre><code>## Unit: milliseconds
 ##     expr      min       lq     mean   median       uq      max neval
-##     prop 173.4862 184.3777 259.6731 186.8446 199.2052 899.4210    10
-##  no_prop 163.7318 175.6950 190.2265 180.3304 182.6066 291.4214    10</code></pre>
+##     prop 198.2643 201.0404 206.0914 203.6770 211.3845 218.0010    10
+##  no_prop 193.5111 196.9466 270.2788 202.6788 209.8969 884.6201    10</code></pre>
 </div>
-<div id="visualizing-the-segmented-block-bootstrap" class="section level1">
+<div id="visualizing-the-bootstraps" class="section level1">
 <h1 class="hasAnchor">
-<a href="#visualizing-the-segmented-block-bootstrap" class="anchor"></a>Visualizing the segmented block bootstrap</h1>
-<p>Below we present a toy example for visualizing the segmented block bootstrap, visualized with <em>plotgardener</em>.</p>
-<p>Define a helper function for plotting <em>GRanges</em> using <em>plotgardener</em>. A key aspect here is that we color the original and bootstrapped ranges by the genomic state (the state of the segmentation that the original ranges fall in).</p>
-<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
+<a href="#visualizing-the-bootstraps" class="anchor"></a>Visualizing the bootstraps</h1>
+<p>Below we present a toy example for visualizing the segmented block bootstrap. First, we define a helper function for plotting <em>GRanges</em> using <em>plotgardener</em> <span class="citation">(Kramer et al. 2021)</span>. A key aspect here is that we color the original and bootstrapped ranges by the genomic state (the state of the segmentation that the original ranges fall in).</p>
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://phanstiellab.github.io/plotgardener">plotgardener</a></span><span class="op">)</span><span class="op">)</span>
 <span class="va">my_palette</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">n</span><span class="op">)</span> <span class="op">{</span>
   <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/c.html">c</a></span><span class="op">(</span><span class="st">"red"</span>,<span class="st">"green3"</span>,<span class="st">"red3"</span>,<span class="st">"dodgerblue"</span>,
@@ -341,8 +345,8 @@
     <span class="op">}</span><span class="op">)</span>
   <span class="op">}</span>
 <span class="op">}</span></code></pre></div>
-<p>Create a genome segmentation:</p>
-<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
+<p>Create a toy genome segmentation:</p>
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://bioconductor.org/packages/GenomicRanges">GenomicRanges</a></span><span class="op">)</span>
 <span class="va">seq_nms</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/c.html">c</a></span><span class="op">(</span><span class="st">"chr1"</span>,<span class="st">"chr2"</span><span class="op">)</span>, <span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/c.html">c</a></span><span class="op">(</span><span class="fl">4</span>,<span class="fl">3</span><span class="op">)</span><span class="op">)</span>
 <span class="va">seg</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html">GRanges</a></span><span class="op">(</span>
@@ -354,11 +358,11 @@
   state_col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">7</span><span class="op">)</span>
 <span class="op">)</span></code></pre></div>
 <p>We can visualize with our helper function:</p>
-<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu">plotGRanges</span><span class="op">(</span><span class="va">seg</span><span class="op">)</span></code></pre></div>
 <p><img src="segmented_boot_ranges_files/figure-html/toysegments-1.png"><!-- --></p>
 <p>Now create small ranges distributed uniformly across the toy genome:</p>
-<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>
 <span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">200</span>
 <span class="va">gr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html">GRanges</a></span><span class="op">(</span>
@@ -377,25 +381,25 @@
 <span class="va">gr</span><span class="op">$</span><span class="va">state_col</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span><span class="op">(</span><span class="va">seg</span><span class="op">$</span><span class="va">state_col</span><span class="op">[</span><span class="va">idx</span><span class="op">]</span><span class="op">)</span>
 <span class="fu">plotGRanges</span><span class="op">(</span><span class="va">gr</span><span class="op">)</span></code></pre></div>
 <p><img src="segmented_boot_ranges_files/figure-html/toyranges-1.png"><!-- --></p>
-<div id="not-scaling-blocks-to-segmentation-length" class="section level2">
+<div id="not-scaling-by-segmentation" class="section level2">
 <h2 class="hasAnchor">
-<a href="#not-scaling-blocks-to-segmentation-length" class="anchor"></a>Not scaling blocks to segmentation length</h2>
+<a href="#not-scaling-by-segmentation" class="anchor"></a>Not scaling by segmentation</h2>
 <p>We can visualize block bootstrapped ranges when the blocks do not scale to segment state length:</p>
-<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>
 <span class="va">gr_prime</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">gr</span>, blockLength <span class="op">=</span> <span class="fl">25</span>, seg <span class="op">=</span> <span class="va">seg</span>,
-                       proportionLength <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>
+                       proportionLength <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
 <span class="fu">plotGRanges</span><span class="op">(</span><span class="va">gr_prime</span><span class="op">)</span></code></pre></div>
 <p><img src="segmented_boot_ranges_files/figure-html/toy-no-prop-1.png"><!-- --></p>
 </div>
-<div id="scaling-blocks-to-segmentation-length" class="section level2">
+<div id="scaling-by-segmentation" class="section level2">
 <h2 class="hasAnchor">
-<a href="#scaling-blocks-to-segmentation-length" class="anchor"></a>Scaling blocks to segmentation length</h2>
-<p>Again, this time the blocks scale to the segment state length:</p>
-<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
+<a href="#scaling-by-segmentation" class="anchor"></a>Scaling by segmentation</h2>
+<p>This time the blocks scale to the segment state length. Note that in this case <code>blockLength</code> is the <em>maximal</em> block length possible, but the actual block lengths per segment will be smaller (proportional to the fraction of basepairs covered by that state in the genome segmentation).</p>
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>
 <span class="va">gr_prime</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">gr</span>, blockLength <span class="op">=</span> <span class="fl">50</span>, seg <span class="op">=</span> <span class="va">seg</span>,
-                       proportionLength <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>
+                       proportionLength <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 <span class="fu">plotGRanges</span><span class="op">(</span><span class="va">gr_prime</span><span class="op">)</span></code></pre></div>
 <p><img src="segmented_boot_ranges_files/figure-html/toy-prop-1.png"><!-- --></p>
 </div>
@@ -403,7 +407,7 @@
 <div id="session-information" class="section level1">
 <h1 class="hasAnchor">
 <a href="#session-information" class="anchor"></a>Session information</h1>
-<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
 <pre><code>## R version 4.1.1 (2021-08-10)
 ## Platform: x86_64-pc-linux-gnu (64-bit)
@@ -429,75 +433,105 @@
 ##  [3] nullrangesData_0.99.2       InteractionSet_1.21.1      
 ##  [5] SummarizedExperiment_1.23.5 MatrixGenerics_1.5.4       
 ##  [7] matrixStats_0.61.0          ExperimentHub_2.1.4        
-##  [9] AnnotationHub_3.1.6         BiocFileCache_2.1.1        
-## [11] dbplyr_2.1.1                patchwork_1.1.1            
-## [13] plyranges_1.13.1            nullranges_0.99.16         
-## [15] EnsDb.Hsapiens.v86_2.99.0   ensembldb_2.17.4           
-## [17] AnnotationFilter_1.17.1     GenomicFeatures_1.45.2     
-## [19] AnnotationDbi_1.55.2        Biobase_2.53.0             
-## [21] GenomicRanges_1.45.0        GenomeInfoDb_1.29.10       
-## [23] IRanges_2.27.2              S4Vectors_0.31.5           
-## [25] BiocGenerics_0.39.2        
+##  [9] patchwork_1.1.1             plyranges_1.13.1           
+## [11] nullranges_0.99.16          excluderanges_0.99.6       
+## [13] AnnotationHub_3.1.6         BiocFileCache_2.1.1        
+## [15] dbplyr_2.1.1                EnsDb.Hsapiens.v86_2.99.0  
+## [17] ensembldb_2.17.4            AnnotationFilter_1.17.1    
+## [19] GenomicFeatures_1.45.2      AnnotationDbi_1.55.2       
+## [21] Biobase_2.53.0              GenomicRanges_1.45.0       
+## [23] GenomeInfoDb_1.29.10        IRanges_2.27.2             
+## [25] S4Vectors_0.31.5            BiocGenerics_0.39.2        
 ## 
 ## loaded via a namespace (and not attached):
-##   [1] colorspace_2.0-2              rjson_0.2.20                 
-##   [3] ellipsis_0.3.2                ggridges_0.5.3               
-##   [5] mclust_5.4.7                  rprojroot_2.0.2              
-##   [7] DNAcopy_1.67.0                XVector_0.33.0               
-##   [9] fs_1.5.0                      farver_2.1.0                 
-##  [11] bit64_4.0.5                   interactiveDisplayBase_1.31.2
-##  [13] fansi_0.5.0                   mvtnorm_1.1-3                
-##  [15] xml2_1.3.2                    cachem_1.0.6                 
-##  [17] knitr_1.36                    jsonlite_1.7.2               
-##  [19] speedglm_0.3-3                Rsamtools_2.9.1              
-##  [21] RcppHMM_1.2.2                 png_0.1-7                    
-##  [23] shiny_1.7.1                   BiocManager_1.30.16          
-##  [25] compiler_4.1.1                httr_1.4.2                   
-##  [27] assertthat_0.2.1              Matrix_1.3-4                 
-##  [29] fastmap_1.1.0                 lazyeval_0.2.2               
-##  [31] later_1.3.0                   htmltools_0.5.2              
-##  [33] prettyunits_1.1.1             tools_4.1.1                  
-##  [35] gtable_0.3.0                  glue_1.4.2                   
-##  [37] GenomeInfoDbData_1.2.7        dplyr_1.0.7                  
-##  [39] rappdirs_0.3.3                Rcpp_1.0.7                   
-##  [41] jquerylib_0.1.4               pkgdown_1.6.1                
-##  [43] vctrs_0.3.8                   Biostrings_2.61.2            
-##  [45] strawr_0.0.9                  rtracklayer_1.53.1           
-##  [47] xfun_0.27                     stringr_1.4.0                
-##  [49] mime_0.12                     lifecycle_1.0.1              
-##  [51] restfulr_0.0.13               XML_3.99-0.8                 
-##  [53] zlibbioc_1.39.0               MASS_7.3-54                  
-##  [55] scales_1.1.1                  promises_1.2.0.1             
-##  [57] ragg_1.1.3                    hms_1.1.1                    
-##  [59] ProtGenerics_1.25.1           parallel_4.1.1               
-##  [61] RColorBrewer_1.1-2            yaml_2.2.1                   
-##  [63] curl_4.3.2                    memoise_2.0.0                
-##  [65] ggplot2_3.3.5                 yulab.utils_0.0.4            
-##  [67] sass_0.4.0                    biomaRt_2.49.7               
-##  [69] stringi_1.7.5                 RSQLite_2.2.8                
-##  [71] BiocVersion_3.14.0            highr_0.9                    
-##  [73] BiocIO_1.3.0                  desc_1.4.0                   
-##  [75] filelock_1.0.2                BiocParallel_1.27.17         
-##  [77] rlang_0.4.12                  pkgconfig_2.0.3              
-##  [79] systemfonts_1.0.3             bitops_1.0-7                 
-##  [81] pracma_2.3.3                  evaluate_0.14                
-##  [83] lattice_0.20-45               purrr_0.3.4                  
-##  [85] GenomicAlignments_1.29.0      ks_1.13.2                    
-##  [87] labeling_0.4.2                bit_4.0.4                    
-##  [89] tidyselect_1.1.1              plyr_1.8.6                   
-##  [91] magrittr_2.0.1                R6_2.5.1                     
-##  [93] generics_0.1.0                DelayedArray_0.19.4          
-##  [95] DBI_1.1.1                     withr_2.4.2                  
-##  [97] pillar_1.6.4                  KEGGREST_1.33.0              
-##  [99] RCurl_1.98-1.5                tibble_3.1.5                 
-## [101] crayon_1.4.1                  KernSmooth_2.23-20           
-## [103] utf8_1.2.2                    rmarkdown_2.11               
-## [105] progress_1.2.2                grid_4.1.1                   
-## [107] data.table_1.14.2             blob_1.2.2                   
-## [109] digest_0.6.28                 xtable_1.8-4                 
-## [111] httpuv_1.6.3                  gridGraphics_0.5-1           
-## [113] textshaping_0.3.6             munsell_0.5.0                
-## [115] ggplotify_0.1.0               bslib_0.3.1</code></pre>
+##   [1] systemfonts_1.0.3             plyr_1.8.6                   
+##   [3] RcppHMM_1.2.2                 lazyeval_0.2.2               
+##   [5] BiocParallel_1.27.17          ggplot2_3.3.5                
+##   [7] digest_0.6.28                 yulab.utils_0.0.4            
+##   [9] htmltools_0.5.2               fansi_0.5.0                  
+##  [11] magrittr_2.0.1                memoise_2.0.0                
+##  [13] ks_1.13.2                     Biostrings_2.61.2            
+##  [15] pkgdown_1.6.1                 prettyunits_1.1.1            
+##  [17] colorspace_2.0-2              blob_1.2.2                   
+##  [19] rappdirs_0.3.3                textshaping_0.3.6            
+##  [21] xfun_0.27                     dplyr_1.0.7                  
+##  [23] crayon_1.4.1                  RCurl_1.98-1.5               
+##  [25] jsonlite_1.7.2                glue_1.4.2                   
+##  [27] gtable_0.3.0                  zlibbioc_1.39.0              
+##  [29] XVector_0.33.0                strawr_0.0.9                 
+##  [31] DelayedArray_0.19.4           scales_1.1.1                 
+##  [33] mvtnorm_1.1-3                 DBI_1.1.1                    
+##  [35] Rcpp_1.0.7                    xtable_1.8-4                 
+##  [37] progress_1.2.2                gridGraphics_0.5-1           
+##  [39] bit_4.0.4                     mclust_5.4.7                 
+##  [41] httr_1.4.2                    RColorBrewer_1.1-2           
+##  [43] speedglm_0.3-3                ellipsis_0.3.2               
+##  [45] pkgconfig_2.0.3               XML_3.99-0.8                 
+##  [47] farver_2.1.0                  sass_0.4.0                   
+##  [49] utf8_1.2.2                    DNAcopy_1.67.0               
+##  [51] ggplotify_0.1.0               tidyselect_1.1.1             
+##  [53] labeling_0.4.2                rlang_0.4.12                 
+##  [55] later_1.3.0                   munsell_0.5.0                
+##  [57] BiocVersion_3.14.0            tools_4.1.1                  
+##  [59] cachem_1.0.6                  generics_0.1.0               
+##  [61] RSQLite_2.2.8                 ggridges_0.5.3               
+##  [63] evaluate_0.14                 stringr_1.4.0                
+##  [65] fastmap_1.1.0                 yaml_2.2.1                   
+##  [67] ragg_1.1.3                    knitr_1.36                   
+##  [69] bit64_4.0.5                   fs_1.5.0                     
+##  [71] purrr_0.3.4                   KEGGREST_1.33.0              
+##  [73] mime_0.12                     pracma_2.3.3                 
+##  [75] xml2_1.3.2                    biomaRt_2.49.7               
+##  [77] compiler_4.1.1                filelock_1.0.2               
+##  [79] curl_4.3.2                    png_0.1-7                    
+##  [81] interactiveDisplayBase_1.31.2 tibble_3.1.5                 
+##  [83] bslib_0.3.1                   stringi_1.7.5                
+##  [85] highr_0.9                     desc_1.4.0                   
+##  [87] lattice_0.20-45               ProtGenerics_1.25.1          
+##  [89] Matrix_1.3-4                  vctrs_0.3.8                  
+##  [91] pillar_1.6.4                  lifecycle_1.0.1              
+##  [93] BiocManager_1.30.16           jquerylib_0.1.4              
+##  [95] data.table_1.14.2             bitops_1.0-7                 
+##  [97] httpuv_1.6.3                  rtracklayer_1.53.1           
+##  [99] R6_2.5.1                      BiocIO_1.3.0                 
+## [101] promises_1.2.0.1              KernSmooth_2.23-20           
+## [103] MASS_7.3-54                   assertthat_0.2.1             
+## [105] rprojroot_2.0.2               rjson_0.2.20                 
+## [107] withr_2.4.2                   GenomicAlignments_1.29.0     
+## [109] Rsamtools_2.9.1               GenomeInfoDbData_1.2.7       
+## [111] parallel_4.1.1                hms_1.1.1                    
+## [113] grid_4.1.1                    rmarkdown_2.11               
+## [115] shiny_1.7.1                   restfulr_0.0.13</code></pre>
+</div>
+<div id="references" class="section level1 unnumbered">
+<h1 class="hasAnchor">
+<a href="#references" class="anchor"></a>References</h1>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-encode_exclude" class="csl-entry">
+Amemiya, Haley M, Anshul Kundaje, and Alan P Boyle. 2019. <span>“The <span>ENCODE</span> Blacklist: Identification of Problematic Regions of the Genome.”</span> <em>Scientific Reports</em> 9 (1): 9354. <a href="https://doi.org/10.1038/s41598-019-45839-z">https://doi.org/10.1038/s41598-019-45839-z</a>.
+</div>
+<div id="ref-bickel_2010" class="csl-entry">
+Bickel, Peter J., Nathan Boley, James B. Brown, Haiyan Huang, and Nancy R. Zhang. 2010. <span>“Subsampling Methods for Genomic Inference.”</span> <em>The Annals of Applied Statistics</em> 4 (4): 1660–97. <a href="https://doi.org/10.1214/10-%7BAOAS363%7D">https://doi.org/10.1214/10-{AOAS363}</a>.
+</div>
+<div id="ref-encode" class="csl-entry">
+ENCODE. 2012. <span>“<span class="nocase">An integrated encyclopedia of DNA elements in the human genome</span>.”</span> <em>Nature</em> 489 (7414): 57–74. <a href="https://doi.org/10.1038/nature11247">https://doi.org/10.1038/nature11247</a>.
+</div>
+<div id="ref-ensembl2021" class="csl-entry">
+Howe, Kevin L, Premanand Achuthan, James Allen, Jamie Allen, Jorge Alvarez-Jarreta, M Ridwan Amode, Irina M Armean, et al. 2020. <span>“<span>Ensembl 2021</span>.”</span> <em>Nucleic Acids Research</em> 49 (D1): D884–91. <a href="https://doi.org/10.1093/nar/gkaa942">https://doi.org/10.1093/nar/gkaa942</a>.
+</div>
+<div id="ref-Kramer2021" class="csl-entry">
+Kramer, Nicole E, Eric S Davis, Craig D Wenger, Erika M Deoudes, Sarah M Parker, Michael I Love, and Douglas H Phanstiel. 2021. <span>“<span class="nocase">Plotgardener: Cultivating precise multi-panel figures in R</span>.”</span> <em>bioRxiv</em>. <a href="https://doi.org/10.1101/2021.09.08.459338">https://doi.org/10.1101/2021.09.08.459338</a>.
+</div>
+<div id="ref-Lee2019" class="csl-entry">
+Lee, Stuart, Dianne Cook, and Michael Lawrence. 2019. <span>“Plyranges: A Grammar of Genomic Data Transformation.”</span> <em>Genome Biology</em> 20 (1): 4. <a href="https://doi.org/10.1186/s13059-018-1597-8">https://doi.org/10.1186/s13059-018-1597-8</a>.
+</div>
+<div id="ref-dnacopy" class="csl-entry">
+Olshen, A. B., E. S. Venkatraman, R. Lucito, and M. Wigler. 2004. <span>“<span class="nocase"><span>C</span>ircular binary segmentation for the analysis of array-based <span>D</span><span>N</span><span>A</span> copy number data</span>.”</span> <em>Biostatistics</em> 5 (4): 557–72.
+</div>
+<div id="ref-ensembldb" class="csl-entry">
+Rainer, Johannes, Laurent Gatto, and Christian X Weichenberger. 2019. <span>“<span class="nocase">ensembldb: an R package to create and use Ensembl-based annotation resources</span>.”</span> <em>Bioinformatics</em> 35 (17): 3151–53. <a href="https://doi.org/10.1093/bioinformatics/btz031">https://doi.org/10.1093/bioinformatics/btz031</a>.
+</div>
+</div>
 </div>
   </div>
 
