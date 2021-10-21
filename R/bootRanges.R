@@ -1,8 +1,9 @@
-#' Block bootstrap genomic ranges
+#' Block bootstrap for genomic ranges
 #'
 #' Performs a block bootstrap, optionally with respect
 #' to a genome segmentation. Returns a \code{bootRanges} object,
-#' which is essentially a GRangesList of length R.
+#' which is a GRanges object with all the ranges concatenated,
+#' and iteration and block length indicated by metadata columns
 #'
 #' @param y the GRanges to bootstrap sample
 #' @param blockLength the length of the blocks
@@ -21,8 +22,8 @@
 #' across chromosomes (default) or only within chromosomes
 #' (un-segmented bootstrap only)
 #'
-#' @return bootRanges: a GRangesList of length R with the bootstrapped ranges.
-#' iteration and block length are recorded as metadata columns
+#' @return a bootRanges (GRanges object) with the bootstrapped ranges,
+#' where iteration and block length are recorded as metadata columns
 #'
 #' @importFrom IRanges overlapsAny
 #' @importFrom stats as.formula binomial kmeans predict
@@ -85,14 +86,13 @@ bootRanges <- function(y, blockLength, R = 1,
         y_prime <- plyranges::join_overlap_intersect(y_prime, gap)
       }
     }
-
     y_prime
   })
 
-
-  br <- GRangesList(br)
+  lens <- lengths(br)
+  br <- do.call(c, br)
+  mcols(br)$iter <- Rle(seq_len(R), lens)
   mcols(br)$blockLength <- Rle(as.integer(blockLength))
-  mcols(br)$iter <- seq_len(R)
   new("bootRanges", br)
 }
 

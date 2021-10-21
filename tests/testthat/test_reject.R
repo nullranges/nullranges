@@ -22,7 +22,10 @@ test_that("rejection sampling works as expected", {
 
   ## plotCovariate(m)
 
+  expect_true(nrow(m) == sum(dt$looped))
+  
 })
+
 test_that("zero probability issue solved", {
 
   suppressPackageStartupMessages(library(data.table))

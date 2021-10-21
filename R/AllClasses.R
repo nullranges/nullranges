@@ -2,13 +2,13 @@
 #' @export
 bootRanges <- setClass(
   Class = "bootRanges",
-  contains = "CompressedGRangesList"
+  contains = "GRanges"
 )
 
 setValidity(
   Class = "bootRanges",
   method = function(object) {
-    stopifnot(all(c("blockLength", "iter") %in% names(mcols(object))))
+    stopifnot(all(c("iter", "blockLength") %in% names(mcols(object))))
   }
 )
 

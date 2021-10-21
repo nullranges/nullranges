@@ -2,7 +2,7 @@
 % Please edit documentation in R/bootRanges.R
 \name{bootRanges}
 \alias{bootRanges}
-\title{Block bootstrap genomic ranges}
+\title{Block bootstrap for genomic ranges}
 \usage{
 bootRanges(
   y,
@@ -43,13 +43,14 @@ across chromosomes (default) or only within chromosomes
 (un-segmented bootstrap only)}
 }
 \value{
-bootRanges: a GRangesList of length R with the bootstrapped ranges.
-iteration and block length are recorded as metadata columns
+a bootRanges (GRanges object) with the bootstrapped ranges,
+where iteration and block length are recorded as metadata columns
 }
 \description{
 Performs a block bootstrap, optionally with respect
 to a genome segmentation. Returns a \code{bootRanges} object,
-which is essentially a GRangesList of length R.
+which is a GRanges object with all the ranges concatenated,
+and iteration and block length indicated by metadata columns
 }
 \examples{
 

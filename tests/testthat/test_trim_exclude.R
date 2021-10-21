@@ -8,6 +8,8 @@ test_that("trim excludeOption works as expected", {
                      seqlengths=c(chr1=100))
   y <- sort(y)
   y$block <- 1
-  b <- bootRanges(y, blockLength=20, exclude=exclude, excludeOption="trim")
+  br <- bootRanges(y, blockLength=20, exclude=exclude, excludeOption="trim")
 
+  expect_true(!any(overlapsAny(br, exclude)))
+  
 })

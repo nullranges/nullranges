@@ -16,7 +16,7 @@ test_that("unseg and seg bootstrap works", {
   blockLength <- 100
 
   gr_prime <- bootRanges(gr, blockLength=blockLength, type="permute", withinChrom=TRUE)
-  expect_true(all(table(seqnames(gr)) == table(seqnames(gr_prime[[1]]))))
+  expect_true(all(table(seqnames(gr)) == table(seqnames(gr_prime))))
     
   gr_prime <- bootRanges(gr, blockLength, type="bootstrap", withinChrom=TRUE)
   gr_prime <- bootRanges(gr, blockLength, type="permute", withinChrom=FALSE)

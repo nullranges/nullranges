@@ -114,7 +114,7 @@ Visualizing two permutations of blocks within chromosome:
 
 ```{r perm-within, fig.width=5, fig.height=2}
 for (i in 1:2) {
-  gr_prime <- bootRanges(gr, blockLength=100, type="permute", withinChrom=TRUE)[[1]]
+  gr_prime <- bootRanges(gr, blockLength=100, type="permute", withinChrom=TRUE)
   plotGRanges(gr_prime)
 }
 ```
@@ -123,7 +123,7 @@ Visualizing two bootstraps within chromosome:
 
 ```{r boot-within, fig.width=5, fig.height=2}
 for (i in 1:2) {
-  gr_prime <- bootRanges(gr, blockLength=100, withinChrom=TRUE)[[1]]
+  gr_prime <- bootRanges(gr, blockLength=100, withinChrom=TRUE)
   plotGRanges(gr_prime)
 }
 ```
@@ -135,7 +135,7 @@ larger blocks than previously.
 
 ```{r perm-across, fig.width=5, fig.height=2}
 for (i in 1:2) {
-  gr_prime <- bootRanges(gr, blockLength=200, type="permute", withinChrom=FALSE)[[1]]
+  gr_prime <- bootRanges(gr, blockLength=200, type="permute", withinChrom=FALSE)
   plotGRanges(gr_prime)
 }
 ```
@@ -144,7 +144,7 @@ Visualizing two bootstraps across chromosome:
 
 ```{r boot-across, fig.width=5, fig.height=2}
 for (i in 1:2) {
-  gr_prime <- bootRanges(gr, blockLength=200, withinChrom=FALSE)[[1]]
+  gr_prime <- bootRanges(gr, blockLength=200, withinChrom=FALSE)
   plotGRanges(gr_prime)
 }
 ```
