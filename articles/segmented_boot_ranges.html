@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.16</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.17</span>
       </span>
     </div>
 
@@ -119,15 +119,15 @@
 <div id="introduction" class="section level1">
 <h1 class="hasAnchor">
 <a href="#introduction" class="anchor"></a>Introduction</h1>
-<p>The following vignette describes the <em>nullranges</em> implementation of the block bootstrap with respect to a genomic segmentation. See the Introduction vignette for an overview of the idea of bootstrapping, and there is additionally a vignette on block boostrapping without respect to segmentation.</p>
-<p>As proposed by <span class="citation">Bickel et al. (2010)</span>, <em>nullranges</em> contains an implementation of a block bootstrap, such that features are sampled from the genome in blocks. Blocks are sampled and placed within regions of a genomic <em>segmentation</em>. That is, for a genome segmented into states 1,2,…,S, blocks from state <span class="math inline">\(s\)</span> will be used to tile the ranges of state <span class="math inline">\(s\)</span> in each bootstrap sample.</p>
+<p>The following vignette describes the <em>nullranges</em> implementation of the block bootstrap with respect to a genomic segmentation. See the main nullranges vignette for an overview of the idea of bootstrapping, and there is additionally a vignette on block boostrapping without respect to segmentation.</p>
+<p>As proposed by <span class="citation">Bickel et al. (2010)</span>, <em>nullranges</em> contains an implementation of a block bootstrap, such that features are sampled from the genome in blocks. Blocks are sampled and placed within regions of a genome <em>segmentation</em>. That is, for a genome segmented into states 1,2,…,S, blocks from state <em>s</em> will be used to tile the ranges of state <em>s</em> in each bootstrap sample.</p>
 <p>The segmented block bootstrap has two options, either:</p>
 <ul>
 <li>Perform a de-novo segmentation of the genome using feature density, e.g. gene density</li>
 <li>Use exiting segmentation (e.g. ChromHMM, etc.) downloaded from AnnotationHub or external to Bioconductor (BED files imported with <em>rtracklayer</em>)</li>
 </ul>
 <p>In this vignette, we give an example of segmenting the hg38 genome by Ensembl gene density, then we profile the time to generate a single block bootstrap sample. Finally, we use a toy dataset to visualize what a segmented block bootstrap sample looks like with respect to a genome segmentation. Future versions of this vignette will demonstrate the functions used within an overlap analysis. See also the unsegmented block bootstrap vignette in <em>nullranges</em>, if it is not desired to bootstrap with respect to a genome segmentation.</p>
-<p>A finally consideration is whether the blocks should scale proportionally to the segment state length (e.g. should segmentation states that make up less of the genome have smaller blocks, and vice-versa). This option is controlled by <code>proportionLength</code> and visualized at the end of this vignette.</p>
+<p>A finally consideration is whether the blocks should scale proportionally to the segment state length, with the default setting of <code>proportionLength=TRUE</code>. When blocks scale proportionally, <code>blockLength</code> provides the maximal length of a block, while the actual block length used for a segmentation state is proportional to the fraction of genomic basepairs covered by that state. This option is visualized on toy data at the end of this vignette.</p>
 </div>
 <div id="segmentation-by-gene-density" class="section level1">
 <h1 class="hasAnchor">
@@ -312,13 +312,13 @@
     no_prop <span class="op">=</span> <span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">dhs</span>, <span class="va">blockLength</span>, seg <span class="op">=</span> <span class="va">seg</span>, proportionLength <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
 <span class="op">)</span>, times<span class="op">=</span><span class="fl">10</span><span class="op">)</span></code></pre></div>
 <pre><code>## Unit: milliseconds
-##     expr      min       lq     mean   median       uq      max neval
-##     prop 198.2643 201.0404 206.0914 203.6770 211.3845 218.0010    10
-##  no_prop 193.5111 196.9466 270.2788 202.6788 209.8969 884.6201    10</code></pre>
+##     expr      min       lq     mean   median       uq       max neval
+##     prop 232.1909 238.6558 248.2682 241.4321 258.0947  286.1045    10
+##  no_prop 228.9111 235.5284 335.9815 240.8614 252.1904 1189.1209    10</code></pre>
 </div>
-<div id="visualizing-the-bootstraps" class="section level1">
+<div id="visualizing-toy-bootstrap-samples" class="section level1">
 <h1 class="hasAnchor">
-<a href="#visualizing-the-bootstraps" class="anchor"></a>Visualizing the bootstraps</h1>
+<a href="#visualizing-toy-bootstrap-samples" class="anchor"></a>Visualizing toy bootstrap samples</h1>
 <p>Below we present a toy example for visualizing the segmented block bootstrap. First, we define a helper function for plotting <em>GRanges</em> using <em>plotgardener</em> <span class="citation">(Kramer et al. 2021)</span>. A key aspect here is that we color the original and bootstrapped ranges by the genomic state (the state of the segmentation that the original ranges fall in).</p>
 <div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://phanstiellab.github.io/plotgardener">plotgardener</a></span><span class="op">)</span><span class="op">)</span>
@@ -402,6 +402,7 @@
                        proportionLength <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 <span class="fu">plotGRanges</span><span class="op">(</span><span class="va">gr_prime</span><span class="op">)</span></code></pre></div>
 <p><img src="segmented_boot_ranges_files/figure-html/toy-prop-1.png"><!-- --></p>
+<p>Note that some ranges from adjacent states are allowed to be placed within different states in the bootstrap sample. This is because, during the random sampling of blocks of original data, a block is allowed to extend beyond the segmentation region of the state being sampled, and features from adjacent states are not excluded from the sampled block.</p>
 </div>
 </div>
 <div id="session-information" class="section level1">
@@ -434,7 +435,7 @@
 ##  [5] SummarizedExperiment_1.23.5 MatrixGenerics_1.5.4       
 ##  [7] matrixStats_0.61.0          ExperimentHub_2.1.4        
 ##  [9] patchwork_1.1.1             plyranges_1.13.1           
-## [11] nullranges_0.99.16          excluderanges_0.99.6       
+## [11] nullranges_0.99.17          excluderanges_0.99.6       
 ## [13] AnnotationHub_3.1.6         BiocFileCache_2.1.1        
 ## [15] dbplyr_2.1.1                EnsDb.Hsapiens.v86_2.99.0  
 ## [17] ensembldb_2.17.4            AnnotationFilter_1.17.1    
