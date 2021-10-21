@@ -58,7 +58,8 @@ visualized at the end of this vignette.
 
 # Segmentation by gene density
 
-First we obtain the Ensembl genes for segmenting by gene density.
+First we obtain the Ensembl genes [@ensembl2021] for segmenting by
+gene density. We obtain these using the *ensembldb* package [@ensembldb].
 
 ```{r}
 suppressPackageStartupMessages(library(EnsDb.Hsapiens.v86))
@@ -67,9 +68,9 @@ filt <- AnnotationFilterList(GeneIdFilter("ENSG", "startsWith"))
 g <- genes(edb, filter = filt)
 ```
 
-We perform some processing to align these features with our excluded
-regions and our features of interest (DNase hypersensitive sites, or
-DHS, defined below).
+We perform some processing to align the sequences (chromosomes) of `g`
+with our excluded regions and our features of interest (DNase
+hypersensitive sites, or DHS, defined below). 
 
 ```{r}
 library(GenomeInfoDb)
@@ -101,6 +102,9 @@ all(seqlengths(g) == seqlengths(exclude))
 
 ## CBS segmentation
 
+We first demonstrate the use a CBS segmentation as implemented in
+*DNAcopy* [@dnacopy]. 
+
 We load the *nullranges* and *plyranges* packages, and *patchwork* in
 order to produce grids of plots.
 
@@ -114,8 +118,6 @@ We subset the excluded ranges to those which are 500 bp or larger. The
 motivation for this step is to avoid segmenting the genome into many
 small pieces due to an abundance of short excluded regions. Note that
 we re-save the excluded ranges to `exclude`.
-
-We use a CBS segmentation as implemented in *DNAcopy* [@dnacopy].
 
 ```{r seg-cbs}
 set.seed(5)
@@ -142,7 +144,6 @@ region <- GRanges("chr16", IRanges(3e7,4e7))
 plotSegment(seg, exclude, type="ranges", region=region)
 ```
 
-
 ## Alternatively: HMM segmentation
 
 Here we use an alternative segmentation implemented in the *RcppHMM*
@@ -161,17 +162,18 @@ plots[[2]] + plots[[3]]
 
 # Segmented block bootstrap
 
-Here, we use a set of DNase hypersensitivity sites (DHS) from the
-ENCODE project in A549 cell line. Here, for speed, we load an existing
-data object which has been processed with the following steps:
+We use a set of DNase hypersensitivity sites (DHS) from the
+ENCODE project [@encode] in A549 cell line (ENCSR614GWM). Here, for
+speed, we work with a pre-processed data object from ExperimentHub,
+created using the following steps:
 
-* Download DNase hypersensitive peaks in A549 from *AnnotationHub* 
+* Download ENCODE DNase hypersensitive peaks in A549 from *AnnotationHub* 
 * Subset to standard chromosomes and remove mitochondrial DNA
 * Use a chain file from UCSC to lift ranges from hg19 to hg38
 * Sort the DHS features to be bootstrapped
 
-These steps are included in *nullrangesOldData* in the
-`scripts/DHSA549Hg38.R` script.
+These steps are included in *nullrangesData* in the
+`inst/scripts/make-dhs-data.R ` script.
 
 ```{r}
 suppressPackageStartupMessages(library(nullrangesData))
@@ -182,7 +184,8 @@ table(seqnames(dhs))
 Now we apply a segmented block bootstrap with blocks of size 500kb,
 to the peaks. Here we simply show generation of two iterations
 of a block bootstrap, while we plan in future sections of this
-vignette to demonstrate its use in a workflow including *plyranges*.
+vignette to demonstrate its use in a workflow including *plyranges*
+[@Lee2019].
 
 ```{r}
 blockLength <- 5e5
@@ -222,11 +225,9 @@ microbenchmark(
 
 # Visualizing the bootstraps
 
-Below we present a toy example for visualizing the segmented block
-bootstrap, visualized with *plotgardener*.
-
-Define a helper function for plotting *GRanges* using
-*plotgardener*. A key aspect here is that we color the original and
+Below we present a toy example for visualizing the segmented block bootstrap.
+First, we define a helper function for plotting *GRanges* using
+*plotgardener* [@Kramer2021]. A key aspect here is that we color the original and
 bootstrapped ranges by the genomic state (the state of the
 segmentation that the original ranges fall in).
 
@@ -257,7 +258,7 @@ plotGRanges <- function(gr) {
 }
 ```
 
-Create a genome segmentation:
+Create a toy genome segmentation:
 
 ```{r}
 library(GenomicRanges)

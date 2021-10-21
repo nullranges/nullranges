@@ -4,14 +4,25 @@
 
 ## Generation of null ranges via bootstrapping or covariate matching
 
-Modular package for generation of sets of ranges
-representing the null hypothesis. These can take the form
-of bootstrap samples of ranges (using the block bootstrap
-framework of Bickel et al 2010), or sets of control ranges
-that are matched across one or more covariates. nullranges
-is designed to be inter-operable with other packages for
-analysis of genomic overlap enrichment, including the
-plyranges Bioconductor package.
+Modular package for generation of sets of genomic features
+representing the null hypothesis. These can take the form of block
+bootstrap samples of ranges using the framework of Bickel et al 2010,
+or sets of control ranges that are matched across one or more
+covariates with a focal set. *nullranges* is designed to be
+inter-operable with other packages for analysis of genomic overlap
+enrichment, including the *plyranges* Bioconductor package.
+
+An overview vignette can be found at the `Get started` tab above,
+while detailed vignettes on matching or bootstrapping can be found
+under `Articles`. The `Reference` tab lists function help pages.
+
+## Installation
+
+This package can be installed via Bioconductor:
+
+```
+BiocManager::install("nullranges")
+```
 
 ## Funding
 

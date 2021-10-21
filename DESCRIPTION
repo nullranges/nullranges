@@ -66,6 +66,7 @@ biocViews: Visualization, GeneSetEnrichment,
     ChIPSeq, ATACSeq, DNaseSeq, RNASeq,
     HiddenMarkovModel
 URL: https://github.com/nullranges/nullranges
+BugReports: https://support.bioconductor.org/t/nullranges/
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
