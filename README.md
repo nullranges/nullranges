@@ -16,6 +16,10 @@ An overview vignette can be found at the `Get started` tab above,
 while detailed vignettes on matching or bootstrapping can be found
 under `Articles`. The `Reference` tab lists function help pages.
 
+You can browse the code or submit an Issue at the following link:
+
+<https://github.com/nullranges/nullranges>
+
 ## Installation
 
 This package can be installed via Bioconductor:
