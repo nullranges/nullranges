@@ -113,8 +113,8 @@
 <div id="background" class="section level2">
 <h2 class="hasAnchor">
 <a href="#background" class="anchor"></a>Background</h2>
-<p>In 2014, in situ Hi-C was used to probe the spatial organization of the human genome and identify 3D structures - such as chromatin loops - characterized by high contact frequency. Chromatin loops can be formed by loop-extrusion, where the ring-like cohesin complex extrudes chromatin until stopped by a bound CTCF transcription factor. Therefore, most validated loops are bound at both ends by a CTCF motif. The convergence rule purports that the vast majority (&gt;90%) of CTCF-bound loops occur in a convergent orientation, where the asymmetric CTCF motifs at each anchor face one another. This is a highly significant finding since we would only expect to find convergently-oriented CTCF motifs 25% of the time by chance.</p>
-<p>Here, we generate a set of null-hypothesis ranges to more rigorously test the convergence rule. We will use <code>hg19_10kb_ctcfBoundBinPairs</code> data from the <code>nullrangesData</code> package which contains features from the GM12878 cell line aligned to hg19 as well as CTCF motif data from the <a href="https://bioconductor.org/packages/devel/data/annotation/html/CTCF.html">CTCF data package</a> available on Bioconductor. <code>hg19_10kb_ctcfBoundBinPairs</code> is a <a href="https://bioconductor.org/packages/release/bioc/html/InteractionSet.html"><code>GInteractions</code></a> object with all interactions between CTCF-bound 10Kb bins within 1Mb annotated with the following features:</p>
+<p>In the human genome, chromatin loops play an important role in regulating gene expression by connecting regulatory loci to gene promoters. The anchors of these loops are bound by the protein CTCF, which is required for loop formation and maintenance. CTCF binds a specific non-palindromic DNA sequence motif. And the direction of this motif at loop anchors is non-random. That is, CTCF binding motifs found at the anchors of loops tend to be oriented towards the center of the loop more often then would be expected by chance. This phenomenon, first described by Rao et al in 2014, is known as the “convergence rule”. It was initially discovered by first filtering for loops that had a single CTCF binding site at each end of the loop. Here we use matchRanges to reinvestigate the convergence using all loops.</p>
+<p>We will use <code>hg19_10kb_ctcfBoundBinPairs</code> data from the <code>nullrangesData</code> package which contains features from the GM12878 cell line aligned to hg19 as well as CTCF motif data from the <a href="https://bioconductor.org/packages/devel/data/annotation/html/CTCF.html">CTCF data package</a> available on Bioconductor. <code>hg19_10kb_ctcfBoundBinPairs</code> is a <a href="https://bioconductor.org/packages/release/bioc/html/InteractionSet.html"><code>GInteractions</code></a> object with all pairwise combinations of CTCF-bound 10Kb bins within 1Mb annotated with the following features:</p>
 <ul>
 <li>The total CTCF signal in each bin.</li>
 <li>The number of CTCF sites in each bin.</li>
@@ -132,10 +132,8 @@
 <p>Before we generate our null ranges, let’s take a look at our example dataset:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">nullrangesData</span><span class="op">)</span>
-
 <span class="co">## Load example data</span>
 <span class="va">binPairs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/nullrangesData/man/hg19_10kb_ctcfBoundBinPairs.html">hg19_10kb_ctcfBoundBinPairs</a></span><span class="op">(</span><span class="op">)</span>
-
 <span class="va">binPairs</span></code></pre></div>
 <pre><code>## StrictGInteractions object with 198120 interactions and 5 metadata columns:
 ##            seqnames1             ranges1     seqnames2             ranges2 |
@@ -210,7 +208,6 @@
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">plyranges</span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org">ggplot2</a></span><span class="op">)</span>
-
 <span class="co">## Summarize ctcfSignal by n_sites</span>
 <span class="va">mgi</span> <span class="op">%&gt;%</span>
   <span class="fu">regions</span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
@@ -286,13 +283,11 @@
 <span class="va">all</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fu"><a href="../reference/focal.html">focal</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span>, <span class="fu"><a href="../reference/pool.html">pool</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span>
 <span class="va">random</span> <span class="op">&lt;-</span> <span class="va">all</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">all</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span>, replace <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">]</span>
-
 <span class="co">## Calculate the percent of convergent CTCF sites for each group</span>
 <span class="va">g1</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="fu"><a href="../reference/focal.html">focal</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span><span class="op">$</span><span class="va">convergent</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="../reference/focal.html">focal</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span>
 <span class="va">g2</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="fu"><a href="../reference/pool.html">pool</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span><span class="op">$</span><span class="va">convergent</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="../reference/pool.html">pool</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span>
 <span class="va">g3</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">random</span><span class="op">$</span><span class="va">convergent</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">random</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span>
 <span class="va">g4</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">$</span><span class="va">convergent</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span>
-
 <span class="co">## Visualize</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html">barplot</a></span><span class="op">(</span>height <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">g1</span>, <span class="va">g2</span>, <span class="va">g3</span>, <span class="va">g4</span><span class="op">)</span>,
         names.arg <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'looped\n(focal)'</span>, <span class="st">'unlooped\n(pool)'</span>,
@@ -303,7 +298,7 @@
         border <span class="op">=</span> <span class="cn">NA</span>,
         las <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></code></pre></div>
 <p><img src="matching_ginteractions_files/figure-html/unnamed-chunk-10-1.png"><!-- --></p>
-<p>It looks like the converget rule holds, even when controlling for CTCF signal strength and bin pair distance. Our looped group has &gt; 90% convergent CTCF sites, while our other groups have about 25% per CTCF site on average.</p>
+<p>As shown above the convergent rule holds true even when controlling for CTCF signal strength and bin pair distance. Greater than 90% of looped pairs contain convergent CTCF sites, compared to only ~55% among non-looped subsets.</p>
 </div>
 <div id="session-information" class="section level1">
 <h1 class="hasAnchor">
@@ -332,7 +327,7 @@
 ## other attached packages:
 ##  [1] patchwork_1.1.1             plyranges_1.13.1           
 ##  [3] nullrangesData_0.99.2       ExperimentHub_2.1.4        
-##  [5] AnnotationHub_3.1.6         BiocFileCache_2.1.1        
+##  [5] AnnotationHub_3.1.7         BiocFileCache_2.1.1        
 ##  [7] dbplyr_2.1.1                ggplot2_3.3.5              
 ##  [9] plotgardener_0.99.16        nullranges_0.99.19         
 ## [11] InteractionSet_1.21.1       SummarizedExperiment_1.23.5
