@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.17</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.18</span>
       </span>
     </div>
 
@@ -84,14 +84,7 @@
   <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
-<ul class="nav navbar-nav navbar-right">
-<li>
-  <a href="https://github.com/nullranges/nullranges/">
-    <span class="fab fa-github fa-lg"></span>
-     
-  </a>
-</li>
-      </ul>
+<ul class="nav navbar-nav navbar-right"></ul>
 </div>
 <!--/.nav-collapse -->
   </div>
@@ -107,9 +100,9 @@
       <h1 data-toc-skip>Case study I: CTCF occupancy</h1>
                         <h4 class="author">Eric S. Davis</h4>
             
-            <h4 class="date">10/21/2021</h4>
+            <h4 class="date">10/22/2021</h4>
       
-      <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/master/vignettes/matching_granges.Rmd"><code>vignettes/matching_granges.Rmd</code></a></small>
+      
       <div class="hidden name"><code>matching_granges.Rmd</code></div>
 
     </div>
@@ -168,7 +161,7 @@
 ##   seqinfo: 23 sequences from hg19 genome</code></pre>
 <p><code><a href="../reference/matchRanges.html">matchRanges()</a></code> works by selecting a set of covariate-matched controls from a pool of options based on an input focal set of interest. Here, we define <code>focal</code> as bins that contain a loop anchor, <code>pool</code> as bins that don’t contain a loop anchor, and <code>covar</code> as DNase signal and number of DNase sites per bin:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/nullranges/nullranges">nullranges</a></span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://nullranges.github.io/nullranges">nullranges</a></span><span class="op">)</span>
 
 <span class="co">## Match ranges</span>
 <span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span>
@@ -318,7 +311,7 @@
 ##  [9] ExperimentHub_2.1.4         AnnotationHub_3.1.6        
 ## [11] BiocFileCache_2.1.1         dbplyr_2.1.1               
 ## [13] ggplot2_3.3.5               plotgardener_0.99.16       
-## [15] nullranges_0.99.17          GenomicRanges_1.45.0       
+## [15] nullranges_0.99.18          GenomicRanges_1.45.0       
 ## [17] GenomeInfoDb_1.29.10        IRanges_2.27.2             
 ## [19] S4Vectors_0.31.5            BiocGenerics_0.39.2        
 ## 
