@@ -24,27 +24,24 @@ Rao et al. 2014.
 
 ## Background
 
-In 2014, in situ Hi-C was used to probe the spatial organization of
-the human genome and identify 3D structures - such as chromatin
-loops - characterized by high contact frequency. Chromatin loops can
-be formed by loop-extrusion, where the ring-like cohesin complex
-extrudes chromatin until stopped by a bound CTCF transcription
-factor. Therefore, most validated loops are bound at both ends by a
-CTCF motif. The convergence rule purports that the vast majority
-(\>90%) of CTCF-bound loops occur in a convergent orientation, where
-the asymmetric CTCF motifs at each anchor face one another. This is a
-highly significant finding since we would only expect to find
-convergently-oriented CTCF motifs 25% of the time by chance. 
+In the human genome, chromatin loops play an important role in regulating gene
+expression by connecting regulatory loci to gene promoters. The anchors of these loops
+are bound by the protein CTCF, which is required for loop formation and maintenance.
+CTCF binds a specific non-palindromic DNA sequence motif. And the direction of this
+motif at loop anchors is non-random. That is, CTCF binding motifs found at the anchors
+of loops tend to be oriented towards the center of the loop more often then would be
+expected by chance. This phenomenon, first described by Rao et al in 2014, is known as
+the “convergence rule”. It was initially discovered by first filtering for loops that
+had a single CTCF binding site at each end of the loop. Here we use matchRanges to
+reinvestigate the convergence using all loops.
 
-Here, we generate a set of null-hypothesis ranges to more rigorously
-test the convergence rule. We will use `hg19_10kb_ctcfBoundBinPairs`
-data from the `nullrangesData` package which contains features from
-the GM12878 cell line aligned to hg19 as well as CTCF motif data from the
-[CTCF data package](https://bioconductor.org/packages/devel/data/annotation/html/CTCF.html) 
+We will use `hg19_10kb_ctcfBoundBinPairs` data from the `nullrangesData` package which
+contains features from the GM12878 cell line aligned to hg19 as well as CTCF motif data from the 
+[CTCF data package](https://bioconductor.org/packages/devel/data/annotation/html/CTCF.html)
 available on Bioconductor. `hg19_10kb_ctcfBoundBinPairs` is a
 [`GInteractions`](https://bioconductor.org/packages/release/bioc/html/InteractionSet.html) 
-object with all interactions between CTCF-bound 10Kb bins within 1Mb
-annotated with the following features: 
+object with all pairwise combinations of CTCF-bound 10Kb bins within 1Mb
+annotated with the following features:
 
 -   The total CTCF signal in each bin.
 -   The number of CTCF sites in each bin.
@@ -52,16 +49,14 @@ annotated with the following features:
 -   Whether at least one CTCF site is convergent between each bin pair.
 -   The presence or absence of a loop between each bin pair.
 
-Using these annotations and the `matchRanges()` function, we can
-compare CTCF motif orientations between pairs of genomic regions that
-are 1) connected by loops, 2) not connected by loops, 3) randomly
-chosen, or 4) not connected by loops, but matched for the strength of
-CTCF sites and distance between loop anchors. 
+Using these annotations and the `matchRanges()` function, we can compare CTCF motif
+orientations between pairs of genomic regions that are 1) connected by loops, 2) not
+connected by loops, 3) randomly chosen, or 4) not connected by loops, but matched for
+the strength of CTCF sites and distance between loop anchors.
 
 ```{r, message=FALSE, warning=FALSE, echo=FALSE, fig.width=8.5, fig.height=6.5, eval=TRUE}
 ## Define colors
 colors <- c("#e19995", "#adaf64", "#4fbe9b", "#6eb3d9", "#d098d7")
-
 ## Create artificial GInteractions
 library(InteractionSet)
 set.seed(5)
@@ -75,7 +70,6 @@ pool <- GInteractions(
   mode = "strict",
   color = sample(1:5, 120, replace = TRUE)
 )
-
 focal <- GInteractions(
   anchor1 = GRanges(seqnames = "chr1",
                     ranges = IRanges(start = sample(1:990, 16, replace = TRUE),
@@ -86,12 +80,9 @@ focal <- GInteractions(
   mode = "strict",
   color = sample(1:5, 16, replace = TRUE)
 )
-
-
 ## Add distance to metadata
 pool$distance <- pairdist(pool)
 focal$distance <- pairdist(focal)
-
 ## Match ranges
 library(nullranges)
 set.seed(123)
@@ -99,17 +90,13 @@ x <- matchRanges(focal = focal,
                  pool = pool,
                  covar = ~color + distance,
                  method = 'n', replace = TRUE)
-
 ## Visualize sets
 library(plotgardener)
 library(grid)
 set.seed(123)
 pageCreate(width = 8.5, height = 6.5, showGuides = FALSE, xgrid = 0, ygrid = 0)
-
 ## Define common parameters
 p <- pgParams(chrom = "chr1", chromstart = 1, chromend = 1000)
-
-
 ## Pool set
 poolSet <- plotPairs(data = pool,
                      params = p,
@@ -122,7 +109,6 @@ plotText(label = "Pool Set",
             fontcolor = "#33A02C",
             fontface = "bold",
             fontfamily = 'mono')
-
 ## Focal set
 focalSet <- plotPairs(data = focal,
                          params = p,
@@ -135,8 +121,6 @@ plotText(label = "Focal Set",
             fontcolor = "#1F78B4",
             fontface = "bold",
             fontfamily = 'mono')
-
-
 ## Matched set
 matchedSet <- plotPairs(data = x,
                            params = p,
@@ -149,8 +133,6 @@ plotText(label = "Matched Set",
             fontcolor = "#A6CEE3",
             fontface = "bold",
             fontfamily = 'mono')
-
-
 ## Arrow and matchRanges label
 plotSegments(x0 = 3.5, y0 = 3,
                 x1 = 5, y1 = 3,
@@ -158,9 +140,6 @@ plotSegments(x0 = 3.5, y0 = 3,
                 fill = "black", lwd = 2)
 plotText(label = "matchRanges()", fontfamily = 'mono',
             x = 4.25, y = 2.9, just = c("center", "bottom"))
-
-
-
 ## Matching plots
 library(ggplot2)
 smallText <- theme(legend.title = element_text(size=8),
@@ -168,25 +147,20 @@ smallText <- theme(legend.title = element_text(size=8),
                    title = element_text(size=8),
                    axis.title.x = element_text(size=8),
                    axis.title.y = element_text(size=8))
-
 plot1 <-
   plotPropensity(x, sets=c('f','m','p')) +
   smallText +
   theme(legend.key.size = unit(0.5, 'lines'),
         title = element_blank())
-
 plot2 <-
   plotCovariate(x=x, covar=covariates(x)[1], sets=c('f','m','p')) +
   smallText +
   theme(legend.text = element_blank(),
         legend.position = 'none')
-
 plot3 <-
   plotCovariate(x=x, covar=covariates(x)[2], sets=c('f','m','p'))+
   smallText + 
   theme(legend.key.size = unit(0.5, 'lines'))
-
-
 ## Propensity scores
 plotText(label = "plotPropensity()",
             x = 1.10, y = 4.24,
@@ -201,7 +175,6 @@ plotText(label = "~color + distance",
 plotGG(plot = plot1,
           x = 1, y = 4.5, width = 2.5, height = 1.5,
           just = c("left", "top"))
-
 ## Covariate balance
 plotText(label = "plotCovariate()",
             x = 3.75, y = 4.24,
@@ -216,7 +189,6 @@ plotText(label = covariates(x),
 plotGG(plot = plot2,
           x = 3.50, y = 4.5, width = 1.8, height = 1.5,
           just = c("left", "top"))
-
 plotGG(plot = plot3,
           x = 5.30, y = 4.5, width = 2.75, height = 1.5,
           just = c("left", "top"))
@@ -228,10 +200,8 @@ Before we generate our null ranges, let's take a look at our example dataset:
 
 ```{r, message=FALSE, warning=FALSE}
 library(nullrangesData)
-
 ## Load example data
 binPairs <- hg19_10kb_ctcfBoundBinPairs()
-
 binPairs
 ```
 
@@ -257,7 +227,6 @@ same operations can be applied:
 ```{r, message=FALSE, warning=FALSE}
 library(plyranges)
 library(ggplot2)
-
 ## Summarize ctcfSignal by n_sites
 mgi %>%
   regions() %>%
@@ -332,13 +301,11 @@ matched for our covariates. The accessor function `focal()` and
 all <- c(focal(mgi), pool(mgi))
 set.seed(123)
 random <- all[sample(1:length(all), length(mgi), replace = FALSE)]
-
 ## Calculate the percent of convergent CTCF sites for each group
 g1 <- (sum(focal(mgi)$convergent) / length(focal(mgi))) * 100
 g2 <- (sum(pool(mgi)$convergent) / length(pool(mgi))) * 100
 g3 <- (sum(random$convergent) / length(random)) * 100
 g4 <- (sum(mgi$convergent) / length(mgi)) * 100
-
 ## Visualize
 barplot(height = c(g1, g2, g3, g4),
         names.arg = c('looped\n(focal)', 'unlooped\n(pool)',
@@ -350,10 +317,9 @@ barplot(height = c(g1, g2, g3, g4),
         las = 1)
 ```
 
-It looks like the converget rule holds, even when controlling for CTCF
-signal strength and bin pair distance. Our looped group has \> 90%
-convergent CTCF sites, while our other groups have about 25% per CTCF
-site on average. 
+As shown above the convergent rule holds true even when controlling for CTCF signal
+strength and bin pair distance. Greater than 90% of looped pairs contain convergent
+CTCF sites, compared to only ~55% among non-looped subsets. 
 
 # Session information
 
