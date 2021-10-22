@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Un-segmented block bootstrap • nullranges</title>
+<title>Unsegmented block bootstrap • nullranges</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
 <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png">
@@ -17,7 +17,7 @@
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="Un-segmented block bootstrap">
+<script src="../pkgdown.js"></script><meta property="og:title" content="Unsegmented block bootstrap">
 <meta property="og:description" content="nullranges">
 <meta property="og:image" content="https://nullranges.github.io/nullranges/logo.png">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.18</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.19</span>
       </span>
     </div>
 
@@ -76,7 +76,7 @@
       <a href="../articles/segmented_boot_ranges.html">Segmented block bootstrap</a>
     </li>
     <li>
-      <a href="../articles/unseg_boot_ranges.html">Un-segmented block bootstrap</a>
+      <a href="../articles/unseg_boot_ranges.html">Unsegmented block bootstrap</a>
     </li>
   </ul>
 </li>
@@ -97,7 +97,7 @@
       </header><script src="unseg_boot_ranges_files/header-attrs-2.11/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1 data-toc-skip>Un-segmented block bootstrap</h1>
+      <h1 data-toc-skip>Unsegmented block bootstrap</h1>
                         <h4 class="author">Michael Love</h4>
             
             <h4 class="date">10/22/2021</h4>
@@ -109,7 +109,7 @@
 
     
     
-<p>In this vignette, we demonstrate the un-segmented block bootstrap functionality implemented in <em>nullranges</em>. “Un-segmented” refers to the fact that this implementation does not consider segmentation of the genome for sampling of blocks, see the segmented block bootstrap vignette for the alternative implementation.</p>
+<p>In this vignette, we demonstrate the unsegmented block bootstrap functionality implemented in <em>nullranges</em>. “Unsegmented” refers to the fact that this implementation does not consider segmentation of the genome for sampling of blocks, see the segmented block bootstrap vignette for the alternative implementation.</p>
 <div id="timing-on-dhs-peaks" class="section level1">
 <h1 class="hasAnchor">
 <a href="#timing-on-dhs-peaks" class="anchor"></a>Timing on DHS peaks</h1>
@@ -211,16 +211,16 @@
                         type<span class="op">=</span><span class="st">"bootstrap"</span>, withinChrom<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span>
   <span class="op">)</span>, times<span class="op">=</span><span class="fl">10</span><span class="op">)</span></code></pre></div>
 <pre><code>## Unit: milliseconds
-##      expr       min        lq      mean    median        uq       max neval
-##  p_within 1019.8818 1029.9805 1049.3870 1039.6075 1068.7377 1116.5599    10
-##  b_within  897.0147  912.4875 1021.0014  933.9436  994.8050 1593.6754    10
-##  p_across  198.4874  212.2340  294.4585  216.8205  248.7514  887.5858    10
-##  b_across  227.4679  238.7171  369.8180  248.9223  269.7135  877.1937    10</code></pre>
+##      expr       min        lq      mean    median        uq      max neval
+##  p_within 1414.8876 1435.7592 1460.0957 1442.9524 1475.8351 1569.565    10
+##  b_within 1239.4410 1247.1710 1407.6645 1311.5660 1353.1049 2156.242    10
+##  p_across  255.4706  265.6539  381.9342  276.4506  326.9533 1187.879    10
+##  b_across  288.8822  303.0925  483.0967  316.2208  337.6557 1189.427    10</code></pre>
 </div>
 <div id="visualize-on-synthetic-data" class="section level1">
 <h1 class="hasAnchor">
 <a href="#visualize-on-synthetic-data" class="anchor"></a>Visualize on synthetic data</h1>
-<p>We create some synthetic ranges in order to visualize the different options of the un-segmented bootstrap implemented in <em>nullranges</em>.</p>
+<p>We create some synthetic ranges in order to visualize the different options of the unsegmented bootstrap implemented in <em>nullranges</em>.</p>
 <div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://bioconductor.org/packages/GenomicRanges">GenomicRanges</a></span><span class="op">)</span>
 <span class="va">seq_nms</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/c.html">c</a></span><span class="op">(</span><span class="st">"chr1"</span>,<span class="st">"chr2"</span>,<span class="st">"chr3"</span><span class="op">)</span>,<span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/c.html">c</a></span><span class="op">(</span><span class="fl">4</span>,<span class="fl">5</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span>
@@ -321,7 +321,7 @@
 ## 
 ## other attached packages:
 ##  [1] plotgardener_0.99.16        microbenchmark_1.4-7       
-##  [3] nullranges_0.99.18          nullrangesData_0.99.2      
+##  [3] nullranges_0.99.19          nullrangesData_0.99.2      
 ##  [5] InteractionSet_1.21.1       SummarizedExperiment_1.23.5
 ##  [7] Biobase_2.53.0              MatrixGenerics_1.5.4       
 ##  [9] matrixStats_0.61.0          GenomicRanges_1.45.0       
