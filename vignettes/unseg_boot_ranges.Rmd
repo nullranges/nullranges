@@ -1,5 +1,5 @@
 ---
-title: "Un-segmented block bootstrap"
+title: "Unsegmented block bootstrap"
 author: "Michael Love"
 date: "`r format(Sys.Date(), '%m/%d/%Y')`"
 output:
@@ -8,13 +8,13 @@ output:
     toc: true
     toc_float: true
 vignette: |
-  %\VignetteIndexEntry{Toy data bootstrap ranges}
+  %\VignetteIndexEntry{5. Unsegmented block bootstrap}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-In this vignette, we demonstrate the un-segmented block bootstrap
-functionality implemented in *nullranges*. "Un-segmented" refers to
+In this vignette, we demonstrate the unsegmented block bootstrap
+functionality implemented in *nullranges*. "Unsegmented" refers to
 the fact that this implementation does not consider segmentation of
 the genome for sampling of blocks, see the segmented block bootstrap
 vignette for the alternative implementation.
@@ -60,7 +60,7 @@ microbenchmark(
 # Visualize on synthetic data
 
 We create some synthetic ranges in order to visualize the different
-options of the un-segmented bootstrap implemented in *nullranges*.
+options of the unsegmented bootstrap implemented in *nullranges*.
 
 ```{r}
 library(GenomicRanges)

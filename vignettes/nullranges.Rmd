@@ -4,7 +4,7 @@ output:
   rmarkdown::html_document
 bibliography: library.bib
 vignette: |
-  %\VignetteIndexEntry{Introduction to null ranges}
+  %\VignetteIndexEntry{0. Introduction to nullranges}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

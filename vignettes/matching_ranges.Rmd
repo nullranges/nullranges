@@ -10,7 +10,7 @@ output:
     fig_width: 5
     fig_height: 3
 vignette: |
-  %\VignetteIndexEntry{Overview of matchRanges}
+  %\VignetteIndexEntry{1. Overview of matchRanges}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

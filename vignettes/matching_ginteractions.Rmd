@@ -10,7 +10,7 @@ output:
     fig_width: 5
     fig_height: 3
 vignette: |
-  %\VignetteIndexEntry{Case study II: CTCF orientation}
+  %\VignetteIndexEntry{3. Case study II: CTCF orientation}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 editor_options: 

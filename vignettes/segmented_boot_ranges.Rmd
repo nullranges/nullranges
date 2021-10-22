@@ -9,7 +9,7 @@ output:
     toc: true
     toc_float: true	
 vignette: |
-  %\VignetteIndexEntry{Segmented block bootstrap}
+  %\VignetteIndexEntry{4. Segmented block bootstrap}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

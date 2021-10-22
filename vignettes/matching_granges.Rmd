@@ -10,7 +10,7 @@ output:
     fig_width: 5
     fig_height: 3
 vignette: |
-  %\VignetteIndexEntry{Case study I: CTCF occupancy}
+  %\VignetteIndexEntry{2. Case study I: CTCF occupancy}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 editor_options: 
