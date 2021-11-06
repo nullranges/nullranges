@@ -91,7 +91,7 @@ bootRanges <- function(y, blockLength, R = 1,
 
   lens <- lengths(br)
   br <- do.call(c, br)
-  mcols(br)$iter <- Rle(seq_len(R), lens)
+  mcols(br)$iter <- Rle(factor(rep(seq_len(R), lens), levels=seq_len(R)))
   mcols(br)$blockLength <- Rle(as.integer(blockLength))
   new("bootRanges", br)
 }

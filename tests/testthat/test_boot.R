@@ -15,12 +15,15 @@ test_that("unseg and seg bootstrap works", {
 
   blockLength <- 100
 
-  gr_prime <- bootRanges(gr, blockLength=blockLength, type="permute", withinChrom=TRUE)
-  expect_true(all(table(seqnames(gr)) == table(seqnames(gr_prime))))
+  R <- 5
+  gr_prime <- bootRanges(gr, blockLength, R, type="permute", withinChrom=TRUE)
+  iter1 <- gr_prime[mcols(gr_prime)$iter == 1]
+  expect_true(all(table(seqnames(gr)) ==
+                  table(seqnames(iter1))))
     
-  gr_prime <- bootRanges(gr, blockLength, type="bootstrap", withinChrom=TRUE)
-  gr_prime <- bootRanges(gr, blockLength, type="permute", withinChrom=FALSE)
-  gr_prime <- bootRanges(gr, blockLength, type="bootstrap", withinChrom=FALSE)
+  gr_prime <- bootRanges(gr, blockLength, R, type="bootstrap", withinChrom=TRUE)
+  gr_prime <- bootRanges(gr, blockLength, R, type="permute", withinChrom=FALSE)
+  gr_prime <- bootRanges(gr, blockLength, R, type="bootstrap", withinChrom=FALSE)
 
   seg <- GRanges(c("chr1","chr1","chr2","chr2","chr3"),
                  IRanges(c(1,151,1,226,1),c(150,300,225,450,200)),
@@ -28,7 +31,7 @@ test_that("unseg and seg bootstrap works", {
 
   fo <- findOverlaps(gr, seg)
   gr$seg_state <- seg$state[subjectHits(fo)]
-  gr_prime <- bootRanges(gr, blockLength, seg=seg)
-  sort(gr_prime)
+  gr_prime <- bootRanges(gr, blockLength, R, seg)
+  # sort(gr_prime)
 
 })

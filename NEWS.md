@@ -1,3 +1,8 @@
+# nullranges 1.1.1
+
+* Change to `factor-Rle` output for `bootRanges` to simplify
+  the downstream plyranges.
+
 # nullranges 1.0.0
 
 * `nullranges` is released on Bioconductor! the package offers
