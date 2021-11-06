@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.19</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.1</span>
       </span>
     </div>
 
@@ -100,7 +100,7 @@
       <h1 data-toc-skip>Overview of matchRanges</h1>
                         <h4 class="author">Eric S. Davis</h4>
             
-            <h4 class="date">10/22/2021</h4>
+            <h4 class="date">11/06/2021</h4>
       
       
       <div class="hidden name"><code>matching_ranges.Rmd</code></div>
@@ -168,7 +168,7 @@
 <p>The resulting <code>MatchedGRanges</code> object is a set of null hypothesis ranges selected from our <code>pool</code> of options that is the same length as our input <code>focal</code> ranges and matched for <code>covar</code> features 2 and 3. These matched ranges print and behave just as normal <code>GRanges</code> would:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://bioconductor.org/packages/GenomicRanges">GenomicRanges</a></span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/sort.html">sort</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span></code></pre></div>
+<span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/sort.html">sort</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span></code></pre></div>
 <pre><code>## MatchedGRanges object with 500 ranges and 3 metadata columns:
 ##         seqnames      ranges strand |  feature1  feature2    feature3
 ##            &lt;Rle&gt;   &lt;IRanges&gt;  &lt;Rle&gt; | &lt;logical&gt; &lt;numeric&gt; &lt;character&gt;
@@ -221,8 +221,8 @@
 <p>Since these functions return ggplots, <code>patchwork</code> can be used to visualize all covariates like this:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com">patchwork</a></span><span class="op">)</span>
-<span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="fu"><a href="../reference/covariates.html">covariates</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span>, <span class="va">plotCovariate</span>, x<span class="op">=</span><span class="va">mgr</span>, sets <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'f'</span>, <span class="st">'m'</span>, <span class="st">'p'</span><span class="op">)</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/funprog.html">Reduce</a></span><span class="op">(</span><span class="st">'/'</span>, <span class="va">plots</span><span class="op">)</span></code></pre></div>
+<span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/lapply.html">lapply</a></span><span class="op">(</span><span class="fu"><a href="../reference/covariates.html">covariates</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span>, <span class="va">plotCovariate</span>, x<span class="op">=</span><span class="va">mgr</span>, sets <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html">c</a></span><span class="op">(</span><span class="st">'f'</span>, <span class="st">'m'</span>, <span class="st">'p'</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/funprog.html">Reduce</a></span><span class="op">(</span><span class="st">'/'</span>, <span class="va">plots</span><span class="op">)</span></code></pre></div>
 <p><img src="matching_ranges_files/figure-html/unnamed-chunk-8-1.png"><!-- --></p>
 <p>By default, continuous features are plotted as density line plots while categorical features are plotted as stacked bar plots. All sets are also shown by default. Defaults can be overridden by setting the <code>type</code> and <code>sets</code> arguments.</p>
 </div>
@@ -262,7 +262,7 @@
 ## [1] "GRanges object with 10000 ranges and 3 metadata columns"
 ## [1] "GRanges object with 500 ranges and 3 metadata columns"
 ## [1] "GRanges object with 9500 ranges and 3 metadata columns"</code></pre>
-<p>The <code><a href="../reference/indices.html">indices()</a></code> function can be used to find the original indices for each set. For example, <code><a href="../reference/indices.html">indices(x, set="matched")</a></code> will supply the indices from the <code>pool</code> set that corresponds to the <code>matched</code> set. In fact, <code><a href="../reference/matched.html">matched(x)</a></code> is a convenient wrapper around <code>pool(x)[indices(x, set='matched')</code>:</p>
+<p>The <code><a href="../reference/indices.html">indices()</a></code> function can be used to find the original indices for each set. For example, <code>indices(x, set="matched")</code> will supply the indices from the <code>pool</code> set that corresponds to the <code>matched</code> set. In fact, <code>matched(x)</code> is a convenient wrapper around <code>pool(x)[indices(x, set='matched')</code>:</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/identical.html">identical</a></span><span class="op">(</span><span class="fu"><a href="../reference/matched.html">matched</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span>, <span class="fu"><a href="../reference/pool.html">pool</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="../reference/indices.html">indices</a></span><span class="op">(</span><span class="va">mgr</span>, set <span class="op">=</span> <span class="st">'matched'</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></code></pre></div>
 <pre><code>## [1] TRUE</code></pre>
@@ -295,11 +295,11 @@
 <p>This method is best if you have a very large dataset because it is usually the fastest matching method. However, because sampling is done with replacement the user should be careful to assess the number of duplicate ranges pulled. This can be done using the <code><a href="../reference/indices.html">indices()</a></code> function:</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">## Total number of duplicated indices</span>
-<span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/duplicated.html">duplicated</a></span><span class="op">(</span><span class="fu"><a href="../reference/indices.html">indices</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/which.html">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/duplicated.html">duplicated</a></span><span class="op">(</span><span class="fu"><a href="../reference/indices.html">indices</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
 
-<span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="fu"><a href="../reference/indices.html">indices</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">1</span><span class="op">)</span> <span class="co"># used more than once</span>
-<span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="fu"><a href="../reference/indices.html">indices</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">2</span><span class="op">)</span> <span class="co"># used more than twice</span>
-<span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="fu"><a href="../reference/indices.html">indices</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">3</span><span class="op">)</span> <span class="co"># used more than thrice</span></code></pre></div>
+<span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/table.html">table</a></span><span class="op">(</span><span class="fu"><a href="../reference/indices.html">indices</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">1</span><span class="op">)</span> <span class="co"># used more than once</span>
+<span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/table.html">table</a></span><span class="op">(</span><span class="fu"><a href="../reference/indices.html">indices</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">2</span><span class="op">)</span> <span class="co"># used more than twice</span>
+<span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/table.html">table</a></span><span class="op">(</span><span class="fu"><a href="../reference/indices.html">indices</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">3</span><span class="op">)</span> <span class="co"># used more than thrice</span></code></pre></div>
 <pre><code>## [1] 59
 ## [1] 51
 ## [1] 8
@@ -341,8 +341,8 @@
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">## Extract difference in propensity scores</span>
 <span class="co">## between focal and matched sets</span>
-<span class="va">fmps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">nn</span>, <span class="va">rs</span>, <span class="va">ss</span><span class="op">)</span>, <span class="va">`[[`</span>, <span class="st">"quality"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'nearest'</span>, <span class="st">'rejection'</span>, <span class="st">'stratified'</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/which.min.html">which.min</a></span><span class="op">(</span><span class="va">fmps</span><span class="op">)</span><span class="op">]</span></code></pre></div>
+<span class="va">fmps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/lapply.html">sapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html">c</a></span><span class="op">(</span><span class="va">nn</span>, <span class="va">rs</span>, <span class="va">ss</span><span class="op">)</span>, <span class="va">`[[`</span>, <span class="st">"quality"</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html">c</a></span><span class="op">(</span><span class="st">'nearest'</span>, <span class="st">'rejection'</span>, <span class="st">'stratified'</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/which.min.html">which.min</a></span><span class="op">(</span><span class="va">fmps</span><span class="op">)</span><span class="op">]</span></code></pre></div>
 <pre><code>## [1] "stratified"</code></pre>
 </div>
 </div>
@@ -384,47 +384,47 @@
 ## [8] methods   base     
 ## 
 ## other attached packages:
-## [1] patchwork_1.1.1      GenomicRanges_1.45.0 GenomeInfoDb_1.29.10
-## [4] IRanges_2.27.2       S4Vectors_0.31.5     BiocGenerics_0.39.2 
-## [7] ggplot2_3.3.5        plotgardener_0.99.16 nullranges_0.99.19  
+## [1] patchwork_1.1.1      GenomicRanges_1.46.0 GenomeInfoDb_1.30.0 
+## [4] IRanges_2.28.0       S4Vectors_0.32.1     BiocGenerics_0.40.0 
+## [7] ggplot2_3.3.5        plotgardener_1.0.1   nullranges_1.1.1    
 ## 
 ## loaded via a namespace (and not attached):
 ##  [1] bitops_1.0-7                matrixStats_0.61.0         
 ##  [3] fs_1.5.0                    progress_1.2.2             
 ##  [5] RColorBrewer_1.1-2          rprojroot_2.0.2            
-##  [7] InteractionSet_1.21.1       tools_4.1.1                
+##  [7] InteractionSet_1.22.0       tools_4.1.1                
 ##  [9] bslib_0.3.1                 utf8_1.2.2                 
 ## [11] R6_2.5.1                    KernSmooth_2.23-20         
 ## [13] DBI_1.1.1                   colorspace_2.0-2           
 ## [15] withr_2.4.2                 prettyunits_1.1.1          
 ## [17] tidyselect_1.1.1            curl_4.3.2                 
 ## [19] compiler_4.1.1              textshaping_0.3.6          
-## [21] Biobase_2.53.0              desc_1.4.0                 
-## [23] DelayedArray_0.19.4         labeling_0.4.2             
-## [25] rtracklayer_1.53.1          sass_0.4.0                 
+## [21] Biobase_2.54.0              desc_1.4.0                 
+## [23] DelayedArray_0.20.0         labeling_0.4.2             
+## [25] rtracklayer_1.54.0          sass_0.4.0                 
 ## [27] scales_1.1.1                mvtnorm_1.1-3              
 ## [29] ggridges_0.5.3              pkgdown_1.6.1              
 ## [31] speedglm_0.3-3              yulab.utils_0.0.4          
 ## [33] systemfonts_1.0.3           stringr_1.4.0              
-## [35] digest_0.6.28               Rsamtools_2.9.1            
-## [37] rmarkdown_2.11              XVector_0.33.0             
+## [35] digest_0.6.28               Rsamtools_2.10.0           
+## [37] rmarkdown_2.11              XVector_0.34.0             
 ## [39] pkgconfig_2.0.3             htmltools_0.5.2            
-## [41] MatrixGenerics_1.5.4        highr_0.9                  
+## [41] MatrixGenerics_1.6.0        highr_0.9                  
 ## [43] fastmap_1.1.0               rlang_0.4.12               
 ## [45] farver_2.1.0                gridGraphics_0.5-1         
-## [47] jquerylib_0.1.4             BiocIO_1.3.0               
-## [49] generics_0.1.0              jsonlite_1.7.2             
-## [51] mclust_5.4.7                BiocParallel_1.27.17       
+## [47] jquerylib_0.1.4             BiocIO_1.4.0               
+## [49] generics_0.1.1              jsonlite_1.7.2             
+## [51] mclust_5.4.7                BiocParallel_1.28.0        
 ## [53] dplyr_1.0.7                 RCurl_1.98-1.5             
 ## [55] magrittr_2.0.1              ggplotify_0.1.0            
 ## [57] GenomeInfoDbData_1.2.7      Matrix_1.3-4               
 ## [59] Rcpp_1.0.7                  munsell_0.5.0              
 ## [61] fansi_0.5.0                 lifecycle_1.0.1            
 ## [63] stringi_1.7.5               yaml_2.2.1                 
-## [65] MASS_7.3-54                 SummarizedExperiment_1.23.5
-## [67] zlibbioc_1.39.0             plyr_1.8.6                 
-## [69] parallel_4.1.1              crayon_1.4.1               
-## [71] lattice_0.20-45             Biostrings_2.61.2          
+## [65] MASS_7.3-54                 SummarizedExperiment_1.24.0
+## [67] zlibbioc_1.40.0             plyr_1.8.6                 
+## [69] parallel_4.1.1              crayon_1.4.2               
+## [71] lattice_0.20-45             Biostrings_2.62.0          
 ## [73] hms_1.1.1                   knitr_1.36                 
 ## [75] pillar_1.6.4                rjson_0.2.20               
 ## [77] strawr_0.0.9                XML_3.99-0.8               
@@ -432,10 +432,10 @@
 ## [81] data.table_1.14.2           vctrs_0.3.8                
 ## [83] gtable_0.3.0                purrr_0.3.4                
 ## [85] assertthat_0.2.1            ks_1.13.2                  
-## [87] cachem_1.0.6                xfun_0.27                  
+## [87] cachem_1.0.6                xfun_0.28                  
 ## [89] restfulr_0.0.13             pracma_2.3.3               
-## [91] ragg_1.1.3                  tibble_3.1.5               
-## [93] GenomicAlignments_1.29.0    plyranges_1.13.1           
+## [91] ragg_1.2.0                  tibble_3.1.5               
+## [93] GenomicAlignments_1.30.0    plyranges_1.14.0           
 ## [95] memoise_2.0.0               ellipsis_0.3.2</code></pre>
 </div>
   </div>

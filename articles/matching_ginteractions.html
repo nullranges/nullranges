@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.19</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.1</span>
       </span>
     </div>
 
@@ -100,7 +100,7 @@
       <h1 data-toc-skip>Case study II: CTCF orientation</h1>
                         <h4 class="author">Eric S. Davis</h4>
             
-            <h4 class="date">10/22/2021</h4>
+            <h4 class="date">11/06/2021</h4>
       
       
       <div class="hidden name"><code>matching_ginteractions.Rmd</code></div>
@@ -209,11 +209,11 @@
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">plyranges</span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org">ggplot2</a></span><span class="op">)</span>
 <span class="co">## Summarize ctcfSignal by n_sites</span>
-<span class="va">mgi</span> <span class="op">%&gt;%</span>
-  <span class="fu">regions</span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">group_by</a></span><span class="op">(</span><span class="va">n_sites</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">summarize</a></span><span class="op">(</span>ctcfSignal <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">ctcfSignal</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
+<span class="va">mgi</span> <span class="op"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">%&gt;%</a></span>
+  <span class="fu"><a href="https://rdrr.io/pkg/InteractionSet/man/interaction-accessors.html">regions</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">%&gt;%</a></span>
+  <span class="fu"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">group_by</a></span><span class="op">(</span><span class="va">n_sites</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">%&gt;%</a></span>
+  <span class="fu"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">summarize</a></span><span class="op">(</span>ctcfSignal <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/mean.html">mean</a></span><span class="op">(</span><span class="va">ctcfSignal</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">%&gt;%</a></span>
+  <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">%&gt;%</a></span>
   <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">n_sites</span>, y <span class="op">=</span> <span class="va">ctcfSignal</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
     <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html">geom_line</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span>
     <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span><span class="op">(</span>shape <span class="op">=</span> <span class="fl">21</span>, stroke <span class="op">=</span> <span class="fl">1</span>,  fill <span class="op">=</span> <span class="st">'white'</span><span class="op">)</span> <span class="op">+</span>
@@ -260,17 +260,17 @@
 <a href="#visualizing-matching-results" class="anchor"></a>Visualizing matching results</h3>
 <p>Let’s visualize overall matching quality by plotting propensity scores for the focal, pool, and matched sets:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/plotPropensity.html">plotPropensity</a></span><span class="op">(</span><span class="va">mgi</span>, sets <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'f'</span>, <span class="st">'p'</span>, <span class="st">'m'</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="fu"><a href="../reference/plotPropensity.html">plotPropensity</a></span><span class="op">(</span><span class="va">mgi</span>, sets <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html">c</a></span><span class="op">(</span><span class="st">'f'</span>, <span class="st">'p'</span>, <span class="st">'m'</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p><img src="matching_ginteractions_files/figure-html/unnamed-chunk-7-1.png"><!-- --></p>
-<p>Log transformations can be applied to ‘x’, ‘y’, or both (<code><a href="https://rdrr.io/r/base/c.html">c('x', 'y')</a></code>) for plotting functions to make it easier to assess quality. It is clear that the matched set is very well matched to the focal set:</p>
+<p>Log transformations can be applied to ‘x’, ‘y’, or both (<code>c('x', 'y')</code>) for plotting functions to make it easier to assess quality. It is clear that the matched set is very well matched to the focal set:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/plotPropensity.html">plotPropensity</a></span><span class="op">(</span><span class="va">mgi</span>, sets <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'f'</span>, <span class="st">'p'</span>, <span class="st">'m'</span><span class="op">)</span>, log <span class="op">=</span> <span class="st">'x'</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="fu"><a href="../reference/plotPropensity.html">plotPropensity</a></span><span class="op">(</span><span class="va">mgi</span>, sets <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html">c</a></span><span class="op">(</span><span class="st">'f'</span>, <span class="st">'p'</span>, <span class="st">'m'</span><span class="op">)</span>, log <span class="op">=</span> <span class="st">'x'</span><span class="op">)</span></code></pre></div>
 <p><img src="matching_ginteractions_files/figure-html/unnamed-chunk-8-1.png"><!-- --></p>
 <p>We can ensure that covariate distributions have been matched appropriately by using the <code><a href="../reference/covariates.html">covariates()</a></code> function to extract matched covariates along with <code>patchwork</code> and <code>plotCovarite</code> to visualize all distributions:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com">patchwork</a></span><span class="op">)</span>
-<span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="fu"><a href="../reference/covariates.html">covariates</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span>, <span class="va">plotCovariate</span>, x<span class="op">=</span><span class="va">mgi</span>, sets <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'f'</span>, <span class="st">'m'</span>, <span class="st">'p'</span><span class="op">)</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/funprog.html">Reduce</a></span><span class="op">(</span><span class="st">'/'</span>, <span class="va">plots</span><span class="op">)</span></code></pre></div>
+<span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/lapply.html">lapply</a></span><span class="op">(</span><span class="fu"><a href="../reference/covariates.html">covariates</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span>, <span class="va">plotCovariate</span>, x<span class="op">=</span><span class="va">mgi</span>, sets <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html">c</a></span><span class="op">(</span><span class="st">'f'</span>, <span class="st">'m'</span>, <span class="st">'p'</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/funprog.html">Reduce</a></span><span class="op">(</span><span class="st">'/'</span>, <span class="va">plots</span><span class="op">)</span></code></pre></div>
 <p><img src="matching_ginteractions_files/figure-html/unnamed-chunk-9-1.png"><!-- --></p>
 </div>
 </div>
@@ -280,7 +280,7 @@
 <p>Using our matched ranges, we can compare the percent of looped pairs with at least one convergent CTCF site against unlooped pairs, randomly selected pairs, and pairs that are unlooped but have been matched for our covariates. The accessor function <code><a href="../reference/focal.html">focal()</a></code> and <code><a href="../reference/pool.html">pool()</a></code> can be used to conveniently extract these matched sets:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">## Generate a randomly selected set from all binPairs</span>
-<span class="va">all</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fu"><a href="../reference/focal.html">focal</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span>, <span class="fu"><a href="../reference/pool.html">pool</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span><span class="op">)</span>
+<span class="va">all</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html">c</a></span><span class="op">(</span><span class="fu"><a href="../reference/focal.html">focal</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span>, <span class="fu"><a href="../reference/pool.html">pool</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span>
 <span class="va">random</span> <span class="op">&lt;-</span> <span class="va">all</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">all</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span>, replace <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">]</span>
 <span class="co">## Calculate the percent of convergent CTCF sites for each group</span>
@@ -289,10 +289,10 @@
 <span class="va">g3</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">random</span><span class="op">$</span><span class="va">convergent</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">random</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span>
 <span class="va">g4</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">$</span><span class="va">convergent</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span>
 <span class="co">## Visualize</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html">barplot</a></span><span class="op">(</span>height <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">g1</span>, <span class="va">g2</span>, <span class="va">g3</span>, <span class="va">g4</span><span class="op">)</span>,
-        names.arg <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'looped\n(focal)'</span>, <span class="st">'unlooped\n(pool)'</span>,
+<span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html">barplot</a></span><span class="op">(</span>height <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html">c</a></span><span class="op">(</span><span class="va">g1</span>, <span class="va">g2</span>, <span class="va">g3</span>, <span class="va">g4</span><span class="op">)</span>,
+        names.arg <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html">c</a></span><span class="op">(</span><span class="st">'looped\n(focal)'</span>, <span class="st">'unlooped\n(pool)'</span>,
                       <span class="st">'all pairs\n(random)'</span>, <span class="st">'unlooped\n(matched)'</span><span class="op">)</span>,
-        col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'#1F78B4'</span>, <span class="st">'#33A02C'</span>, <span class="st">'orange2'</span>, <span class="st">'#A6CEE3'</span><span class="op">)</span>, 
+        col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html">c</a></span><span class="op">(</span><span class="st">'#1F78B4'</span>, <span class="st">'#33A02C'</span>, <span class="st">'orange2'</span>, <span class="st">'#A6CEE3'</span><span class="op">)</span>, 
         ylab <span class="op">=</span> <span class="st">"Convergent CTCF Sites (%)"</span>,
         main <span class="op">=</span> <span class="st">"Testing the Convergence Rule"</span>,
         border <span class="op">=</span> <span class="cn">NA</span>,
@@ -325,28 +325,28 @@
 ## [8] methods   base     
 ## 
 ## other attached packages:
-##  [1] patchwork_1.1.1             plyranges_1.13.1           
-##  [3] nullrangesData_0.99.2       ExperimentHub_2.1.4        
-##  [5] AnnotationHub_3.1.7         BiocFileCache_2.1.1        
+##  [1] patchwork_1.1.1             plyranges_1.14.0           
+##  [3] nullrangesData_1.0.0        ExperimentHub_2.2.0        
+##  [5] AnnotationHub_3.2.0         BiocFileCache_2.2.0        
 ##  [7] dbplyr_2.1.1                ggplot2_3.3.5              
-##  [9] plotgardener_0.99.16        nullranges_0.99.19         
-## [11] InteractionSet_1.21.1       SummarizedExperiment_1.23.5
-## [13] Biobase_2.53.0              MatrixGenerics_1.5.4       
-## [15] matrixStats_0.61.0          GenomicRanges_1.45.0       
-## [17] GenomeInfoDb_1.29.10        IRanges_2.27.2             
-## [19] S4Vectors_0.31.5            BiocGenerics_0.39.2        
+##  [9] plotgardener_1.0.1          nullranges_1.1.1           
+## [11] InteractionSet_1.22.0       SummarizedExperiment_1.24.0
+## [13] Biobase_2.54.0              MatrixGenerics_1.6.0       
+## [15] matrixStats_0.61.0          GenomicRanges_1.46.0       
+## [17] GenomeInfoDb_1.30.0         IRanges_2.28.0             
+## [19] S4Vectors_0.32.1            BiocGenerics_0.40.0        
 ## 
 ## loaded via a namespace (and not attached):
 ##   [1] colorspace_2.0-2              rjson_0.2.20                 
 ##   [3] ellipsis_0.3.2                ggridges_0.5.3               
 ##   [5] mclust_5.4.7                  rprojroot_2.0.2              
-##   [7] XVector_0.33.0                fs_1.5.0                     
+##   [7] XVector_0.34.0                fs_1.5.0                     
 ##   [9] farver_2.1.0                  bit64_4.0.5                  
-##  [11] AnnotationDbi_1.55.2          interactiveDisplayBase_1.31.2
+##  [11] AnnotationDbi_1.56.1          interactiveDisplayBase_1.32.0
 ##  [13] fansi_0.5.0                   mvtnorm_1.1-3                
 ##  [15] cachem_1.0.6                  knitr_1.36                   
 ##  [17] jsonlite_1.7.2                speedglm_0.3-3               
-##  [19] Rsamtools_2.9.1               png_0.1-7                    
+##  [19] Rsamtools_2.10.0              png_0.1-7                    
 ##  [21] shiny_1.7.1                   BiocManager_1.30.16          
 ##  [23] compiler_4.1.1                httr_1.4.2                   
 ##  [25] assertthat_0.2.1              Matrix_1.3-4                 
@@ -357,34 +357,34 @@
 ##  [35] dplyr_1.0.7                   rappdirs_0.3.3               
 ##  [37] Rcpp_1.0.7                    jquerylib_0.1.4              
 ##  [39] pkgdown_1.6.1                 vctrs_0.3.8                  
-##  [41] Biostrings_2.61.2             strawr_0.0.9                 
-##  [43] rtracklayer_1.53.1            xfun_0.27                    
+##  [41] Biostrings_2.62.0             strawr_0.0.9                 
+##  [43] rtracklayer_1.54.0            xfun_0.28                    
 ##  [45] stringr_1.4.0                 mime_0.12                    
 ##  [47] lifecycle_1.0.1               restfulr_0.0.13              
-##  [49] XML_3.99-0.8                  zlibbioc_1.39.0              
+##  [49] XML_3.99-0.8                  zlibbioc_1.40.0              
 ##  [51] MASS_7.3-54                   scales_1.1.1                 
 ##  [53] hms_1.1.1                     promises_1.2.0.1             
-##  [55] ragg_1.1.3                    parallel_4.1.1               
+##  [55] ragg_1.2.0                    parallel_4.1.1               
 ##  [57] RColorBrewer_1.1-2            yaml_2.2.1                   
 ##  [59] curl_4.3.2                    memoise_2.0.0                
 ##  [61] yulab.utils_0.0.4             sass_0.4.0                   
 ##  [63] stringi_1.7.5                 RSQLite_2.2.8                
 ##  [65] BiocVersion_3.14.0            highr_0.9                    
-##  [67] BiocIO_1.3.0                  desc_1.4.0                   
-##  [69] filelock_1.0.2                BiocParallel_1.27.17         
+##  [67] BiocIO_1.4.0                  desc_1.4.0                   
+##  [69] filelock_1.0.2                BiocParallel_1.28.0          
 ##  [71] rlang_0.4.12                  pkgconfig_2.0.3              
 ##  [73] systemfonts_1.0.3             bitops_1.0-7                 
 ##  [75] pracma_2.3.3                  evaluate_0.14                
 ##  [77] lattice_0.20-45               purrr_0.3.4                  
-##  [79] GenomicAlignments_1.29.0      ks_1.13.2                    
+##  [79] GenomicAlignments_1.30.0      ks_1.13.2                    
 ##  [81] labeling_0.4.2                bit_4.0.4                    
 ##  [83] tidyselect_1.1.1              plyr_1.8.6                   
 ##  [85] magrittr_2.0.1                R6_2.5.1                     
-##  [87] generics_0.1.0                DelayedArray_0.19.4          
+##  [87] generics_0.1.1                DelayedArray_0.20.0          
 ##  [89] DBI_1.1.1                     pillar_1.6.4                 
-##  [91] withr_2.4.2                   KEGGREST_1.33.0              
+##  [91] withr_2.4.2                   KEGGREST_1.34.0              
 ##  [93] RCurl_1.98-1.5                tibble_3.1.5                 
-##  [95] crayon_1.4.1                  KernSmooth_2.23-20           
+##  [95] crayon_1.4.2                  KernSmooth_2.23-20           
 ##  [97] utf8_1.2.2                    rmarkdown_2.11               
 ##  [99] progress_1.2.2                data.table_1.14.2            
 ## [101] blob_1.2.2                    digest_0.6.28                

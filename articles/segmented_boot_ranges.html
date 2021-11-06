@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.19</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.1</span>
       </span>
     </div>
 
@@ -100,7 +100,7 @@
       <h1 data-toc-skip>Segmented block bootstrap</h1>
                         <h4 class="author">Wancen Mu</h4>
             
-            <h4 class="date">10/22/2021</h4>
+            <h4 class="date">11/06/2021</h4>
       
       
       <div class="hidden name"><code>segmented_boot_ranges.Rmd</code></div>
@@ -130,19 +130,19 @@
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">EnsDb.Hsapiens.v86</span><span class="op">)</span><span class="op">)</span>
 <span class="va">edb</span> <span class="op">&lt;-</span> <span class="va">EnsDb.Hsapiens.v86</span>
 <span class="va">filt</span> <span class="op">&lt;-</span> <span class="fu">AnnotationFilterList</span><span class="op">(</span><span class="fu">GeneIdFilter</span><span class="op">(</span><span class="st">"ENSG"</span>, <span class="st">"startsWith"</span><span class="op">)</span><span class="op">)</span>
-<span class="va">g</span> <span class="op">&lt;-</span> <span class="fu">genes</span><span class="op">(</span><span class="va">edb</span>, filter <span class="op">=</span> <span class="va">filt</span><span class="op">)</span></code></pre></div>
+<span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/ensembldb/man/EnsDb-exonsBy.html">genes</a></span><span class="op">(</span><span class="va">edb</span>, filter <span class="op">=</span> <span class="va">filt</span><span class="op">)</span></code></pre></div>
 <p>We perform some processing to align the sequences (chromosomes) of <code>g</code> with our excluded regions and our features of interest (DNase hypersensitive sites, or DHS, defined below).</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://bioconductor.org/packages/GenomeInfoDb">GenomeInfoDb</a></span><span class="op">)</span>
 <span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqlevels-wrappers.html">keepStandardChromosomes</a></span><span class="op">(</span><span class="va">g</span>, pruning.mode <span class="op">=</span> <span class="st">"coarse"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqinfo.html">seqlevels</a></span><span class="op">(</span><span class="va">g</span>, pruning.mode<span class="op">=</span><span class="st">"coarse"</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/setops-methods.html">setdiff</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqinfo.html">seqlevels</a></span><span class="op">(</span><span class="va">g</span><span class="op">)</span>, <span class="st">"MT"</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqinfo.html">seqlevels</a></span><span class="op">(</span><span class="va">g</span>, pruning.mode<span class="op">=</span><span class="st">"coarse"</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/sets.html">setdiff</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqinfo.html">seqlevels</a></span><span class="op">(</span><span class="va">g</span><span class="op">)</span>, <span class="st">"MT"</span><span class="op">)</span>
 <span class="co"># normally we would assign a new style, but for recent host issues</span>
 <span class="co">## seqlevelsStyle(g) &lt;- "UCSC" </span>
 <span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqinfo.html">seqlevels</a></span><span class="op">(</span><span class="va">g</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"chr"</span>, <span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqinfo.html">seqlevels</a></span><span class="op">(</span><span class="va">g</span><span class="op">)</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqinfo.html">genome</a></span><span class="op">(</span><span class="va">g</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"hg38"</span>
 <span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqinfo.html">sortSeqlevels</a></span><span class="op">(</span><span class="va">g</span><span class="op">)</span>
-<span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html">sort</a></span><span class="op">(</span><span class="va">g</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqinfo.html">seqnames</a></span><span class="op">(</span><span class="va">g</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/sort.html">sort</a></span><span class="op">(</span><span class="va">g</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/table.html">table</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqinfo.html">seqnames</a></span><span class="op">(</span><span class="va">g</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code>## 
 ##  chr1  chr2  chr3  chr4  chr5  chr6  chr7  chr8  chr9 chr10 chr11 chr12 chr13 
 ##  5194  3971  3010  2505  2868  2863  2867  2353  2242  2204  3235  2940  1304 
@@ -177,14 +177,14 @@
 <p>We subset the excluded ranges to those which are 500 bp or larger. The motivation for this step is to avoid segmenting the genome into many small pieces due to an abundance of short excluded regions. Note that we re-save the excluded ranges to <code>exclude</code>.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span>
-<span class="va">exclude</span> <span class="op">&lt;-</span> <span class="va">exclude</span> <span class="op">%&gt;%</span>
-  <span class="fu">plyranges</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">filter</a></span><span class="op">(</span><span class="fu">width</span><span class="op">(</span><span class="va">exclude</span><span class="op">)</span> <span class="op">&gt;=</span> <span class="fl">500</span><span class="op">)</span>
+<span class="va">exclude</span> <span class="op">&lt;-</span> <span class="va">exclude</span> <span class="op"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">%&gt;%</a></span>
+  <span class="fu">plyranges</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">filter</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/start.html">width</a></span><span class="op">(</span><span class="va">exclude</span><span class="op">)</span> <span class="op">&gt;=</span> <span class="fl">500</span><span class="op">)</span>
 <span class="va">L_s</span> <span class="op">&lt;-</span> <span class="fl">1e6</span>
 <span class="va">seg</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/segmentDensity.html">segmentDensity</a></span><span class="op">(</span><span class="va">g</span>, n <span class="op">=</span> <span class="fl">3</span>, L_s <span class="op">=</span> <span class="va">L_s</span>,
                       exclude <span class="op">=</span> <span class="va">exclude</span>, type <span class="op">=</span> <span class="st">"cbs"</span><span class="op">)</span></code></pre></div>
 <pre><code>## Analyzing: Sample.1</code></pre>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"ranges"</span>,<span class="st">"barplot"</span>,<span class="st">"boxplot"</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">t</span><span class="op">)</span> <span class="op">{</span>
+<code class="sourceCode R"><span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/lapply.html">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html">c</a></span><span class="op">(</span><span class="st">"ranges"</span>,<span class="st">"barplot"</span>,<span class="st">"boxplot"</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">t</span><span class="op">)</span> <span class="op">{</span>
   <span class="fu"><a href="../reference/plotSegment.html">plotSegment</a></span><span class="op">(</span><span class="va">seg</span>, <span class="va">exclude</span>, type <span class="op">=</span> <span class="va">t</span><span class="op">)</span>
 <span class="op">}</span><span class="op">)</span>
 <span class="va">plots</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></code></pre></div>
@@ -194,7 +194,7 @@
 <p><img src="segmented_boot_ranges_files/figure-html/seg-cbs-2.png"><!-- --></p>
 <p>Note here, the default <em>ranges</em> plot gives whole genome and every fractured bind regions represents state transformations happens. However, some transformations within small ranges cannot be visualized, e.g 1kb. If user want to look into specific ranges of segmentation state, the <em>region</em> argument is flexible to support.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">region</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html">GRanges</a></span><span class="op">(</span><span class="st">"chr16"</span>, <span class="fu">IRanges</span><span class="op">(</span><span class="fl">3e7</span>,<span class="fl">4e7</span><span class="op">)</span><span class="op">)</span>
+<code class="sourceCode R"><span class="va">region</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html">GRanges</a></span><span class="op">(</span><span class="st">"chr16"</span>, <span class="fu"><a href="https://rdrr.io/pkg/IRanges/man/IRanges-constructor.html">IRanges</a></span><span class="op">(</span><span class="fl">3e7</span>,<span class="fl">4e7</span><span class="op">)</span><span class="op">)</span>
 <span class="fu"><a href="../reference/plotSegment.html">plotSegment</a></span><span class="op">(</span><span class="va">seg</span>, <span class="va">exclude</span>, type<span class="op">=</span><span class="st">"ranges"</span>, region<span class="op">=</span><span class="va">region</span><span class="op">)</span></code></pre></div>
 <p><img src="segmented_boot_ranges_files/figure-html/unnamed-chunk-5-1.png"><!-- --></p>
 </div>
@@ -207,7 +207,7 @@
                           exclude <span class="op">=</span> <span class="va">exclude</span>, type <span class="op">=</span> <span class="st">"hmm"</span><span class="op">)</span></code></pre></div>
 <pre><code>## Finished at Iteration: 100 with Error: 9.31905e-06</code></pre>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"ranges"</span>,<span class="st">"barplot"</span>,<span class="st">"boxplot"</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">t</span><span class="op">)</span> <span class="op">{</span>
+<code class="sourceCode R"><span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/lapply.html">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html">c</a></span><span class="op">(</span><span class="st">"ranges"</span>,<span class="st">"barplot"</span>,<span class="st">"boxplot"</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">t</span><span class="op">)</span> <span class="op">{</span>
   <span class="fu"><a href="../reference/plotSegment.html">plotSegment</a></span><span class="op">(</span><span class="va">seg_hmm</span>, <span class="va">exclude</span>, type <span class="op">=</span> <span class="va">t</span><span class="op">)</span>
 <span class="op">}</span><span class="op">)</span>
 <span class="va">plots</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></code></pre></div>
@@ -231,13 +231,13 @@
 <p>These steps are included in <em>nullrangesData</em> in the <code>inst/scripts/make-dhs-data.R</code> script.</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">nullrangesData</span><span class="op">)</span><span class="op">)</span></code></pre></div>
-<pre><code>## snapshotDate(): 2021-10-18</code></pre>
+<pre><code>## snapshotDate(): 2021-10-19</code></pre>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">dhs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/nullrangesData/man/DHSA549Hg38.html">DHSA549Hg38</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
 <pre><code>## see ?nullrangesData and browseVignettes('nullrangesData') for documentation</code></pre>
 <pre><code>## loading from cache</code></pre>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqinfo.html">seqnames</a></span><span class="op">(</span><span class="va">dhs</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/table.html">table</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqinfo.html">seqnames</a></span><span class="op">(</span><span class="va">dhs</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code>## 
 ##  chr1  chr2  chr3  chr4  chr5  chr6  chr7  chr8  chr9 chr10 chr11 chr12 chr13 
 ## 15240 14436  9549  6034  9714  8043  9549  8463  8247  8924  8618 10597  2732 
@@ -306,8 +306,8 @@
 <span class="op">)</span>, times<span class="op">=</span><span class="fl">10</span><span class="op">)</span></code></pre></div>
 <pre><code>## Unit: milliseconds
 ##     expr      min       lq     mean   median       uq       max neval
-##     prop 244.0722 249.3901 253.5678 251.3907 258.2528  266.1374    10
-##  no_prop 238.3742 243.9228 327.2324 246.9875 258.6189 1031.4601    10</code></pre>
+##     prop 219.1314 221.8370 226.9694 223.7355 232.9254  241.1122    10
+##  no_prop 196.3669 213.5797 300.1193 216.3662 227.9769 1048.5196    10</code></pre>
 </div>
 <div id="visualizing-toy-bootstrap-samples" class="section level1">
 <h1 class="hasAnchor">
@@ -316,7 +316,7 @@
 <div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://phanstiellab.github.io/plotgardener">plotgardener</a></span><span class="op">)</span><span class="op">)</span>
 <span class="va">my_palette</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">n</span><span class="op">)</span> <span class="op">{</span>
-  <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/c.html">c</a></span><span class="op">(</span><span class="st">"red"</span>,<span class="st">"green3"</span>,<span class="st">"red3"</span>,<span class="st">"dodgerblue"</span>,
+  <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html">head</a></span><span class="op">(</span><span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/c.html">c</a></span><span class="op">(</span><span class="st">"red"</span>,<span class="st">"green3"</span>,<span class="st">"red3"</span>,<span class="st">"dodgerblue"</span>,
          <span class="st">"blue2"</span>,<span class="st">"green4"</span>,<span class="st">"darkred"</span><span class="op">)</span>, <span class="va">n</span><span class="op">)</span>
 <span class="op">}</span>
 <span class="va">plotGRanges</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">gr</span><span class="op">)</span> <span class="op">{</span>
@@ -341,13 +341,13 @@
 <p>Create a toy genome segmentation:</p>
 <div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://bioconductor.org/packages/GenomicRanges">GenomicRanges</a></span><span class="op">)</span>
-<span class="va">seq_nms</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/c.html">c</a></span><span class="op">(</span><span class="st">"chr1"</span>,<span class="st">"chr2"</span><span class="op">)</span>, <span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/c.html">c</a></span><span class="op">(</span><span class="fl">4</span>,<span class="fl">3</span><span class="op">)</span><span class="op">)</span>
+<span class="va">seq_nms</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html">c</a></span><span class="op">(</span><span class="st">"chr1"</span>,<span class="st">"chr2"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html">c</a></span><span class="op">(</span><span class="fl">4</span>,<span class="fl">3</span><span class="op">)</span><span class="op">)</span>
 <span class="va">seg</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html">GRanges</a></span><span class="op">(</span>
   seqnames <span class="op">=</span> <span class="va">seq_nms</span>,
-  <span class="fu">IRanges</span><span class="op">(</span>start <span class="op">=</span> <span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">101</span>, <span class="fl">201</span>, <span class="fl">401</span>, <span class="fl">1</span>, <span class="fl">201</span>, <span class="fl">301</span><span class="op">)</span>,
-          width <span class="op">=</span> <span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/c.html">c</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">100</span>, <span class="fl">200</span>, <span class="fl">100</span>, <span class="fl">200</span>, <span class="fl">100</span>, <span class="fl">100</span><span class="op">)</span><span class="op">)</span>,
-  seqlengths<span class="op">=</span><span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/c.html">c</a></span><span class="op">(</span>chr1<span class="op">=</span><span class="fl">500</span>,chr2<span class="op">=</span><span class="fl">400</span><span class="op">)</span>,
-  state <span class="op">=</span> <span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span>,<span class="fl">1</span>,<span class="fl">3</span>,<span class="fl">3</span>,<span class="fl">2</span>,<span class="fl">1</span><span class="op">)</span>,
+  <span class="fu"><a href="https://rdrr.io/pkg/IRanges/man/IRanges-constructor.html">IRanges</a></span><span class="op">(</span>start <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">101</span>, <span class="fl">201</span>, <span class="fl">401</span>, <span class="fl">1</span>, <span class="fl">201</span>, <span class="fl">301</span><span class="op">)</span>,
+          width <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html">c</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">100</span>, <span class="fl">200</span>, <span class="fl">100</span>, <span class="fl">200</span>, <span class="fl">100</span>, <span class="fl">100</span><span class="op">)</span><span class="op">)</span>,
+  seqlengths<span class="op">=</span><span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html">c</a></span><span class="op">(</span>chr1<span class="op">=</span><span class="fl">500</span>,chr2<span class="op">=</span><span class="fl">400</span><span class="op">)</span>,
+  state <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span>,<span class="fl">1</span>,<span class="fl">3</span>,<span class="fl">3</span>,<span class="fl">2</span>,<span class="fl">1</span><span class="op">)</span>,
   state_col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">7</span><span class="op">)</span>
 <span class="op">)</span></code></pre></div>
 <p>We can visualize with our helper function:</p>
@@ -359,14 +359,14 @@
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>
 <span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">200</span>
 <span class="va">gr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html">GRanges</a></span><span class="op">(</span>
-  seqnames<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/sort.html">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html">sample</a></span><span class="op">(</span><span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/c.html">c</a></span><span class="op">(</span><span class="st">"chr1"</span>,<span class="st">"chr2"</span><span class="op">)</span>, <span class="va">n</span>, <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>,
-  <span class="fu">IRanges</span><span class="op">(</span>start<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html">runif</a></span><span class="op">(</span><span class="va">n</span>, <span class="fl">1</span>, <span class="fl">500</span><span class="op">-</span><span class="fl">10</span><span class="op">+</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span>, width<span class="op">=</span><span class="fl">10</span><span class="op">)</span>
+  seqnames<span class="op">=</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/sort.html">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html">c</a></span><span class="op">(</span><span class="st">"chr1"</span>,<span class="st">"chr2"</span><span class="op">)</span>, <span class="va">n</span>, <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>,
+  <span class="fu"><a href="https://rdrr.io/pkg/IRanges/man/IRanges-constructor.html">IRanges</a></span><span class="op">(</span>start<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html">runif</a></span><span class="op">(</span><span class="va">n</span>, <span class="fl">1</span>, <span class="fl">500</span><span class="op">-</span><span class="fl">10</span><span class="op">+</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span>, width<span class="op">=</span><span class="fl">10</span><span class="op">)</span>
 <span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/warning.html">suppressWarnings</a></span><span class="op">(</span><span class="op">{</span>
   <span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqinfo.html">seqlengths</a></span><span class="op">(</span><span class="va">gr</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqinfo.html">seqlengths</a></span><span class="op">(</span><span class="va">seg</span><span class="op">)</span>
 <span class="op">}</span><span class="op">)</span>
-<span class="va">gr</span> <span class="op">&lt;-</span> <span class="va">gr</span><span class="op">[</span><span class="op">!</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqinfo.html">seqnames</a></span><span class="op">(</span><span class="va">gr</span><span class="op">)</span> <span class="op">==</span> <span class="st">"chr2"</span> <span class="op">&amp;</span> <span class="fu"><a href="https://rdrr.io/r/stats/start.html">end</a></span><span class="op">(</span><span class="va">gr</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">400</span><span class="op">)</span><span class="op">]</span>
-<span class="va">gr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html">sort</a></span><span class="op">(</span><span class="va">gr</span><span class="op">)</span>
+<span class="va">gr</span> <span class="op">&lt;-</span> <span class="va">gr</span><span class="op">[</span><span class="op">!</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqinfo.html">seqnames</a></span><span class="op">(</span><span class="va">gr</span><span class="op">)</span> <span class="op">==</span> <span class="st">"chr2"</span> <span class="op">&amp;</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/start.html">end</a></span><span class="op">(</span><span class="va">gr</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">400</span><span class="op">)</span><span class="op">]</span>
+<span class="va">gr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/sort.html">sort</a></span><span class="op">(</span><span class="va">gr</span><span class="op">)</span>
 <span class="va">idx</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/findOverlaps-methods.html">findOverlaps</a></span><span class="op">(</span><span class="va">gr</span>, <span class="va">seg</span>, type<span class="op">=</span><span class="st">"within"</span>, select<span class="op">=</span><span class="st">"first"</span><span class="op">)</span>
 <span class="va">gr</span> <span class="op">&lt;-</span> <span class="va">gr</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span><span class="op">(</span><span class="va">idx</span><span class="op">)</span><span class="op">]</span>
 <span class="va">idx</span> <span class="op">&lt;-</span> <span class="va">idx</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span><span class="op">(</span><span class="va">idx</span><span class="op">)</span><span class="op">]</span>
@@ -423,37 +423,37 @@
 ## [8] base     
 ## 
 ## other attached packages:
-##  [1] plotgardener_0.99.16        microbenchmark_1.4-7       
-##  [3] nullrangesData_0.99.2       InteractionSet_1.21.1      
-##  [5] SummarizedExperiment_1.23.5 MatrixGenerics_1.5.4       
-##  [7] matrixStats_0.61.0          ExperimentHub_2.1.4        
-##  [9] patchwork_1.1.1             plyranges_1.13.1           
-## [11] nullranges_0.99.19          excluderanges_0.99.6       
-## [13] AnnotationHub_3.1.7         BiocFileCache_2.1.1        
+##  [1] plotgardener_1.0.1          microbenchmark_1.4.8       
+##  [3] nullrangesData_1.0.0        InteractionSet_1.22.0      
+##  [5] SummarizedExperiment_1.24.0 MatrixGenerics_1.6.0       
+##  [7] matrixStats_0.61.0          ExperimentHub_2.2.0        
+##  [9] patchwork_1.1.1             plyranges_1.14.0           
+## [11] nullranges_1.1.1            excluderanges_0.99.6       
+## [13] AnnotationHub_3.2.0         BiocFileCache_2.2.0        
 ## [15] dbplyr_2.1.1                EnsDb.Hsapiens.v86_2.99.0  
-## [17] ensembldb_2.17.4            AnnotationFilter_1.17.1    
-## [19] GenomicFeatures_1.45.2      AnnotationDbi_1.55.2       
-## [21] Biobase_2.53.0              GenomicRanges_1.45.0       
-## [23] GenomeInfoDb_1.29.10        IRanges_2.27.2             
-## [25] S4Vectors_0.31.5            BiocGenerics_0.39.2        
+## [17] ensembldb_2.18.1            AnnotationFilter_1.18.0    
+## [19] GenomicFeatures_1.46.1      AnnotationDbi_1.56.1       
+## [21] Biobase_2.54.0              GenomicRanges_1.46.0       
+## [23] GenomeInfoDb_1.30.0         IRanges_2.28.0             
+## [25] S4Vectors_0.32.1            BiocGenerics_0.40.0        
 ## 
 ## loaded via a namespace (and not attached):
 ##   [1] systemfonts_1.0.3             plyr_1.8.6                   
 ##   [3] RcppHMM_1.2.2                 lazyeval_0.2.2               
-##   [5] BiocParallel_1.27.17          ggplot2_3.3.5                
+##   [5] BiocParallel_1.28.0           ggplot2_3.3.5                
 ##   [7] digest_0.6.28                 yulab.utils_0.0.4            
 ##   [9] htmltools_0.5.2               fansi_0.5.0                  
 ##  [11] magrittr_2.0.1                memoise_2.0.0                
-##  [13] ks_1.13.2                     Biostrings_2.61.2            
+##  [13] ks_1.13.2                     Biostrings_2.62.0            
 ##  [15] pkgdown_1.6.1                 prettyunits_1.1.1            
 ##  [17] colorspace_2.0-2              blob_1.2.2                   
 ##  [19] rappdirs_0.3.3                textshaping_0.3.6            
-##  [21] xfun_0.27                     dplyr_1.0.7                  
-##  [23] crayon_1.4.1                  RCurl_1.98-1.5               
+##  [21] xfun_0.28                     dplyr_1.0.7                  
+##  [23] crayon_1.4.2                  RCurl_1.98-1.5               
 ##  [25] jsonlite_1.7.2                glue_1.4.2                   
-##  [27] gtable_0.3.0                  zlibbioc_1.39.0              
-##  [29] XVector_0.33.0                strawr_0.0.9                 
-##  [31] DelayedArray_0.19.4           scales_1.1.1                 
+##  [27] gtable_0.3.0                  zlibbioc_1.40.0              
+##  [29] XVector_0.34.0                strawr_0.0.9                 
+##  [31] DelayedArray_0.20.0           scales_1.1.1                 
 ##  [33] mvtnorm_1.1-3                 DBI_1.1.1                    
 ##  [35] Rcpp_1.0.7                    xtable_1.8-4                 
 ##  [37] progress_1.2.2                gridGraphics_0.5-1           
@@ -462,37 +462,37 @@
 ##  [43] speedglm_0.3-3                ellipsis_0.3.2               
 ##  [45] pkgconfig_2.0.3               XML_3.99-0.8                 
 ##  [47] farver_2.1.0                  sass_0.4.0                   
-##  [49] utf8_1.2.2                    DNAcopy_1.67.0               
+##  [49] utf8_1.2.2                    DNAcopy_1.68.0               
 ##  [51] ggplotify_0.1.0               tidyselect_1.1.1             
 ##  [53] labeling_0.4.2                rlang_0.4.12                 
 ##  [55] later_1.3.0                   munsell_0.5.0                
 ##  [57] BiocVersion_3.14.0            tools_4.1.1                  
-##  [59] cachem_1.0.6                  generics_0.1.0               
+##  [59] cachem_1.0.6                  generics_0.1.1               
 ##  [61] RSQLite_2.2.8                 ggridges_0.5.3               
 ##  [63] evaluate_0.14                 stringr_1.4.0                
 ##  [65] fastmap_1.1.0                 yaml_2.2.1                   
-##  [67] ragg_1.1.3                    knitr_1.36                   
+##  [67] ragg_1.2.0                    knitr_1.36                   
 ##  [69] bit64_4.0.5                   fs_1.5.0                     
-##  [71] purrr_0.3.4                   KEGGREST_1.33.0              
+##  [71] purrr_0.3.4                   KEGGREST_1.34.0              
 ##  [73] mime_0.12                     pracma_2.3.3                 
-##  [75] xml2_1.3.2                    biomaRt_2.49.7               
+##  [75] xml2_1.3.2                    biomaRt_2.50.0               
 ##  [77] compiler_4.1.1                filelock_1.0.2               
 ##  [79] curl_4.3.2                    png_0.1-7                    
-##  [81] interactiveDisplayBase_1.31.2 tibble_3.1.5                 
+##  [81] interactiveDisplayBase_1.32.0 tibble_3.1.5                 
 ##  [83] bslib_0.3.1                   stringi_1.7.5                
 ##  [85] highr_0.9                     desc_1.4.0                   
-##  [87] lattice_0.20-45               ProtGenerics_1.25.1          
+##  [87] lattice_0.20-45               ProtGenerics_1.26.0          
 ##  [89] Matrix_1.3-4                  vctrs_0.3.8                  
 ##  [91] pillar_1.6.4                  lifecycle_1.0.1              
 ##  [93] BiocManager_1.30.16           jquerylib_0.1.4              
 ##  [95] data.table_1.14.2             bitops_1.0-7                 
-##  [97] httpuv_1.6.3                  rtracklayer_1.53.1           
-##  [99] R6_2.5.1                      BiocIO_1.3.0                 
+##  [97] httpuv_1.6.3                  rtracklayer_1.54.0           
+##  [99] R6_2.5.1                      BiocIO_1.4.0                 
 ## [101] promises_1.2.0.1              KernSmooth_2.23-20           
 ## [103] MASS_7.3-54                   assertthat_0.2.1             
 ## [105] rprojroot_2.0.2               rjson_0.2.20                 
-## [107] withr_2.4.2                   GenomicAlignments_1.29.0     
-## [109] Rsamtools_2.9.1               GenomeInfoDbData_1.2.7       
+## [107] withr_2.4.2                   GenomicAlignments_1.30.0     
+## [109] Rsamtools_2.10.0              GenomeInfoDbData_1.2.7       
 ## [111] parallel_4.1.1                hms_1.1.1                    
 ## [113] grid_4.1.1                    rmarkdown_2.11               
 ## [115] shiny_1.7.1                   restfulr_0.0.13</code></pre>

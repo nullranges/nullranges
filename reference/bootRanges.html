@@ -83,7 +83,7 @@ and iteration and block length indicated by metadata columns" />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.19</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.1</span>
       </span>
     </div>
 
@@ -222,27 +222,37 @@ across chromosomes (default) or only within chromosomes
 where iteration and block length are recorded as metadata columns</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'>
-<span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>)</span>
-<span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://bioconductor.org/packages/GenomicRanges'>GenomicRanges</a></span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='message'>Loading required package: stats4</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: BiocGenerics</span></div><div class='output co'>#&gt; <span class='message'></span>
-#&gt; <span class='message'>Attaching package: ‘BiocGenerics’</span></div><div class='output co'>#&gt; <span class='message'>The following objects are masked from ‘package:stats’:</span>
-#&gt; <span class='message'></span>
-#&gt; <span class='message'>    IQR, mad, sd, var, xtabs</span></div><div class='output co'>#&gt; <span class='message'>The following objects are masked from ‘package:base’:</span>
-#&gt; <span class='message'></span>
-#&gt; <span class='message'>    anyDuplicated, append, as.data.frame, basename, cbind, colnames,</span>
-#&gt; <span class='message'>    dirname, do.call, duplicated, eval, evalq, Filter, Find, get, grep,</span>
-#&gt; <span class='message'>    grepl, intersect, is.unsorted, lapply, Map, mapply, match, mget,</span>
-#&gt; <span class='message'>    order, paste, pmax, pmax.int, pmin, pmin.int, Position, rank,</span>
-#&gt; <span class='message'>    rbind, Reduce, rownames, sapply, setdiff, sort, table, tapply,</span>
-#&gt; <span class='message'>    union, unique, unsplit, which.max, which.min</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: S4Vectors</span></div><div class='output co'>#&gt; <span class='message'></span>
-#&gt; <span class='message'>Attaching package: ‘S4Vectors’</span></div><div class='output co'>#&gt; <span class='message'>The following objects are masked from ‘package:base’:</span>
-#&gt; <span class='message'></span>
-#&gt; <span class='message'>    expand.grid, I, unname</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: IRanges</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: GenomeInfoDb</span></div><div class='input'><span class='va'>gr</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html'>GRanges</a></span><span class='op'>(</span><span class='st'>"chr1"</span>, <span class='fu'>IRanges</span><span class='op'>(</span><span class='fl'>0</span><span class='op'>:</span><span class='fl'>4</span> <span class='op'>*</span> <span class='fl'>10</span> <span class='op'>+</span> <span class='fl'>1</span>, width<span class='op'>=</span><span class='fl'>5</span><span class='op'>)</span>,
-              seqlengths<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span>chr1<span class='op'>=</span><span class='fl'>50</span><span class='op'>)</span><span class='op'>)</span>
-<span class='va'>br</span> <span class='op'>&lt;-</span> <span class='fu'>bootRanges</span><span class='op'>(</span><span class='va'>gr</span>, blockLength<span class='op'>=</span><span class='fl'>10</span><span class='op'>)</span>
-
-</div></pre>
+    <pre class="examples"><span class='r-in'></span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>)</span></span>
+<span class='r-in'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://bioconductor.org/packages/GenomicRanges'>GenomicRanges</a></span><span class='op'>)</span></span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> Loading required package: stats4</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> Loading required package: BiocGenerics</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> Attaching package: ‘BiocGenerics’</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> The following objects are masked from ‘package:stats’:</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span>     IQR, mad, sd, var, xtabs</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> The following objects are masked from ‘package:base’:</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span>     anyDuplicated, append, as.data.frame, basename, cbind, colnames,</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span>     dirname, do.call, duplicated, eval, evalq, Filter, Find, get, grep,</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span>     grepl, intersect, is.unsorted, lapply, Map, mapply, match, mget,</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span>     order, paste, pmax, pmax.int, pmin, pmin.int, Position, rank,</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span>     rbind, Reduce, rownames, sapply, setdiff, sort, table, tapply,</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span>     union, unique, unsplit, which.max, which.min</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> Loading required package: S4Vectors</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> Attaching package: ‘S4Vectors’</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> The following objects are masked from ‘package:base’:</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span>     expand.grid, I, unname</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> Loading required package: IRanges</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> Loading required package: GenomeInfoDb</span>
+<span class='r-in'><span class='va'>gr</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html'>GRanges</a></span><span class='op'>(</span><span class='st'>"chr1"</span>, <span class='fu'><a href='https://rdrr.io/pkg/IRanges/man/IRanges-constructor.html'>IRanges</a></span><span class='op'>(</span><span class='fl'>0</span><span class='op'>:</span><span class='fl'>4</span> <span class='op'>*</span> <span class='fl'>10</span> <span class='op'>+</span> <span class='fl'>1</span>, width<span class='op'>=</span><span class='fl'>5</span><span class='op'>)</span>,</span>
+<span class='r-in'>              seqlengths<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/pkg/S4Vectors/man/Vector-class.html'>c</a></span><span class='op'>(</span>chr1<span class='op'>=</span><span class='fl'>50</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>br</span> <span class='op'>&lt;-</span> <span class='fu'>bootRanges</span><span class='op'>(</span><span class='va'>gr</span>, blockLength<span class='op'>=</span><span class='fl'>10</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
