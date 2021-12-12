@@ -40,7 +40,10 @@ reference:
     desc: "Block bootstrap ranges optionally within genome segmentation"
     contents:
       - bootRanges
+  - subtitle: "Segmenting genome by density"
+    contents:
       - segmentDensity
+      - reduceSegment
   - subtitle: "Assessing bootstrap quality"
     contents:
       - plotSegment
