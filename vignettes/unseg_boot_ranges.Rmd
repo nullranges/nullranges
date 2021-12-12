@@ -25,7 +25,7 @@ First we use the DNase hypersensitivity peaks in A549 downloaded from
 *AnnotationHub*, and pre-processed as described in the
 *nullrangesOldData* package.
 
-```{r}
+```{r message=FALSE}
 library(nullrangesData)
 dhs <- DHSA549Hg38()
 ```
