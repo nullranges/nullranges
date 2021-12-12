@@ -1,7 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>https://nullranges.github.io/nullranges/404.html</loc>
+  </url>
+  <url>
+    <loc>https://nullranges.github.io/nullranges/CODE_OF_CONDUCT.html</loc>
+  </url>
+  <url>
+    <loc>https://nullranges.github.io/nullranges/CONTRIBUTING.html</loc>
+  </url>
+  <url>
+    <loc>https://nullranges.github.io/nullranges/LICENSE.html</loc>
+  </url>
+  <url>
+    <loc>https://nullranges.github.io/nullranges/articles/index.html</loc>
+  </url>
+  <url>
+    <loc>https://nullranges.github.io/nullranges/articles/matching_ginteractions.html</loc>
+  </url>
+  <url>
+    <loc>https://nullranges.github.io/nullranges/articles/matching_granges.html</loc>
+  </url>
+  <url>
+    <loc>https://nullranges.github.io/nullranges/articles/matching_ranges.html</loc>
+  </url>
+  <url>
+    <loc>https://nullranges.github.io/nullranges/articles/nullranges.html</loc>
+  </url>
+  <url>
+    <loc>https://nullranges.github.io/nullranges/articles/segmented_boot_ranges.html</loc>
+  </url>
+  <url>
+    <loc>https://nullranges.github.io/nullranges/articles/unseg_boot_ranges.html</loc>
+  </url>
+  <url>
+    <loc>https://nullranges.github.io/nullranges/authors.html</loc>
+  </url>
+  <url>
     <loc>https://nullranges.github.io/nullranges/index.html</loc>
+  </url>
+  <url>
+    <loc>https://nullranges.github.io/nullranges/news/index.html</loc>
   </url>
   <url>
     <loc>https://nullranges.github.io/nullranges/reference/MatchedDataFrame.html</loc>
@@ -23,6 +62,9 @@
   </url>
   <url>
     <loc>https://nullranges.github.io/nullranges/reference/focal.html</loc>
+  </url>
+  <url>
+    <loc>https://nullranges.github.io/nullranges/reference/index.html</loc>
   </url>
   <url>
     <loc>https://nullranges.github.io/nullranges/reference/indices.html</loc>
@@ -74,23 +116,5 @@
   </url>
   <url>
     <loc>https://nullranges.github.io/nullranges/reference/withReplacement.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/articles/matching_ginteractions.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/articles/matching_granges.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/articles/matching_ranges.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/articles/nullranges.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/articles/segmented_boot_ranges.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/articles/unseg_boot_ranges.html</loc>
   </url>
 </urlset>

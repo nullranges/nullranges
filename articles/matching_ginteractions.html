@@ -26,6 +26,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -38,18 +40,12 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.2</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-<li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
 <li>
   <a href="../articles/nullranges.html">Get started</a>
 </li>
@@ -94,13 +90,13 @@
 
       
 
-      </header><script src="matching_ginteractions_files/header-attrs-2.11/header-attrs.js"></script><div class="row">
+      </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Case study II: CTCF orientation</h1>
-                        <h4 class="author">Eric S. Davis</h4>
+                        <h4 data-toc-skip class="author">Eric S. Davis</h4>
             
-            <h4 class="date">11/06/2021</h4>
+            <h4 data-toc-skip class="date">12/12/2021</h4>
       
       
       <div class="hidden name"><code>matching_ginteractions.Rmd</code></div>
@@ -110,11 +106,11 @@
     
     
 <p>In this vignette, we demonstrate the generation of covariate-matched null ranges by using the <code><a href="../reference/matchRanges.html">matchRanges()</a></code> function to test the “covergence rule” of CTCF-bound chromatin loops, first described in Rao et al. 2014.</p>
-<div id="background" class="section level2">
-<h2 class="hasAnchor">
-<a href="#background" class="anchor"></a>Background</h2>
+<div class="section level2">
+<h2 id="background">Background<a class="anchor" aria-label="anchor" href="#background"></a>
+</h2>
 <p>In the human genome, chromatin loops play an important role in regulating gene expression by connecting regulatory loci to gene promoters. The anchors of these loops are bound by the protein CTCF, which is required for loop formation and maintenance. CTCF binds a specific non-palindromic DNA sequence motif. And the direction of this motif at loop anchors is non-random. That is, CTCF binding motifs found at the anchors of loops tend to be oriented towards the center of the loop more often then would be expected by chance. This phenomenon, first described by Rao et al in 2014, is known as the “convergence rule”. It was initially discovered by first filtering for loops that had a single CTCF binding site at each end of the loop. Here we use matchRanges to reinvestigate the convergence using all loops.</p>
-<p>We will use <code>hg19_10kb_ctcfBoundBinPairs</code> data from the <code>nullrangesData</code> package which contains features from the GM12878 cell line aligned to hg19 as well as CTCF motif data from the <a href="https://bioconductor.org/packages/devel/data/annotation/html/CTCF.html">CTCF data package</a> available on Bioconductor. <code>hg19_10kb_ctcfBoundBinPairs</code> is a <a href="https://bioconductor.org/packages/release/bioc/html/InteractionSet.html"><code>GInteractions</code></a> object with all pairwise combinations of CTCF-bound 10Kb bins within 1Mb annotated with the following features:</p>
+<p>We will use <code>hg19_10kb_ctcfBoundBinPairs</code> data from the <code>nullrangesData</code> package which contains features from the GM12878 cell line aligned to hg19 as well as CTCF motif data from the <a href="https://bioconductor.org/packages/devel/data/annotation/html/CTCF.html" class="external-link">CTCF data package</a> available on Bioconductor. <code>hg19_10kb_ctcfBoundBinPairs</code> is a <a href="https://bioconductor.org/packages/release/bioc/html/InteractionSet.html" class="external-link"><code>GInteractions</code></a> object with all pairwise combinations of CTCF-bound 10Kb bins within 1Mb annotated with the following features:</p>
 <ul>
 <li>The total CTCF signal in each bin.</li>
 <li>The number of CTCF sites in each bin.</li>
@@ -125,174 +121,173 @@
 <p>Using these annotations and the <code><a href="../reference/matchRanges.html">matchRanges()</a></code> function, we can compare CTCF motif orientations between pairs of genomic regions that are 1) connected by loops, 2) not connected by loops, 3) randomly chosen, or 4) not connected by loops, but matched for the strength of CTCF sites and distance between loop anchors.</p>
 <p><img src="matching_ginteractions_files/figure-html/unnamed-chunk-1-1.png"><!-- --></p>
 </div>
-<div id="matching-with-matchranges" class="section level2">
-<h2 class="hasAnchor">
-<a href="#matching-with-matchranges" class="anchor"></a>Matching with <code>matchRanges()</code>
+<div class="section level2">
+<h2 id="matching-with-matchranges">Matching with <code>matchRanges()</code><a class="anchor" aria-label="anchor" href="#matching-with-matchranges"></a>
 </h2>
 <p>Before we generate our null ranges, let’s take a look at our example dataset:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">nullrangesData</span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">nullrangesData</span><span class="op">)</span>
 <span class="co">## Load example data</span>
-<span class="va">binPairs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/nullrangesData/man/hg19_10kb_ctcfBoundBinPairs.html">hg19_10kb_ctcfBoundBinPairs</a></span><span class="op">(</span><span class="op">)</span>
+<span class="va">binPairs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/nullrangesData/man/hg19_10kb_ctcfBoundBinPairs.html" class="external-link">hg19_10kb_ctcfBoundBinPairs</a></span><span class="op">(</span><span class="op">)</span>
 <span class="va">binPairs</span></code></pre></div>
-<pre><code>## StrictGInteractions object with 198120 interactions and 5 metadata columns:
-##            seqnames1             ranges1     seqnames2             ranges2 |
-##                &lt;Rle&gt;           &lt;IRanges&gt;         &lt;Rle&gt;           &lt;IRanges&gt; |
-##        [1]      chr1       230001-240000 ---      chr1       520001-530000 |
-##        [2]      chr1       230001-240000 ---      chr1       710001-720000 |
-##        [3]      chr1       230001-240000 ---      chr1       800001-810000 |
-##        [4]      chr1       230001-240000 ---      chr1       840001-850000 |
-##        [5]      chr1       230001-240000 ---      chr1       870001-880000 |
-##        ...       ...                 ... ...       ...                 ... .
-##   [198116]      chrX 154310001-154320000 ---      chrX 154370001-154380000 |
-##   [198117]      chrX 154310001-154320000 ---      chrX 155250001-155260000 |
-##   [198118]      chrX 154320001-154330000 ---      chrX 154370001-154380000 |
-##   [198119]      chrX 154320001-154330000 ---      chrX 155250001-155260000 |
-##   [198120]      chrX 154370001-154380000 ---      chrX 155250001-155260000 |
-##               looped ctcfSignal  n_sites  distance convergent
-##            &lt;logical&gt;  &lt;numeric&gt; &lt;factor&gt; &lt;integer&gt;  &lt;logical&gt;
-##        [1]     FALSE    5.18038        2    290000      FALSE
-##        [2]     FALSE    5.46775        2    480000       TRUE
-##        [3]     FALSE    7.30942        2    570000      FALSE
-##        [4]     FALSE    7.34338        2    610000      FALSE
-##        [5]     FALSE    6.31338        3    640000       TRUE
-##        ...       ...        ...      ...       ...        ...
-##   [198116]     FALSE    6.79246        2     60000      FALSE
-##   [198117]     FALSE    6.12447        3    940000       TRUE
-##   [198118]     FALSE    7.40868        2     50000       TRUE
-##   [198119]     FALSE    7.00936        3    930000      FALSE
-##   [198120]     FALSE    6.73402        3    880000       TRUE
-##   -------
-##   regions: 20612 ranges and 5 metadata columns
-##   seqinfo: 23 sequences from hg19 genome</code></pre>
+<pre><code><span class="co">## StrictGInteractions object with 198120 interactions and 5 metadata columns:</span>
+<span class="co">##            seqnames1             ranges1     seqnames2             ranges2 |</span>
+<span class="co">##                &lt;Rle&gt;           &lt;IRanges&gt;         &lt;Rle&gt;           &lt;IRanges&gt; |</span>
+<span class="co">##        [1]      chr1       230001-240000 ---      chr1       520001-530000 |</span>
+<span class="co">##        [2]      chr1       230001-240000 ---      chr1       710001-720000 |</span>
+<span class="co">##        [3]      chr1       230001-240000 ---      chr1       800001-810000 |</span>
+<span class="co">##        [4]      chr1       230001-240000 ---      chr1       840001-850000 |</span>
+<span class="co">##        [5]      chr1       230001-240000 ---      chr1       870001-880000 |</span>
+<span class="co">##        ...       ...                 ... ...       ...                 ... .</span>
+<span class="co">##   [198116]      chrX 154310001-154320000 ---      chrX 154370001-154380000 |</span>
+<span class="co">##   [198117]      chrX 154310001-154320000 ---      chrX 155250001-155260000 |</span>
+<span class="co">##   [198118]      chrX 154320001-154330000 ---      chrX 154370001-154380000 |</span>
+<span class="co">##   [198119]      chrX 154320001-154330000 ---      chrX 155250001-155260000 |</span>
+<span class="co">##   [198120]      chrX 154370001-154380000 ---      chrX 155250001-155260000 |</span>
+<span class="co">##               looped ctcfSignal  n_sites  distance convergent</span>
+<span class="co">##            &lt;logical&gt;  &lt;numeric&gt; &lt;factor&gt; &lt;integer&gt;  &lt;logical&gt;</span>
+<span class="co">##        [1]     FALSE    5.18038        2    290000      FALSE</span>
+<span class="co">##        [2]     FALSE    5.46775        2    480000       TRUE</span>
+<span class="co">##        [3]     FALSE    7.30942        2    570000      FALSE</span>
+<span class="co">##        [4]     FALSE    7.34338        2    610000      FALSE</span>
+<span class="co">##        [5]     FALSE    6.31338        3    640000       TRUE</span>
+<span class="co">##        ...       ...        ...      ...       ...        ...</span>
+<span class="co">##   [198116]     FALSE    6.79246        2     60000      FALSE</span>
+<span class="co">##   [198117]     FALSE    6.12447        3    940000       TRUE</span>
+<span class="co">##   [198118]     FALSE    7.40868        2     50000       TRUE</span>
+<span class="co">##   [198119]     FALSE    7.00936        3    930000      FALSE</span>
+<span class="co">##   [198120]     FALSE    6.73402        3    880000       TRUE</span>
+<span class="co">##   -------</span>
+<span class="co">##   regions: 20612 ranges and 5 metadata columns</span>
+<span class="co">##   seqinfo: 23 sequences from hg19 genome</span></code></pre>
 <p>Let’s start by defining our focal set (i.e. looped bin-pairs), our pool set (i.e un-looped bin-pairs), and our covariates of interest (i.e. <code>ctcfSignal</code> and <code>distance</code>):</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://nullranges.github.io/nullranges">nullranges</a></span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://nullranges.github.io/nullranges">nullranges</a></span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span>
 <span class="va">mgi</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/matchRanges.html">matchRanges</a></span><span class="op">(</span>focal <span class="op">=</span> <span class="va">binPairs</span><span class="op">[</span><span class="va">binPairs</span><span class="op">$</span><span class="va">looped</span><span class="op">]</span>,
                    pool <span class="op">=</span> <span class="va">binPairs</span><span class="op">[</span><span class="op">!</span><span class="va">binPairs</span><span class="op">$</span><span class="va">looped</span><span class="op">]</span>,
                    covar <span class="op">=</span> <span class="op">~</span><span class="va">ctcfSignal</span> <span class="op">+</span> <span class="va">distance</span> <span class="op">+</span> <span class="va">n_sites</span>,
                    method <span class="op">=</span> <span class="st">'stratified'</span><span class="op">)</span>
 <span class="va">mgi</span></code></pre></div>
-<pre><code>## MatchedGInteractions object with 3104 interactions and 5 metadata columns:
-##          seqnames1             ranges1     seqnames2             ranges2 |
-##              &lt;Rle&gt;           &lt;IRanges&gt;         &lt;Rle&gt;           &lt;IRanges&gt; |
-##      [1]     chr11   62160001-62170000 ---     chr11   62190001-62200000 |
-##      [2]     chr17     7890001-7900000 ---     chr17     7990001-8000000 |
-##      [3]     chr22   36460001-36470000 ---     chr22   36680001-36690000 |
-##      [4]     chr11     1560001-1570000 ---     chr11     1710001-1720000 |
-##      [5]     chr12   31780001-31790000 ---     chr12   31830001-31840000 |
-##      ...       ...                 ... ...       ...                 ... .
-##   [3100]      chr2   20980001-20990000 ---      chr2   21180001-21190000 |
-##   [3101]     chr19   14310001-14320000 ---     chr19   14540001-14550000 |
-##   [3102]      chr2   20060001-20070000 ---      chr2   20840001-20850000 |
-##   [3103]     chr14 100750001-100760000 ---     chr14 100850001-100860000 |
-##   [3104]     chr11     1840001-1850000 ---     chr11     2170001-2180000 |
-##             looped ctcfSignal  n_sites  distance convergent
-##          &lt;logical&gt;  &lt;numeric&gt; &lt;factor&gt; &lt;integer&gt;  &lt;logical&gt;
-##      [1]     FALSE    8.12860        2     30000      FALSE
-##      [2]     FALSE    8.72976        3    100000       TRUE
-##      [3]     FALSE    9.51410        4    220000       TRUE
-##      [4]     FALSE    8.64759        3    150000      FALSE
-##      [5]     FALSE    8.43412        2     50000       TRUE
-##      ...       ...        ...      ...       ...        ...
-##   [3100]     FALSE    8.10867        2    200000       TRUE
-##   [3101]     FALSE    8.13800        2    230000      FALSE
-##   [3102]     FALSE    8.46727        2    780000      FALSE
-##   [3103]     FALSE    8.52685        4    100000       TRUE
-##   [3104]     FALSE    8.39022        3    330000       TRUE
-##   -------
-##   regions: 20612 ranges and 5 metadata columns
-##   seqinfo: 23 sequences from hg19 genome</code></pre>
+<pre><code><span class="co">## MatchedGInteractions object with 3104 interactions and 5 metadata columns:</span>
+<span class="co">##          seqnames1             ranges1     seqnames2             ranges2 |</span>
+<span class="co">##              &lt;Rle&gt;           &lt;IRanges&gt;         &lt;Rle&gt;           &lt;IRanges&gt; |</span>
+<span class="co">##      [1]     chr11   62160001-62170000 ---     chr11   62190001-62200000 |</span>
+<span class="co">##      [2]     chr17     7890001-7900000 ---     chr17     7990001-8000000 |</span>
+<span class="co">##      [3]     chr22   36460001-36470000 ---     chr22   36680001-36690000 |</span>
+<span class="co">##      [4]     chr11     1560001-1570000 ---     chr11     1710001-1720000 |</span>
+<span class="co">##      [5]     chr12   31780001-31790000 ---     chr12   31830001-31840000 |</span>
+<span class="co">##      ...       ...                 ... ...       ...                 ... .</span>
+<span class="co">##   [3100]      chr2   20980001-20990000 ---      chr2   21180001-21190000 |</span>
+<span class="co">##   [3101]     chr19   14310001-14320000 ---     chr19   14540001-14550000 |</span>
+<span class="co">##   [3102]      chr2   20060001-20070000 ---      chr2   20840001-20850000 |</span>
+<span class="co">##   [3103]     chr14 100750001-100760000 ---     chr14 100850001-100860000 |</span>
+<span class="co">##   [3104]     chr11     1840001-1850000 ---     chr11     2170001-2180000 |</span>
+<span class="co">##             looped ctcfSignal  n_sites  distance convergent</span>
+<span class="co">##          &lt;logical&gt;  &lt;numeric&gt; &lt;factor&gt; &lt;integer&gt;  &lt;logical&gt;</span>
+<span class="co">##      [1]     FALSE    8.12860        2     30000      FALSE</span>
+<span class="co">##      [2]     FALSE    8.72976        3    100000       TRUE</span>
+<span class="co">##      [3]     FALSE    9.51410        4    220000       TRUE</span>
+<span class="co">##      [4]     FALSE    8.64759        3    150000      FALSE</span>
+<span class="co">##      [5]     FALSE    8.43412        2     50000       TRUE</span>
+<span class="co">##      ...       ...        ...      ...       ...        ...</span>
+<span class="co">##   [3100]     FALSE    8.10867        2    200000       TRUE</span>
+<span class="co">##   [3101]     FALSE    8.13800        2    230000      FALSE</span>
+<span class="co">##   [3102]     FALSE    8.46727        2    780000      FALSE</span>
+<span class="co">##   [3103]     FALSE    8.52685        4    100000       TRUE</span>
+<span class="co">##   [3104]     FALSE    8.39022        3    330000       TRUE</span>
+<span class="co">##   -------</span>
+<span class="co">##   regions: 20612 ranges and 5 metadata columns</span>
+<span class="co">##   seqinfo: 23 sequences from hg19 genome</span></code></pre>
 <p>When the focal and pool arguments are <code>GInteractions</code> objects, <code><a href="../reference/matchRanges.html">matchRanges()</a></code> returns a <code>MatchedGInteractions</code> object. The <code>MatchedGInteractions</code> class extends <code>GInteractions</code> so all of the same operations can be applied:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">plyranges</span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org">ggplot2</a></span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">plyranges</span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span>
 <span class="co">## Summarize ctcfSignal by n_sites</span>
-<span class="va">mgi</span> <span class="op"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">%&gt;%</a></span>
-  <span class="fu"><a href="https://rdrr.io/pkg/InteractionSet/man/interaction-accessors.html">regions</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">%&gt;%</a></span>
-  <span class="fu"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">group_by</a></span><span class="op">(</span><span class="va">n_sites</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">%&gt;%</a></span>
-  <span class="fu"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">summarize</a></span><span class="op">(</span>ctcfSignal <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/mean.html">mean</a></span><span class="op">(</span><span class="va">ctcfSignal</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">%&gt;%</a></span>
-  <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">%&gt;%</a></span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">n_sites</span>, y <span class="op">=</span> <span class="va">ctcfSignal</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
-    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html">geom_line</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span>
-    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span><span class="op">(</span>shape <span class="op">=</span> <span class="fl">21</span>, stroke <span class="op">=</span> <span class="fl">1</span>,  fill <span class="op">=</span> <span class="st">'white'</span><span class="op">)</span> <span class="op">+</span>
-    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_minimal</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span>
-    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span><span class="op">(</span>panel.border <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_rect</a></span><span class="op">(</span>color <span class="op">=</span> <span class="st">'black'</span>,
+<span class="va">mgi</span> <span class="op"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html" class="external-link">%&gt;%</a></span>
+  <span class="fu"><a href="https://rdrr.io/pkg/InteractionSet/man/interaction-accessors.html" class="external-link">regions</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html" class="external-link">%&gt;%</a></span>
+  <span class="fu"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">n_sites</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html" class="external-link">%&gt;%</a></span>
+  <span class="fu"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html" class="external-link">summarize</a></span><span class="op">(</span>ctcfSignal <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">ctcfSignal</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html" class="external-link">%&gt;%</a></span>
+  <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html" class="external-link">%&gt;%</a></span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">n_sites</span>, y <span class="op">=</span> <span class="va">ctcfSignal</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
+    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span>
+    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>shape <span class="op">=</span> <span class="fl">21</span>, stroke <span class="op">=</span> <span class="fl">1</span>,  fill <span class="op">=</span> <span class="st">'white'</span><span class="op">)</span> <span class="op">+</span>
+    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span>
+    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>panel.border <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_rect</a></span><span class="op">(</span>color <span class="op">=</span> <span class="st">'black'</span>,
                                       fill <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p><img src="matching_ginteractions_files/figure-html/unnamed-chunk-4-1.png"><!-- --></p>
 </div>
-<div id="assessing-quality-of-matching" class="section level2">
-<h2 class="hasAnchor">
-<a href="#assessing-quality-of-matching" class="anchor"></a>Assessing quality of matching</h2>
+<div class="section level2">
+<h2 id="assessing-quality-of-matching">Assessing quality of matching<a class="anchor" aria-label="anchor" href="#assessing-quality-of-matching"></a>
+</h2>
 <p>We can get a quick summary of the matching quality with <code><a href="../reference/overview.html">overview()</a></code>:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">ov</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/overview.html">overview</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span>
 <span class="va">ov</span></code></pre></div>
-<pre><code>## MatchedGInteractions object: 
-##        set      N ctcfSignal.mean ctcfSignal.sd distance.mean distance.sd
-##      focal   3104             8.3          0.67        320000      230000
-##    matched   3104             8.3          0.71        320000      250000
-##       pool 195016             7.9          0.85        490000      290000
-##  unmatched 191912             7.8          0.85        490000      290000
-##  n_sites.0 n_sites.1 n_sites.2 n_sites.3 n_sites.4 n_sites.5 n_sites.6
-##          0         0      2167       734       164        32         4
-##          0         0      2191       719       157        30         3
-##          0         0    152318     34992      5971       944       158
-##          0         0    150127     34273      5814       914       155
-##  n_sites.7+ ps.mean ps.sd
-##           3   0.026 0.016
-##           4   0.026 0.016
-##         633   0.016 0.013
-##         629   0.015 0.013
-## --------
-## focal - matched: 
-##  ctcfSignal.mean ctcfSignal.sd distance.mean distance.sd n_sites.0 n_sites.1
-##         -2.8e-05        -0.047          -250      -26000         0         0
-##  n_sites.2 n_sites.3 n_sites.4 n_sites.5 n_sites.6 n_sites.7+  ps.mean    ps.sd
-##        -24        15         7         2         1         -1 -1.7e-07 -7.4e-07</code></pre>
+<pre><code><span class="co">## MatchedGInteractions object: </span>
+<span class="co">##        set      N ctcfSignal.mean ctcfSignal.sd distance.mean distance.sd</span>
+<span class="co">##      focal   3104             8.3          0.67        320000      230000</span>
+<span class="co">##    matched   3104             8.3          0.71        320000      250000</span>
+<span class="co">##       pool 195016             7.9          0.85        490000      290000</span>
+<span class="co">##  unmatched 191912             7.8          0.85        490000      290000</span>
+<span class="co">##  n_sites.0 n_sites.1 n_sites.2 n_sites.3 n_sites.4 n_sites.5 n_sites.6</span>
+<span class="co">##          0         0      2167       734       164        32         4</span>
+<span class="co">##          0         0      2191       719       157        30         3</span>
+<span class="co">##          0         0    152318     34992      5971       944       158</span>
+<span class="co">##          0         0    150127     34273      5814       914       155</span>
+<span class="co">##  n_sites.7+ ps.mean ps.sd</span>
+<span class="co">##           3   0.026 0.016</span>
+<span class="co">##           4   0.026 0.016</span>
+<span class="co">##         633   0.016 0.013</span>
+<span class="co">##         629   0.015 0.013</span>
+<span class="co">## --------</span>
+<span class="co">## focal - matched: </span>
+<span class="co">##  ctcfSignal.mean ctcfSignal.sd distance.mean distance.sd n_sites.0 n_sites.1</span>
+<span class="co">##         -2.8e-05        -0.047          -250      -26000         0         0</span>
+<span class="co">##  n_sites.2 n_sites.3 n_sites.4 n_sites.5 n_sites.6 n_sites.7+  ps.mean    ps.sd</span>
+<span class="co">##        -24        15         7         2         1         -1 -1.7e-07 -7.4e-07</span></code></pre>
 <p>In addition to providing a printed overview, the overview data can be extracted for convenience. For example, the <code>quality</code> property shows the absolute value of the mean difference between focal and matched sets. Therefore, the lower this value, the better the matching quality:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">ov</span><span class="op">$</span><span class="va">quality</span></code></pre></div>
-<pre><code>## [1] 1.7e-07</code></pre>
-<div id="visualizing-matching-results" class="section level3">
-<h3 class="hasAnchor">
-<a href="#visualizing-matching-results" class="anchor"></a>Visualizing matching results</h3>
+<pre><code><span class="co">## [1] 1.7e-07</span></code></pre>
+<div class="section level3">
+<h3 id="visualizing-matching-results">Visualizing matching results<a class="anchor" aria-label="anchor" href="#visualizing-matching-results"></a>
+</h3>
 <p>Let’s visualize overall matching quality by plotting propensity scores for the focal, pool, and matched sets:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/plotPropensity.html">plotPropensity</a></span><span class="op">(</span><span class="va">mgi</span>, sets <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html">c</a></span><span class="op">(</span><span class="st">'f'</span>, <span class="st">'p'</span>, <span class="st">'m'</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="fu"><a href="../reference/plotPropensity.html">plotPropensity</a></span><span class="op">(</span><span class="va">mgi</span>, sets <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'f'</span>, <span class="st">'p'</span>, <span class="st">'m'</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p><img src="matching_ginteractions_files/figure-html/unnamed-chunk-7-1.png"><!-- --></p>
 <p>Log transformations can be applied to ‘x’, ‘y’, or both (<code>c('x', 'y')</code>) for plotting functions to make it easier to assess quality. It is clear that the matched set is very well matched to the focal set:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/plotPropensity.html">plotPropensity</a></span><span class="op">(</span><span class="va">mgi</span>, sets <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html">c</a></span><span class="op">(</span><span class="st">'f'</span>, <span class="st">'p'</span>, <span class="st">'m'</span><span class="op">)</span>, log <span class="op">=</span> <span class="st">'x'</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="fu"><a href="../reference/plotPropensity.html">plotPropensity</a></span><span class="op">(</span><span class="va">mgi</span>, sets <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'f'</span>, <span class="st">'p'</span>, <span class="st">'m'</span><span class="op">)</span>, log <span class="op">=</span> <span class="st">'x'</span><span class="op">)</span></code></pre></div>
 <p><img src="matching_ginteractions_files/figure-html/unnamed-chunk-8-1.png"><!-- --></p>
 <p>We can ensure that covariate distributions have been matched appropriately by using the <code><a href="../reference/covariates.html">covariates()</a></code> function to extract matched covariates along with <code>patchwork</code> and <code>plotCovarite</code> to visualize all distributions:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com">patchwork</a></span><span class="op">)</span>
-<span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/lapply.html">lapply</a></span><span class="op">(</span><span class="fu"><a href="../reference/covariates.html">covariates</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span>, <span class="va">plotCovariate</span>, x<span class="op">=</span><span class="va">mgi</span>, sets <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html">c</a></span><span class="op">(</span><span class="st">'f'</span>, <span class="st">'m'</span>, <span class="st">'p'</span><span class="op">)</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/funprog.html">Reduce</a></span><span class="op">(</span><span class="st">'/'</span>, <span class="va">plots</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com" class="external-link">patchwork</a></span><span class="op">)</span>
+<span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="../reference/covariates.html">covariates</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span>, <span class="va">plotCovariate</span>, x<span class="op">=</span><span class="va">mgi</span>, sets <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'f'</span>, <span class="st">'m'</span>, <span class="st">'p'</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/funprog.html" class="external-link">Reduce</a></span><span class="op">(</span><span class="st">'/'</span>, <span class="va">plots</span><span class="op">)</span></code></pre></div>
 <p><img src="matching_ginteractions_files/figure-html/unnamed-chunk-9-1.png"><!-- --></p>
 </div>
 </div>
-<div id="compare-ctcf-site-orientation" class="section level2">
-<h2 class="hasAnchor">
-<a href="#compare-ctcf-site-orientation" class="anchor"></a>Compare CTCF site orientation</h2>
+<div class="section level2">
+<h2 id="compare-ctcf-site-orientation">Compare CTCF site orientation<a class="anchor" aria-label="anchor" href="#compare-ctcf-site-orientation"></a>
+</h2>
 <p>Using our matched ranges, we can compare the percent of looped pairs with at least one convergent CTCF site against unlooped pairs, randomly selected pairs, and pairs that are unlooped but have been matched for our covariates. The accessor function <code><a href="../reference/focal.html">focal()</a></code> and <code><a href="../reference/pool.html">pool()</a></code> can be used to conveniently extract these matched sets:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">## Generate a randomly selected set from all binPairs</span>
-<span class="va">all</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html">c</a></span><span class="op">(</span><span class="fu"><a href="../reference/focal.html">focal</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span>, <span class="fu"><a href="../reference/pool.html">pool</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span>
-<span class="va">random</span> <span class="op">&lt;-</span> <span class="va">all</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">all</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span>, replace <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">]</span>
+<span class="va">all</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="../reference/focal.html">focal</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span>, <span class="fu"><a href="../reference/pool.html">pool</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span>
+<span class="va">random</span> <span class="op">&lt;-</span> <span class="va">all</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">all</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span>, replace <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">]</span>
 <span class="co">## Calculate the percent of convergent CTCF sites for each group</span>
-<span class="va">g1</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="fu"><a href="../reference/focal.html">focal</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span><span class="op">$</span><span class="va">convergent</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="../reference/focal.html">focal</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span>
-<span class="va">g2</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="fu"><a href="../reference/pool.html">pool</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span><span class="op">$</span><span class="va">convergent</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="../reference/pool.html">pool</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span>
-<span class="va">g3</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">random</span><span class="op">$</span><span class="va">convergent</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">random</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span>
-<span class="va">g4</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">$</span><span class="va">convergent</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span>
+<span class="va">g1</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="../reference/focal.html">focal</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span><span class="op">$</span><span class="va">convergent</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="../reference/focal.html">focal</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span>
+<span class="va">g2</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="../reference/pool.html">pool</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span><span class="op">$</span><span class="va">convergent</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="../reference/pool.html">pool</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span>
+<span class="va">g3</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">random</span><span class="op">$</span><span class="va">convergent</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">random</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span>
+<span class="va">g4</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">$</span><span class="va">convergent</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span>
 <span class="co">## Visualize</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html">barplot</a></span><span class="op">(</span>height <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html">c</a></span><span class="op">(</span><span class="va">g1</span>, <span class="va">g2</span>, <span class="va">g3</span>, <span class="va">g4</span><span class="op">)</span>,
-        names.arg <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html">c</a></span><span class="op">(</span><span class="st">'looped\n(focal)'</span>, <span class="st">'unlooped\n(pool)'</span>,
+<span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html" class="external-link">barplot</a></span><span class="op">(</span>height <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="va">g1</span>, <span class="va">g2</span>, <span class="va">g3</span>, <span class="va">g4</span><span class="op">)</span>,
+        names.arg <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'looped\n(focal)'</span>, <span class="st">'unlooped\n(pool)'</span>,
                       <span class="st">'all pairs\n(random)'</span>, <span class="st">'unlooped\n(matched)'</span><span class="op">)</span>,
-        col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html">c</a></span><span class="op">(</span><span class="st">'#1F78B4'</span>, <span class="st">'#33A02C'</span>, <span class="st">'orange2'</span>, <span class="st">'#A6CEE3'</span><span class="op">)</span>, 
+        col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'#1F78B4'</span>, <span class="st">'#33A02C'</span>, <span class="st">'orange2'</span>, <span class="st">'#A6CEE3'</span><span class="op">)</span>, 
         ylab <span class="op">=</span> <span class="st">"Convergent CTCF Sites (%)"</span>,
         main <span class="op">=</span> <span class="st">"Testing the Convergence Rule"</span>,
         border <span class="op">=</span> <span class="cn">NA</span>,
@@ -300,98 +295,98 @@
 <p><img src="matching_ginteractions_files/figure-html/unnamed-chunk-10-1.png"><!-- --></p>
 <p>As shown above the convergent rule holds true even when controlling for CTCF signal strength and bin pair distance. Greater than 90% of looped pairs contain convergent CTCF sites, compared to only ~55% among non-looped subsets.</p>
 </div>
-<div id="session-information" class="section level1">
-<h1 class="hasAnchor">
-<a href="#session-information" class="anchor"></a>Session information</h1>
+<div class="section level1">
+<h1 id="session-information">Session information<a class="anchor" aria-label="anchor" href="#session-information"></a>
+</h1>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
-<pre><code>## R version 4.1.1 (2021-08-10)
-## Platform: x86_64-pc-linux-gnu (64-bit)
-## Running under: Ubuntu 20.04.3 LTS
-## 
-## Matrix products: default
-## BLAS/LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.8.so
-## 
-## locale:
-##  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
-##  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
-##  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=C             
-##  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
-##  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
-## [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
-## 
-## attached base packages:
-## [1] grid      stats4    stats     graphics  grDevices utils     datasets 
-## [8] methods   base     
-## 
-## other attached packages:
-##  [1] patchwork_1.1.1             plyranges_1.14.0           
-##  [3] nullrangesData_1.0.0        ExperimentHub_2.2.0        
-##  [5] AnnotationHub_3.2.0         BiocFileCache_2.2.0        
-##  [7] dbplyr_2.1.1                ggplot2_3.3.5              
-##  [9] plotgardener_1.0.1          nullranges_1.1.1           
-## [11] InteractionSet_1.22.0       SummarizedExperiment_1.24.0
-## [13] Biobase_2.54.0              MatrixGenerics_1.6.0       
-## [15] matrixStats_0.61.0          GenomicRanges_1.46.0       
-## [17] GenomeInfoDb_1.30.0         IRanges_2.28.0             
-## [19] S4Vectors_0.32.1            BiocGenerics_0.40.0        
-## 
-## loaded via a namespace (and not attached):
-##   [1] colorspace_2.0-2              rjson_0.2.20                 
-##   [3] ellipsis_0.3.2                ggridges_0.5.3               
-##   [5] mclust_5.4.7                  rprojroot_2.0.2              
-##   [7] XVector_0.34.0                fs_1.5.0                     
-##   [9] farver_2.1.0                  bit64_4.0.5                  
-##  [11] AnnotationDbi_1.56.1          interactiveDisplayBase_1.32.0
-##  [13] fansi_0.5.0                   mvtnorm_1.1-3                
-##  [15] cachem_1.0.6                  knitr_1.36                   
-##  [17] jsonlite_1.7.2                speedglm_0.3-3               
-##  [19] Rsamtools_2.10.0              png_0.1-7                    
-##  [21] shiny_1.7.1                   BiocManager_1.30.16          
-##  [23] compiler_4.1.1                httr_1.4.2                   
-##  [25] assertthat_0.2.1              Matrix_1.3-4                 
-##  [27] fastmap_1.1.0                 later_1.3.0                  
-##  [29] prettyunits_1.1.1             htmltools_0.5.2              
-##  [31] tools_4.1.1                   gtable_0.3.0                 
-##  [33] glue_1.4.2                    GenomeInfoDbData_1.2.7       
-##  [35] dplyr_1.0.7                   rappdirs_0.3.3               
-##  [37] Rcpp_1.0.7                    jquerylib_0.1.4              
-##  [39] pkgdown_1.6.1                 vctrs_0.3.8                  
-##  [41] Biostrings_2.62.0             strawr_0.0.9                 
-##  [43] rtracklayer_1.54.0            xfun_0.28                    
-##  [45] stringr_1.4.0                 mime_0.12                    
-##  [47] lifecycle_1.0.1               restfulr_0.0.13              
-##  [49] XML_3.99-0.8                  zlibbioc_1.40.0              
-##  [51] MASS_7.3-54                   scales_1.1.1                 
-##  [53] hms_1.1.1                     promises_1.2.0.1             
-##  [55] ragg_1.2.0                    parallel_4.1.1               
-##  [57] RColorBrewer_1.1-2            yaml_2.2.1                   
-##  [59] curl_4.3.2                    memoise_2.0.0                
-##  [61] yulab.utils_0.0.4             sass_0.4.0                   
-##  [63] stringi_1.7.5                 RSQLite_2.2.8                
-##  [65] BiocVersion_3.14.0            highr_0.9                    
-##  [67] BiocIO_1.4.0                  desc_1.4.0                   
-##  [69] filelock_1.0.2                BiocParallel_1.28.0          
-##  [71] rlang_0.4.12                  pkgconfig_2.0.3              
-##  [73] systemfonts_1.0.3             bitops_1.0-7                 
-##  [75] pracma_2.3.3                  evaluate_0.14                
-##  [77] lattice_0.20-45               purrr_0.3.4                  
-##  [79] GenomicAlignments_1.30.0      ks_1.13.2                    
-##  [81] labeling_0.4.2                bit_4.0.4                    
-##  [83] tidyselect_1.1.1              plyr_1.8.6                   
-##  [85] magrittr_2.0.1                R6_2.5.1                     
-##  [87] generics_0.1.1                DelayedArray_0.20.0          
-##  [89] DBI_1.1.1                     pillar_1.6.4                 
-##  [91] withr_2.4.2                   KEGGREST_1.34.0              
-##  [93] RCurl_1.98-1.5                tibble_3.1.5                 
-##  [95] crayon_1.4.2                  KernSmooth_2.23-20           
-##  [97] utf8_1.2.2                    rmarkdown_2.11               
-##  [99] progress_1.2.2                data.table_1.14.2            
-## [101] blob_1.2.2                    digest_0.6.28                
-## [103] xtable_1.8-4                  httpuv_1.6.3                 
-## [105] gridGraphics_0.5-1            textshaping_0.3.6            
-## [107] munsell_0.5.0                 ggplotify_0.1.0              
-## [109] bslib_0.3.1</code></pre>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
+<pre><code><span class="co">## R version 4.1.1 (2021-08-10)</span>
+<span class="co">## Platform: x86_64-pc-linux-gnu (64-bit)</span>
+<span class="co">## Running under: Ubuntu 20.04.3 LTS</span>
+<span class="co">## </span>
+<span class="co">## Matrix products: default</span>
+<span class="co">## BLAS/LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.8.so</span>
+<span class="co">## </span>
+<span class="co">## locale:</span>
+<span class="co">##  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              </span>
+<span class="co">##  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    </span>
+<span class="co">##  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=C             </span>
+<span class="co">##  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 </span>
+<span class="co">##  [9] LC_ADDRESS=C               LC_TELEPHONE=C            </span>
+<span class="co">## [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       </span>
+<span class="co">## </span>
+<span class="co">## attached base packages:</span>
+<span class="co">## [1] grid      stats4    stats     graphics  grDevices utils     datasets </span>
+<span class="co">## [8] methods   base     </span>
+<span class="co">## </span>
+<span class="co">## other attached packages:</span>
+<span class="co">##  [1] patchwork_1.1.1             plyranges_1.14.0           </span>
+<span class="co">##  [3] nullrangesData_1.0.0        ExperimentHub_2.2.0        </span>
+<span class="co">##  [5] AnnotationHub_3.2.0         BiocFileCache_2.2.0        </span>
+<span class="co">##  [7] dbplyr_2.1.1                ggplot2_3.3.5              </span>
+<span class="co">##  [9] plotgardener_1.0.6          nullranges_1.1.2           </span>
+<span class="co">## [11] InteractionSet_1.22.0       SummarizedExperiment_1.24.0</span>
+<span class="co">## [13] Biobase_2.54.0              MatrixGenerics_1.6.0       </span>
+<span class="co">## [15] matrixStats_0.61.0          GenomicRanges_1.46.1       </span>
+<span class="co">## [17] GenomeInfoDb_1.30.0         IRanges_2.28.0             </span>
+<span class="co">## [19] S4Vectors_0.32.3            BiocGenerics_0.40.0        </span>
+<span class="co">## </span>
+<span class="co">## loaded via a namespace (and not attached):</span>
+<span class="co">##   [1] colorspace_2.0-2              rjson_0.2.20                 </span>
+<span class="co">##   [3] ellipsis_0.3.2                ggridges_0.5.3               </span>
+<span class="co">##   [5] mclust_5.4.8                  rprojroot_2.0.2              </span>
+<span class="co">##   [7] XVector_0.34.0                fs_1.5.2                     </span>
+<span class="co">##   [9] farver_2.1.0                  bit64_4.0.5                  </span>
+<span class="co">##  [11] AnnotationDbi_1.56.2          interactiveDisplayBase_1.32.0</span>
+<span class="co">##  [13] fansi_0.5.0                   mvtnorm_1.1-3                </span>
+<span class="co">##  [15] cachem_1.0.6                  knitr_1.36                   </span>
+<span class="co">##  [17] jsonlite_1.7.2                speedglm_0.3-3               </span>
+<span class="co">##  [19] Rsamtools_2.10.0              png_0.1-7                    </span>
+<span class="co">##  [21] shiny_1.7.1                   BiocManager_1.30.16          </span>
+<span class="co">##  [23] compiler_4.1.1                httr_1.4.2                   </span>
+<span class="co">##  [25] assertthat_0.2.1              Matrix_1.4-0                 </span>
+<span class="co">##  [27] fastmap_1.1.0                 later_1.3.0                  </span>
+<span class="co">##  [29] prettyunits_1.1.1             htmltools_0.5.2              </span>
+<span class="co">##  [31] tools_4.1.1                   gtable_0.3.0                 </span>
+<span class="co">##  [33] glue_1.5.1                    GenomeInfoDbData_1.2.7       </span>
+<span class="co">##  [35] dplyr_1.0.7                   rappdirs_0.3.3               </span>
+<span class="co">##  [37] Rcpp_1.0.7                    jquerylib_0.1.4              </span>
+<span class="co">##  [39] pkgdown_2.0.1                 vctrs_0.3.8                  </span>
+<span class="co">##  [41] Biostrings_2.62.0             strawr_0.0.9                 </span>
+<span class="co">##  [43] rtracklayer_1.54.0            xfun_0.28                    </span>
+<span class="co">##  [45] stringr_1.4.0                 mime_0.12                    </span>
+<span class="co">##  [47] lifecycle_1.0.1               restfulr_0.0.13              </span>
+<span class="co">##  [49] XML_3.99-0.8                  zlibbioc_1.40.0              </span>
+<span class="co">##  [51] MASS_7.3-54                   scales_1.1.1                 </span>
+<span class="co">##  [53] hms_1.1.1                     promises_1.2.0.1             </span>
+<span class="co">##  [55] ragg_1.2.1                    parallel_4.1.1               </span>
+<span class="co">##  [57] RColorBrewer_1.1-2            yaml_2.2.1                   </span>
+<span class="co">##  [59] curl_4.3.2                    memoise_2.0.1                </span>
+<span class="co">##  [61] yulab.utils_0.0.4             sass_0.4.0                   </span>
+<span class="co">##  [63] stringi_1.7.6                 RSQLite_2.2.9                </span>
+<span class="co">##  [65] BiocVersion_3.14.0            highr_0.9                    </span>
+<span class="co">##  [67] BiocIO_1.4.0                  desc_1.4.0                   </span>
+<span class="co">##  [69] filelock_1.0.2                BiocParallel_1.28.3          </span>
+<span class="co">##  [71] rlang_0.4.12                  pkgconfig_2.0.3              </span>
+<span class="co">##  [73] systemfonts_1.0.3             bitops_1.0-7                 </span>
+<span class="co">##  [75] pracma_2.3.6                  evaluate_0.14                </span>
+<span class="co">##  [77] lattice_0.20-45               purrr_0.3.4                  </span>
+<span class="co">##  [79] GenomicAlignments_1.30.0      ks_1.13.2                    </span>
+<span class="co">##  [81] labeling_0.4.2                bit_4.0.4                    </span>
+<span class="co">##  [83] tidyselect_1.1.1              plyr_1.8.6                   </span>
+<span class="co">##  [85] magrittr_2.0.1                R6_2.5.1                     </span>
+<span class="co">##  [87] generics_0.1.1                DelayedArray_0.20.0          </span>
+<span class="co">##  [89] DBI_1.1.1                     pillar_1.6.4                 </span>
+<span class="co">##  [91] withr_2.4.3                   KEGGREST_1.34.0              </span>
+<span class="co">##  [93] RCurl_1.98-1.5                tibble_3.1.6                 </span>
+<span class="co">##  [95] crayon_1.4.2                  KernSmooth_2.23-20           </span>
+<span class="co">##  [97] utf8_1.2.2                    rmarkdown_2.11               </span>
+<span class="co">##  [99] progress_1.2.2                data.table_1.14.2            </span>
+<span class="co">## [101] blob_1.2.2                    digest_0.6.29                </span>
+<span class="co">## [103] xtable_1.8-4                  httpuv_1.6.3                 </span>
+<span class="co">## [105] gridGraphics_0.5-1            textshaping_0.3.6            </span>
+<span class="co">## [107] munsell_0.5.0                 ggplotify_0.1.0              </span>
+<span class="co">## [109] bslib_0.3.1</span></code></pre>
 </div>
   </div>
 
@@ -406,11 +401,13 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by <a href="https://mikelove.github.io">Michael Love</a>, <a href="https://twitter.com/wancenm">Wancen Mu</a>, <a href="https://ericscottdavis.com">Eric Davis</a>, <a href="http://phanstiel-lab.med.unc.edu">Douglas Phanstiel</a>, <a href="https://stuartlee.org">Stuart Lee</a>, <a href="https://chanzuckerberg.com">CZI</a>.</p>
+  <p></p>
+<p>Developed by <a href="https://mikelove.github.io" class="external-link">Michael Love</a>, <a href="https://twitter.com/wancenm" class="external-link">Wancen Mu</a>, <a href="https://ericscottdavis.com" class="external-link">Eric Davis</a>, <a href="http://phanstiel-lab.med.unc.edu" class="external-link">Douglas Phanstiel</a>, <a href="https://stuartlee.org" class="external-link">Stuart Lee</a>, <a href="https://chanzuckerberg.com" class="external-link">CZI</a>.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
 </div>
 
       </footer>
@@ -418,6 +415,8 @@
 
   
 
+
+  
 
   </body>
 </html>
