@@ -29,7 +29,7 @@ unseg_bootstrap <- function(y, L_b,
   } else {
     # TODO: code assumes sorted 'y'
     stopifnot(all(y == GenomicRanges::sort(y)))
-    # TODO: do we have to worry about missing seqlevels?
+    # TODO: what happens when no features occur on a chromosome?
     # L_s is now a vector of the chromosome lengths
     L_s <- chrom_lens
     y_prime <- if (type == "bootstrap") {
@@ -170,6 +170,8 @@ unseg_permute_across_chrom <- function(y, L_b, L_s) {
 # 'y' in blocks --> 'y_prime' in rearranged_blocks
 #
 # and will also change the seqnames to 'chr_names'
+#
+# some features after trimming will have width 0 and are removed
 shift_and_swap_chrom <- function(y, chr_names,
                                  random_blocks_start,
                                  rearranged_blocks_start) {
@@ -184,5 +186,6 @@ shift_and_swap_chrom <- function(y, chr_names,
     seqnames(y_prime) <- chr_prime
   })
   y_prime <- trim(y_prime)
+  y_prime <- y_prime[width(y_prime) > 0]
   y_prime
 }

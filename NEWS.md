@@ -1,3 +1,8 @@
+# nullranges 1.1.3
+
+* Needed to drop features that have 0 width after trimming in
+  bootRanges.
+
 # nullranges 1.1.1
 
 * Change to `factor-Rle` output for `bootRanges` to simplify
