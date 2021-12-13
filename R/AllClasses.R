@@ -8,7 +8,7 @@ bootRanges <- setClass(
 setValidity(
   Class = "bootRanges",
   method = function(object) {
-    stopifnot(all(c("iter", "blockLength") %in% names(mcols(object))))
+    stopifnot("iter" %in% names(mcols(object)))
   }
 )
 

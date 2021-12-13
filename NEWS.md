@@ -1,7 +1,8 @@
-# nullranges 1.1.3
+# nullranges 1.1.4
 
 * Needed to drop features that have 0 width after trimming in
   bootRanges.
+* Made the validity test for bootRanges only look for iter.
 
 # nullranges 1.1.1
 
