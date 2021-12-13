@@ -40,7 +40,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.3</span>
       </span>
     </div>
 
@@ -96,7 +96,7 @@
       <h1 data-toc-skip>Segmented block bootstrap</h1>
                         <h4 data-toc-skip class="author">Wancen Mu</h4>
             
-            <h4 data-toc-skip class="date">12/12/2021</h4>
+            <h4 data-toc-skip class="date">12/13/2021</h4>
       
       
       <div class="hidden name"><code>segmented_boot_ranges.Rmd</code></div>
@@ -244,7 +244,7 @@
 <code class="sourceCode R"><span class="va">blockLength</span> <span class="op">&lt;-</span> <span class="fl">5e5</span>
 <span class="va">br</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">dhs</span>, <span class="va">blockLength</span>, R <span class="op">=</span> <span class="fl">2</span>, seg <span class="op">=</span> <span class="va">seg</span>, exclude<span class="op">=</span><span class="va">exclude</span><span class="op">)</span>
 <span class="va">br</span></code></pre></div>
-<pre><code><span class="co">## bootRanges object with 354761 ranges and 9 metadata columns:</span>
+<pre><code><span class="co">## bootRanges object with 354357 ranges and 9 metadata columns:</span>
 <span class="co">##            seqnames            ranges strand |        name     score</span>
 <span class="co">##               &lt;Rle&gt;         &lt;IRanges&gt;  &lt;Rle&gt; | &lt;character&gt; &lt;numeric&gt;</span>
 <span class="co">##        [1]     chr1 55046962-55047111      * |        &lt;NA&gt;         0</span>
@@ -253,11 +253,11 @@
 <span class="co">##        [4]     chr1 55179402-55179551      * |        &lt;NA&gt;         0</span>
 <span class="co">##        [5]     chr1 55179862-55180011      * |        &lt;NA&gt;         0</span>
 <span class="co">##        ...      ...               ...    ... .         ...       ...</span>
-<span class="co">##   [354757]    chr22 50534629-50534778      * |        &lt;NA&gt;         0</span>
-<span class="co">##   [354758]    chr22 50788902-50789051      * |        &lt;NA&gt;         0</span>
-<span class="co">##   [354759]    chr22 50818469-50818468      * |        &lt;NA&gt;         0</span>
-<span class="co">##   [354760]    chr22 50818469-50818468      * |        &lt;NA&gt;         0</span>
-<span class="co">##   [354761]    chr22 50818469-50818468      * |        &lt;NA&gt;         0</span>
+<span class="co">##   [354353]    chr22 50428971-50429120      * |        &lt;NA&gt;         0</span>
+<span class="co">##   [354354]    chr22 50465467-50465616      * |        &lt;NA&gt;         0</span>
+<span class="co">##   [354355]    chr22 50517029-50517178      * |        &lt;NA&gt;         0</span>
+<span class="co">##   [354356]    chr22 50534629-50534778      * |        &lt;NA&gt;         0</span>
+<span class="co">##   [354357]    chr22 50788902-50789051      * |        &lt;NA&gt;         0</span>
 <span class="co">##            signalValue    pValue    qValue      peak     block  iter</span>
 <span class="co">##              &lt;numeric&gt; &lt;numeric&gt; &lt;numeric&gt; &lt;numeric&gt; &lt;integer&gt; &lt;Rle&gt;</span>
 <span class="co">##        [1]           3        -1        -1        -1         1     1</span>
@@ -266,11 +266,11 @@
 <span class="co">##        [4]         166        -1        -1        -1         1     1</span>
 <span class="co">##        [5]          41        -1        -1        -1         1     1</span>
 <span class="co">##        ...         ...       ...       ...       ...       ...   ...</span>
-<span class="co">##   [354757]          14        -1        -1        -1     12468     2</span>
-<span class="co">##   [354758]          14        -1        -1        -1     12471     2</span>
-<span class="co">##   [354759]          36        -1        -1        -1     12472     2</span>
-<span class="co">##   [354760]          14        -1        -1        -1     12472     2</span>
-<span class="co">##   [354761]          14        -1        -1        -1     12472     2</span>
+<span class="co">##   [354353]          77        -1        -1        -1     12466     2</span>
+<span class="co">##   [354354]          18        -1        -1        -1     12467     2</span>
+<span class="co">##   [354355]          24        -1        -1        -1     12468     2</span>
+<span class="co">##   [354356]          14        -1        -1        -1     12468     2</span>
+<span class="co">##   [354357]          14        -1        -1        -1     12471     2</span>
 <span class="co">##            blockLength</span>
 <span class="co">##                  &lt;Rle&gt;</span>
 <span class="co">##        [1]      500000</span>
@@ -279,11 +279,11 @@
 <span class="co">##        [4]      500000</span>
 <span class="co">##        [5]      500000</span>
 <span class="co">##        ...         ...</span>
-<span class="co">##   [354757]      500000</span>
-<span class="co">##   [354758]      500000</span>
-<span class="co">##   [354759]      500000</span>
-<span class="co">##   [354760]      500000</span>
-<span class="co">##   [354761]      500000</span>
+<span class="co">##   [354353]      500000</span>
+<span class="co">##   [354354]      500000</span>
+<span class="co">##   [354355]      500000</span>
+<span class="co">##   [354356]      500000</span>
+<span class="co">##   [354357]      500000</span>
 <span class="co">##   -------</span>
 <span class="co">##   seqinfo: 24 sequences from hg38 genome</span></code></pre>
 <p><strong>What is returned here?</strong> The <code>bootRanges</code> function returns a <em>bootRanges</em> object, which is a simple sub-class of <em>GRanges</em>. The iteration (<code>iter</code>) and the block length (<code>blockLength</code>) are recorded as metadata columns, accessible via <code>mcols</code>. We chose to return the bootstrapped ranges as <em>GRanges</em> rather than <em>GRangesList</em>, as the former is more compatible with downstream overlap joins with <em>plyranges</em>, where the iteration column can be used with <code>group_by</code> to provide per bootstrap summary statistics.</p>
@@ -302,8 +302,8 @@
 <span class="op">)</span>, times<span class="op">=</span><span class="fl">10</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">## Unit: milliseconds</span>
 <span class="co">##     expr      min       lq     mean   median       uq      max neval</span>
-<span class="co">##     prop 218.9345 229.4064 233.3862 231.8473 238.7198 247.6640    10</span>
-<span class="co">##  no_prop 205.5496 219.3513 225.5683 224.0074 229.6916 245.9159    10</span></code></pre>
+<span class="co">##     prop 230.0468 247.8823 253.7252 251.7915 267.2065 270.3477    10</span>
+<span class="co">##  no_prop 236.7209 239.3833 246.7061 242.3835 248.6900 269.1942    10</span></code></pre>
 </div>
 <div class="section level1">
 <h1 id="visualizing-toy-bootstrap-samples">Visualizing toy bootstrap samples<a class="anchor" aria-label="anchor" href="#visualizing-toy-bootstrap-samples"></a>
@@ -424,7 +424,7 @@
 <span class="co">##  [5] SummarizedExperiment_1.24.0 MatrixGenerics_1.6.0       </span>
 <span class="co">##  [7] matrixStats_0.61.0          ExperimentHub_2.2.0        </span>
 <span class="co">##  [9] patchwork_1.1.1             plyranges_1.14.0           </span>
-<span class="co">## [11] nullranges_1.1.2            excluderanges_0.99.6       </span>
+<span class="co">## [11] nullranges_1.1.3            excluderanges_0.99.6       </span>
 <span class="co">## [13] AnnotationHub_3.2.0         BiocFileCache_2.2.0        </span>
 <span class="co">## [15] dbplyr_2.1.1                EnsDb.Hsapiens.v86_2.99.0  </span>
 <span class="co">## [17] ensembldb_2.18.2            AnnotationFilter_1.18.0    </span>
