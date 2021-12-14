@@ -39,4 +39,4 @@ analysis is currently being developed.
 This work was funded by the Chan Zuckerberg Initiative as part of the
 EOSS grants.
 
-![CZI](man/figures/czi.png)
+![](man/figures/czi.png)

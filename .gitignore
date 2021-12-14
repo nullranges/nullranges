@@ -2,7 +2,6 @@
 .Rproj.user
 .Rhistory
 nullranges.Rproj
-*.hic
 vignettes/*.html
 vignettes/*_cache
 vignettes/*_files
