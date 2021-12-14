@@ -46,3 +46,15 @@ exclude <- GRanges("chr1", IRanges(5001,6000), seqlengths=c(chr1=10000))
 seg <- segmentDensity(gr, n=3, L_s=100, exclude=exclude, type="cbs")
 
 }
+\references{
+Circular binary segmentation (CBS):
+
+Olshen, A. B., E. S. Venkatraman, R. Lucito, and M. Wigler.
+2004. "Circular binary segmentation for the analysis of
+array-based DNA copy number data." Biostatistics 5 (4): 557–72.
+
+Hidden Markov Model from RcppHMM:
+
+Roberto A. Cardenas-Ovando, Julieta Noguez, and Claudia Rangel-Escareno.
+"Rcpp Hidden Markov Model." CRAN R package.
+}

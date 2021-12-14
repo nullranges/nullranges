@@ -61,3 +61,12 @@ gr <- GRanges("chr1", IRanges(0:4 * 10 + 1, width=5),
 br <- bootRanges(gr, blockLength=10)
 
 }
+\references{
+Method describing the segmented block bootstrap for genomic features:
+
+Bickel, Peter J., Nathan Boley, James B. Brown,
+Haiyan Huang, and Nancy R. Zhang.
+2010. "Subsampling Methods for Genomic Inference."
+The Annals of Applied Statistics 4 (4): 1660–97.
+doi: 10.1214/10-AOAS363
+}
