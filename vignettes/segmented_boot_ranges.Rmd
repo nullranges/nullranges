@@ -62,6 +62,7 @@ First we obtain the Ensembl genes [@ensembl2021] for segmenting by
 gene density. We obtain these using the *ensembldb* package [@ensembldb].
 
 ```{r}
+suppressPackageStartupMessages(library(ensembldb))
 suppressPackageStartupMessages(library(EnsDb.Hsapiens.v86))
 edb <- EnsDb.Hsapiens.v86
 filt <- AnnotationFilterList(GeneIdFilter("ENSG", "startsWith"))
@@ -122,7 +123,7 @@ we re-save the excluded ranges to `exclude`.
 ```{r seg-cbs}
 set.seed(5)
 exclude <- exclude %>%
-  plyranges::filter(width(exclude) >= 500)
+  filter(width(exclude) >= 500)
 L_s <- 1e6
 seg <- segmentDensity(g, n = 3, L_s = L_s,
                       exclude = exclude, type = "cbs")
@@ -186,8 +187,8 @@ metadata can help make the analysis more efficient.
 suppressPackageStartupMessages(library(nullrangesData))
 dhs <- DHSA549Hg38()
 dhs <- dhs %>% filter(signalValue > 100) %>%
-  mutate(id = seq_along(dhs)) %>%
-  plyranges::select(id)
+  mutate(id = seq_along(.)) %>%
+  select(id)
 length(dhs)
 table(seqnames(dhs))
 ```
