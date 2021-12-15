@@ -187,7 +187,7 @@ suppressPackageStartupMessages(library(nullrangesData))
 dhs <- DHSA549Hg38()
 dhs <- dhs %>% filter(signalValue > 100) %>%
   mutate(id = seq_along(dhs)) %>%
-  select(id)
+  plyranges::select(id)
 length(dhs)
 table(seqnames(dhs))
 ```
