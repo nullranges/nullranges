@@ -120,10 +120,13 @@ motivation for this step is to avoid segmenting the genome into many
 small pieces due to an abundance of short excluded regions. Note that
 we re-save the excluded ranges to `exclude`.
 
+Here, and below, we need to specify `plyranges::filter` as it
+conflicts with `filter` exported by *ensembldb*.
+
 ```{r seg-cbs}
 set.seed(5)
 exclude <- exclude %>%
-  filter(width(exclude) >= 500)
+  plyranges::filter(width(exclude) >= 500)
 L_s <- 1e6
 seg <- segmentDensity(g, n = 3, L_s = L_s,
                       exclude = exclude, type = "cbs")
@@ -186,7 +189,7 @@ metadata can help make the analysis more efficient.
 ```{r}
 suppressPackageStartupMessages(library(nullrangesData))
 dhs <- DHSA549Hg38()
-dhs <- dhs %>% filter(signalValue > 100) %>%
+dhs <- dhs %>% plyranges::filter(signalValue > 100) %>%
   mutate(id = seq_along(.)) %>%
   select(id)
 length(dhs)
