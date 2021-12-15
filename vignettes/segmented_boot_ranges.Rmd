@@ -282,8 +282,15 @@ boot_stats <- x %>% join_overlap_inner(boots) %>%
   summarize(meanOverlaps = mean(n_overlaps))
 ```
 
+The above code, first grouping by `x_id` and `iter`, then subsequently
+by `iter` is general and allows for more complex analysis than just
+mean overlap (e.g. how many times an `x` range has 1 or more overlap,
+what is the mean or max signal value for peaks overlapping ranges in
+`x`, etc.).
+
 Finally we can plot a histogram. In this case, as the `x` features
-were arbitrary, our observed value 
+were arbitrary, our observed value falls within the distribution of
+mean overlap with bootstrapped data.
 
 ```{r boot-hist}
 suppressPackageStartupMessages(library(ggplot2))
