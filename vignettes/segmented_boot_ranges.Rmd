@@ -42,13 +42,11 @@ The segmented block bootstrap has two options, either:
   *rtracklayer*)
 
 In this vignette, we give an example of segmenting the hg38 genome by
-Ensembl gene density, then we profile the time to generate a single
-block bootstrap sample. Finally, we use a toy dataset to visualize
-what a segmented block bootstrap sample looks like with respect to a
-genome segmentation. Future versions of this vignette will demonstrate
-the functions used within an overlap analysis. See also the unsegmented
-block bootstrap vignette in *nullranges*, if it is not desired to
-bootstrap with respect to a genome segmentation.
+Ensembl gene density, create bootstrapped peaks and evaluate overlaps
+for observed peaks and bootstrap peaks, then we profile the time to
+generate a single block bootstrap sample. Finally, we use a toy
+dataset to visualize what a segmented block bootstrap sample looks
+like with respect to a genome segmentation. 
 
 A finally consideration is whether the blocks should scale
 proportionally to the segment state length, with the default setting 
@@ -177,39 +175,123 @@ created using the following steps:
 These steps are included in *nullrangesData* in the
 `inst/scripts/make-dhs-data.R ` script.
 
+For speed of the vignette, we restrict to a smaller number of DHS,
+filtering by the signal value. We also remove metadata columns that we
+don't need for the bootstrap analysis. Consider, when creating
+bootstrapped data, that you will be creating an object many times
+larger than your original features, so filtering and trimming extra
+metadata can help make the analysis more efficient.
+
 ```{r}
 suppressPackageStartupMessages(library(nullrangesData))
 dhs <- DHSA549Hg38()
+dhs <- dhs %>% filter(signalValue > 100) %>%
+  mutate(id = seq_along(dhs)) %>%
+  select(id)
+length(dhs)
 table(seqnames(dhs))
 ```
 
 Now we apply a segmented block bootstrap with blocks of size 500kb,
-to the peaks. Here we simply show generation of two iterations
-of a block bootstrap, while we plan in future sections of this
-vignette to demonstrate its use in a workflow including *plyranges*
-[@Lee2019].
+to the peaks. Here we show generation of 50 iterations
+of a block bootstrap followed by a typical overlap analysis using
+*plyranges* [@Lee2019]. (We might normally do 100 iterations or more,
+depending on the granularity of the bootstrap distribution that is
+needed.)
+
 
 ```{r}
+set.seed(5) # for reproducibility
+R <- 50
 blockLength <- 5e5
-br <- bootRanges(dhs, blockLength, R = 2, seg = seg, exclude=exclude)
-br
+boots <- bootRanges(dhs, blockLength, R = R, seg = seg, exclude=exclude)
+boots
 ```
 
-**What is returned here?**
+What is returned here?
 The `bootRanges` function returns a *bootRanges* object, which is
 a simple sub-class of *GRanges*. The iteration (`iter`) and the 
 block length (`blockLength`) are recorded as metadata columns, 
-accessible via `mcols`. We chose to return the bootstrapped ranges
-as *GRanges* rather than *GRangesList*, as the former is more
-compatible with downstream overlap joins with *plyranges*, where
-the iteration column can be used with `group_by` to provide 
-per bootstrap summary statistics.
+accessible via `mcols`. We return the bootstrapped ranges as *GRanges*
+rather than *GRangesList*, as the former is more compatible with
+downstream overlap joins with *plyranges*, where the iteration column
+can be used with `group_by` to provide per bootstrap summary
+statistics, as shown below.
 
 Note that we use the `exclude` object from the previous step, which
 does not contain small ranges. If one wanted to also avoid generation
 of bootstrapped features that overlap small excluded ranges, then omit
 this filtering step (use the original, complete `exclude` feature
 set).
+
+We can examine the number and extent of the bootstrapped data:
+
+```{r}
+boots %>% group_by(iter) %>%
+  summarize(
+    n = n(),
+    total_width = sum(width)
+  )
+```
+
+which is similar to the orig inal set, after filtering out those
+overlapping the excluded region:
+
+```{r}
+dhs_filt <- dhs %>% filter_by_non_overlaps(exclude)
+dhs_filt %>% summarize(n = n(), total_width=sum(width))
+```
+
+# Use with *plyranges*
+
+Suppose we have a set of features `x` and we are interested in
+evaluating the overlap of this set with the DHS. We can calculate for
+example the mean observed number of overlaps for features in
+`x` (or something more complicated, e.g. the maximum log fold change
+or signal value for DHS peaks within a `maxgap` window of `x`).
+
+```{r}
+x <- GRanges("chr2", IRanges(1 + 50:99 * 1e6, width=1e6), x_id=1:50)
+x <- x %>% mutate(n_overlaps = count_overlaps(., dhs_filt))
+mean( x$n_overlaps )
+```
+
+We can repeat this with the bootstrapped features using a `group_by`
+command, a `summarize`, followed by a second `group_by` and
+`summarize`. It may help to step through these commands one by one to
+understand what the intermediate output is.
+
+Note that we need to use `tidyr::complete` in order to fill in
+combinations of `x` and `iter` where the overlap was 0.
+
+```{r}
+suppressPackageStartupMessages(library(tidyr))
+```
+
+```{r}
+boot_stats <- x %>% join_overlap_inner(boots) %>%
+  group_by(x_id, iter) %>%
+  summarize(n_overlaps = n()) %>%
+  as.data.frame() %>%
+  complete(x_id, iter, fill=list(n_overlaps = 0)) %>%
+  group_by(iter) %>%
+  summarize(meanOverlaps = mean(n_overlaps))
+```
+
+Finally we can plot a histogram. In this case, as the `x` features
+were arbitrary, our observed value 
+
+```{r boot-hist}
+suppressPackageStartupMessages(library(ggplot2))
+ggplot(boot_stats, aes(meanOverlaps)) +
+  geom_histogram(binwidth=.2)
+```
+
+For more examples of combining `bootRanges` from *nullranges* with
+*plyranges* piped operations, see the 
+relevant chapter in the 
+[tidy-ranges-tutorial](https://nullranges.github.io/tidy-ranges-tutorial/bootstrap-overlap.html)
+book.
 
 # Timing on DHS peaks
 
