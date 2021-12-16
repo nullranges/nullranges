@@ -19,7 +19,7 @@ GRanges, or GInteractions objects."><meta property="og:image" content="https://n
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.7</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.8</span>
       </span>
     </div>
 
@@ -119,6 +119,20 @@ replacement.</p></dd>
 objects and returned as <code>MatchedDataFrame</code> while <code>GRanges</code> and
 <code>GInteractions</code> objects are returned as <code>MatchedGRanges</code> or
 <code>MatchedGInteractions</code>, respectively.</p>
+    </div>
+    <div id="methodology">
+    <h2>Methodology</h2>
+    
+
+<p><code>matchRanges</code> uses
+<a href="https://en.wikipedia.org/wiki/Propensity_score_matching" class="external-link">propensity scores</a>
+to perform subset selection on the <code>pool</code> set such that the resulting <code>matched</code>
+set contains similar distributions of covariates to that of the <code>focal</code> set.
+A propensity score is the conditional probability of assigning an element
+(in our case, a genomic range) to a particular outcome (<code>Y</code>) given a set of
+covariates. Propensity scores are estimated using a logistic regression model
+where the outcome <code>Y=1</code> for <code>focal</code> and <code>Y=0</code> for <code>pool</code>, over the provided
+covariates <code>covar</code>.</p>
     </div>
     <div id="matching-methods">
     <h2>Matching methods</h2>

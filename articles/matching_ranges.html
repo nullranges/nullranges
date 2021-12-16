@@ -40,7 +40,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.7</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.8</span>
       </span>
     </div>
 
@@ -96,7 +96,7 @@
       <h1 data-toc-skip>Overview of matchRanges</h1>
                         <h4 data-toc-skip class="author">Eric S. Davis</h4>
             
-            <h4 data-toc-skip class="date">12/15/2021</h4>
+            <h4 data-toc-skip class="date">12/16/2021</h4>
       
       
       <div class="hidden name"><code>matching_ranges.Rmd</code></div>
@@ -111,6 +111,17 @@
 <p>When performing statistical analysis on any set of genomic ranges it is often important to compare focal sets to null sets that are carefully matched for possible covariates that may influence the analysis. To address this need, the <code>nullranges</code> package implements <code><a href="../reference/matchRanges.html">matchRanges()</a></code>, an efficient and convenient tool for selecting a covariate-matched set of null hypothesis ranges from a pool of background ranges within the Bioconductor framework.</p>
 <p>In this vignette, we provide an overview of <code><a href="../reference/matchRanges.html">matchRanges()</a></code> and its associated functions. We start with a simulated example generated with the utility function <code><a href="../reference/makeExampleMatchedDataSet.html">makeExampleMatchedDataSet()</a></code>. We also provide an overview of the class struture and a guide for choosing among the supported matching methods. To see <code>matchedRanges()</code> used in real biological examples, visit the <a href="matching_granges.html">Case study I: CTCF occupancy</a>, and <a href="matching_ginteractions.html">Case study II: CTCF orientation</a> vignettes.</p>
 <p><img src="matching_ranges_files/figure-html/unnamed-chunk-1-1.png"><!-- --></p>
+</div>
+<div class="section level2">
+<h2 id="terminology">Terminology<a class="anchor" aria-label="anchor" href="#terminology"></a>
+</h2>
+<p><code>matchRanges</code> references four sets of data: <code>focal</code>, <code>pool</code>, <code>matched</code> and <code>unmatched</code>. The <code>focal</code> set contains the outcome of interest (<code>Y=1</code>) while the <code>pool</code> set contains all other observations (<code>Y=0</code>). <code>matchRanges</code> generates the <code>matched</code> set, which is a subset of the <code>pool</code> that is matched for provided covariates (i.e. <code>covar</code>) but does not contain the outcome of interest (i.e <code>Y=0</code>). Finally, the <code>unmatched</code> set contains the remaining unselected elements from the <code>pool</code>. The diagram below depicts the relationships between the four sets.</p>
+<p><img src="images/sets.png" title="Sets"></p>
+</div>
+<div class="section level2">
+<h2 id="methodology">Methodology<a class="anchor" aria-label="anchor" href="#methodology"></a>
+</h2>
+<p><code>matchRanges</code> uses <a href="https://en.wikipedia.org/wiki/Propensity_score_matching" class="external-link">propensity scores</a> to perform subset selection on the <code>pool</code> set such that the resulting <code>matched</code> set contains similar distributions of covariates to that of the <code>focal</code> set. A propensity score is the conditional probability of assigning an element (in our case, a genomic range) to a particular outcome (<code>Y</code>) given a set of covariates. Propensity scores are estimated using a logistic regression model where the outcome <code>Y=1</code> for <code>focal</code> and <code>Y=0</code> for <code>pool</code>, over the provided covariates <code>covar</code>. The resulting propensity scores are used to select matches using one of three available matching options: “nearest”, “rejection”, or “stratified” with or without replacement. For more information see the section on [Choosing the method parameter] below.</p>
 </div>
 <div class="section level2">
 <h2 id="using-matchranges">Using <code>matchRanges()</code><a class="anchor" aria-label="anchor" href="#using-matchranges"></a>
@@ -381,7 +392,7 @@
 <span class="co">## other attached packages:</span>
 <span class="co">## [1] patchwork_1.1.1      GenomicRanges_1.46.1 GenomeInfoDb_1.30.0 </span>
 <span class="co">## [4] IRanges_2.28.0       S4Vectors_0.32.3     BiocGenerics_0.40.0 </span>
-<span class="co">## [7] ggplot2_3.3.5        plotgardener_1.0.6   nullranges_1.1.7    </span>
+<span class="co">## [7] ggplot2_3.3.5        plotgardener_1.0.7   nullranges_1.1.8    </span>
 <span class="co">## </span>
 <span class="co">## loaded via a namespace (and not attached):</span>
 <span class="co">##  [1] bitops_1.0-7                matrixStats_0.61.0         </span>
@@ -427,7 +438,7 @@
 <span class="co">## [81] data.table_1.14.2           vctrs_0.3.8                </span>
 <span class="co">## [83] gtable_0.3.0                purrr_0.3.4                </span>
 <span class="co">## [85] assertthat_0.2.1            ks_1.13.2                  </span>
-<span class="co">## [87] cachem_1.0.6                xfun_0.28                  </span>
+<span class="co">## [87] cachem_1.0.6                xfun_0.29                  </span>
 <span class="co">## [89] restfulr_0.0.13             pracma_2.3.6               </span>
 <span class="co">## [91] ragg_1.2.1                  tibble_3.1.6               </span>
 <span class="co">## [93] GenomicAlignments_1.30.0    plyranges_1.14.0           </span>
