@@ -48,6 +48,19 @@ objects and returned as \code{MatchedDataFrame} while \code{GRanges} and
 \code{GInteractions} objects are returned as \code{MatchedGRanges} or
 \code{MatchedGInteractions}, respectively.
 }
+\section{Methodology}{
+
+\code{matchRanges} uses
+\href{https://en.wikipedia.org/wiki/Propensity_score_matching}{propensity scores}
+to perform subset selection on the \code{pool} set such that the resulting \code{matched}
+set contains similar distributions of covariates to that of the \code{focal} set.
+A propensity score is the conditional probability of assigning an element
+(in our case, a genomic range) to a particular outcome (\code{Y}) given a set of
+covariates. Propensity scores are estimated using a logistic regression model
+where the outcome \code{Y=1} for \code{focal} and \code{Y=0} for \code{pool}, over the provided
+covariates \code{covar}.
+}
+
 \section{Matching methods}{
 
 \itemize{

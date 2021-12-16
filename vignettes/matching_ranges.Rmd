@@ -215,6 +215,35 @@ plotGG(plot = plot3,
           just = c("left", "top"))
 ```
 
+## Terminology
+
+`matchRanges` references four sets of data: `focal`, `pool`, `matched`
+and `unmatched`. The `focal` set contains the outcome of interest (`Y=1`)
+while the `pool` set contains all other observations (`Y=0`).
+`matchRanges` generates the `matched` set, which is a subset of the
+`pool` that is matched for provided covariates (i.e. `covar`) but
+does not contain the outcome of interest (i.e `Y=0`). Finally, the
+`unmatched` set contains the remaining unselected elements from
+the `pool`. The diagram below depicts the relationships between
+the four sets.
+
+![](images/sets.png "Sets")
+
+## Methodology
+
+`matchRanges` uses 
+[propensity scores](https://en.wikipedia.org/wiki/Propensity_score_matching)
+to perform subset selection on the `pool` set such that the resulting `matched`
+set contains similar distributions of covariates to that of the `focal` set.
+A propensity score is the conditional probability of assigning an element
+(in our case, a genomic range) to a particular outcome (`Y`) given a set of
+covariates. Propensity scores are estimated using a logistic regression model
+where the outcome `Y=1` for `focal` and `Y=0` for `pool`, over the provided 
+covariates `covar`. The resulting propensity scores are used to select matches
+using one of three available matching options: "nearest", "rejection", or
+"stratified" with or without replacement. For more information see the section
+on [Choosing the method parameter] below.
+
 ## Using `matchRanges()`
 
 We will use a simulated data set to demonstrate matching across covarying features:
@@ -264,7 +293,7 @@ or `?MatchedGInteractions`.
 select matches using one of three available matching options:
 "nearest", "rejection", or "stratified" with or without
 replacement. For more information see the section on [Choosing the
-method parameter] below. 
+method parameter] below.
 
 ### Assessing quality of matching
 

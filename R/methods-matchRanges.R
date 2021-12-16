@@ -440,6 +440,17 @@ matchRanges_MatchedDataFrame <- function(focal, pool, covar, method, replace) {
 #' `GInteractions` objects are returned as `MatchedGRanges` or
 #' `MatchedGInteractions`, respectively.
 #' 
+#' @section Methodology:
+#' `matchRanges` uses 
+#' [propensity scores](https://en.wikipedia.org/wiki/Propensity_score_matching)
+#' to perform subset selection on the `pool` set such that the resulting `matched`
+#' set contains similar distributions of covariates to that of the `focal` set.
+#' A propensity score is the conditional probability of assigning an element
+#' (in our case, a genomic range) to a particular outcome (`Y`) given a set of
+#' covariates. Propensity scores are estimated using a logistic regression model
+#' where the outcome `Y=1` for `focal` and `Y=0` for `pool`, over the provided 
+#' covariates `covar`.
+#' 
 #' @section Matching methods:
 #' \itemize{
 #'   \item{`method = 'nearest'`: }{Nearest neighbor matching 
