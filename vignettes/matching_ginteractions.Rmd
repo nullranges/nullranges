@@ -19,7 +19,7 @@ editor_options:
 
 In this vignette, we demonstrate the generation of covariate-matched
 null ranges by using the `matchRanges()` function to test the
-"covergence rule" of CTCF-bound chromatin loops, first described in
+"convergence rule" of CTCF-bound chromatin loops, first described in
 Rao et al. 2014. 
 
 ## Background
@@ -350,7 +350,7 @@ barplot(height = c(g1, g2, g3, g4),
         las = 1)
 ```
 
-It looks like the converget rule holds, even when controlling for CTCF
+It looks like the convergent rule holds, even when controlling for CTCF
 signal strength and bin pair distance. Our looped group has \> 90%
 convergent CTCF sites, while our other groups have about 25% per CTCF
 site on average. 
