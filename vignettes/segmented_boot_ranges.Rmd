@@ -28,7 +28,11 @@ respect to segmentation.
 
 As proposed by @bickel_2010, *nullranges* contains an
 implementation of a block bootstrap, such that features are sampled
-from the genome in blocks. Blocks are sampled and placed within
+from the genome in blocks. The original block bootstrapping algorithm
+is implemented in a python software called Genome Structure
+Correlation, [GSC](https://github.com/ParkerLab/encodegsc).
+
+In a segmented block bootstrap, the blocks are sampled and placed within
 regions of a genome *segmentation*. That is, for a genome segmented
 into states 1,2,...,S, blocks from state *s* will be used to tile the
 ranges of state *s* in each bootstrap sample.
