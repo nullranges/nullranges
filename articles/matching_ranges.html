@@ -40,7 +40,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.8</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.9</span>
       </span>
     </div>
 
@@ -96,7 +96,7 @@
       <h1 data-toc-skip>Overview of matchRanges</h1>
                         <h4 data-toc-skip class="author">Eric S. Davis</h4>
             
-            <h4 data-toc-skip class="date">12/16/2021</h4>
+            <h4 data-toc-skip class="date">02/22/2022</h4>
       
       
       <div class="hidden name"><code>matching_ranges.Rmd</code></div>
@@ -105,27 +105,27 @@
 
     
     
-<div class="section level2">
-<h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
-</h2>
+<div class="section level3">
+<h3 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
+</h3>
 <p>When performing statistical analysis on any set of genomic ranges it is often important to compare focal sets to null sets that are carefully matched for possible covariates that may influence the analysis. To address this need, the <code>nullranges</code> package implements <code><a href="../reference/matchRanges.html">matchRanges()</a></code>, an efficient and convenient tool for selecting a covariate-matched set of null hypothesis ranges from a pool of background ranges within the Bioconductor framework.</p>
 <p>In this vignette, we provide an overview of <code><a href="../reference/matchRanges.html">matchRanges()</a></code> and its associated functions. We start with a simulated example generated with the utility function <code><a href="../reference/makeExampleMatchedDataSet.html">makeExampleMatchedDataSet()</a></code>. We also provide an overview of the class struture and a guide for choosing among the supported matching methods. To see <code>matchedRanges()</code> used in real biological examples, visit the <a href="matching_granges.html">Case study I: CTCF occupancy</a>, and <a href="matching_ginteractions.html">Case study II: CTCF orientation</a> vignettes.</p>
 <p><img src="matching_ranges_files/figure-html/unnamed-chunk-1-1.png"><!-- --></p>
 </div>
-<div class="section level2">
-<h2 id="terminology">Terminology<a class="anchor" aria-label="anchor" href="#terminology"></a>
-</h2>
+<div class="section level3">
+<h3 id="terminology">Terminology<a class="anchor" aria-label="anchor" href="#terminology"></a>
+</h3>
 <p><code>matchRanges</code> references four sets of data: <code>focal</code>, <code>pool</code>, <code>matched</code> and <code>unmatched</code>. The <code>focal</code> set contains the outcome of interest (<code>Y=1</code>) while the <code>pool</code> set contains all other observations (<code>Y=0</code>). <code>matchRanges</code> generates the <code>matched</code> set, which is a subset of the <code>pool</code> that is matched for provided covariates (i.e. <code>covar</code>) but does not contain the outcome of interest (i.e <code>Y=0</code>). Finally, the <code>unmatched</code> set contains the remaining unselected elements from the <code>pool</code>. The diagram below depicts the relationships between the four sets.</p>
 <p><img src="images/sets.png" title="Sets"></p>
 </div>
-<div class="section level2">
-<h2 id="methodology">Methodology<a class="anchor" aria-label="anchor" href="#methodology"></a>
-</h2>
+<div class="section level3">
+<h3 id="methodology">Methodology<a class="anchor" aria-label="anchor" href="#methodology"></a>
+</h3>
 <p><code>matchRanges</code> uses <a href="https://en.wikipedia.org/wiki/Propensity_score_matching" class="external-link">propensity scores</a> to perform subset selection on the <code>pool</code> set such that the resulting <code>matched</code> set contains similar distributions of covariates to that of the <code>focal</code> set. A propensity score is the conditional probability of assigning an element (in our case, a genomic range) to a particular outcome (<code>Y</code>) given a set of covariates. Propensity scores are estimated using a logistic regression model where the outcome <code>Y=1</code> for <code>focal</code> and <code>Y=0</code> for <code>pool</code>, over the provided covariates <code>covar</code>. The resulting propensity scores are used to select matches using one of three available matching options: “nearest”, “rejection”, or “stratified” with or without replacement. For more information see the section on [Choosing the method parameter] below.</p>
 </div>
-<div class="section level2">
-<h2 id="using-matchranges">Using <code>matchRanges()</code><a class="anchor" aria-label="anchor" href="#using-matchranges"></a>
-</h2>
+<div class="section level3">
+<h3 id="using-matchranges">Using <code>matchRanges()</code><a class="anchor" aria-label="anchor" href="#using-matchranges"></a>
+</h3>
 <p>We will use a simulated data set to demonstrate matching across covarying features:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://nullranges.github.io/nullranges">nullranges</a></span><span class="op">)</span>
@@ -193,9 +193,9 @@
 <span class="co">##   seqinfo: 1 sequence from an unspecified genome; no seqlengths</span></code></pre>
 <p>We can change the <code>type</code> argument of <code>makeExampleMatchedDataSet</code> to input data.frames, data.tables, DataFrames, GRanges and GInteractions objects - all of which work as inputs for <code>matchRanges</code>. These produce either <code>MatchedDataFrame</code>, <code>MatchedGRanges</code>, or <code>MatchedGInteractions</code> objects. For more information about the <code>Matched</code> class structure and available methods, see the <a href="#class-structure">Class structure</a> section below or the help documentation for each class, <code><a href="../reference/MatchedDataFrame.html">?MatchedDataFrame</a></code>, <code><a href="../reference/MatchedGRanges.html">?MatchedGRanges</a></code>, or <code><a href="../reference/MatchedGInteractions.html">?MatchedGInteractions</a></code>.</p>
 <p><code><a href="../reference/matchRanges.html">matchRanges()</a></code> uses <a href="https://en.wikipedia.org/wiki/Propensity_score_matching" class="external-link">propensity scores</a> to select matches using one of three available matching options: “nearest”, “rejection”, or “stratified” with or without replacement. For more information see the section on [Choosing the method parameter] below.</p>
-<div class="section level3">
-<h3 id="assessing-quality-of-matching">Assessing quality of matching<a class="anchor" aria-label="anchor" href="#assessing-quality-of-matching"></a>
-</h3>
+<div class="section level4">
+<h4 id="assessing-quality-of-matching">Assessing quality of matching<a class="anchor" aria-label="anchor" href="#assessing-quality-of-matching"></a>
+</h4>
 <p>We can assess the quality of <code>Matched</code> classes with <code><a href="../reference/overview.html">overview()</a></code>, <code><a href="../reference/plotCovariate.html">plotCovariate()</a></code>, and <code><a href="../reference/plotPropensity.html">plotPropensity()</a></code>. <code><a href="../reference/overview.html">overview()</a></code> provides a quick assessment of overall matching quality by reporting the mean and standard deviation for covariates and propensity scores of the focal, pool, matched, and unmatched sets. For factor, character, or logical covariates (e.g. categorical covariates) the N per set (frequency) is returned. It also reports the mean difference in focal-matched sets:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/overview.html">overview</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span></code></pre></div>
@@ -232,9 +232,9 @@
 <p><img src="matching_ranges_files/figure-html/unnamed-chunk-8-1.png"><!-- --></p>
 <p>By default, continuous features are plotted as density line plots while categorical features are plotted as stacked bar plots. All sets are also shown by default. Defaults can be overridden by setting the <code>type</code> and <code>sets</code> arguments.</p>
 </div>
-<div class="section level3">
-<h3 id="accessing-matched-data">Accessing matched data<a class="anchor" aria-label="anchor" href="#accessing-matched-data"></a>
-</h3>
+<div class="section level4">
+<h4 id="accessing-matched-data">Accessing matched data<a class="anchor" aria-label="anchor" href="#accessing-matched-data"></a>
+</h4>
 <p>Custom plots can be made by extracting data from the <code>Matched</code> object:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/matchedData.html">matchedData</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span></code></pre></div>
@@ -274,9 +274,9 @@
 <pre><code><span class="co">## [1] TRUE</span></code></pre>
 </div>
 </div>
-<div class="section level2">
-<h2 id="choosing-the-method-parameter">Choosing the <code>method</code> parameter<a class="anchor" aria-label="anchor" href="#choosing-the-method-parameter"></a>
-</h2>
+<div class="section level3">
+<h3 id="choosing-the-method-parameter">Choosing the <code>method</code> parameter<a class="anchor" aria-label="anchor" href="#choosing-the-method-parameter"></a>
+</h3>
 <p>There are currently 3 available methods for selecting a matched set:</p>
 <ol style="list-style-type: decimal">
 <li><p>Nearest-neighbor matching with replacement</p></li>
@@ -284,9 +284,9 @@
 <li><p>Stratified sampling with/without replacement</p></li>
 </ol>
 <p>Currently, nearest-neighbor matching without replacement is not implemented, but stratified sampling without replacement is a suitable substitute.</p>
-<div class="section level3">
-<h3 id="nearest-neighbor-matching">Nearest-neighbor matching<a class="anchor" aria-label="anchor" href="#nearest-neighbor-matching"></a>
-</h3>
+<div class="section level4">
+<h4 id="nearest-neighbor-matching">Nearest-neighbor matching<a class="anchor" aria-label="anchor" href="#nearest-neighbor-matching"></a>
+</h4>
 <p>Attempts to find the nearest neighbor for each range by using a rolling-join (as implemented in the <code>data.table</code> package) between <code>focal</code> and <code>pool</code> propensity scores.</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span>
@@ -313,9 +313,9 @@
 <p>Duplicate ranges can be pulled since this method selects the closest matching propensity-score in the focal set to each range in the pool set. It is important to inspect the duplicates when using this method particularly when there are very few well-matching options to select from in your pool set to ensure your matched set has a diverse set of ranges.</p>
 <p>Nearest neighbor matching without replacement is not currently supported due to its computational complexity. However, stratified sampling without replacement is an acceptable alternative.</p>
 </div>
-<div class="section level3">
-<h3 id="rejection-sampling">Rejection sampling<a class="anchor" aria-label="anchor" href="#rejection-sampling"></a>
-</h3>
+<div class="section level4">
+<h4 id="rejection-sampling">Rejection sampling<a class="anchor" aria-label="anchor" href="#rejection-sampling"></a>
+</h4>
 <p>Uses a probability-based approach to select options in the <code>pool</code> that distributionally match the <code>focal</code> set based on propensity scores. The rejection sampling method first generates kernal-density estimates for both the focal and pool sets. Then a scale factor is determined by finding the point at which the difference in focal and pool densitites is maximized. This scale factor is then applied such that the pool distribution covers the focal distribution at all points. Random sampling is then conducted, with probability of accepting a pool range into the matched set given by the ratio between the height of the density and the scaled (covering) density. If <code>method</code> or <code>replace</code> is not supplied, the default values are rejection sampling without replacement.</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span>
@@ -329,9 +329,9 @@
 <p><img src="matching_ranges_files/figure-html/unnamed-chunk-15-1.png"><!-- --></p>
 <p>Rejection sampling is the fastest available matching method for sampling without replacement. Therefore, it is ideal to use on large datasets when sampling without replacement is important. However, this method can be unstable, particularly when the pool set is not much larger than the focal set. In those cases, the best method to use is stratified sampling.</p>
 </div>
-<div class="section level3">
-<h3 id="stratified-sampling">Stratified sampling<a class="anchor" aria-label="anchor" href="#stratified-sampling"></a>
-</h3>
+<div class="section level4">
+<h4 id="stratified-sampling">Stratified sampling<a class="anchor" aria-label="anchor" href="#stratified-sampling"></a>
+</h4>
 <p>Performs iterative sampling on increasingly large bins of data. <code>focal</code> and <code>pool</code> propensity scores are binned by their value with high granularity, options are randomly selected (with or without replacement) within each bin and subsequently removed from the pool of available options. This procedure is repeated, decreasing the number of bins (and increasing bin size) until the number of selected matches is equal to the focal set. While matches are being found in each bin the bins stay small. However, as the number of bins with no matches increases the algorithm expands bin size faster, which maintains matching quality while decreasing run-time.</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span>
@@ -352,22 +352,22 @@
 <pre><code><span class="co">## [1] "stratified"</span></code></pre>
 </div>
 </div>
-<div class="section level2">
-<h2 id="class-structure">Class structure<a class="anchor" aria-label="anchor" href="#class-structure"></a>
-</h2>
-<p>Since <code><a href="../reference/matchRanges.html">matchRanges()</a></code> automatically constructs the relevant classes, this section is not essential for using any of the <code>nullranges</code> package functionality. Instead, this section serves as a guide for developers who wish to extend these classes or those more interested in S4 implementation details.</p>
 <div class="section level3">
-<h3 id="implementation-details">Implementation details<a class="anchor" aria-label="anchor" href="#implementation-details"></a>
+<h3 id="class-structure">Class structure<a class="anchor" aria-label="anchor" href="#class-structure"></a>
 </h3>
+<p>Since <code><a href="../reference/matchRanges.html">matchRanges()</a></code> automatically constructs the relevant classes, this section is not essential for using any of the <code>nullranges</code> package functionality. Instead, this section serves as a guide for developers who wish to extend these classes or those more interested in S4 implementation details.</p>
+<div class="section level4">
+<h4 id="implementation-details">Implementation details<a class="anchor" aria-label="anchor" href="#implementation-details"></a>
+</h4>
 <p><code><a href="../reference/matchRanges.html">matchRanges()</a></code> acts as a constructor, combining a <code>Matched</code> superclass - which contains the matching results - with either a <code>DataFrame</code>(<code>data.frame</code>/<code>data.table</code>), <code>GRanges</code>, or <code>GInteractions</code> superclass. This results in the <code>MatchedDataFrame</code>, <code>MatchedGRanges</code>, or <code>MatchedGInteractions</code> subclasses.</p>
 <p><img src="images/class_structure.png" title="Class structure"></p>
 <p>Internally, each <code>Matched</code> subclass uses a “delegate” object of the same type to assign its slots. The delegate object used is the <code>matched</code> set. Therefore, the resulting <code>Matched*</code> object behaves as a combination of both its superclasses - with access to methods from both.</p>
 <p>For example, using <code><a href="../reference/matchRanges.html">matchRanges()</a></code> on <code>GRanges</code> objects assigns a <code>GRanges</code> delegate object which is used to populate GRanges-specific slots. This results in a <code>MatchedGRanges</code> object, with access to both <code>Matched</code> functions (e.g. <code>plotCovariate</code>) as well as normal <code>GRanges</code> methods (e.g.s <code>seqnames</code>, <code>resize</code>, etc…).</p>
 </div>
 </div>
-<div class="section level1">
-<h1 id="session-information">Session information<a class="anchor" aria-label="anchor" href="#session-information"></a>
-</h1>
+<div class="section level2">
+<h2 id="session-information">Session information<a class="anchor" aria-label="anchor" href="#session-information"></a>
+</h2>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">## R version 4.1.1 (2021-08-10)</span>
@@ -390,9 +390,9 @@
 <span class="co">## [8] methods   base     </span>
 <span class="co">## </span>
 <span class="co">## other attached packages:</span>
-<span class="co">## [1] patchwork_1.1.1      GenomicRanges_1.46.1 GenomeInfoDb_1.30.0 </span>
+<span class="co">## [1] patchwork_1.1.1      GenomicRanges_1.46.1 GenomeInfoDb_1.30.1 </span>
 <span class="co">## [4] IRanges_2.28.0       S4Vectors_0.32.3     BiocGenerics_0.40.0 </span>
-<span class="co">## [7] ggplot2_3.3.5        plotgardener_1.0.7   nullranges_1.1.8    </span>
+<span class="co">## [7] ggplot2_3.3.5        plotgardener_1.0.14  nullranges_1.1.9    </span>
 <span class="co">## </span>
 <span class="co">## loaded via a namespace (and not attached):</span>
 <span class="co">##  [1] bitops_1.0-7                matrixStats_0.61.0         </span>
@@ -401,48 +401,49 @@
 <span class="co">##  [7] InteractionSet_1.22.0       tools_4.1.1                </span>
 <span class="co">##  [9] bslib_0.3.1                 utf8_1.2.2                 </span>
 <span class="co">## [11] R6_2.5.1                    KernSmooth_2.23-20         </span>
-<span class="co">## [13] DBI_1.1.1                   colorspace_2.0-2           </span>
+<span class="co">## [13] DBI_1.1.2                   colorspace_2.0-3           </span>
 <span class="co">## [15] withr_2.4.3                 prettyunits_1.1.1          </span>
-<span class="co">## [17] tidyselect_1.1.1            curl_4.3.2                 </span>
+<span class="co">## [17] tidyselect_1.1.2            curl_4.3.2                 </span>
 <span class="co">## [19] compiler_4.1.1              textshaping_0.3.6          </span>
-<span class="co">## [21] Biobase_2.54.0              desc_1.4.0                 </span>
-<span class="co">## [23] DelayedArray_0.20.0         labeling_0.4.2             </span>
-<span class="co">## [25] rtracklayer_1.54.0          sass_0.4.0                 </span>
-<span class="co">## [27] scales_1.1.1                mvtnorm_1.1-3              </span>
-<span class="co">## [29] ggridges_0.5.3              pkgdown_2.0.1              </span>
-<span class="co">## [31] speedglm_0.3-3              yulab.utils_0.0.4          </span>
-<span class="co">## [33] systemfonts_1.0.3           stringr_1.4.0              </span>
-<span class="co">## [35] digest_0.6.29               Rsamtools_2.10.0           </span>
-<span class="co">## [37] rmarkdown_2.11              XVector_0.34.0             </span>
-<span class="co">## [39] pkgconfig_2.0.3             htmltools_0.5.2            </span>
-<span class="co">## [41] MatrixGenerics_1.6.0        highr_0.9                  </span>
-<span class="co">## [43] fastmap_1.1.0               rlang_0.4.12               </span>
-<span class="co">## [45] farver_2.1.0                gridGraphics_0.5-1         </span>
-<span class="co">## [47] jquerylib_0.1.4             BiocIO_1.4.0               </span>
-<span class="co">## [49] generics_0.1.1              jsonlite_1.7.2             </span>
-<span class="co">## [51] mclust_5.4.8                BiocParallel_1.28.3        </span>
-<span class="co">## [53] dplyr_1.0.7                 RCurl_1.98-1.5             </span>
-<span class="co">## [55] magrittr_2.0.1              ggplotify_0.1.0            </span>
-<span class="co">## [57] GenomeInfoDbData_1.2.7      Matrix_1.4-0               </span>
-<span class="co">## [59] Rcpp_1.0.7                  munsell_0.5.0              </span>
-<span class="co">## [61] fansi_0.5.0                 lifecycle_1.0.1            </span>
-<span class="co">## [63] stringi_1.7.6               yaml_2.2.1                 </span>
-<span class="co">## [65] MASS_7.3-54                 SummarizedExperiment_1.24.0</span>
-<span class="co">## [67] zlibbioc_1.40.0             plyr_1.8.6                 </span>
-<span class="co">## [69] parallel_4.1.1              crayon_1.4.2               </span>
-<span class="co">## [71] lattice_0.20-45             Biostrings_2.62.0          </span>
-<span class="co">## [73] hms_1.1.1                   knitr_1.36                 </span>
-<span class="co">## [75] pillar_1.6.4                rjson_0.2.20               </span>
-<span class="co">## [77] strawr_0.0.9                XML_3.99-0.8               </span>
-<span class="co">## [79] glue_1.5.1                  evaluate_0.14              </span>
-<span class="co">## [81] data.table_1.14.2           vctrs_0.3.8                </span>
-<span class="co">## [83] gtable_0.3.0                purrr_0.3.4                </span>
-<span class="co">## [85] assertthat_0.2.1            ks_1.13.2                  </span>
-<span class="co">## [87] cachem_1.0.6                xfun_0.29                  </span>
-<span class="co">## [89] restfulr_0.0.13             pracma_2.3.6               </span>
-<span class="co">## [91] ragg_1.2.1                  tibble_3.1.6               </span>
-<span class="co">## [93] GenomicAlignments_1.30.0    plyranges_1.14.0           </span>
-<span class="co">## [95] memoise_2.0.1               ellipsis_0.3.2</span></code></pre>
+<span class="co">## [21] cli_3.2.0                   Biobase_2.54.0             </span>
+<span class="co">## [23] desc_1.4.0                  DelayedArray_0.20.0        </span>
+<span class="co">## [25] labeling_0.4.2              rtracklayer_1.54.0         </span>
+<span class="co">## [27] sass_0.4.0                  scales_1.1.1               </span>
+<span class="co">## [29] mvtnorm_1.1-3               ggridges_0.5.3             </span>
+<span class="co">## [31] pkgdown_2.0.2               speedglm_0.3-3             </span>
+<span class="co">## [33] yulab.utils_0.0.4           systemfonts_1.0.4          </span>
+<span class="co">## [35] stringr_1.4.0               digest_0.6.29              </span>
+<span class="co">## [37] Rsamtools_2.10.0            rmarkdown_2.11             </span>
+<span class="co">## [39] XVector_0.34.0              pkgconfig_2.0.3            </span>
+<span class="co">## [41] htmltools_0.5.2             MatrixGenerics_1.6.0       </span>
+<span class="co">## [43] highr_0.9                   fastmap_1.1.0              </span>
+<span class="co">## [45] rlang_1.0.1                 farver_2.1.0               </span>
+<span class="co">## [47] gridGraphics_0.5-1          jquerylib_0.1.4            </span>
+<span class="co">## [49] BiocIO_1.4.0                generics_0.1.2             </span>
+<span class="co">## [51] jsonlite_1.7.3              mclust_5.4.9               </span>
+<span class="co">## [53] BiocParallel_1.28.3         dplyr_1.0.8                </span>
+<span class="co">## [55] RCurl_1.98-1.6              magrittr_2.0.2             </span>
+<span class="co">## [57] ggplotify_0.1.0             GenomeInfoDbData_1.2.7     </span>
+<span class="co">## [59] Matrix_1.4-0                Rcpp_1.0.8                 </span>
+<span class="co">## [61] munsell_0.5.0               fansi_1.0.2                </span>
+<span class="co">## [63] lifecycle_1.0.1             stringi_1.7.6              </span>
+<span class="co">## [65] yaml_2.3.5                  MASS_7.3-55                </span>
+<span class="co">## [67] SummarizedExperiment_1.24.0 zlibbioc_1.40.0            </span>
+<span class="co">## [69] plyr_1.8.6                  parallel_4.1.1             </span>
+<span class="co">## [71] crayon_1.5.0                lattice_0.20-45            </span>
+<span class="co">## [73] Biostrings_2.62.0           hms_1.1.1                  </span>
+<span class="co">## [75] knitr_1.37                  pillar_1.7.0               </span>
+<span class="co">## [77] rjson_0.2.21                strawr_0.0.9               </span>
+<span class="co">## [79] XML_3.99-0.8                glue_1.6.1                 </span>
+<span class="co">## [81] evaluate_0.15               data.table_1.14.2          </span>
+<span class="co">## [83] vctrs_0.3.8                 gtable_0.3.0               </span>
+<span class="co">## [85] purrr_0.3.4                 assertthat_0.2.1           </span>
+<span class="co">## [87] ks_1.13.3                   cachem_1.0.6               </span>
+<span class="co">## [89] xfun_0.29                   restfulr_0.0.13            </span>
+<span class="co">## [91] pracma_2.3.6                ragg_1.2.2                 </span>
+<span class="co">## [93] tibble_3.1.6                GenomicAlignments_1.30.0   </span>
+<span class="co">## [95] plyranges_1.14.0            memoise_2.0.1              </span>
+<span class="co">## [97] ellipsis_0.3.2</span></code></pre>
 </div>
   </div>
 
@@ -463,7 +464,7 @@
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
 </div>
 
       </footer>

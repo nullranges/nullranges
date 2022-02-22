@@ -40,7 +40,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.8</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.9</span>
       </span>
     </div>
 
@@ -107,42 +107,42 @@
 <p>The package has two branches of functionality: <em>matching</em> or <em>bootstrapping</em> to generate null feature sets. The decision about which approach to use is ultimately up to the bioinformatics analyst. Here we describe the two different approaches briefly. For a listing of all the vignettes in the package, one can type:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/vignette.html" class="external-link">vignette</a></span><span class="op">(</span>package<span class="op">=</span><span class="st">"nullranges"</span><span class="op">)</span></code></pre></div>
-<div class="section level2">
-<h2 id="related-work">Related work<a class="anchor" aria-label="anchor" href="#related-work"></a>
-</h2>
-<p>For general considerations of generation of null feature sets or segmentation for enrichment or colocalization analysis, consider the papers of <span class="citation">De, Pedersen, and Kechris (2014)</span>, <span class="citation">Haiminen, Mannila, and Terzi (2007)</span>, <span class="citation">Huen and Russell (2010)</span>, and <span class="citation">Kanduri et al. (2019)</span> (with links in references below). Other Bioconductor packages that offer randomization techniques for enrichment analysis include <a href="https://bioconductor.org/packages/LOLA" class="external-link">LOLA</a> <span class="citation">(Sheffield and Bock 2016)</span> and <a href="https://bioconductor.org/packages/regioneR" class="external-link">regioneR</a> <span class="citation">(Gel et al. 2016)</span>. Methods implemented outside of Bioconductor include <a href="https://github.com/AndreasHeger/gat" class="external-link">GAT</a> <span class="citation">(Heger et al. 2013)</span>, <a href="https://www.encodeproject.org/software/gsc/" class="external-link">GSC</a> <span class="citation">(Bickel et al. 2010)</span>, <a href="http://bejerano.stanford.edu/great/public/html/" class="external-link">GREAT</a> <span class="citation">(McLean et al. 2010)</span>, <a href="https://github.com/favorov/GenometriCorr" class="external-link">GenometriCorr</a> <span class="citation">(Favorov et al. 2012)</span>, or <a href="http://chip-enrich.med.umich.edu/" class="external-link">ChIP-Enrich</a> <span class="citation">(Welch et al. 2014)</span>. We note that our block bootstrapping approach closely follows that of <a href="https://www.encodeproject.org/software/gsc/" class="external-link">GSC</a>, while offering additional features/visualizations, and is re-implemented within R/Bioconductor with efficient vectorized code for operation on <em>GRanges</em> objects <span class="citation">(Lawrence 2013)</span>.</p>
+<div class="section level3">
+<h3 id="related-work">Related work<a class="anchor" aria-label="anchor" href="#related-work"></a>
+</h3>
+<p>For general considerations of generation of null feature sets or segmentation for enrichment or colocalization analysis, consider the papers of <span class="citation">De, Pedersen, and Kechris (2014)</span>, <span class="citation">Haiminen, Mannila, and Terzi (2007)</span>, <span class="citation">Huen and Russell (2010)</span>, and <span class="citation">Kanduri et al. (2019)</span> (with links in references below). Other Bioconductor packages that offer randomization techniques for enrichment analysis include <a href="https://bioconductor.org/packages/LOLA" class="external-link">LOLA</a> <span class="citation">(Sheffield and Bock 2016)</span> and <a href="https://bioconductor.org/packages/regioneR" class="external-link">regioneR</a> <span class="citation">(Gel et al. 2016)</span>. Methods implemented outside of Bioconductor include <a href="https://github.com/AndreasHeger/gat" class="external-link">GAT</a> <span class="citation">(Heger et al. 2013)</span>, <a href="https://www.encodeproject.org/software/gsc/" class="external-link">GSC</a> <span class="citation">(Bickel et al. 2010)</span>, <a href="http://bejerano.stanford.edu/great/public/html/" class="external-link">GREAT</a> <span class="citation">(McLean et al. 2010)</span>, <a href="https://github.com/favorov/GenometriCorr" class="external-link">GenometriCorr</a> <span class="citation">(Favorov et al. 2012)</span>, or <a href="http://chip-enrich.med.umich.edu/" class="external-link">ChIP-Enrich</a> <span class="citation">(Welch et al. 2014)</span>. We note that our block bootstrapping approach closely follows that of <a href="https://github.com/ParkerLab/encodegsc" class="external-link">GSC</a>, while offering additional features/visualizations, and is re-implemented within R/Bioconductor with efficient vectorized code for operation on <em>GRanges</em> objects <span class="citation">(Lawrence 2013)</span>.</p>
 </div>
-<div class="section level2">
-<h2 id="brief-description-of-methods">Brief description of methods<a class="anchor" aria-label="anchor" href="#brief-description-of-methods"></a>
-</h2>
+<div class="section level3">
+<h3 id="brief-description-of-methods">Brief description of methods<a class="anchor" aria-label="anchor" href="#brief-description-of-methods"></a>
+</h3>
 <p>Suppose we want to examine the significance of overlaps of genomic sets of features <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span>. To test the significance of this overlap, we calculate the overlap expected under the null by generating a null feature set <span class="math inline">\(y'\)</span> (potentially many times). The null features in <span class="math inline">\(y'\)</span> may be characterized by:</p>
 <ol style="list-style-type: decimal">
 <li>Drawing from a larger pool <span class="math inline">\(z\)</span> (<span class="math inline">\(y' \subset z\)</span>), such that <span class="math inline">\(y\)</span> and <span class="math inline">\(y'\)</span> have a similar distribution over one or more covariates. This is the “matching” case. Note that the features in <span class="math inline">\(y'\)</span> are original features, just drawn from a different pool than y.</li>
 <li>Generating a new set of genomic features <span class="math inline">\(y'\)</span>, constructing them from the original set <span class="math inline">\(y\)</span> by selecting blocks of the genome with replacement, i.e. such that features can be sampled more than once. This is the “bootstrapping” case. Note that, in this case, <span class="math inline">\(y'\)</span> is an artificial feature set, although the re-sampled features can retain covariates such as score from the original feature set <span class="math inline">\(y\)</span>.</li>
 </ol>
 </div>
-<div class="section level2">
-<h2 id="in-other-words">In other words<a class="anchor" aria-label="anchor" href="#in-other-words"></a>
-</h2>
+<div class="section level3">
+<h3 id="in-other-words">In other words<a class="anchor" aria-label="anchor" href="#in-other-words"></a>
+</h3>
 <ol style="list-style-type: decimal">
 <li>Matching – drawing from a pool of features but controlling for certain characteristics</li>
 <li>Bootstrapping – placing a number of artificial features in the genome but controlling for their spatial distribution</li>
 </ol>
 </div>
-<div class="section level2">
-<h2 id="options-and-features">Options and features<a class="anchor" aria-label="anchor" href="#options-and-features"></a>
-</h2>
+<div class="section level3">
+<h3 id="options-and-features">Options and features<a class="anchor" aria-label="anchor" href="#options-and-features"></a>
+</h3>
 <p>We provide a number of vignettes to describe the different matching and bootstrapping use cases. In the matching case, we have implemented a number of options, including nearest neighbor matching or rejection sampling based matching. In the bootstrapping case, we have implemented options for bootstrapping across or within chromosomes, and bootstrapping only within states of a segmented genome. We also provide a function to segment the genome by density of features. For example, supposing that <span class="math inline">\(x\)</span> is a subset of genes, we may want to generate <span class="math inline">\(y'\)</span> from <span class="math inline">\(y\)</span> such that features are re-sampled in blocks from segments across the genome with similar gene density.<br>
 In both cases, we provide a number of functions for performing quality control via visual inspection of diagnostic plots.</p>
 </div>
-<div class="section level2">
-<h2 id="consideration-of-excluded-regions">Consideration of excluded regions<a class="anchor" aria-label="anchor" href="#consideration-of-excluded-regions"></a>
-</h2>
+<div class="section level3">
+<h3 id="consideration-of-excluded-regions">Consideration of excluded regions<a class="anchor" aria-label="anchor" href="#consideration-of-excluded-regions"></a>
+</h3>
 <p>Finally, we recommend to incorporate list of regions where artificial features should <em>not</em> be placed, including the ENCODE Exclusion List <span class="citation">(Amemiya, Kundaje, and Boyle 2019)</span>. This and other excluded ranges are made available in the <em>excluderanges</em> Bioconductor package by Mikhail Dozmorov. Use of excluded ranges is demonstrated in the segmented block bootstrap vignette.</p>
 </div>
-<div class="section level1 unnumbered">
-<h1 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
-</h1>
+<div class="section level2">
+<h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+</h2>
 <div id="refs" class="references csl-bib-body hanging-indent">
 <div id="ref-encode_exclude" class="csl-entry">
 Amemiya, Haley M, Anshul Kundaje, and Alan P Boyle. 2019. <span>“The <span>ENCODE</span> Blacklist: Identification of Problematic Regions of the Genome.”</span> <em>Scientific Reports</em> 9 (1): 9354. <a href="https://doi.org/10.1038/s41598-019-45839-z" class="external-link">https://doi.org/10.1038/s41598-019-45839-z</a>.
@@ -204,7 +204,7 @@ Welch, Ryan P., Chee Lee, Paul M. Imbriano, Snehal Patil, Terry E. Weymouth, R. 
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
 </div>
 
       </footer>
