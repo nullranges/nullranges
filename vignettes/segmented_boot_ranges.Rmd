@@ -94,6 +94,7 @@ eh = ExperimentHub()
 # query(eh, "nullrangesdata")
 seg_cbs <- eh[["EH7307"]]
 seg_hmm <- eh[["EH7308"]]
+seg <- seg_cbs
 ```
 
 # Segmentation by gene density
@@ -168,10 +169,10 @@ set.seed(5)
 exclude <- exclude %>%
   plyranges::filter(width(exclude) >= 500)
 L_s <- 1e6
-seg <- segmentDensity(g, n = 3, L_s = L_s,
-                      exclude = exclude, type = "cbs")
+seg_cbs <- segmentDensity(g, n = 3, L_s = L_s,
+                          exclude = exclude, type = "cbs")
 plots <- lapply(c("ranges","barplot","boxplot"), function(t) {
-  plotSegment(seg, exclude, type = t)
+  plotSegment(seg_cbs, exclude, type = t)
 })
 plots[[1]]
 plots[[2]] + plots[[3]]
@@ -185,7 +186,7 @@ state, the *region* argument is flexible to support.
 
 ```{r}
 region <- GRanges("chr16", IRanges(3e7,4e7))
-plotSegment(seg, exclude, type="ranges", region=region)
+plotSegment(seg_cbs, exclude, type="ranges", region=region)
 ```
 
 ## Alternatively: HMM segmentation
