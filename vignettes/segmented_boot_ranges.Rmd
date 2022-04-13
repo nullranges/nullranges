@@ -85,7 +85,7 @@ at the end of this vignette.
 *nullranges* has generated pre-built segmentations for easy use by
 following below section [Segmentation by gene
 density](#Segmentation%20by%20gene%20density). Either pre-built
-segmentations using *CBS* or *HMM* methods considering excludable
+segmentations using *CBS* or *HMM* methods with $L_s=2e6$ considering excludable
 regions can be selected from *ExperimentHub*.
 
 ```{r}
