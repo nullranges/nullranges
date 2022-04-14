@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.10</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.12</span>
       </span>
     </div>
 
@@ -67,35 +67,68 @@
 
 <div id="contributing-to-nullranges" class="section level1">
 
-<p>This outlines how to propose a change to nullranges. (Template copied from tidyverse contribution guide).</p>
+<p>This outlines how to propose a change to nullranges. (Template copied
+from tidyverse contribution guide).</p>
 <div class="section level2">
 <h2 id="fixing-typos">Fixing typos<a class="anchor" aria-label="anchor" href="#fixing-typos"></a></h2>
-<p>You can fix typos, spelling mistakes, or grammatical errors in the documentation directly using the GitHub web interface, as long as the changes are made in the <em>source</em> file. This generally means you’ll need to edit <a href="https://roxygen2.r-lib.org/articles/roxygen2.html" class="external-link">roxygen2 comments</a> in an <code>.R</code>, not a <code>.Rd</code> file. You can find the <code>.R</code> file that generates the <code>.Rd</code> by reading the comment in the first line.</p>
+<p>You can fix typos, spelling mistakes, or grammatical errors in the
+documentation directly using the GitHub web interface, as long as the
+changes are made in the <em>source</em> file. This generally means
+you’ll need to edit <a href="https://roxygen2.r-lib.org/articles/roxygen2.html" class="external-link">roxygen2
+comments</a> in an <code>.R</code>, not a <code>.Rd</code> file. You can
+find the <code>.R</code> file that generates the <code>.Rd</code> by
+reading the comment in the first line.</p>
 </div>
 <div class="section level2">
 <h2 id="bigger-changes">Bigger changes<a class="anchor" aria-label="anchor" href="#bigger-changes"></a></h2>
-<p>If you want to make a bigger change, it’s a good idea to first file an issue and make sure someone from the team agrees that it’s needed. If you’ve found a bug, please file an issue that illustrates the bug with a minimal <a href="https://www.tidyverse.org/help/#reprex" class="external-link">reprex</a> (this will also help you write a unit test, if needed).</p>
+<p>If you want to make a bigger change, it’s a good idea to first file
+an issue and make sure someone from the team agrees that it’s needed. If
+you’ve found a bug, please file an issue that illustrates the bug with a
+minimal <a href="https://www.tidyverse.org/help/#reprex" class="external-link">reprex</a>
+(this will also help you write a unit test, if needed).</p>
 </div>
 <div class="section level2">
 <h2 id="slack-channel">Slack channel<a class="anchor" aria-label="anchor" href="#slack-channel"></a></h2>
-<p>The nullranges development team has a public Slack channel <code>#nullranges</code> on the <em>community-bioc</em> Slack. We welcome questions or suggestions there as well, if you want to discuss. I will note that GitHub Issues are also useful for having a permanent record, and for tracking bugs/suggestions.</p>
+<p>The nullranges development team has a public Slack channel
+<code>#nullranges</code> on the <em>community-bioc</em> Slack. We
+welcome questions or suggestions there as well, if you want to discuss.
+I will note that GitHub Issues are also useful for having a permanent
+record, and for tracking bugs/suggestions.</p>
 <div class="section level3">
 <h3 id="pull-request-process">Pull request process<a class="anchor" aria-label="anchor" href="#pull-request-process"></a></h3>
-<ul><li><p>Fork the package and clone onto your computer. If you haven’t done this before, we recommend using <code>usethis::create_from_github("nullranges/nullranges", fork = TRUE)</code>.</p></li>
-<li><p>Install all development dependences with <code><a href="https://devtools.r-lib.org/reference/install_deps.html" class="external-link">devtools::install_dev_deps()</a></code>, and then make sure the package passes R CMD check by running <code><a href="https://devtools.r-lib.org/reference/check.html" class="external-link">devtools::check()</a></code>. If R CMD check doesn’t pass cleanly, it’s a good idea to ask for help before continuing.</p></li>
-<li><p>Create a Git branch for your pull request (PR). We recommend using <code>usethis::pr_init("brief-description-of-change")</code>.</p></li>
-<li><p>Make your changes, commit to git, and then create a PR by running <code><a href="https://usethis.r-lib.org/reference/pull-requests.html" class="external-link">usethis::pr_push()</a></code>, and following the prompts in your browser. The title of your PR should briefly describe the change. The body of your PR should contain <code>Fixes #issue-number</code>.</p></li>
-<li><p>For user-facing changes, add a bullet to the top of <code>NEWS.md</code> (i.e. just below the first header). Follow the style described in <a href="https://style.tidyverse.org/news.html" class="external-link uri">https://style.tidyverse.org/news.html</a>.</p></li>
+<ul><li><p>Fork the package and clone onto your computer. If you haven’t
+done this before, we recommend using
+<code>usethis::create_from_github("nullranges/nullranges", fork = TRUE)</code>.</p></li>
+<li><p>Install all development dependences with
+<code><a href="https://devtools.r-lib.org/reference/install_deps.html" class="external-link">devtools::install_dev_deps()</a></code>, and then make sure the
+package passes R CMD check by running <code><a href="https://devtools.r-lib.org/reference/check.html" class="external-link">devtools::check()</a></code>. If
+R CMD check doesn’t pass cleanly, it’s a good idea to ask for help
+before continuing.</p></li>
+<li><p>Create a Git branch for your pull request (PR). We recommend
+using
+<code>usethis::pr_init("brief-description-of-change")</code>.</p></li>
+<li><p>Make your changes, commit to git, and then create a PR by running
+<code><a href="https://usethis.r-lib.org/reference/pull-requests.html" class="external-link">usethis::pr_push()</a></code>, and following the prompts in your
+browser. The title of your PR should briefly describe the change. The
+body of your PR should contain
+<code>Fixes #issue-number</code>.</p></li>
+<li><p>For user-facing changes, add a bullet to the top of
+<code>NEWS.md</code> (i.e. just below the first header). Follow the
+style described in <a href="https://style.tidyverse.org/news.html" class="external-link uri">https://style.tidyverse.org/news.html</a>.</p></li>
 </ul></div>
 <div class="section level3">
 <h3 id="code-style">Code style<a class="anchor" aria-label="anchor" href="#code-style"></a></h3>
-<ul><li><p>We use <a href="https://cran.r-project.org/package=roxygen2" class="external-link">roxygen2</a> for documentation.</p></li>
-<li><p>We use <a href="https://cran.r-project.org/package=testthat" class="external-link">testthat</a> for unit tests. Contributions with test cases included are easier to accept.</p></li>
+<ul><li><p>We use <a href="https://cran.r-project.org/package=roxygen2" class="external-link">roxygen2</a> for
+documentation.</p></li>
+<li><p>We use <a href="https://cran.r-project.org/package=testthat" class="external-link">testthat</a> for unit
+tests. Contributions with test cases included are easier to
+accept.</p></li>
 </ul></div>
 </div>
 <div class="section level2">
 <h2 id="code-of-conduct">Code of Conduct<a class="anchor" aria-label="anchor" href="#code-of-conduct"></a></h2>
-<p>Please note that the nullranges project is released with a <a href="CODE_OF_CONDUCT.html">Contributor Code of Conduct</a>. By contributing to this project you agree to abide by its terms.</p>
+<p>Please note that the nullranges project is released with a <a href="CODE_OF_CONDUCT.html">Contributor Code of Conduct</a>. By
+contributing to this project you agree to abide by its terms.</p>
 </div>
 </div>
 
@@ -110,11 +143,17 @@
 
 
       <footer><div class="copyright">
-  <p></p><p>Developed by <a href="https://mikelove.github.io" class="external-link">Michael Love</a>, <a href="https://twitter.com/wancenm" class="external-link">Wancen Mu</a>, <a href="https://ericscottdavis.com" class="external-link">Eric Davis</a>, <a href="http://phanstiel-lab.med.unc.edu" class="external-link">Douglas Phanstiel</a>, <a href="https://stuartlee.org" class="external-link">Stuart Lee</a>, <a href="https://chanzuckerberg.com" class="external-link">CZI</a>.</p>
+  <p></p><p>Developed by <a href="https://mikelove.github.io" class="external-link">Michael Love</a>,
+<a href="https://twitter.com/wancenm" class="external-link">Wancen Mu</a>,
+<a href="https://ericscottdavis.com" class="external-link">Eric Davis</a>,
+<a href="http://phanstiel-lab.med.unc.edu" class="external-link">Douglas Phanstiel</a>,
+<a href="https://stuartlee.org" class="external-link">Stuart Lee</a>,
+<a href="https://chanzuckerberg.com" class="external-link">CZI</a>.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
+2.0.2.</p>
 </div>
 
       </footer></div>
