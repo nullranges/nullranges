@@ -1,3 +1,8 @@
+# nullranges 1.1.13
+
+* Bug fix that allows nearest matching method to handle
+  categorical (or categorical-like) covariates.
+
 # nullranges 1.1.4
 
 * Needed to drop features that have 0 width after trimming in
