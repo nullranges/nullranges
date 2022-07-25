@@ -35,12 +35,12 @@ enrichment analysis include
 [regioneR](https://bioconductor.org/packages/regioneR) [@regioneR]. 
 Methods implemented outside of Bioconductor include 
 [GAT](https://github.com/AndreasHeger/gat) [@GAT],
-[GSC](https://www.encodeproject.org/software/gsc/) [@bickel_2010],
+[GSC](https://github.com/ParkerLab/encodegsc) [@bickel_2010],
 [GREAT](http://bejerano.stanford.edu/great/public/html/) [@GREAT],
 [GenometriCorr](https://github.com/favorov/GenometriCorr) [@GenometriCorr],
 or [ChIP-Enrich](http://chip-enrich.med.umich.edu/) [@ChIP-Enrich].
 We note that our block bootstrapping approach closely follows that of 
-[GSC](https://www.encodeproject.org/software/gsc/), while offering
+[GSC](https://github.com/ParkerLab/encodegsc), while offering
 additional features/visualizations, and is re-implemented within
 R/Bioconductor with efficient vectorized code for operation on 
 *GRanges* objects [@granges].
