@@ -1,4 +1,4 @@
-# nullranges 1.1.9
+# nullranges 1.1.13
 
 * Bug fix that allows nearest matching method to handle
   categorical (or categorical-like) covariates.
