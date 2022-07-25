@@ -60,8 +60,17 @@ nnMatch <- function(fps, pps, replace) {
   ## Find all nearest matches for each unique fps
   amdt <- dt[.(uniq.fps), roll = 'nearest', mult = 'all']
 
-  ## Randomly subsample with replacement among duplicates
-  mdt <- amdt[, .(ppsIndex = sample.vec(ppsIndex, N, replace = replace)), by = fps]
+  ## Randomly subsample with replacement among duplicates;
+  ## Check for categorical variables during sampling
+  mdt <-
+    amdt[, {
+      if (length(N) > 1) {
+        stopifnot(length(unique(N)) == 1)
+        .(ppsIndex = sample.vec(ppsIndex, N[1], replace = replace))
+      } else {
+        .(ppsIndex = sample.vec(ppsIndex, N, replace = replace))
+      }
+    }, by = fps]
 
   ## Add fpsIndex to mdt
   stopifnot(mdt$fps == fpsMap$fps)
