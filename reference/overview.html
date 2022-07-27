@@ -22,7 +22,7 @@ reported."><meta property="og:image" content="https://nullranges.github.io/nullr
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.12</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.2</span>
       </span>
     </div>
 
@@ -58,7 +58,13 @@ reported."><meta property="og:image" content="https://nullranges.github.io/nullr
 <li>
   <a href="../news/index.html">Changelog</a>
 </li>
-      </ul><ul class="nav navbar-nav navbar-right"></ul></div><!--/.nav-collapse -->
+      </ul><ul class="nav navbar-nav navbar-right"><li>
+  <a href="https://github.com/nullranges/nullranges/" class="external-link">
+    <span class="fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul></div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
 
@@ -68,7 +74,7 @@ reported."><meta property="og:image" content="https://nullranges.github.io/nullr
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Overview of matching quality</h1>
-    
+    <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/HEAD/R/AllGenerics.R" class="external-link"><code>R/AllGenerics.R</code></a>, <a href="https://github.com/nullranges/nullranges/blob/HEAD/R/methods-Matched.R" class="external-link"><code>R/methods-Matched.R</code></a></small>
     <div class="hidden name"><code>overview.Rd</code></div>
     </div>
 
@@ -92,16 +98,23 @@ reported.</p>
     <h2>Arguments</h2>
     <dl><dt>x</dt>
 <dd><p>Matched object</p></dd>
+
+
 <dt>digits</dt>
 <dd><p>Integer indicating the number
 of significant digits to be used. Negative
 values are allowed (see <code><a href="https://rdrr.io/r/base/Round.html" class="external-link">?signif</a></code>).</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Additional arguments.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <ul><li><p>A printed overview of matching quality.</p></li>
+    
+
+<ul><li><p>A printed overview of matching quality.</p></li>
 <li><p>(Internally) a <code>MatchedOverview</code> object.</p></li>
 </ul></div>
     <div id="details">
@@ -143,17 +156,11 @@ N per set, rather than with mean and s.d.</p>
 
 
       <footer><div class="copyright">
-  <p></p><p>Developed by <a href="https://mikelove.github.io" class="external-link">Michael Love</a>,
-<a href="https://twitter.com/wancenm" class="external-link">Wancen Mu</a>,
-<a href="https://ericscottdavis.com" class="external-link">Eric Davis</a>,
-<a href="http://phanstiel-lab.med.unc.edu" class="external-link">Douglas Phanstiel</a>,
-<a href="https://stuartlee.org" class="external-link">Stuart Lee</a>,
-<a href="https://chanzuckerberg.com" class="external-link">CZI</a>.</p>
+  <p></p><p>Developed by <a href="https://mikelove.github.io" class="external-link">Michael Love</a>, <a href="https://twitter.com/wancenm" class="external-link">Wancen Mu</a>, <a href="https://ericscottdavis.com" class="external-link">Eric Davis</a>, <a href="http://phanstiel-lab.med.unc.edu" class="external-link">Douglas Phanstiel</a>, <a href="https://stuartlee.org" class="external-link">Stuart Lee</a>, <a href="https://chanzuckerberg.com" class="external-link">CZI</a>.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer></div>

@@ -18,7 +18,7 @@ from a Matched object."><meta property="og:image" content="https://nullranges.gi
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.12</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.2</span>
       </span>
     </div>
 
@@ -54,7 +54,13 @@ from a Matched object."><meta property="og:image" content="https://nullranges.gi
 <li>
   <a href="../news/index.html">Changelog</a>
 </li>
-      </ul><ul class="nav navbar-nav navbar-right"></ul></div><!--/.nav-collapse -->
+      </ul><ul class="nav navbar-nav navbar-right"><li>
+  <a href="https://github.com/nullranges/nullranges/" class="external-link">
+    <span class="fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul></div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
 
@@ -64,7 +70,7 @@ from a Matched object."><meta property="og:image" content="https://nullranges.gi
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Get indices of matched set</h1>
-    
+    <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/HEAD/R/AllGenerics.R" class="external-link"><code>R/AllGenerics.R</code></a>, <a href="https://github.com/nullranges/nullranges/blob/HEAD/R/methods-Matched.R" class="external-link"><code>R/methods-Matched.R</code></a></small>
     <div class="hidden name"><code>indices.Rd</code></div>
     </div>
 
@@ -84,15 +90,22 @@ from a Matched object.</p>
     <h2>Arguments</h2>
     <dl><dt>x</dt>
 <dd><p>Matched object.</p></dd>
+
+
 <dt>set</dt>
 <dd><p>A character string describing from which set to extract indices.
 can be one of 'focal', 'matched', 'pool', or 'unmatched'.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Additional arguments.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>An integer vector corresponding
+    
+
+<p>An integer vector corresponding
 to the indices in the <code>focal</code> or <code>pool</code> which comprise the
 "focal" or c("matched", "pool", "unmatched") sets.</p>
     </div>
@@ -131,17 +144,11 @@ from the <code>pool</code> set.</p>
 
 
       <footer><div class="copyright">
-  <p></p><p>Developed by <a href="https://mikelove.github.io" class="external-link">Michael Love</a>,
-<a href="https://twitter.com/wancenm" class="external-link">Wancen Mu</a>,
-<a href="https://ericscottdavis.com" class="external-link">Eric Davis</a>,
-<a href="http://phanstiel-lab.med.unc.edu" class="external-link">Douglas Phanstiel</a>,
-<a href="https://stuartlee.org" class="external-link">Stuart Lee</a>,
-<a href="https://chanzuckerberg.com" class="external-link">CZI</a>.</p>
+  <p></p><p>Developed by <a href="https://mikelove.github.io" class="external-link">Michael Love</a>, <a href="https://twitter.com/wancenm" class="external-link">Wancen Mu</a>, <a href="https://ericscottdavis.com" class="external-link">Eric Davis</a>, <a href="http://phanstiel-lab.med.unc.edu" class="external-link">Douglas Phanstiel</a>, <a href="https://stuartlee.org" class="external-link">Stuart Lee</a>, <a href="https://chanzuckerberg.com" class="external-link">CZI</a>.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer></div>

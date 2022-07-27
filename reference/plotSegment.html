@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.12</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.2</span>
       </span>
     </div>
 
@@ -53,7 +53,13 @@
 <li>
   <a href="../news/index.html">Changelog</a>
 </li>
-      </ul><ul class="nav navbar-nav navbar-right"></ul></div><!--/.nav-collapse -->
+      </ul><ul class="nav navbar-nav navbar-right"><li>
+  <a href="https://github.com/nullranges/nullranges/" class="external-link">
+    <span class="fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul></div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
 
@@ -63,7 +69,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Plot genome segmentation</h1>
-    
+    <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/HEAD/R/plotSegment.R" class="external-link"><code>R/plotSegment.R</code></a></small>
     <div class="hidden name"><code>plotSegment.Rd</code></div>
     </div>
 
@@ -84,8 +90,12 @@
     <h2>Arguments</h2>
     <dl><dt>seg</dt>
 <dd><p>the segmentation GRanges returned by <code>segmentDensity</code> function</p></dd>
+
+
 <dt>exclude</dt>
 <dd><p>GRanges of excluded region</p></dd>
+
+
 <dt>type</dt>
 <dd><p>the type of plot returned. Choices are segmentation plot
 included ranges information, barplot showing segmentation states' distribution across chromosome,
@@ -93,12 +103,17 @@ or a box plot indicating average density within each states.
 Default is all plots are displayed.
 The y axis <code>"density"</code> represent square root of overlap counts within segment length. If a user defined
 segmentation GRanges is given, the y axis is default to be 1 for all states in segmentation plot.</p></dd>
+
+
 <dt>region</dt>
 <dd><p>GRanges of stricted region that want to be plotted.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>A <code>ggplot</code> set by <code>type</code> argument</p>
+    
+
+<p>A <code>ggplot</code> set by <code>type</code> argument</p>
     </div>
 
     <div id="ref-examples">
@@ -137,17 +152,11 @@ segmentation GRanges is given, the y axis is default to be 1 for all states in s
 
 
       <footer><div class="copyright">
-  <p></p><p>Developed by <a href="https://mikelove.github.io" class="external-link">Michael Love</a>,
-<a href="https://twitter.com/wancenm" class="external-link">Wancen Mu</a>,
-<a href="https://ericscottdavis.com" class="external-link">Eric Davis</a>,
-<a href="http://phanstiel-lab.med.unc.edu" class="external-link">Douglas Phanstiel</a>,
-<a href="https://stuartlee.org" class="external-link">Stuart Lee</a>,
-<a href="https://chanzuckerberg.com" class="external-link">CZI</a>.</p>
+  <p></p><p>Developed by <a href="https://mikelove.github.io" class="external-link">Michael Love</a>, <a href="https://twitter.com/wancenm" class="external-link">Wancen Mu</a>, <a href="https://ericscottdavis.com" class="external-link">Eric Davis</a>, <a href="http://phanstiel-lab.med.unc.edu" class="external-link">Douglas Phanstiel</a>, <a href="https://stuartlee.org" class="external-link">Stuart Lee</a>, <a href="https://chanzuckerberg.com" class="external-link">CZI</a>.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer></div>

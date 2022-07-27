@@ -20,7 +20,7 @@ and iteration and block length indicated by metadata columns"><meta property="og
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.12</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.2</span>
       </span>
     </div>
 
@@ -56,7 +56,13 @@ and iteration and block length indicated by metadata columns"><meta property="og
 <li>
   <a href="../news/index.html">Changelog</a>
 </li>
-      </ul><ul class="nav navbar-nav navbar-right"></ul></div><!--/.nav-collapse -->
+      </ul><ul class="nav navbar-nav navbar-right"><li>
+  <a href="https://github.com/nullranges/nullranges/" class="external-link">
+    <span class="fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul></div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
 
@@ -66,7 +72,7 @@ and iteration and block length indicated by metadata columns"><meta property="og
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Block bootstrap for genomic ranges</h1>
-    
+    <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/HEAD/R/bootRanges.R" class="external-link"><code>R/bootRanges.R</code></a></small>
     <div class="hidden name"><code>bootRanges.Rd</code></div>
     </div>
 
@@ -95,33 +101,52 @@ and iteration and block length indicated by metadata columns</p>
     <h2>Arguments</h2>
     <dl><dt>y</dt>
 <dd><p>the GRanges to bootstrap sample</p></dd>
+
+
 <dt>blockLength</dt>
 <dd><p>the length of the blocks
 (for proportional blocks, this is the maximal length of a block)</p></dd>
+
+
 <dt>R</dt>
 <dd><p>the number of bootstrap samples to generate</p></dd>
+
+
 <dt>seg</dt>
 <dd><p>the segmentation GRanges, with a column ("state")
 indicating segmentation state (optional)</p></dd>
+
+
 <dt>exclude</dt>
 <dd><p>the GRanges of excluded regions (optional)</p></dd>
+
+
 <dt>excludeOption</dt>
 <dd><p>whether to <code>"drop"</code> or <code>"trim"</code>
 bootstrap ranges that overlap a excluded region</p></dd>
+
+
 <dt>proportionLength</dt>
 <dd><p>for the segmented block bootstrap,
 whether to use scaled block lengths, (scaling by the proportion
 of the segmentation state out of the total genome length)</p></dd>
+
+
 <dt>type</dt>
 <dd><p>the type of null generation (un-segmented bootstrap only)</p></dd>
+
+
 <dt>withinChrom</dt>
 <dd><p>whether to re-sample (bootstrap) ranges
 across chromosomes (default) or only within chromosomes
 (un-segmented bootstrap only)</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>a bootRanges (GRanges object) with the bootstrapped ranges,
+    
+
+<p>a bootRanges (GRanges object) with the bootstrapped ranges,
 where iteration and block length are recorded as metadata columns</p>
     </div>
     <div id="references">
@@ -176,17 +201,11 @@ doi: 10.1214/10-AOAS363</p>
 
 
       <footer><div class="copyright">
-  <p></p><p>Developed by <a href="https://mikelove.github.io" class="external-link">Michael Love</a>,
-<a href="https://twitter.com/wancenm" class="external-link">Wancen Mu</a>,
-<a href="https://ericscottdavis.com" class="external-link">Eric Davis</a>,
-<a href="http://phanstiel-lab.med.unc.edu" class="external-link">Douglas Phanstiel</a>,
-<a href="https://stuartlee.org" class="external-link">Stuart Lee</a>,
-<a href="https://chanzuckerberg.com" class="external-link">CZI</a>.</p>
+  <p></p><p>Developed by <a href="https://mikelove.github.io" class="external-link">Michael Love</a>, <a href="https://twitter.com/wancenm" class="external-link">Wancen Mu</a>, <a href="https://ericscottdavis.com" class="external-link">Eric Davis</a>, <a href="http://phanstiel-lab.med.unc.edu" class="external-link">Douglas Phanstiel</a>, <a href="https://stuartlee.org" class="external-link">Stuart Lee</a>, <a href="https://chanzuckerberg.com" class="external-link">CZI</a>.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer></div>

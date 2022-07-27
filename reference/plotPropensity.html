@@ -18,7 +18,7 @@ from each matched set of a Matched object."><meta property="og:image" content="h
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.12</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.2</span>
       </span>
     </div>
 
@@ -54,7 +54,13 @@ from each matched set of a Matched object."><meta property="og:image" content="h
 <li>
   <a href="../news/index.html">Changelog</a>
 </li>
-      </ul><ul class="nav navbar-nav navbar-right"></ul></div><!--/.nav-collapse -->
+      </ul><ul class="nav navbar-nav navbar-right"><li>
+  <a href="https://github.com/nullranges/nullranges/" class="external-link">
+    <span class="fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul></div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
 
@@ -64,7 +70,7 @@ from each matched set of a Matched object."><meta property="og:image" content="h
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Propensity score plotting for Matched objects</h1>
-    
+    <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/HEAD/R/AllGenerics.R" class="external-link"><code>R/AllGenerics.R</code></a>, <a href="https://github.com/nullranges/nullranges/blob/HEAD/R/methods-Matched.R" class="external-link"><code>R/methods-Matched.R</code></a></small>
     <div class="hidden name"><code>plotPropensity.Rd</code></div>
     </div>
 
@@ -90,32 +96,45 @@ from each matched set of a Matched object.</p>
     <h2>Arguments</h2>
     <dl><dt>x</dt>
 <dd><p>Matched object</p></dd>
+
+
 <dt>sets</dt>
 <dd><p>Character vector describing which matched set(s)
 to include in the plot. Options are 'focal', 'matched',
 'pool', or 'unmatched'. Multiple options are accepted.</p></dd>
+
+
 <dt>type</dt>
 <dd><p>Character naming the plot type. Available
 options are one of either 'ridges', 'jitter', 'lines',
 or 'bars'. Note that for large datasets, use of 'jitter'
 is discouraged because the large density of points can
 stall the R-graphics device.</p></dd>
+
+
 <dt>log</dt>
 <dd><p>Character vector describing which axis or
 axes to apply log-transformation. Available options are
 'x' and/or 'y'.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Additional arguments.</p></dd>
+
+
 <dt>thresh</dt>
 <dd><p>Integer describing the number of
 unique values required to classify a numeric
 variable as discrete (and convert it to a factor).
 If the number of unique values exceeds <code>thresh</code>
 then the variable is considered continuous.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>Returns a plot of propensity score distributions
+    
+
+<p>Returns a plot of propensity score distributions
 among matched sets.</p>
     </div>
     <div id="details">
@@ -162,17 +181,11 @@ These settings can also be overwritten manually.</p>
 
 
       <footer><div class="copyright">
-  <p></p><p>Developed by <a href="https://mikelove.github.io" class="external-link">Michael Love</a>,
-<a href="https://twitter.com/wancenm" class="external-link">Wancen Mu</a>,
-<a href="https://ericscottdavis.com" class="external-link">Eric Davis</a>,
-<a href="http://phanstiel-lab.med.unc.edu" class="external-link">Douglas Phanstiel</a>,
-<a href="https://stuartlee.org" class="external-link">Stuart Lee</a>,
-<a href="https://chanzuckerberg.com" class="external-link">CZI</a>.</p>
+  <p></p><p>Developed by <a href="https://mikelove.github.io" class="external-link">Michael Love</a>, <a href="https://twitter.com/wancenm" class="external-link">Wancen Mu</a>, <a href="https://ericscottdavis.com" class="external-link">Eric Davis</a>, <a href="http://phanstiel-lab.med.unc.edu" class="external-link">Douglas Phanstiel</a>, <a href="https://stuartlee.org" class="external-link">Stuart Lee</a>, <a href="https://chanzuckerberg.com" class="external-link">CZI</a>.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer></div>
