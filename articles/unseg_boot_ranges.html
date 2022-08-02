@@ -40,7 +40,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.3</span>
       </span>
     </div>
 
@@ -104,7 +104,7 @@
                         <h4 data-toc-skip class="author">Michael
 Love</h4>
             
-            <h4 data-toc-skip class="date">07/27/2022</h4>
+            <h4 data-toc-skip class="date">08/02/2022</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/HEAD/vignettes/unseg_boot_ranges.Rmd" class="external-link"><code>vignettes/unseg_boot_ranges.Rmd</code></a></small>
       <div class="hidden name"><code>unseg_boot_ranges.Rmd</code></div>
@@ -150,11 +150,11 @@ and the default for <code>withinChrom</code> is <code>FALSE</code>
                         type<span class="op">=</span><span class="st">"bootstrap"</span>, withinChrom<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span>
   <span class="op">)</span>, times<span class="op">=</span><span class="fl">10</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">## Unit: milliseconds</span>
-<span class="co">##      expr      min       lq      mean   median       uq       max neval</span>
-<span class="co">##  p_within 941.3431 987.4876 1057.9947 992.8153 999.6825 1706.2012    10</span>
-<span class="co">##  b_within 861.8905 877.6892  999.0931 903.7563 924.1893 1675.1324    10</span>
-<span class="co">##  p_across 225.9574 228.1748  255.2364 236.2014 255.1104  392.5940    10</span>
-<span class="co">##  b_across 248.4245 250.6372  265.7177 266.0843 276.9271  288.8642    10</span></code></pre>
+<span class="co">##      expr       min        lq      mean    median        uq      max neval</span>
+<span class="co">##  p_within 1082.5740 1111.5031 1136.1660 1131.1756 1159.2399 1234.071    10</span>
+<span class="co">##  b_within  964.7520 1026.2138 1144.7090 1048.2672 1122.1869 1855.937    10</span>
+<span class="co">##  p_across  231.2737  241.2750  428.2114  254.5178  391.0795 1091.410    10</span>
+<span class="co">##  b_across  252.7985  259.8227  427.3980  266.3492  304.1017 1065.568    10</span></code></pre>
 </div>
 <div class="section level2">
 <h2 id="visualize-on-synthetic-data">Visualize on synthetic data<a class="anchor" aria-label="anchor" href="#visualize-on-synthetic-data"></a>
@@ -266,15 +266,15 @@ larger blocks than previously.</p>
 <span class="co">## [8] base     </span>
 <span class="co">## </span>
 <span class="co">## other attached packages:</span>
-<span class="co">##  [1] plotgardener_1.3.7          microbenchmark_1.4.9       </span>
-<span class="co">##  [3] nullranges_1.3.2            nullrangesData_1.3.0       </span>
+<span class="co">##  [1] plotgardener_1.3.8          microbenchmark_1.4.9       </span>
+<span class="co">##  [3] nullranges_1.3.3            nullrangesData_1.3.0       </span>
 <span class="co">##  [5] InteractionSet_1.25.0       SummarizedExperiment_1.27.1</span>
 <span class="co">##  [7] Biobase_2.57.1              MatrixGenerics_1.9.1       </span>
 <span class="co">##  [9] matrixStats_0.62.0          GenomicRanges_1.49.0       </span>
 <span class="co">## [11] GenomeInfoDb_1.33.3         IRanges_2.31.0             </span>
 <span class="co">## [13] S4Vectors_0.35.1            ExperimentHub_2.5.0        </span>
 <span class="co">## [15] AnnotationHub_3.5.0         BiocFileCache_2.5.0        </span>
-<span class="co">## [17] dbplyr_2.2.1                BiocGenerics_0.43.0        </span>
+<span class="co">## [17] dbplyr_2.2.1                BiocGenerics_0.43.1        </span>
 <span class="co">## </span>
 <span class="co">## loaded via a namespace (and not attached):</span>
 <span class="co">##   [1] colorspace_2.0-3              rjson_0.2.21                 </span>
@@ -320,7 +320,7 @@ larger blocks than previously.</p>
 <span class="co">##  [81] ks_1.13.5                     bit_4.0.4                    </span>
 <span class="co">##  [83] tidyselect_1.1.2              plyr_1.8.7                   </span>
 <span class="co">##  [85] magrittr_2.0.3                R6_2.5.1                     </span>
-<span class="co">##  [87] generics_0.1.2                DelayedArray_0.23.0          </span>
+<span class="co">##  [87] generics_0.1.2                DelayedArray_0.23.1          </span>
 <span class="co">##  [89] DBI_1.1.3                     pillar_1.7.0                 </span>
 <span class="co">##  [91] KEGGREST_1.37.3               RCurl_1.98-1.7               </span>
 <span class="co">##  [93] tibble_3.1.7                  crayon_1.5.1                 </span>
