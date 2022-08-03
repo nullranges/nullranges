@@ -40,7 +40,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.4</span>
       </span>
     </div>
 
@@ -103,7 +103,7 @@
       <h1 data-toc-skip>Segmented block bootstrap</h1>
                         <h4 data-toc-skip class="author">Wancen Mu</h4>
             
-            <h4 data-toc-skip class="date">08/02/2022</h4>
+            <h4 data-toc-skip class="date">08/03/2022</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/HEAD/vignettes/segmented_boot_ranges.Rmd" class="external-link"><code>vignettes/segmented_boot_ranges.Rmd</code></a></small>
       <div class="hidden name"><code>segmented_boot_ranges.Rmd</code></div>
@@ -503,9 +503,9 @@ below for visualization of the difference).</p>
     no_prop <span class="op">=</span> <span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">dhs</span>, <span class="va">blockLength</span>, seg <span class="op">=</span> <span class="va">seg</span>, proportionLength <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
 <span class="op">)</span>, times<span class="op">=</span><span class="fl">10</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">## Unit: milliseconds</span>
-<span class="co">##     expr      min       lq     mean   median       uq      max neval</span>
-<span class="co">##     prop 115.2205 115.5496 122.7718 119.0039 124.0999 155.6043    10</span>
-<span class="co">##  no_prop 103.9287 106.1151 107.7838 106.7429 108.2410 116.8047    10</span></code></pre>
+<span class="co">##     expr     min      lq     mean   median      uq      max neval</span>
+<span class="co">##     prop 87.5933 90.7356 94.24532 91.87500 92.3701 119.8743    10</span>
+<span class="co">##  no_prop 80.9131 81.2898 82.67386 82.05245 83.8276  85.6265    10</span></code></pre>
 </div>
 <div class="section level2">
 <h2 id="visualizing-toy-bootstrap-samples">Visualizing toy bootstrap samples<a class="anchor" aria-label="anchor" href="#visualizing-toy-bootstrap-samples"></a>
@@ -640,8 +640,8 @@ block.</p>
 <span class="co">##  [1] plotgardener_1.3.8          microbenchmark_1.4.9       </span>
 <span class="co">##  [3] ggplot2_3.3.6               tidyr_1.2.0                </span>
 <span class="co">##  [5] patchwork_1.1.1             plyranges_1.17.0           </span>
-<span class="co">##  [7] nullranges_1.3.3            EnsDb.Hsapiens.v86_2.99.0  </span>
-<span class="co">##  [9] ensembldb_2.21.2            AnnotationFilter_1.21.0    </span>
+<span class="co">##  [7] nullranges_1.3.4            EnsDb.Hsapiens.v86_2.99.0  </span>
+<span class="co">##  [9] ensembldb_2.21.3            AnnotationFilter_1.21.0    </span>
 <span class="co">## [11] GenomicFeatures_1.49.5      AnnotationDbi_1.59.1       </span>
 <span class="co">## [13] nullrangesData_1.3.0        InteractionSet_1.25.0      </span>
 <span class="co">## [15] SummarizedExperiment_1.27.1 Biobase_2.57.1             </span>
@@ -655,7 +655,7 @@ block.</p>
 <span class="co">## loaded via a namespace (and not attached):</span>
 <span class="co">##   [1] systemfonts_1.0.4             plyr_1.8.7                   </span>
 <span class="co">##   [3] RcppHMM_1.2.2                 lazyeval_0.2.2               </span>
-<span class="co">##   [5] BiocParallel_1.31.10          digest_0.6.29                </span>
+<span class="co">##   [5] BiocParallel_1.31.12          digest_0.6.29                </span>
 <span class="co">##   [7] yulab.utils_0.0.5             htmltools_0.5.2              </span>
 <span class="co">##   [9] fansi_1.0.3                   magrittr_2.0.3               </span>
 <span class="co">##  [11] memoise_2.0.1                 ks_1.13.5                    </span>
