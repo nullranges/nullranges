@@ -1,6 +1,6 @@
 Package: nullranges
 Title: Generation of null ranges via bootstrapping or covariate matching
-Version: 1.3.3
+Version: 1.3.4
 Authors@R: c(
     person("Michael", "Love", role = c("aut", "cre"),
       email = "michaelisaiahlove@gmail.com",
@@ -68,7 +68,7 @@ biocViews: Visualization, GeneSetEnrichment,
     ChIPSeq, ATACSeq, DNaseSeq, RNASeq,
     HiddenMarkovModel
 URL: https://nullranges.github.io/nullranges, https://github.com/nullranges/nullranges
-BugReports: https://support.bioconductor.org/t/nullranges/
+BugReports: https://support.bioconductor.org/tag/nullranges/
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
