@@ -300,22 +300,42 @@ Using our matched ranges, we can compare CTCF occupancy in bins that
 matched for the strength and number of DNase sites (i.e. matched). In
 this case, we calculate CTCF occupancy as the percent of bins that
 contain CTCF among our 3 sets by using the `focal()` and `pool()`
-accessor functions: 
+accessor functions.
+
+In order to pipe the data into *plyranges*, we bind the ranges
+together and give each group a meaningful label in this scientific
+context (e.g. that the focal set is looped, while the
+background/matched sets are unlooped).
+
+```{r}
+tidy_gr <- bind_ranges(
+  looped_focal=focal(mgr),
+  unlooped_pool=pool(mgr),
+  unlooped_matched=mgr, .id="type"
+)
+```
+
+We define some custom colors for our barplot:
+
+```{r}
+cols <- c(looped_focal="#1F78B4",
+          unlooped_matched="#A6CEE3",
+          unlooped_pool="#33A02C")
+```
+
+And finally we can make the plot, with a grouped summarization
+followed by some ggplot2 code:
 
 ```{r fig.width=4.5, fig.height=5}
-## Percent of bins with CTCF
-g1 <- (sum(focal(mgr)$n_ctcf_sites >= 1) / length(focal(mgr))) * 100
-g2 <- (sum(pool(mgr)$n_ctcf_sites >= 1) / length(pool(mgr))) * 100
-g3 <- (sum(mgr$n_ctcf_sites >= 1) / length(mgr)) * 100
-
-## Visualize
-barplot(height = c(g1, g2, g3),
-        names = c('looped\n(focal)', 'unlooped\n(pool)', 'unlooped\n(matched)'),
-        ylab = "CTCF occupied bins (%)",
-        col = c('#1F78B4', '#33A02C', '#A6CEE3'),
-        main = 'CTCF occupancy',
-        border = NA,
-        las = 1)
+tidy_gr %>%
+  group_by(type) %>%
+  summarize(CTCF_occupied = 100*mean(n_ctcf_sites >= 1)) %>%
+  as.data.frame() %>%
+  ggplot(aes(type, CTCF_occupied, fill=type)) +
+  geom_col(show.legend = FALSE) +
+  ylab("CTCF occupied bins (%)") +
+  scale_fill_manual(values=cols) +
+  ggtitle("CTCF occupancy")
 ```
 
 # Session information
