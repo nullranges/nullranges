@@ -309,7 +309,7 @@ combined %>% plyranges::filter(iter %in% 0:3) %>%
   as.data.frame() %>% 
   nest(-iter) %>%
   mutate(interdist = map(data, ~interdist(.))) %>% 
-  select(iter,interdist) %>% 
+  dplyr::select(iter,interdist) %>% 
   unnest(interdist) %>% 
   mutate(type = ifelse(iter == 0, "original", "boot")) %>% 
   ggplot(aes(log10(interdist), iter, fill=type)) +
