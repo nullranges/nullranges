@@ -22,7 +22,7 @@
 #' across chromosomes (default) or only within chromosomes
 #' (un-segmented bootstrap only)
 #'
-#' @return a bootRanges (GRanges object) with the bootstrapped ranges,
+#' @return a BootRanges (GRanges object) with the bootstrapped ranges,
 #' where iteration and block length are recorded as metadata columns
 #'
 #' @importFrom IRanges overlapsAny
@@ -103,7 +103,7 @@ bootRanges <- function(y, blockLength, R = 1,
   br <- do.call(c, br)
   mcols(br)$iter <- Rle(factor(rep(seq_len(R), lens), levels=seq_len(R)))
   mcols(br)$blockLength <- Rle(as.integer(blockLength))
-  new("bootRanges", br)
+  new("BootRanges", br)
 }
 
 # Segmentation block bootstrap sub-function

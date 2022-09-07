@@ -1,12 +1,13 @@
+#' @rdname bootRanges
 #' @import methods
 #' @export
 bootRanges <- setClass(
-  Class = "bootRanges",
+  Class = "BootRanges",
   contains = "GRanges"
 )
 
 setValidity(
-  Class = "bootRanges",
+  Class = "BootRanges",
   method = function(object) {
     stopifnot("iter" %in% names(mcols(object)))
   }
