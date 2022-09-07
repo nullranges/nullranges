@@ -9,14 +9,17 @@ output:
     toc_float: true
 vignette: |
   %\VignetteIndexEntry{5. Unsegmented block bootstrap}
-  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  markdown: 
+    wrap: 72
 ---
 
 In this vignette, we demonstrate the unsegmented block bootstrap
-functionality implemented in *nullranges*. "Unsegmented" refers to
-the fact that this implementation does not consider segmentation of
-the genome for sampling of blocks, see the segmented block bootstrap
+functionality implemented in *nullranges*. "Unsegmented" refers to the
+fact that this implementation does not consider segmentation of the
+genome for sampling of blocks, see the segmented block bootstrap
 vignette for the alternative implementation.
 
 # Timing on DHS peaks
@@ -35,10 +38,10 @@ library(nullranges)
 ```
 
 The following chunk of code evaluates various types of
-bootstrap/permutation schemes, first within chromosome, and then
-across chromosome (the default). The default `type` is bootstrap, and
-the default for `withinChrom` is `FALSE` (bootstrapping with blocks
-moving across chromosomes).
+bootstrap/permutation schemes, first within chromosome, and then across
+chromosome (the default). The default `type` is bootstrap, and the
+default for `withinChrom` is `FALSE` (bootstrapping with blocks moving
+across chromosomes).
 
 ```{r}
 set.seed(5) # reproducibility
@@ -77,9 +80,8 @@ gr <- GRanges(seqnames=seq_nms,
 ```
 
 The following function uses functionality from *plotgardener* to plot
-the ranges.  Note in the plotting helper function that `chr` will be
-used to color ranges by chromosome of origin.
-
+the ranges. Note in the plotting helper function that `chr` will be used
+to color ranges by chromosome of origin.
 
 ```{r}
 suppressPackageStartupMessages(library(plotgardener))

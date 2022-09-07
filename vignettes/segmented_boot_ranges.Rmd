@@ -17,7 +17,7 @@ editor_options:
     wrap: 72
 ---
 
-# Introduction
+# Overview 
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(fig.width=5, fig.height=5)
@@ -40,18 +40,24 @@ In a segmented block bootstrap, the blocks are sampled and placed within
 regions of a genome *segmentation*. That is, for a genome segmented into
 states 1,2,...,S, blocks from state *s* will be used to tile the ranges
 of state *s* in each bootstrap sample. The process can be visualized in
-(A), a block with length $L_b$ is randomly selected from state "red" and
-move to a tile block across chromosome. Additionally, the workflow of
-bootRanges is diagrammed in (B) and listed as:
+(A), a block with length $L_b$ is $\color{brown}{\text{randomly}}$ 
+selected from state "red" and move to a $\color{brown}{\text{tile}}$ 
+block across chromosome within same states. 
 
-1.  Overlap *GRanges* of feature $x$ and *GRanges* of feature $y$ to
-    derive interested observed statistics
-2.  `bootRanges()` with optional `segmentation` and `exclude` creates a
+An example workflow of bootRanges used in combination with plyranges
+is diagrammed in (B), and can be summarized as:
+
+1.  Compute overlap between *GRanges* of feature $x$ and *GRanges* of
+    feature $y$ to assess overlap or to derive other statistic of
+    interest
+2.  `bootRanges()` with optional `segmentation` and `exclude` to create a
     *bootRanges* object $y'$
-3.  Overlap *GRanges* of feature $x$ and $y'$ to derive interested
-    bootstrap statistics
-4.  $z$ test is performed for testing the null hypothesis that there is
-    no true biological enrichment
+3.  Compute overlap between *GRanges* of feature $x$ and $y'$ to
+    derive bootstrap distribution of statistics
+4.  A $z$ test can be performed for testing the null hypothesis that
+    there is no true biological enrichment of the original data (that
+    bootstrap data often has as high an enrichment as the observed
+    data)
 
 ```{r, echo=FALSE}
 knitr::include_graphics("images/bootRanges.jpg")
@@ -80,6 +86,22 @@ used for a segmentation state is proportional to the fraction of genomic
 basepairs covered by that state. This option is visualized on toy data
 at the end of this vignette.
 
+# Import excluded regions
+
+$\color{brown}{\text{To avoid placing bootstrap features into regions of the genome that don’t typically have features}}$. We import excluded regions including ENCODE-produced excludable
+regions[@encode_exclude], telomeres from UCSC, centromeres [@rCGH]. For
+easy use, pre-combined excludable regions is stored in *ExperimentHub.*
+These steps using *excluderanges* package [@excluderanges] are included
+in *nullrangesData* in the `inst/scripts/make-segmentation-hg38.R`
+script.
+
+```{r, message=FALSE, warning=FALSE}
+suppressPackageStartupMessages(library(ExperimentHub))
+eh = ExperimentHub()
+# query(eh, "nullrangesdata")
+exclude <- eh[["EH7306"]]
+```
+
 # Pre-built segmentations
 
 *nullranges* has generated pre-built segmentations for easy use by
@@ -88,16 +110,13 @@ density](#Segmentation%20by%20gene%20density). Either pre-built
 segmentations using *CBS* or *HMM* methods with $L_s=2e6$ considering excludable
 regions can be selected from *ExperimentHub*.
 
-```{r}
-suppressPackageStartupMessages(library(ExperimentHub))
-eh = ExperimentHub()
-# query(eh, "nullrangesdata")
+```{r, message=FALSE, warning=FALSE}
 seg_cbs <- eh[["EH7307"]]
 seg_hmm <- eh[["EH7308"]]
 seg <- seg_cbs
 ```
 
-# Segmentation by gene density
+## Segmentation by gene density
 
 First we obtain the Ensembl genes [@ensembl2021] for segmenting by gene
 density. We obtain these using the *ensembldb* package [@ensembldb].
@@ -127,22 +146,8 @@ g <- sort(g)
 table(seqnames(g))
 ```
 
-## Import excluded regions
 
-We next import excluded regions including ENCODE-produced excludable
-regions[@encode_exclude], telomeres from UCSC, centromeres [@rCGH]. For
-easy use, pre-combined excludable regions is stored in *ExperimentHub.*
-These steps using *excluderanges* package [@excluderanges] are included
-in *nullrangesData* in the `inst/scripts/make-segmentation-hg38.R`
-script.
-
-```{r}
-# suppressPackageStartupMessages(library(AnnotationHub))
-exclude <- eh[["EH7306"]]
-all(seqlengths(g) == seqlengths(exclude))
-```
-
-## CBS segmentation
+### CBS segmentation
 
 We first demonstrate the use a CBS segmentation as implemented in
 *DNAcopy* [@dnacopy].
@@ -189,7 +194,7 @@ region <- GRanges("chr16", IRanges(3e7,4e7))
 plotSegment(seg_cbs, exclude, type="ranges", region=region)
 ```
 
-## Alternatively: HMM segmentation
+### Alternatively: HMM segmentation
 
 Here we use an alternative segmentation implemented in the *RcppHMM*
 CRAN package, using the `initGHMM`, `learnEM`, and `viterbi` functions.
@@ -224,8 +229,8 @@ For speed of the vignette, we restrict to a smaller number of DHS,
 filtering by the signal value. We also remove metadata columns that we
 don't need for the bootstrap analysis. Consider, when creating
 bootstrapped data, that you will be creating an object many times larger
-than your original features, so filtering and trimming extra metadata
-can help make the analysis more efficient.
+than your original features, so $\color{brown}{\text{filtering and trimming}}$
+extra metadata can help make the analysis more efficient.
 
 ```{r}
 suppressPackageStartupMessages(library(nullrangesData))
@@ -265,35 +270,63 @@ not contain small ranges. If one wanted to also avoid generation of
 bootstrapped features that overlap small excluded ranges, then omit this
 filtering step (use the original, complete `exclude` feature set).
 
-We can examine the number and extent of the bootstrapped data:
+## Assessing quality of bootstrap samples
+
+We can examine properties of permuted y over iterations, and compare
+to the original y. To do so, we first add the original features as
+iter=0. Then compute summaries: 
 
 ```{r}
-boots %>% group_by(iter) %>%
-  summarize(
-    n = n(),
-    total_width = sum(width)
-  )
+suppressPackageStartupMessages(library(tidyr))
+combined <- dhs %>% 
+  mutate(iter=0) %>%
+  bind_ranges(boots) %>% 
+  plyranges::select(iter)
+stats <- combined %>% 
+  group_by(iter) %>%
+  summarize(n = n()) %>%
+  as_tibble()
+head(stats)
 ```
 
-which is similar to the orig inal set, after filtering out those
-overlapping the excluded region:
+We can also look at distributions of various aspects, e.g. here the
+inter-feature distance of features, across a few of the bootstraps and
+the original feature set y. 
 
-```{r}
-dhs_filt <- dhs %>% filter_by_non_overlaps(exclude)
-dhs_filt %>% summarize(n = n(), total_width=sum(width))
+```{r, warning=FALSE}
+suppressPackageStartupMessages(library(ggridges))
+suppressPackageStartupMessages(library(purrr))
+suppressPackageStartupMessages(library(ggplot2))
+interdist <- function(dat) {
+    x = dat[-1,]
+    y = dat[-nrow(dat),]
+    ifelse(x$seqnames == y$seqnames,
+           x$start + floor((x$width - 1)/2) -
+           y$start-floor((y$width - 1)/2), NA)}
+
+combined %>% plyranges::filter(iter %in% 0:3) %>%
+  plyranges::select(iter) %>%
+  as.data.frame() %>% 
+  nest(-iter) %>%
+  mutate(interdist = map(data, ~interdist(.))) %>% 
+  select(iter,interdist) %>% 
+  unnest(interdist) %>% 
+  mutate(type = ifelse(iter == 0, "original", "boot")) %>% 
+  ggplot(aes(log10(interdist), iter, fill=type)) +
+  geom_density_ridges(alpha = 0.75) +
+  geom_text(data=head(stats,4),
+            aes(x=1.5, y=iter, label=paste0("n=",n), fill=NULL),
+            vjust=1.5)
 ```
 
-# Use with *plyranges*
 
-Suppose we have a set of features `x` and we are interested in
-evaluating the overlap of this set with the DHS. We can calculate for
-example the mean observed number of overlaps for features in `x` (or
-something more complicated, e.g. the maximum log fold change or signal
-value for DHS peaks within a `maxgap` window of `x`).
+# Derive statistics of interest - Use with *plyranges*
+
+Suppose we have a set of features `x` and we are interested in evaluating the $\color{brown}{\text{enrichment of this set with the DHS}}$. We can calculate for example the sum observed number of overlaps for features in `x`  with DHS in whole genome (or something more complicated, e.g. the maximum log fold change or signal value for DHS peaks within a `maxgap` window of `x`).
 
 ```{r}
 x <- GRanges("chr2", IRanges(1 + 50:99 * 1e6, width=1e6), x_id=1:50)
-x <- x %>% mutate(n_overlaps = count_overlaps(., dhs_filt))
+x <- x %>% mutate(n_overlaps = count_overlaps(., dhs))
 mean( x$n_overlaps )
 ```
 
@@ -304,10 +337,6 @@ the intermediate output is.
 
 Note that we need to use `tidyr::complete` in order to fill in
 combinations of `x` and `iter` where the overlap was 0.
-
-```{r}
-suppressPackageStartupMessages(library(tidyr))
-```
 
 ```{r}
 boot_stats <- x %>% join_overlap_inner(boots) %>%
@@ -323,6 +352,13 @@ The above code, first grouping by `x_id` and `iter`, then subsequently
 by `iter` is general and allows for more complex analysis than just mean
 overlap (e.g. how many times an `x` range has 1 or more overlap, what is
 the mean or max signal value for peaks overlapping ranges in `x`, etc.).
+
+If one is interested in assessing a $\color{brown}{\text{feature-wise}}$ 
+statistics instead of $\color{brown}{\text{genome-wise}}$ statistics, 
+eg.,the mean observed number of overlaps per feature or mean base pair 
+overlap in `x`, one can also group by both (`block`,`iter`). 10,000 total 
+blocks may therefore be sufficient to derive a bootstrap distribution, 
+avoiding the need to generate many bootstrap genomes of data.
 
 Finally we can plot a histogram. In this case, as the `x` features were
 arbitrary, our observed value falls within the distribution of mean
