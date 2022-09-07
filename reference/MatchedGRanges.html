@@ -19,7 +19,7 @@ and methods for both of these classes."><meta property="og:image" content="https
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.6</span>
       </span>
     </div>
 
@@ -200,26 +200,26 @@ and MatchedGInteractions include:</p><ul><li><p><code>focal(x)</code>: Get focal
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co">## Contructing MatchedGRanges with matchRanges</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">gr</span> <span class="op">&lt;-</span> <span class="fu"><a href="makeExampleMatchedDataSet.html">makeExampleMatchedDataSet</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"GRanges"</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">mgr</span> <span class="op">&lt;-</span> <span class="fu"><a href="matchRanges.html">matchRanges</a></span><span class="op">(</span></span>
-<span class="r-in">  focal <span class="op">=</span> <span class="va">gr</span><span class="op">[</span><span class="va">gr</span><span class="op">$</span><span class="va">feature1</span>, <span class="op">]</span>,</span>
-<span class="r-in">  pool <span class="op">=</span> <span class="va">gr</span><span class="op">[</span><span class="op">!</span><span class="va">gr</span><span class="op">$</span><span class="va">feature1</span>, <span class="op">]</span>,</span>
-<span class="r-in">  covar <span class="op">=</span> <span class="op">~</span> <span class="va">feature2</span> <span class="op">+</span> <span class="va">feature3</span>,</span>
-<span class="r-in">  method <span class="op">=</span> <span class="st">"rejection"</span>,</span>
-<span class="r-in">  replace <span class="op">=</span> <span class="cn">FALSE</span></span>
-<span class="r-in"><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co">## Contructing MatchedGRanges with matchRanges</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">gr</span> <span class="op">&lt;-</span> <span class="fu"><a href="makeExampleMatchedDataSet.html">makeExampleMatchedDataSet</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"GRanges"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">mgr</span> <span class="op">&lt;-</span> <span class="fu"><a href="matchRanges.html">matchRanges</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  focal <span class="op">=</span> <span class="va">gr</span><span class="op">[</span><span class="va">gr</span><span class="op">$</span><span class="va">feature1</span>, <span class="op">]</span>,</span></span>
+<span class="r-in"><span>  pool <span class="op">=</span> <span class="va">gr</span><span class="op">[</span><span class="op">!</span><span class="va">gr</span><span class="op">$</span><span class="va">feature1</span>, <span class="op">]</span>,</span></span>
+<span class="r-in"><span>  covar <span class="op">=</span> <span class="op">~</span> <span class="va">feature2</span> <span class="op">+</span> <span class="va">feature3</span>,</span></span>
+<span class="r-in"><span>  method <span class="op">=</span> <span class="st">"rejection"</span>,</span></span>
+<span class="r-in"><span>  replace <span class="op">=</span> <span class="cn">FALSE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "MatchedGRanges"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"package")</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "nullranges"</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co">## Make MatchedGRanges example</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="makeExampleMatchedDataSet.html">makeExampleMatchedDataSet</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"GRanges"</span>, matched <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span class="r-in"><span class="co">## Accessor functions for Matched class</span></span>
-<span class="r-in"><span class="fu"><a href="matchedData.html">matchedData</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## Make MatchedGRanges example</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="makeExampleMatchedDataSet.html">makeExampleMatchedDataSet</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"GRanges"</span>, matched <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co">## Accessor functions for Matched class</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="matchedData.html">matchedData</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        id feature2 feature3         ps       set</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     1:  1 2.879049        c 0.21095908     focal</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     2:  1 3.539645        c 0.19210984     focal</span>
@@ -232,17 +232,17 @@ and MatchedGInteractions include:</p><ul><li><p><code>focal(x)</code>: Get focal
 <span class="r-out co"><span class="r-pr">#&gt;</span> 20498:  0 6.111404        a 0.01255772 unmatched</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 20499:  0 2.216575        d 0.07578989 unmatched</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 20500:  0 5.330029        b 0.04535856 unmatched</span>
-<span class="r-in"><span class="fu"><a href="covariates.html">covariates</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="fu"><a href="covariates.html">covariates</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "feature2" "feature3"</span>
-<span class="r-in"><span class="fu"><a href="method.html">method</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="fu"><a href="method.html">method</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "rejection"</span>
-<span class="r-in"><span class="fu"><a href="withReplacement.html">withReplacement</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="fu"><a href="withReplacement.html">withReplacement</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="indices.html">indices</a></span><span class="op">(</span><span class="va">x</span>, set <span class="op">=</span> <span class="st">'matched'</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="indices.html">indices</a></span><span class="op">(</span><span class="va">x</span>, set <span class="op">=</span> <span class="st">'matched'</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 3691 3168 9736 7951 5158 8196</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co">## Accessor functions for Matched subclasses</span></span>
-<span class="r-in"><span class="fu"><a href="focal.html">focal</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## Accessor functions for Matched subclasses</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="focal.html">focal</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> GRanges object with 500 ranges and 3 metadata columns:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         seqnames    ranges strand |  feature1  feature2    feature3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt; | &lt;logical&gt; &lt;numeric&gt; &lt;character&gt;</span>
@@ -259,7 +259,7 @@ and MatchedGInteractions include:</p><ul><li><p><code>focal(x)</code>: Get focal
 <span class="r-out co"><span class="r-pr">#&gt;</span>   [500]     chr1   500-599      * |      TRUE   5.10432           b</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   -------</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   seqinfo: 1 sequence from an unspecified genome; no seqlengths</span>
-<span class="r-in"><span class="fu"><a href="pool.html">pool</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="fu"><a href="pool.html">pool</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> GRanges object with 10000 ranges and 3 metadata columns:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>           seqnames      ranges strand |  feature1  feature2    feature3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>              &lt;Rle&gt;   &lt;IRanges&gt;  &lt;Rle&gt; | &lt;logical&gt; &lt;numeric&gt; &lt;character&gt;</span>
@@ -276,7 +276,7 @@ and MatchedGInteractions include:</p><ul><li><p><code>focal(x)</code>: Get focal
 <span class="r-out co"><span class="r-pr">#&gt;</span>   [10000]     chr1 10500-10599      * |     FALSE   5.33003           b</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   -------</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   seqinfo: 1 sequence from an unspecified genome; no seqlengths</span>
-<span class="r-in"><span class="fu"><a href="matched.html">matched</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="fu"><a href="matched.html">matched</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> GRanges object with 500 ranges and 3 metadata columns:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         seqnames      ranges strand |  feature1  feature2    feature3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            &lt;Rle&gt;   &lt;IRanges&gt;  &lt;Rle&gt; | &lt;logical&gt; &lt;numeric&gt; &lt;character&gt;</span>
@@ -293,7 +293,7 @@ and MatchedGInteractions include:</p><ul><li><p><code>focal(x)</code>: Get focal
 <span class="r-out co"><span class="r-pr">#&gt;</span>   [500]     chr1     868-967      * |     FALSE   7.02681           b</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   -------</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   seqinfo: 1 sequence from an unspecified genome; no seqlengths</span>
-<span class="r-in"><span class="fu"><a href="unmatched.html">unmatched</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="fu"><a href="unmatched.html">unmatched</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> GRanges object with 9500 ranges and 3 metadata columns:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          seqnames      ranges strand |  feature1  feature2    feature3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             &lt;Rle&gt;   &lt;IRanges&gt;  &lt;Rle&gt; | &lt;logical&gt; &lt;numeric&gt; &lt;character&gt;</span>
@@ -310,7 +310,7 @@ and MatchedGInteractions include:</p><ul><li><p><code>focal(x)</code>: Get focal
 <span class="r-out co"><span class="r-pr">#&gt;</span>   [9500]     chr1 10500-10599      * |     FALSE   5.33003           b</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   -------</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   seqinfo: 1 sequence from an unspecified genome; no seqlengths</span>
-<span class="r-in"></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -325,7 +325,7 @@ and MatchedGInteractions include:</p><ul><li><p><code>focal(x)</code>: Get focal
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

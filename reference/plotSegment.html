@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.6</span>
       </span>
     </div>
 
@@ -78,12 +78,12 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">plotSegment</span><span class="op">(</span>
-  <span class="va">seg</span>,
-  exclude <span class="op">=</span> <span class="cn">NULL</span>,
-  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ranges"</span>, <span class="st">"barplot"</span>, <span class="st">"boxplot"</span><span class="op">)</span>,
-  region <span class="op">=</span> <span class="cn">NULL</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">plotSegment</span><span class="op">(</span></span>
+<span>  <span class="va">seg</span>,</span>
+<span>  exclude <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ranges"</span>, <span class="st">"barplot"</span>, <span class="st">"boxplot"</span><span class="op">)</span>,</span>
+<span>  region <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -118,8 +118,8 @@ segmentation GRanges is given, the y axis is default to be 1 for all states in s
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/example.html" class="external-link">example</a></span><span class="op">(</span><span class="st">"segmentDensity"</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/example.html" class="external-link">example</a></span><span class="op">(</span><span class="st">"segmentDensity"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> sgmntD&gt; n &lt;- 10000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -136,11 +136,11 @@ segmentation GRanges is given, the y axis is default to be 1 for all states in s
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> sgmntD&gt; seg &lt;- segmentDensity(gr, n=3, L_s=100, exclude=exclude, type="cbs")</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Analyzing: Sample.1 </span>
-<span class="r-in"><span class="fu">plotSegment</span><span class="op">(</span><span class="va">seg</span>, <span class="va">exclude</span>, type <span class="op">=</span> <span class="st">"ranges"</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="fu">plotSegment</span><span class="op">(</span><span class="va">seg</span>, <span class="va">exclude</span>, type <span class="op">=</span> <span class="st">"ranges"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="plotSegment-1.png" alt="" width="528" height="326"></span>
-<span class="r-in"><span class="fu">plotSegment</span><span class="op">(</span><span class="va">seg</span>, <span class="va">exclude</span>, type <span class="op">=</span> <span class="st">"barplot"</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="fu">plotSegment</span><span class="op">(</span><span class="va">seg</span>, <span class="va">exclude</span>, type <span class="op">=</span> <span class="st">"barplot"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="plotSegment-2.png" alt="" width="528" height="326"></span>
-<span class="r-in"><span class="fu">plotSegment</span><span class="op">(</span><span class="va">seg</span>, <span class="va">exclude</span>, type <span class="op">=</span> <span class="st">"boxplot"</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="fu">plotSegment</span><span class="op">(</span><span class="va">seg</span>, <span class="va">exclude</span>, type <span class="op">=</span> <span class="st">"boxplot"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="plotSegment-3.png" alt="" width="528" height="326"></span>
 </code></pre></div>
     </div>
@@ -156,7 +156,7 @@ segmentation GRanges is given, the y axis is default to be 1 for all states in s
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>
