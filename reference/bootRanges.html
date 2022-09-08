@@ -20,7 +20,7 @@ and iteration and block length indicated by metadata columns"><meta property="og
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.7</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.8</span>
       </span>
     </div>
 
@@ -72,7 +72,7 @@ and iteration and block length indicated by metadata columns"><meta property="og
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Block bootstrap for genomic ranges</h1>
-    <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/HEAD/R/AllClasses.R" class="external-link"><code>R/AllClasses.R</code></a>, <a href="https://github.com/nullranges/nullranges/blob/HEAD/R/bootRanges.R" class="external-link"><code>R/bootRanges.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/HEAD/R/bootRanges.R" class="external-link"><code>R/bootRanges.R</code></a></small>
     <div class="hidden name"><code>bootRanges.Rd</code></div>
     </div>
 
@@ -85,18 +85,6 @@ and iteration and block length indicated by metadata columns</p>
 
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">bootRanges</span><span class="op">(</span></span>
-<span>  <span class="va">y</span>,</span>
-<span>  <span class="va">blockLength</span>,</span>
-<span>  R <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>  seg <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  exclude <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  excludeOption <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"drop"</span>, <span class="st">"trim"</span><span class="op">)</span>,</span>
-<span>  proportionLength <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"bootstrap"</span>, <span class="st">"permute"</span><span class="op">)</span>,</span>
-<span>  withinChrom <span class="op">=</span> <span class="cn">FALSE</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">bootRanges</span><span class="op">(</span></span>
 <span>  <span class="va">y</span>,</span>
 <span>  <span class="va">blockLength</span>,</span>
 <span>  R <span class="op">=</span> <span class="fl">1</span>,</span>
