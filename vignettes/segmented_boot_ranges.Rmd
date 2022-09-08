@@ -353,7 +353,7 @@ by `iter` is general and allows for more complex analysis than just mean
 overlap (e.g. how many times an `x` range has 1 or more overlap, what is
 the mean or max signal value for peaks overlapping ranges in `x`, etc.).
 
-If one is interested in assessing a $\color{brown}{\text{feature-wise}}$ 
+If one is interested in assessing $\color{brown}{\text{feature-wise}}$ 
 statistics instead of $\color{brown}{\text{genome-wise}}$ statistics, 
 eg.,the mean observed number of overlaps per feature or mean base pair 
 overlap in `x`, one can also group by both (`block`,`iter`). 10,000 total 

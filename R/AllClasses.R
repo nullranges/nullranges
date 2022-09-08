@@ -1,7 +1,12 @@
-#' @rdname bootRanges
+#' BootRanges object
+#'
+#' This class extends the GRanges class. It is expected to have
+#' an `iter` metadata column indicating the iterations of the
+#' bootstrap, which are concatenated together.
+#' 
 #' @import methods
 #' @export
-bootRanges <- setClass(
+BootRanges <- setClass(
   Class = "BootRanges",
   contains = "GRanges"
 )
