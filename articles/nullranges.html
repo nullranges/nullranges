@@ -40,7 +40,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.8</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.9</span>
       </span>
     </div>
 
@@ -151,14 +151,15 @@ a null feature set <span class="math inline">\(y'\)</span>
 (<span class="math inline">\(y' \subset z\)</span>), such that <span class="math inline">\(y\)</span> and <span class="math inline">\(y'\)</span> have a similar distribution over
 one or more covariates. This is the “matching” case. Note that the
 features in <span class="math inline">\(y'\)</span> are original
-features, just drawn from a different pool than y.</li>
+features, just drawn from a different pool than y. This method is
+described in <span class="citation">Davis et al. (2022)</span>.</li>
 <li>Generating a new set of genomic features <span class="math inline">\(y'\)</span>, constructing them from the
 original set <span class="math inline">\(y\)</span> by selecting blocks
 of the genome with replacement, i.e. such that features can be sampled
 more than once. This is the “bootstrapping” case. Note that, in this
 case, <span class="math inline">\(y'\)</span> is an artificial
 feature set, although the re-sampled features can retain covariates such
-as score from the original feature set <span class="math inline">\(y\)</span>.</li>
+as score from the original feature set <span class="math inline">\(y\)</span>. This method is described in <span class="citation">Mu et al. (2022)</span>.</li>
 </ol>
 </div>
 <div class="section level3">
@@ -183,8 +184,8 @@ bootstrapping only within states of a segmented genome. We also provide
 a function to segment the genome by density of features. For example,
 supposing that <span class="math inline">\(x\)</span> is a subset of
 genes, we may want to generate <span class="math inline">\(y'\)</span> from <span class="math inline">\(y\)</span> such that features are re-sampled in
-blocks from segments across the genome with similar gene density.<br>
-In both cases, we provide a number of functions for performing quality
+blocks from segments across the genome with similar gene density. In
+both cases, we provide a number of functions for performing quality
 control via visual inspection of diagnostic plots.</p>
 </div>
 <div class="section level3">
@@ -212,6 +213,12 @@ Bickel, Peter J., Nathan Boley, James B. Brown, Haiyan Huang, and Nancy
 R. Zhang. 2010. <span>“Subsampling Methods for Genomic
 Inference.”</span> <em>The Annals of Applied Statistics</em> 4 (4):
 1660–97. <a href="https://doi.org/10.1214/10-%7BAOAS363%7D" class="external-link">https://doi.org/10.1214/10-{AOAS363}</a>.
+</div>
+<div id="ref-matchRanges" class="csl-entry">
+Davis, Eric S., Wancen Mu, Stuart Lee, Mikhail G. Dozmorov, Michael I.
+Love, and Douglas H. Phanstiel. 2022. <span>“matchRanges: Generating
+Null Hypothesis Genomic Ranges via Covariate-Matched Sampling.”</span>
+<em>bioRxiv</em>. <a href="https://doi.org/10.1101/2022.08.05.502985" class="external-link">https://doi.org/10.1101/2022.08.05.502985</a>.
 </div>
 <div id="ref-de_2014" class="csl-entry">
 De, Subhajyoti, Brent S Pedersen, and Katerina Kechris. 2014. <span>“The
@@ -266,6 +273,12 @@ McLean, Cory Y., Dave Bristor, Michael Hiller, Shoa L. Clarke, Bruce T.
 Schaar, Craig B. Lowe, Aaron M. Wenger, and Gill Bejerano. 2010.
 <span>“GREAT Improves Functional Interpretation of Cis-Regulatory
 Regions.”</span> <em>Nature Biotechnology</em> 28 (5): 495–501. <a href="https://doi.org/10.1038/nbt.1630" class="external-link">https://doi.org/10.1038/nbt.1630</a>.
+</div>
+<div id="ref-bootRanges" class="csl-entry">
+Mu, Wancen, Eric S. Davis, Stuart Lee, Mikhail G. Dozmorov, Douglas H.
+Phanstiel, and Michael I. Love. 2022. <span>“bootRanges: Flexible
+Generation of Null Sets of Genomic Ranges for Hypothesis
+Testing.”</span> <em>bioRxiv</em>. <a href="https://doi.org/10.1101/2022.09.02.506382" class="external-link">https://doi.org/10.1101/2022.09.02.506382</a>.
 </div>
 <div id="ref-LOLA" class="csl-entry">
 Sheffield, Nathan C, and Christoph Bock. 2016. <span>“<span>LOLA</span>:

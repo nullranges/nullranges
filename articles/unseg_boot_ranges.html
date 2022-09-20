@@ -40,7 +40,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.8</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.9</span>
       </span>
     </div>
 
@@ -104,7 +104,7 @@
                         <h4 data-toc-skip class="author">Michael
 Love</h4>
             
-            <h4 data-toc-skip class="date">09/08/2022</h4>
+            <h4 data-toc-skip class="date">09/20/2022</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/HEAD/vignettes/unseg_boot_ranges.Rmd" class="external-link"><code>vignettes/unseg_boot_ranges.Rmd</code></a></small>
       <div class="hidden name"><code>unseg_boot_ranges.Rmd</code></div>
@@ -123,7 +123,7 @@ vignette for the alternative implementation.</p>
 </h2>
 <p>First we use the DNase hypersensitivity peaks in A549 downloaded from
 <em>AnnotationHub</em>, and pre-processed as described in the
-<em>nullrangesOldData</em> package.</p>
+<em>nullrangesData</em> package.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">nullrangesData</span><span class="op">)</span></span>
 <span><span class="va">dhs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/nullrangesData/man/DHSA549Hg38.html" class="external-link">DHSA549Hg38</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
@@ -150,11 +150,11 @@ and the default for <code>withinChrom</code> is <code>FALSE</code>
 <span>                        type<span class="op">=</span><span class="st">"bootstrap"</span>, withinChrom<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></span>
 <span>  <span class="op">)</span>, times<span class="op">=</span><span class="fl">10</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Unit: milliseconds</span></span>
-<span><span class="co">##      expr       min        lq      mean    median        uq      max neval</span></span>
-<span><span class="co">##  p_within 1156.7637 1228.6214 1265.5614 1268.0881 1314.4191 1335.100    10</span></span>
-<span><span class="co">##  b_within 1101.8434 1112.4733 1270.6187 1180.6188 1222.5473 2028.763    10</span></span>
-<span><span class="co">##  p_across  241.0522  264.7598  377.4265  274.3169  291.5544 1201.671    10</span></span>
-<span><span class="co">##  b_across  270.9401  276.1046  385.6055  293.0360  311.0261 1208.171    10</span></span></code></pre>
+<span><span class="co">##      expr      min       lq      mean   median        uq       max neval</span></span>
+<span><span class="co">##  p_within 857.8095 879.6126  976.2522 897.7069  916.1520 1693.2535    10</span></span>
+<span><span class="co">##  b_within 778.2867 797.8005 1002.2592 827.0395 1075.5039 1618.6045    10</span></span>
+<span><span class="co">##  p_across 208.3258 219.2241  327.5032 227.6103  263.6580 1064.5738    10</span></span>
+<span><span class="co">##  b_across 239.7374 243.5557  252.2613 244.7382  258.8941  273.2813    10</span></span></code></pre>
 </div>
 <div class="section level2">
 <h2 id="visualize-on-synthetic-data">Visualize on synthetic data<a class="anchor" aria-label="anchor" href="#visualize-on-synthetic-data"></a>
@@ -267,14 +267,14 @@ larger blocks than previously.</p>
 <span><span class="co">## </span></span>
 <span><span class="co">## other attached packages:</span></span>
 <span><span class="co">##  [1] plotgardener_1.3.9          microbenchmark_1.4.9       </span></span>
-<span><span class="co">##  [3] nullranges_1.3.8            nullrangesData_1.3.0       </span></span>
-<span><span class="co">##  [5] InteractionSet_1.25.0       SummarizedExperiment_1.27.2</span></span>
+<span><span class="co">##  [3] nullranges_1.3.9            nullrangesData_1.3.0       </span></span>
+<span><span class="co">##  [5] InteractionSet_1.25.0       SummarizedExperiment_1.27.3</span></span>
 <span><span class="co">##  [7] Biobase_2.57.1              MatrixGenerics_1.9.1       </span></span>
 <span><span class="co">##  [9] matrixStats_0.62.0          GenomicRanges_1.49.1       </span></span>
-<span><span class="co">## [11] GenomeInfoDb_1.33.6         IRanges_2.31.2             </span></span>
-<span><span class="co">## [13] S4Vectors_0.35.3            ExperimentHub_2.5.0        </span></span>
-<span><span class="co">## [15] AnnotationHub_3.5.0         BiocFileCache_2.5.0        </span></span>
-<span><span class="co">## [17] dbplyr_2.2.1                BiocGenerics_0.43.1        </span></span>
+<span><span class="co">## [11] GenomeInfoDb_1.33.7         IRanges_2.31.2             </span></span>
+<span><span class="co">## [13] S4Vectors_0.35.4            ExperimentHub_2.5.0        </span></span>
+<span><span class="co">## [15] AnnotationHub_3.5.1         BiocFileCache_2.5.0        </span></span>
+<span><span class="co">## [17] dbplyr_2.2.1                BiocGenerics_0.43.4        </span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## loaded via a namespace (and not attached):</span></span>
 <span><span class="co">##   [1] colorspace_2.0-3              rjson_0.2.21                 </span></span>
@@ -289,18 +289,18 @@ larger blocks than previously.</p>
 <span><span class="co">##  [19] Rsamtools_2.13.4              png_0.1-7                    </span></span>
 <span><span class="co">##  [21] shiny_1.7.2                   BiocManager_1.30.18          </span></span>
 <span><span class="co">##  [23] compiler_4.2.1                httr_1.4.4                   </span></span>
-<span><span class="co">##  [25] assertthat_0.2.1              Matrix_1.4-1                 </span></span>
-<span><span class="co">##  [27] fastmap_1.1.0                 cli_3.3.0                    </span></span>
+<span><span class="co">##  [25] assertthat_0.2.1              Matrix_1.5-1                 </span></span>
+<span><span class="co">##  [27] fastmap_1.1.0                 cli_3.4.0                    </span></span>
 <span><span class="co">##  [29] later_1.3.0                   htmltools_0.5.3              </span></span>
 <span><span class="co">##  [31] tools_4.2.1                   gtable_0.3.1                 </span></span>
 <span><span class="co">##  [33] glue_1.6.2                    GenomeInfoDbData_1.2.8       </span></span>
 <span><span class="co">##  [35] dplyr_1.0.10                  rappdirs_0.3.3               </span></span>
 <span><span class="co">##  [37] Rcpp_1.0.9                    jquerylib_0.1.4              </span></span>
 <span><span class="co">##  [39] pkgdown_2.0.6                 vctrs_0.4.1                  </span></span>
-<span><span class="co">##  [41] Biostrings_2.65.3             strawr_0.0.9                 </span></span>
-<span><span class="co">##  [43] rtracklayer_1.57.0            xfun_0.32                    </span></span>
+<span><span class="co">##  [41] Biostrings_2.65.6             strawr_0.0.9                 </span></span>
+<span><span class="co">##  [43] rtracklayer_1.57.0            xfun_0.33                    </span></span>
 <span><span class="co">##  [45] stringr_1.4.1                 plyranges_1.17.0             </span></span>
-<span><span class="co">##  [47] mime_0.12                     lifecycle_1.0.1              </span></span>
+<span><span class="co">##  [47] mime_0.12                     lifecycle_1.0.2              </span></span>
 <span><span class="co">##  [49] restfulr_0.0.15               XML_3.99-0.10                </span></span>
 <span><span class="co">##  [51] zlibbioc_1.43.0               MASS_7.3-58.1                </span></span>
 <span><span class="co">##  [53] scales_1.2.1                  ragg_1.2.2                   </span></span>
@@ -309,9 +309,9 @@ larger blocks than previously.</p>
 <span><span class="co">##  [59] curl_4.3.2                    memoise_2.0.1                </span></span>
 <span><span class="co">##  [61] ggplot2_3.3.6                 yulab.utils_0.0.5            </span></span>
 <span><span class="co">##  [63] sass_0.4.2                    stringi_1.7.8                </span></span>
-<span><span class="co">##  [65] RSQLite_2.2.16                highr_0.9                    </span></span>
+<span><span class="co">##  [65] RSQLite_2.2.17                highr_0.9                    </span></span>
 <span><span class="co">##  [67] BiocVersion_3.16.0            BiocIO_1.7.1                 </span></span>
-<span><span class="co">##  [69] desc_1.4.1                    filelock_1.0.2               </span></span>
+<span><span class="co">##  [69] desc_1.4.2                    filelock_1.0.2               </span></span>
 <span><span class="co">##  [71] BiocParallel_1.31.12          rlang_1.0.5                  </span></span>
 <span><span class="co">##  [73] pkgconfig_2.0.3               systemfonts_1.0.4            </span></span>
 <span><span class="co">##  [75] bitops_1.0-7                  pracma_2.3.8                 </span></span>
@@ -320,7 +320,7 @@ larger blocks than previously.</p>
 <span><span class="co">##  [81] ks_1.13.5                     bit_4.0.4                    </span></span>
 <span><span class="co">##  [83] tidyselect_1.1.2              plyr_1.8.7                   </span></span>
 <span><span class="co">##  [85] magrittr_2.0.3                R6_2.5.1                     </span></span>
-<span><span class="co">##  [87] generics_0.1.3                DelayedArray_0.23.1          </span></span>
+<span><span class="co">##  [87] generics_0.1.3                DelayedArray_0.23.2          </span></span>
 <span><span class="co">##  [89] DBI_1.1.3                     pillar_1.8.1                 </span></span>
 <span><span class="co">##  [91] KEGGREST_1.37.3               RCurl_1.98-1.8               </span></span>
 <span><span class="co">##  [93] tibble_3.1.8                  crayon_1.5.1                 </span></span>
@@ -328,7 +328,7 @@ larger blocks than previously.</p>
 <span><span class="co">##  [97] rmarkdown_2.16                grid_4.2.1                   </span></span>
 <span><span class="co">##  [99] data.table_1.14.2             blob_1.2.3                   </span></span>
 <span><span class="co">## [101] digest_0.6.29                 xtable_1.8-4                 </span></span>
-<span><span class="co">## [103] httpuv_1.6.5                  gridGraphics_0.5-1           </span></span>
+<span><span class="co">## [103] httpuv_1.6.6                  gridGraphics_0.5-1           </span></span>
 <span><span class="co">## [105] textshaping_0.3.6             munsell_0.5.0                </span></span>
 <span><span class="co">## [107] ggplotify_0.1.0               bslib_0.4.0</span></span></code></pre>
 </div>
