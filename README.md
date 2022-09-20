@@ -24,6 +24,26 @@ This package can be installed via Bioconductor:
 BiocManager::install("nullranges")
 ```
 
+## Manuscripts
+
+*matchRanges* manuscript:
+
+Eric S. Davis, Wancen Mu, Stuart Lee, Mikhail G. Dozmorov,
+Michael I. Love, Douglas H. Phanstiel. (2022)
+"matchRanges: Generating null hypothesis genomic ranges
+via covariate-matched sampling."
+*bioRxiv*
+[doi: 10.1101/2022.08.05.502985](https://doi.org/10.1101/2022.08.05.502985)
+
+*bootRanges* manuscript:
+
+Wancen Mu, Eric S. Davis, Stuart Lee, Mikhail G. Dozmorov,
+Douglas H. Phanstiel, Michael I. Love.
+(2022) "bootRanges: Flexible generation of null sets
+of genomic ranges for hypothesis testing."
+*bioRxiv*
+[doi: 10.1101/2022.09.02.506382](https://doi.org/10.1101/2022.09.02.506382)
+
 ## Tidy Ranges Tutorial
 
 Additional tutorial material for performing

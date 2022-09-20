@@ -35,6 +35,7 @@ the [Case study I: CTCF occupancy](matching_granges.html),
 and [Case study II: CTCF orientation](matching_ginteractions.html)
 vignettes.
 
+For a description of the method, see @matchRanges.
 
 ```{r, message=FALSE, warning=FALSE, echo=FALSE, fig.width=8.5, fig.height=6.5}
 

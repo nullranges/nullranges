@@ -62,7 +62,15 @@ br <- bootRanges(gr, blockLength=10)
 
 }
 \references{
-Method describing the segmented block bootstrap for genomic features:
+bootRanges manuscript:
+
+Wancen Mu, Eric S. Davis, Stuart Lee, Mikhail G. Dozmorov,
+Douglas H. Phanstiel, Michael I. Love.
+2022. "bootRanges: Flexible generation of null sets
+of genomic ranges for hypothesis testing."
+bioRxiv. doi: 10.1101/2022.09.02.506382
+
+Original method describing the segmented block bootstrap for genomic features:
 
 Bickel, Peter J., Nathan Boley, James B. Brown,
 Haiyan Huang, and Nancy R. Zhang.

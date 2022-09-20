@@ -1,0 +1,37 @@
+citHeader("To cite matchRanges or bootRanges in publications use:")
+
+citEntry(entry = "Article",
+         title        = "matchRanges: Generating null hypothesis genomic ranges via covariate-matched sampling",
+         author       = personList(as.person("Eric S Davis"),
+                                   as.person("Wancen Mu"),
+                                   as.person("Stuart Lee"),
+                                   as.person("Mikhail G Dozmorov"),
+                                   as.person("Michael I Love"),
+                                   as.person("Douglas H Phanstiel")),
+         journal      = "bioRxiv",
+         year         = "2022",
+         doi          = "10.1101/2022.08.05.502985",
+
+         textVersion  = paste("Eric S Davis, Wancen Mu, Stuart Lee, Mikhail G Dozmorov, Michael I Love, Douglas H Phanstiel. (2022).",
+                              "matchRanges: Generating null hypothesis genomic ranges via covariate-matched sampling",
+                              "biorxiv,",
+                              "<doi:10.1101/2022.08.05.502985>.")
+)
+
+citEntry(entry = "Article",
+         title        = "bootRanges: Flexible generation of null sets of genomic ranges for hypothesis testing",
+         author       = personList(as.person("Wancen Mu"),
+                                   as.person("Eric S Davis"),
+                                   as.person("Stuart Lee"),
+                                   as.person("Mikhail G Dozmorov"),
+                                   as.person("Douglas H Phanstiel"),
+                                   as.person("Michael I Love")),
+         journal      = "bioRxiv",
+         year         = "2022",
+         doi          = "10.1101/2022.09.02.506382",
+
+         textVersion  = paste("Wancen Mu, Eric S Davis, Stuart Lee, Mikhail G Dozmorov, Douglas H Phanstiel, Michael I Love. (2022).",
+                              "bootRanges: Flexible generation of null sets of genomic ranges for hypothesis testing",
+                              "biorxiv,",
+                              "<doi:10.1101/2022.09.02.506382>.")
+)

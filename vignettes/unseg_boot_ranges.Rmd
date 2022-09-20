@@ -26,7 +26,7 @@ vignette for the alternative implementation.
 
 First we use the DNase hypersensitivity peaks in A549 downloaded from
 *AnnotationHub*, and pre-processed as described in the
-*nullrangesOldData* package.
+*nullrangesData* package.
 
 ```{r message=FALSE}
 library(nullrangesData)

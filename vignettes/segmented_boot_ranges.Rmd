@@ -36,6 +36,8 @@ blocks. The original block bootstrapping algorithm is implemented in a
 python software called Genome Structure Correlation,
 [GSC](https://github.com/ParkerLab/encodegsc).
 
+Our description of the *bootRanges* methods is described in @bootRanges.
+
 In a segmented block bootstrap, the blocks are sampled and placed within
 regions of a genome *segmentation*. That is, for a genome segmented into
 states 1,2,...,S, blocks from state *s* will be used to tile the ranges

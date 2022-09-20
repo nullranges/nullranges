@@ -487,6 +487,16 @@ matchRanges_MatchedDataFrame <- function(focal, pool, covar, method, replace) {
 #' @param ... Additional arguments.
 #'
 #' @return A covariate-matched control set of data.
+#'
+#' @references
+#'
+#' matchRanges manuscript:
+#'
+#' Eric S. Davis, Wancen Mu, Stuart Lee, Mikhail G. Dozmorov,
+#' Michael I. Love, Douglas H. Phanstiel. 2022.
+#' "matchRanges: Generating null hypothesis genomic ranges
+#' via covariate-matched sampling."
+#' bioRxiv. doi: 10.1101/2022.08.05.502985
 #' 
 #' @examples 
 #' ## Match with DataFrame
