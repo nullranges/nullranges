@@ -2,6 +2,7 @@
 title: "Overview of matchRanges"
 author: "Eric S. Davis"
 date: "`r format(Sys.Date(), '%m/%d/%Y')`"
+bibliography: library.bib
 output:
   rmarkdown::html_document:
     highlight: tango
@@ -532,3 +533,5 @@ methods (e.g.s `seqnames`, `resize`, etc...).
 ```{r}
 sessionInfo()
 ```
+# References
+

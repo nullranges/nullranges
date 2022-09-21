@@ -56,15 +56,17 @@ features in $y'$ may be characterized by:
 1. Drawing from a larger pool $z$ ($y' \subset z$), such that $y$ and
    $y'$ have a similar distribution over one or more covariates. This
    is the "matching" case. Note that the features in $y'$ are original
-   features, just drawn from a different pool than y. This method is
-   described in @matchRanges.
+   features, just drawn from a different pool than y. The
+   *matchRanges* method is described in @matchRanges
+   [doi: 10.1101/2022.08.05.502985](https://doi.org/10.1101/2022.08.05.502985).
 2. Generating a new set of genomic features $y'$, constructing them
    from the original set $y$ by selecting blocks of the genome with
    replacement, i.e. such that features can be sampled more than once.
    This is the "bootstrapping" case. Note that, in this case, $y'$ is an
    artificial feature set, although the re-sampled features can retain
    covariates such as score from the original feature set $y$.
-   This method is described in @bootRanges.
+   The *bootRanges* method is described in @bootRanges
+   [doi: 10.1101/2022.09.02.506382](https://doi.org/10.1101/2022.09.02.506382).
 
 ## In other words
 
