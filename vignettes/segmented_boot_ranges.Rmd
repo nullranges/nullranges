@@ -20,7 +20,7 @@ editor_options:
 # Overview 
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(fig.width=5, fig.height=5)
+knitr::opts_chunk$set(fig.width=5, fig.height=5, message=FALSE, warning=FALSE)
 ```
 
 The following vignette describes the *nullranges* implementation of the
@@ -90,14 +90,33 @@ at the end of this vignette.
 
 # Import excluded regions
 
-$\color{brown}{\text{To avoid placing bootstrap features into regions of the genome that don’t typically have features}}$. We import excluded regions including ENCODE-produced excludable
-regions[@encode_exclude], telomeres from UCSC, centromeres [@rCGH]. For
-easy use, pre-combined excludable regions is stored in *ExperimentHub.*
+$\color{brown}{\text{To avoid placing bootstrap features into regions of the genome that don’t 
+typically have features}}$, we import excluded regions including ENCODE-produced 
+excludable regions[@encode_exclude], telomeres from UCSC, centromeres. These,
+and other excludable sets, are assembled in the [excluderanges](https://dozmorovlab.github.io/excluderanges/)
+package [@excluderanges].
+
+```{r excluderanges}
+suppressPackageStartupMessages(library(AnnotationHub))
+ah <- AnnotationHub()
+# hg38.Kundaje.GRCh38_unified_Excludable
+exclude_1 <- ah[["AH107305"]]
+# hg38.UCSC.centromere
+exclude_2 <- ah[["AH107354"]]
+# hg38.UCSC.telomere
+exclude_3 <- ah[["AH107355"]]
+# hg38.UCSC.short_arm
+exclude_4 <- ah[["AH107356"]]
+# combine them
+exclude <- reduce(c(exclude_1, exclude_2, exclude_3, exclude_4)) %>% sort()
+```
+
+<!--For easy use, pre-combined excludable regions is stored in *ExperimentHub.*
 These steps using *excluderanges* package [@excluderanges] are included
 in *nullrangesData* in the `inst/scripts/make-segmentation-hg38.R`
-script.
+script.-->
 
-```{r, message=FALSE, warning=FALSE}
+```{r, message=FALSE, warning=FALSE, eval=FALSE, echo=FALSE}
 suppressPackageStartupMessages(library(ExperimentHub))
 eh = ExperimentHub()
 # query(eh, "nullrangesdata")
@@ -113,6 +132,8 @@ segmentations using *CBS* or *HMM* methods with $L_s=2e6$ considering excludable
 regions can be selected from *ExperimentHub*.
 
 ```{r, message=FALSE, warning=FALSE}
+suppressPackageStartupMessages(library(ExperimentHub))
+eh = ExperimentHub()
 seg_cbs <- eh[["EH7307"]]
 seg_hmm <- eh[["EH7308"]]
 seg <- seg_cbs
