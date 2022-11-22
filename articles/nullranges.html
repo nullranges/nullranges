@@ -40,7 +40,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.10</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.5.2</span>
       </span>
     </div>
 
@@ -97,7 +97,8 @@
 
       
 
-      </header><div class="row">
+      </header><script src="nullranges_files/htmlwidgets-1.5.4/htmlwidgets.js"></script><script src="nullranges_files/viz-1.8.2/viz.js"></script><link href="nullranges_files/DiagrammeR-styles-0.2/styles.css" rel="stylesheet">
+<script src="nullranges_files/grViz-binding-1.0.9/grViz.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Introduction to nullranges</h1>
@@ -112,14 +113,54 @@
     
 <p>The <em>nullranges</em> package contains functions for generation of
 feature sets (genomic regions) for exploring the null hypothesis of
-overlap or colocalization of two observed feature sets.</p>
-<p>The package has two branches of functionality: <em>matching</em> or
-<em>bootstrapping</em> to generate null feature sets. The decision about
-which approach to use is ultimately up to the bioinformatics analyst.
-Here we describe the two different approaches briefly. For a listing of
-all the vignettes in the package, one can type:</p>
+overlap or colocalization of two observed feature sets. This package
+contains a number of vignettes describing different functionality, from
+basic to more advanced usage. For a listing of all the vignettes in the
+package, one can type:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/vignette.html" class="external-link">vignette</a></span><span class="op">(</span>package<span class="op">=</span><span class="st">"nullranges"</span><span class="op">)</span></span></code></pre></div>
+<div class="section level3">
+<h3 id="choice-of-methods">Choice of methods<a class="anchor" aria-label="anchor" href="#choice-of-methods"></a>
+</h3>
+<p>The <em>nullranges</em> package has two branches of functionality:
+<em>matching</em> or <em>bootstrapping</em> to generate null feature
+sets.</p>
+<p>In the vignette sections below we describe these two branches and
+give more formal definitions, where each branch has associated vignettes
+and man page sections. To give a high level overview, we first provide a
+<strong>decision tree</strong> that helps to indicate the considerations
+when choosing between these branches of functionality.</p>
+<p>Given a set of features under consideration, suppose that we wish to
+create an alternate set that represents a null feature set, sometimes
+also referred to as “background” or a “control set”. For example, we may
+see that our primary features are close to gene start sites, but are
+they closer than we would expect compared to a reasonable choice of
+null/background/control features?</p>
+<p>Our choice of methods is informed by the following:</p>
+<ul>
+<li>Are the features defined with respect to a pool, e.g. open chromatin
+sites bound by a protein, defined with respect to all open chromatin in
+a particular cell type?</li>
+<li>Are there important, potentially confounding covariates, e.g. does
+GC content, distance to particular landmarks, expression level, LD
+score, etc. potentially explain distribution of features in a way that
+should be controlled for in downstream analysis?</li>
+<li>Do the primary feature set and pool have different distribution of
+these potential confounding covariates?</li>
+<li>Does the spatial context matter in the analysis, e.g. are we asking
+if primary features are <em>near in the genome</em> to the gene start
+sites or some other genomic feature set?</li>
+<li>Do the features tend to cluster spatially in the genome, e.g. open
+chromatin sites tend to occur near each other, and/or do features that
+are near each other in the genome tend to have similar metadata of
+interest to the biological question, e.g. CpG near each other having
+similar levels of methylation, which will be used in downstream
+computations of average methylation near gene start site?</li>
+</ul>
+<p>The following decision tree then informs what methods to choose:</p>
+<div id="htmlwidget-e15451d003c61e20f7c9" style="width:528px;height:500px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-e15451d003c61e20f7c9">{"x":{"diagram":"digraph {\n  graph [layout = dot, rankdir = TB]\n  \n  node [shape = rectangle]        \n  source [label = \"Features defined with respect to a pool\"]\n  poolyes [label = \"Yes\"]\n  poolno [label =  \"No\"]\n  cov [label = \"Potential confounding covariates\"]\n  covyes [label = \"Yes\"]\n  covno [label = \"No\"]\n  diffcov [label = \"Different covariate distribution\"]\n  diffcovyes [label = \"Yes\"]\n  diffcovno [label =  \"No\"]\n  match [label = \"matchRanges\"]\n  random [label = \"Random sample\"]\n  spatial [label = \"Spatial context matters\"]\n  spatialyes [label = \"Yes\"]\n  spatialno [label = \"No\"]\n  cluster [label = \"Features cluster in genome\"]\n  random2 [label = \"Random sample\"]\n  clusteryes [label = \"Yes\"]\n  clusterno [label = \"No\"]\n  boot [label = \"bootRanges\"]\n  shuffle [label = \"Shuffle + exclusion\"]\n\n  source -> poolyes\n  source -> poolno\n  poolyes -> cov\n  cov -> covyes\n  cov -> covno\n  covyes -> diffcov\n  covno -> random\n  diffcov -> diffcovyes\n  diffcov -> diffcovno\n  diffcovyes -> match\n  diffcovno -> random\n  poolno -> spatial\n  spatial -> spatialyes\n  spatial -> spatialno\n  spatialyes -> cluster\n  spatialno -> random2\n  cluster -> clusteryes\n  cluster -> clusterno\n  clusteryes -> boot\n  clusterno -> shuffle\n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+</div>
 <div class="section level3">
 <h3 id="related-work">Related work<a class="anchor" aria-label="anchor" href="#related-work"></a>
 </h3>
@@ -139,7 +180,7 @@ R/Bioconductor with efficient vectorized code for operation on
 2013)</span>.</p>
 </div>
 <div class="section level3">
-<h3 id="brief-description-of-methods">Brief description of methods<a class="anchor" aria-label="anchor" href="#brief-description-of-methods"></a>
+<h3 id="further-description-of-matching-and-bootstrapping">Further description of matching and bootstrapping<a class="anchor" aria-label="anchor" href="#further-description-of-matching-and-bootstrapping"></a>
 </h3>
 <p>Suppose we want to examine the significance of overlaps of genomic
 sets of features <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span>. To test the significance of this
@@ -171,7 +212,8 @@ described in <span class="citation">Mu et al. (2022)</span> <a href="https://doi
 </h3>
 <ol style="list-style-type: decimal">
 <li>Matching – drawing from a pool of features but controlling for
-certain characteristics</li>
+certain characteristics, or <em>covariates</em>
+</li>
 <li>Bootstrapping – placing a number of artificial features in the
 genome but controlling for their spatial distribution</li>
 </ol>
