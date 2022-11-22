@@ -111,18 +111,6 @@ exclude_4 <- ah[["AH107356"]]
 exclude <- reduce(c(exclude_1, exclude_2, exclude_3, exclude_4)) %>% sort()
 ```
 
-<!--For easy use, pre-combined excludable regions is stored in *ExperimentHub.*
-These steps using *excluderanges* package [@excluderanges] are included
-in *nullrangesData* in the `inst/scripts/make-segmentation-hg38.R`
-script.-->
-
-```{r, message=FALSE, warning=FALSE, eval=FALSE, echo=FALSE}
-suppressPackageStartupMessages(library(ExperimentHub))
-eh = ExperimentHub()
-# query(eh, "nullrangesdata")
-exclude <- eh[["EH7306"]]
-```
-
 # Pre-built segmentations
 
 *nullranges* has generated pre-built segmentations for easy use by
@@ -133,7 +121,7 @@ regions can be selected from *ExperimentHub*.
 
 ```{r, message=FALSE, warning=FALSE}
 suppressPackageStartupMessages(library(ExperimentHub))
-eh = ExperimentHub()
+eh <- ExperimentHub()
 seg_cbs <- eh[["EH7307"]]
 seg_hmm <- eh[["EH7308"]]
 seg <- seg_cbs
