@@ -1,6 +1,6 @@
 Package: nullranges
 Title: Generation of null ranges via bootstrapping or covariate matching
-Version: 1.5.0
+Version: 1.5.1
 Authors@R: c(
     person("Michael", "Love", role = c("aut", "cre"),
       email = "michaelisaiahlove@gmail.com",
@@ -42,7 +42,8 @@ Suggests:
     plotgardener,
     magrittr,
     tidyr,
-    cobalt
+    cobalt,
+    DiagrammeR
 Imports:
     stats,
     IRanges,

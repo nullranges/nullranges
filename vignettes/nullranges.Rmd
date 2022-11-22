@@ -11,16 +11,106 @@ vignette: |
 
 The *nullranges* package contains functions for generation of feature
 sets (genomic regions) for exploring the null hypothesis of overlap or 
-colocalization of two observed feature sets.
-
-The package has two branches of functionality: *matching* or
-*bootstrapping* to generate null feature sets. The decision about
-which approach to use is ultimately up to the bioinformatics analyst.
-Here we describe the two different approaches briefly. For a listing
-of all the vignettes in the package, one can type:
+colocalization of two observed feature sets. This package contains a
+number of vignettes describing different functionality, from basic to
+more advanced usage.
+For a listing of all the vignettes in the package, one can type:
 
 ```{r eval=FALSE}
 vignette(package="nullranges")
+```
+
+## Choice of methods
+
+The *nullranges* package has two branches of functionality: *matching*
+or *bootstrapping* to generate null feature sets. 
+
+In the vignette sections below we describe these two branches and give
+more formal definitions, where each branch has associated vignettes
+and man page sections.
+To give a high level overview, we first provide a **decision tree**
+that helps to indicate the considerations when choosing between these
+branches of functionality. 
+
+Given a set of features under consideration, suppose that we wish to
+create an alternate set that represents a null feature set, sometimes
+also referred to as "background" or a "control set". For example, we
+may see that our primary features are close to gene start sites, but
+are they closer than we would expect compared to a reasonable choice
+of null/background/control features?
+
+Our choice of methods is informed by the following:
+
+* Are the features defined with respect to a pool, e.g. open chromatin
+  sites bound by a protein, defined with respect to all open
+  chromatin in a particular cell type?
+* Are there important, potentially confounding covariates, e.g. does
+  GC content, distance to particular landmarks, expression level, LD
+  score, etc. potentially explain distribution of features in a way
+  that should be controlled for in downstream analysis?
+* Do the primary feature set and pool have different distribution of
+  these potential confounding covariates?
+* Does the spatial context matter in the analysis, e.g. are we asking
+  if primary features are *near in the genome* to the gene start sites
+  or some other genomic feature set?
+* Do the features tend to cluster spatially in the genome, e.g. open
+  chromatin sites tend to occur near each other, and/or do features
+  that are near each other in the genome tend to have similar metadata
+  of interest to the biological question, e.g. CpG near each other
+  having similar levels of methylation, which will be used in
+  downstream computations of average methylation near gene start
+  site?
+
+The following decision tree then informs what methods to choose:
+
+```{r nullranges-diagram, echo=FALSE}
+DiagrammeR::grViz("digraph {
+  graph [layout = dot, rankdir = TB]
+  
+  node [shape = rectangle]        
+  source [label = 'Features defined with respect to a pool']
+  poolyes [label = 'Yes']
+  poolno [label =  'No']
+  cov [label = 'Potential confounding covariates']
+  covyes [label = 'Yes']
+  covno [label = 'No']
+  diffcov [label = 'Different covariate distribution']
+  diffcovyes [label = 'Yes']
+  diffcovno [label =  'No']
+  match [label = 'matchRanges']
+  random [label = 'Random sample']
+  spatial [label = 'Spatial context matters']
+  spatialyes [label = 'Yes']
+  spatialno [label = 'No']
+  cluster [label = 'Features cluster in genome']
+  random2 [label = 'Random sample']
+  clusteryes [label = 'Yes']
+  clusterno [label = 'No']
+  boot [label = 'bootRanges']
+  shuffle [label = 'Shuffle + exclusion']
+
+  source -> poolyes
+  source -> poolno
+  poolyes -> cov
+  cov -> covyes
+  cov -> covno
+  covyes -> diffcov
+  covno -> random
+  diffcov -> diffcovyes
+  diffcov -> diffcovno
+  diffcovyes -> match
+  diffcovno -> random
+  poolno -> spatial
+  spatial -> spatialyes
+  spatial -> spatialno
+  spatialyes -> cluster
+  spatialno -> random2
+  cluster -> clusteryes
+  cluster -> clusterno
+  clusteryes -> boot
+  clusterno -> shuffle
+}", height = 500)
+
 ```
 
 ## Related work
@@ -45,7 +135,7 @@ additional features/visualizations, and is re-implemented within
 R/Bioconductor with efficient vectorized code for operation on 
 *GRanges* objects [@granges].
 
-## Brief description of methods
+## Further description of matching and bootstrapping
 
 Suppose we want to examine the significance of overlaps
 of genomic sets of features $x$ and $y$. To test the significance of
@@ -71,7 +161,7 @@ features in $y'$ may be characterized by:
 ## In other words
 
 1. Matching -- drawing from a pool of features but controlling for 
-   certain characteristics
+   certain characteristics, or *covariates*
 2. Bootstrapping -- placing a number of artificial features in the 
    genome but controlling for their spatial distribution
 

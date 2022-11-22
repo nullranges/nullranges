@@ -13,8 +13,11 @@ inter-operable with other packages for analysis of genomic overlap
 enrichment, including the *plyranges* Bioconductor package.
 
 An overview vignette can be found at the `Get started` tab above,
-while detailed vignettes on matching or bootstrapping can be found
-under `Articles`. The `Reference` tab lists function help pages.
+including a **decision tree** informing which type of methods may be
+most appropriate, whether *matching* or *bootstrapping*.
+
+Detailed vignettes on matching or bootstrapping can be found under
+`Articles`. The `Reference` tab lists function help pages. 
 
 ## Installation
 
