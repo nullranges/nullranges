@@ -40,7 +40,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.5.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.5.3</span>
       </span>
     </div>
 
@@ -130,12 +130,18 @@ give more formal definitions, where each branch has associated vignettes
 and man page sections. To give a high level overview, we first provide a
 <strong>decision tree</strong> that helps to indicate the considerations
 when choosing between these branches of functionality.</p>
-<p>Given a set of features under consideration, suppose that we wish to
-create an alternate set that represents a null feature set, sometimes
-also referred to as “background” or a “control set”. For example, we may
-see that our primary features are close to gene start sites, but are
-they closer than we would expect compared to a reasonable choice of
-null/background/control features?</p>
+<p>Define <strong>features</strong> as a set of genomic locations of
+interest, these are minimally a chromosome, start and width (1 bp or
+more), and optionally strand and metadata. Given a set of features,
+suppose that we wish to create an alternate set that represents a null
+feature set, sometimes also referred to as “background” or a “control
+set”. For example, we may see that our primary features are close to
+gene start sites, but are they closer than we would expect compared to a
+reasonable choice of null/background/control features?</p>
+<p>Additionally, define <strong>pool</strong> as a much larger set of
+genomic locations compare the features, and <strong>covariates</strong>
+as pieces of metadata attached to the features (stored as
+<code><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">mcols()</a></code>).</p>
 <p>Our choice of methods is informed by the following:</p>
 <ul>
 <li>Are the features defined with respect to a pool, e.g. open chromatin
@@ -147,19 +153,21 @@ score, etc. potentially explain distribution of features in a way that
 should be controlled for in downstream analysis?</li>
 <li>Do the primary feature set and pool have different distribution of
 these potential confounding covariates?</li>
-<li>Does the spatial context matter in the analysis, e.g. are we asking
-if primary features are <em>near in the genome</em> to the gene start
-sites or some other genomic feature set?</li>
-<li>Do the features tend to cluster spatially in the genome, e.g. open
-chromatin sites tend to occur near each other, and/or do features that
-are near each other in the genome tend to have similar metadata of
-interest to the biological question, e.g. CpG near each other having
-similar levels of methylation, which will be used in downstream
-computations of average methylation near gene start site?</li>
+<li>Does the local genomic context matter (<em>local</em> defined in
+genomic coordinate space)? Are we asking if primary features are
+<em>near in the genome</em> to the gene start sites or some other
+genomic feature set?</li>
+<li>Do the features tend to be distributed in genomic coordinate space
+such that they are clustered, e.g. open chromatin sites tend to occur
+near each other? Or do features that are near each other in the genome
+tend to have similar metadata of interest to the biological question,
+e.g. CpG’s near each other having similar levels of methylation, which
+will be used in downstream computations of average methylation near gene
+start site?</li>
 </ul>
 <p>The following decision tree then informs what methods to choose:</p>
-<div id="htmlwidget-e15451d003c61e20f7c9" style="width:528px;height:500px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-e15451d003c61e20f7c9">{"x":{"diagram":"digraph {\n  graph [layout = dot, rankdir = TB]\n  \n  node [shape = rectangle]        \n  source [label = \"Features defined with respect to a pool\"]\n  poolyes [label = \"Yes\"]\n  poolno [label =  \"No\"]\n  cov [label = \"Potential confounding covariates\"]\n  covyes [label = \"Yes\"]\n  covno [label = \"No\"]\n  diffcov [label = \"Different covariate distribution\"]\n  diffcovyes [label = \"Yes\"]\n  diffcovno [label =  \"No\"]\n  match [label = \"matchRanges\"]\n  random [label = \"Random sample\"]\n  spatial [label = \"Spatial context matters\"]\n  spatialyes [label = \"Yes\"]\n  spatialno [label = \"No\"]\n  cluster [label = \"Features cluster in genome\"]\n  random2 [label = \"Random sample\"]\n  clusteryes [label = \"Yes\"]\n  clusterno [label = \"No\"]\n  boot [label = \"bootRanges\"]\n  shuffle [label = \"Shuffle + exclusion\"]\n\n  source -> poolyes\n  source -> poolno\n  poolyes -> cov\n  cov -> covyes\n  cov -> covno\n  covyes -> diffcov\n  covno -> random\n  diffcov -> diffcovyes\n  diffcov -> diffcovno\n  diffcovyes -> match\n  diffcovno -> random\n  poolno -> spatial\n  spatial -> spatialyes\n  spatial -> spatialno\n  spatialyes -> cluster\n  spatialno -> random2\n  cluster -> clusteryes\n  cluster -> clusterno\n  clusteryes -> boot\n  clusterno -> shuffle\n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-cef6ca780446a4ad3dc3" style="width:528px;height:500px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-cef6ca780446a4ad3dc3">{"x":{"diagram":"digraph {\n  graph [layout = dot, rankdir = TB]\n  \n  node [shape = rectangle]        \n  source [label = \"Features defined with respect to a pool\"]\n  poolyes [label = \"Yes\"]\n  poolno [label =  \"No\"]\n  cov [label = \"Potential confounding covariates\"]\n  covyes [label = \"Yes\"]\n  covno [label = \"No\"]\n  diffcov [label = \"Different covariate distribution\"]\n  diffcovyes [label = \"Yes\"]\n  diffcovno [label =  \"No\"]\n  match [label = \"matchRanges\"]\n  random [label = \"Random sample\"]\n  context [label = \"Local genomic context matters\"]\n  contextyes [label = \"Yes\"]\n  contextno [label = \"No\"]\n  cluster [label = \"Features cluster in genome\"]\n  random2 [label = \"Random sample\"]\n  clusteryes [label = \"Yes\"]\n  clusterno [label = \"No\"]\n  boot [label = \"bootRanges\"]\n  shuffle [label = \"Shuffle + exclusion\"]\n\n  source -> poolyes\n  source -> poolno\n  poolyes -> cov\n  cov -> covyes\n  cov -> covno\n  covyes -> diffcov\n  covno -> random\n  diffcov -> diffcovyes\n  diffcov -> diffcovno\n  diffcovyes -> match\n  diffcovno -> random\n  poolno -> context\n  context -> contextyes\n  context -> contextno\n  contextyes -> cluster\n  contextno -> random2\n  cluster -> clusteryes\n  cluster -> clusterno\n  clusteryes -> boot\n  clusterno -> shuffle\n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 </div>
 <div class="section level3">
 <h3 id="related-work">Related work<a class="anchor" aria-label="anchor" href="#related-work"></a>
@@ -169,15 +177,30 @@ segmentation for enrichment or colocalization analysis, consider the
 papers of <span class="citation">De, Pedersen, and Kechris
 (2014)</span>, <span class="citation">Haiminen, Mannila, and Terzi
 (2007)</span>, <span class="citation">Huen and Russell (2010)</span>,
-and <span class="citation">Kanduri et al. (2019)</span> (with links in
-references below). Other Bioconductor packages that offer randomization
-techniques for enrichment analysis include <a href="https://bioconductor.org/packages/LOLA" class="external-link">LOLA</a> <span class="citation">(Sheffield and Bock 2016)</span> and <a href="https://bioconductor.org/packages/regioneR" class="external-link">regioneR</a> <span class="citation">(Gel et al. 2016)</span>. Methods implemented outside
-of Bioconductor include <a href="https://github.com/AndreasHeger/gat" class="external-link">GAT</a> <span class="citation">(Heger et al. 2013)</span>, <a href="https://github.com/ParkerLab/encodegsc" class="external-link">GSC</a> <span class="citation">(Bickel et al. 2010)</span>, <a href="http://bejerano.stanford.edu/great/public/html/" class="external-link">GREAT</a> <span class="citation">(McLean et al. 2010)</span>, <a href="https://github.com/favorov/GenometriCorr" class="external-link">GenometriCorr</a> <span class="citation">(Favorov et al. 2012)</span>, or <a href="http://chip-enrich.med.umich.edu/" class="external-link">ChIP-Enrich</a> <span class="citation">(Welch et al. 2014)</span>. We note that our block
-bootstrapping approach closely follows that of <a href="https://github.com/ParkerLab/encodegsc" class="external-link">GSC</a>, while offering
+<span class="citation">Ferkingstad, Holden, and Sandve (2015)</span>,
+<span class="citation">Dozmorov (2017)</span>, <span class="citation">Kanduri et al. (2019)</span> (with links in references
+below). Other Bioconductor packages that offer randomization techniques
+for enrichment analysis include <a href="https://bioconductor.org/packages/LOLA" class="external-link">LOLA</a> <span class="citation">(Sheffield and Bock 2016)</span> and <a href="https://bioconductor.org/packages/regioneR" class="external-link">regioneR</a> <span class="citation">(Gel et al. 2016)</span>. Methods implemented outside
+of Bioconductor include <a href="https://github.com/AndreasHeger/gat" class="external-link">GAT</a> <span class="citation">(Heger et al. 2013)</span>, <a href="https://github.com/ParkerLab/encodegsc" class="external-link">GSC</a> <span class="citation">(Bickel et al. 2010)</span>, <a href="http://bejerano.stanford.edu/great/public/html/" class="external-link">GREAT</a> <span class="citation">(McLean et al. 2010)</span>, <a href="https://github.com/favorov/GenometriCorr" class="external-link">GenometriCorr</a> <span class="citation">(Favorov et al. 2012)</span>, <a href="http://chip-enrich.med.umich.edu/" class="external-link">ChIP-Enrich</a> <span class="citation">(Welch et al. 2014)</span>, and <a href="https://dputhier.github.io/pygtftk/ologram.html" class="external-link">OLOGRAM</a> <span class="citation">(Ferré et al. 2019)</span>.</p>
+<p>We note that our block bootstrapping approach closely follows that of
+<a href="https://github.com/ParkerLab/encodegsc" class="external-link">GSC</a>, while offering
 additional features/visualizations, and is re-implemented within
-R/Bioconductor with efficient vectorized code for operation on
-<em>GRanges</em> objects <span class="citation">(Lawrence
-2013)</span>.</p>
+R/Bioconductor with efficient vectorized code for working with
+<em>GRanges</em> objects <span class="citation">(Lawrence 2013)</span>.
+In addition, <em>regioneR</em> and <em>OLOGRAM</em> also offer
+randomization schemes that can preserve e.g. inter-feature
+distances.</p>
+<p>In the context of these related works, a design choice of
+<em>nullranges</em> is its modularity: it solely generates null or
+background feature sets as Bioconductor objects, such that these can be
+used in workflows that compute and perform inference on arbitrary
+statistics within the <em>plyranges</em> <span class="citation">(Stuart
+Lee, Cook, and Lawrence 2019)</span> framework. We have referred to such
+workflows as “fluent genomics” <span class="citation">(S. Lee, Lawrence,
+and Love 2020)</span>, or “tidy genomics”, as these workflows build up
+complex operations from commonly recognized verbs (filter, mutate, join,
+group by, summarize, etc.) strung together with pipes
+(<code>%&gt;%</code>).</p>
 </div>
 <div class="section level3">
 <h3 id="further-description-of-matching-and-bootstrapping">Further description of matching and bootstrapping<a class="anchor" aria-label="anchor" href="#further-description-of-matching-and-bootstrapping"></a>
@@ -215,7 +238,9 @@ described in <span class="citation">Mu et al. (2022)</span> <a href="https://doi
 certain characteristics, or <em>covariates</em>
 </li>
 <li>Bootstrapping – placing a number of artificial features in the
-genome but controlling for their spatial distribution</li>
+genome but controlling for the local dependence among features
+(e.g. features clustering in the genome and/or having correlated
+metadata)</li>
 </ol>
 </div>
 <div class="section level3">
@@ -240,10 +265,9 @@ control via visual inspection of diagnostic plots.</p>
 <p>Finally, we recommend to incorporate list of regions where artificial
 features should <em>not</em> be placed, including the ENCODE Exclusion
 List <span class="citation">(Amemiya, Kundaje, and Boyle 2019)</span>.
-This and other excluded ranges are made available in the
-<em>excluderanges</em> Bioconductor package by Mikhail Dozmorov. Use of
-excluded ranges is demonstrated in the segmented block bootstrap
-vignette.</p>
+This and other excluded ranges are made available in the <a href="https://dozmorovlab.github.io/excluderanges/" class="external-link">excluderanges</a>
+Bioconductor package by Mikhail Dozmorov <em>et al.</em> <span class="citation">(Ogata et al. 2022)</span>. Use of excluded ranges is
+demonstrated in the segmented block bootstrap vignette.</p>
 </div>
 <div class="section level2">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
@@ -272,12 +296,29 @@ Dilemma of Choosing the Ideal Permutation Strategy While Estimating
 Statistical Significance of Genome-Wide Enrichment.”</span>
 <em>Briefings in Bioinformatics</em> 15 (6): 919–28. <a href="https://doi.org/10.1093/bib/bbt053" class="external-link">https://doi.org/10.1093/bib/bbt053</a>.
 </div>
+<div id="ref-dozmorov2017" class="csl-entry">
+Dozmorov, Mikhail G. 2017. <span>“<span class="nocase">Epigenomic
+annotation-based interpretation of genomic data: from enrichment
+analysis to machine learning</span>.”</span> <em>Bioinformatics</em> 33
+(20): 3323–30. <a href="https://doi.org/10.1093/bioinformatics/btx414" class="external-link">https://doi.org/10.1093/bioinformatics/btx414</a>.
+</div>
 <div id="ref-GenometriCorr" class="csl-entry">
 Favorov, Alexander, Loris Mularoni, Leslie M Cope, Yulia Medvedeva,
 Andrey A Mironov, Vsevolod J Makeev, and Sarah J Wheelan. 2012.
 <span>“Exploring Massive, Genome Scale Datasets with the
 <span>GenometriCorr</span> Package.”</span> <em><span>PLoS</span>
 Computational Biology</em> 8 (5): e1002529. <a href="https://doi.org/10.1371/journal.pcbi.1002529" class="external-link">https://doi.org/10.1371/journal.pcbi.1002529</a>.
+</div>
+<div id="ref-ferkingstad2015" class="csl-entry">
+Ferkingstad, Egil, Lars Holden, and Geir Kjetil Sandve. 2015.
+<span>“<span class="nocase">Monte Carlo Null Models for Genomic
+Data</span>.”</span> <em>Statistical Science</em> 30 (1): 59–71. <a href="https://doi.org/10.1214/14-STS484" class="external-link">https://doi.org/10.1214/14-STS484</a>.
+</div>
+<div id="ref-ologram" class="csl-entry">
+Ferré, Q, G Charbonnier, N Sadouni, F Lopez, Y Kermezli, S Spicuglia, C
+Capponi, B Ghattas, and D Puthier. 2019. <span>“<span class="nocase">OLOGRAM: determining significance of total overlap length
+between genomic regions sets</span>.”</span> <em>Bioinformatics</em> 36
+(6): 1920–22. <a href="https://doi.org/10.1093/bioinformatics/btz810" class="external-link">https://doi.org/10.1093/bioinformatics/btz810</a>.
 </div>
 <div id="ref-regioneR" class="csl-entry">
 Gel, Bernat, Anna Díez-Villanueva, Eduard Serra, Marcus Buschbeck,
@@ -314,6 +355,16 @@ Lawrence, Wolfgang AND Pagès, Michael AND Huber. 2013. <span>“Software
 for Computing and Annotating Genomic Ranges.”</span> <em>PLOS
 Computational Biology</em> 9 (8): 1–10. <a href="https://doi.org/10.1371/journal.pcbi.1003118" class="external-link">https://doi.org/10.1371/journal.pcbi.1003118</a>.
 </div>
+<div id="ref-fluent" class="csl-entry">
+Lee, S, M Lawrence, and MI Love. 2020. <span>“Fluent Genomics
+with Plyranges and Tximeta [Version 1; Peer Review: 1 Approved, 2
+Approved with Reservations].”</span> <em>F1000Research</em> 9 (109). <a href="https://doi.org/10.12688/f1000research.22259.1" class="external-link">https://doi.org/10.12688/f1000research.22259.1</a>.
+</div>
+<div id="ref-Lee2019" class="csl-entry">
+Lee, Stuart, Dianne Cook, and Michael Lawrence. 2019. <span>“Plyranges:
+A Grammar of Genomic Data Transformation.”</span> <em>Genome
+Biology</em> 20 (1): 4. <a href="https://doi.org/10.1186/s13059-018-1597-8" class="external-link">https://doi.org/10.1186/s13059-018-1597-8</a>.
+</div>
 <div id="ref-GREAT" class="csl-entry">
 McLean, Cory Y., Dave Bristor, Michael Hiller, Shoa L. Clarke, Bruce T.
 Schaar, Craig B. Lowe, Aaron M. Wenger, and Gill Bejerano. 2010.
@@ -325,6 +376,13 @@ Mu, Wancen, Eric S. Davis, Stuart Lee, Mikhail G. Dozmorov, Douglas H.
 Phanstiel, and Michael I. Love. 2022. <span>“bootRanges: Flexible
 Generation of Null Sets of Genomic Ranges for Hypothesis
 Testing.”</span> <em>bioRxiv</em>. <a href="https://doi.org/10.1101/2022.09.02.506382" class="external-link">https://doi.org/10.1101/2022.09.02.506382</a>.
+</div>
+<div id="ref-excluderanges" class="csl-entry">
+Ogata, Jonathan D., Wancen Mu, Eric S. Davis, Bingjie Xue, J. Chuck
+Harrell, Nathan C. Sheffield, Douglas H. Phanstiel, Michael I. Love, and
+Mikhail G. Dozmorov. 2022. <span>“Excluderanges: Exclusion Sets for
+T2T-CHM13, GRCm39, and Other Genome Assemblies.”</span>
+<em>bioRxiv</em>. <a href="https://doi.org/10.1101/2022.11.21.517407" class="external-link">https://doi.org/10.1101/2022.11.21.517407</a>.
 </div>
 <div id="ref-LOLA" class="csl-entry">
 Sheffield, Nathan C, and Christoph Bock. 2016. <span>“<span>LOLA</span>:
