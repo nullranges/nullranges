@@ -43,8 +43,10 @@ than we would expect compared to a reasonable choice of
 null/background/control features?
 
 Additionally, define **pool** as a much larger set of genomic
-locations compare the features, and **covariates** as pieces of
-metadata attached to the features (stored as `mcols()`).
+locations compared to the primary features, and **covariates** as
+pieces of metadata attached to all of the considered features (stored
+as `mcols(<GRanges>)`, which may be continuous, integer, factor,
+etc.).
 
 Our choice of methods is informed by the following:
 
