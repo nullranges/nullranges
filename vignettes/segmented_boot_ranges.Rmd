@@ -90,11 +90,13 @@ at the end of this vignette.
 
 # Import excluded regions
 
-$\color{brown}{\text{To avoid placing bootstrap features into regions of the genome that don’t 
-typically have features}}$, we import excluded regions including ENCODE-produced 
-excludable regions[@encode_exclude], telomeres from UCSC, centromeres. These,
-and other excludable sets, are assembled in the [excluderanges](https://dozmorovlab.github.io/excluderanges/)
-package [@excluderanges].
+$\color{brown}{\text{To avoid placing bootstrap features into regions
+of the genome that don’t typically have features}}$, we import
+excluded regions including ENCODE-produced excludable
+regions[@encode_exclude], telomeres from UCSC, centromeres. These, and
+other excludable sets, are assembled in the
+[excluderanges](https://dozmorovlab.github.io/excluderanges/) package
+[@excluderanges].
 
 ```{r excluderanges}
 suppressPackageStartupMessages(library(AnnotationHub))
@@ -404,7 +406,7 @@ microbenchmark(
 
 Below we present a toy example for visualizing the segmented block
 bootstrap. First, we define a helper function for plotting *GRanges*
-using *plotgardener* [@Kramer2021]. A key aspect here is that we color
+using *plotgardener* [@Kramer2022]. A key aspect here is that we color
 the original and bootstrapped ranges by the genomic state (the state of
 the segmentation that the original ranges fall in).
 

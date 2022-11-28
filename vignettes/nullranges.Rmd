@@ -30,14 +30,21 @@ more formal definitions, where each branch has associated vignettes
 and man page sections.
 To give a high level overview, we first provide a **decision tree**
 that helps to indicate the considerations when choosing between these
-branches of functionality. 
+branches of functionality.
 
-Given a set of features under consideration, suppose that we wish to
-create an alternate set that represents a null feature set, sometimes
-also referred to as "background" or a "control set". For example, we
-may see that our primary features are close to gene start sites, but
-are they closer than we would expect compared to a reasonable choice
-of null/background/control features?
+Define **features** as a set of genomic locations of interest, these
+are minimally a chromosome, start and width (1 bp or more), and
+optionally strand and metadata.
+Given a set of features, suppose that we wish to create an alternate
+set that represents a null feature set, sometimes also referred to as
+"background" or a "control set". For example, we may see that our
+primary features are close to gene start sites, but are they closer
+than we would expect compared to a reasonable choice of
+null/background/control features?
+
+Additionally, define **pool** as a much larger set of genomic
+locations compare the features, and **covariates** as pieces of
+metadata attached to the features (stored as `mcols()`).
 
 Our choice of methods is informed by the following:
 
@@ -50,16 +57,17 @@ Our choice of methods is informed by the following:
   that should be controlled for in downstream analysis?
 * Do the primary feature set and pool have different distribution of
   these potential confounding covariates?
-* Does the spatial context matter in the analysis, e.g. are we asking
-  if primary features are *near in the genome* to the gene start sites
-  or some other genomic feature set?
-* Do the features tend to cluster spatially in the genome, e.g. open
-  chromatin sites tend to occur near each other, and/or do features
-  that are near each other in the genome tend to have similar metadata
-  of interest to the biological question, e.g. CpG near each other
-  having similar levels of methylation, which will be used in
-  downstream computations of average methylation near gene start
-  site?
+* Does the local genomic context matter (*local* defined in genomic
+  coordinate space)? Are we asking if primary features are 
+  *near in the genome* to the gene start sites or some other genomic
+  feature set?
+* Do the features tend to be distributed in genomic coordinate space
+  such that they are clustered, e.g. open chromatin sites tend to
+  occur near each other?  Or do features that are near each other in
+  the genome tend to have similar metadata of interest to the
+  biological question, e.g. CpG's near each other having similar
+  levels of methylation, which will be used in downstream computations
+  of average methylation near gene start site?
 
 The following decision tree then informs what methods to choose:
 
@@ -79,9 +87,9 @@ DiagrammeR::grViz("digraph {
   diffcovno [label =  'No']
   match [label = 'matchRanges']
   random [label = 'Random sample']
-  spatial [label = 'Spatial context matters']
-  spatialyes [label = 'Yes']
-  spatialno [label = 'No']
+  context [label = 'Local genomic context matters']
+  contextyes [label = 'Yes']
+  contextno [label = 'No']
   cluster [label = 'Features cluster in genome']
   random2 [label = 'Random sample']
   clusteryes [label = 'Yes']
@@ -100,11 +108,11 @@ DiagrammeR::grViz("digraph {
   diffcov -> diffcovno
   diffcovyes -> match
   diffcovno -> random
-  poolno -> spatial
-  spatial -> spatialyes
-  spatial -> spatialno
-  spatialyes -> cluster
-  spatialno -> random2
+  poolno -> context
+  context -> contextyes
+  context -> contextno
+  contextyes -> cluster
+  contextno -> random2
   cluster -> clusteryes
   cluster -> clusterno
   clusteryes -> boot
@@ -117,23 +125,43 @@ DiagrammeR::grViz("digraph {
 
 For general considerations of generation of null feature sets or
 segmentation for enrichment or colocalization analysis, consider the
-papers of @de_2014, @haiminen_2007,
-@huen_2010, and @kanduri_2019 (with links in references below).
+papers of
+@de_2014,
+@haiminen_2007,
+@huen_2010,
+@ferkingstad2015,
+@dozmorov2017,
+@kanduri_2019 
+(with links in references below).
 Other Bioconductor packages that offer randomization techniques for 
 enrichment analysis include 
 [LOLA](https://bioconductor.org/packages/LOLA) [@LOLA] and 
 [regioneR](https://bioconductor.org/packages/regioneR) [@regioneR]. 
-Methods implemented outside of Bioconductor include 
+Methods implemented outside of Bioconductor include
 [GAT](https://github.com/AndreasHeger/gat) [@GAT],
 [GSC](https://github.com/ParkerLab/encodegsc) [@bickel_2010],
 [GREAT](http://bejerano.stanford.edu/great/public/html/) [@GREAT],
 [GenometriCorr](https://github.com/favorov/GenometriCorr) [@GenometriCorr],
-or [ChIP-Enrich](http://chip-enrich.med.umich.edu/) [@ChIP-Enrich].
+[ChIP-Enrich](http://chip-enrich.med.umich.edu/) [@ChIP-Enrich],
+and [OLOGRAM](https://dputhier.github.io/pygtftk/ologram.html) [@ologram].
+
 We note that our block bootstrapping approach closely follows that of 
 [GSC](https://github.com/ParkerLab/encodegsc), while offering
 additional features/visualizations, and is re-implemented within
-R/Bioconductor with efficient vectorized code for operation on 
-*GRanges* objects [@granges].
+R/Bioconductor with efficient vectorized code for working with
+*GRanges* objects [@granges]. In addition, *regioneR* and *OLOGRAM*
+also offer randomization schemes that can preserve e.g. inter-feature
+distances.
+
+In the context of these related works, a design choice of *nullranges*
+is its modularity: it solely generates null or background feature sets
+as Bioconductor objects, such that these can be used in workflows that
+compute and perform inference on arbitrary statistics within the
+*plyranges* [@Lee2019] framework. We have referred to such workflows
+as "fluent genomics" [@fluent], or "tidy genomics", as these workflows
+build up complex operations from commonly recognized verbs (filter,
+mutate, join, group by, summarize, etc.) strung together with pipes
+(`%>%`).
 
 ## Further description of matching and bootstrapping
 
@@ -163,7 +191,9 @@ features in $y'$ may be characterized by:
 1. Matching -- drawing from a pool of features but controlling for 
    certain characteristics, or *covariates*
 2. Bootstrapping -- placing a number of artificial features in the 
-   genome but controlling for their spatial distribution
+   genome but controlling for the local dependence among features
+   (e.g. features clustering in the genome and/or having correlated
+   metadata)
 
 ## Options and features
 
@@ -185,7 +215,8 @@ control via visual inspection of diagnostic plots.
 Finally, we recommend to incorporate list of regions where artificial
 features should *not* be placed, including the ENCODE Exclusion List
 [@encode_exclude]. This and other excluded ranges are made available
-in the *excluderanges* Bioconductor package by Mikhail Dozmorov. 
+in the [excluderanges](https://dozmorovlab.github.io/excluderanges/)
+Bioconductor package by Mikhail Dozmorov *et al.* [@excluderanges].
 Use of excluded ranges is demonstrated in the segmented block bootstrap
 vignette.
 

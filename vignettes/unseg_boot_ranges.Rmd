@@ -79,9 +79,9 @@ gr <- GRanges(seqnames=seq_nms,
               chr=factor(seq_nms))
 ```
 
-The following function uses functionality from *plotgardener* to plot
-the ranges. Note in the plotting helper function that `chr` will be used
-to color ranges by chromosome of origin.
+The following function uses functionality from *plotgardener* [@Kramer2022]
+to plot the ranges. Note in the plotting helper function that `chr`
+will be used to color ranges by chromosome of origin.
 
 ```{r}
 suppressPackageStartupMessages(library(plotgardener))
