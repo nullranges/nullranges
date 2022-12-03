@@ -27,6 +27,21 @@ This package can be installed via Bioconductor:
 BiocManager::install("nullranges")
 ```
 
+Installing nullranges and all of its dependencies on Mac or Windows
+with binaries will be very fast (a minute or so).
+
+For installing on Ubuntu, note that many *nullranges* packages are
+available as binaries, which greatly speeds up installation.
+Follow the instructions for 
+[r2u](https://eddelbuettel.github.io/r2u/), 
+then install the following via `apt`:
+
+```
+r-cran-tidyverse r-cran-ks r-cran-speedglm r-cran-data.table 
+r-cran-progress r-cran-ggridges r-cran-biocmanager 
+r-bioc-rtracklayer r-bioc-genomicalignments r-bioc-interactionset
+```
+
 ## Manuscripts
 
 *matchRanges* manuscript:
