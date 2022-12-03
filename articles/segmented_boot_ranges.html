@@ -103,7 +103,7 @@
       <h1 data-toc-skip>Segmented block bootstrap</h1>
                         <h4 data-toc-skip class="author">Wancen Mu</h4>
             
-            <h4 data-toc-skip class="date">11/28/2022</h4>
+            <h4 data-toc-skip class="date">12/03/2022</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/HEAD/vignettes/segmented_boot_ranges.Rmd" class="external-link"><code>vignettes/segmented_boot_ranges.Rmd</code></a></small>
       <div class="hidden name"><code>segmented_boot_ranges.Rmd</code></div>
@@ -531,9 +531,9 @@ below for visualization of the difference).</p>
 <span>    no_prop <span class="op">=</span> <span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">dhs</span>, <span class="va">blockLength</span>, seg <span class="op">=</span> <span class="va">seg</span>, proportionLength <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="op">)</span>, times<span class="op">=</span><span class="fl">10</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Unit: milliseconds</span></span>
-<span><span class="co">##     expr     min      lq     mean   median      uq      max neval</span></span>
-<span><span class="co">##     prop 85.4475 85.7731 87.95444 87.70385 89.5993  91.6790    10</span></span>
-<span><span class="co">##  no_prop 78.4706 79.1539 82.47266 79.83945 82.7446 100.3006    10</span></span></code></pre>
+<span><span class="co">##     expr     min      lq     mean   median      uq     max neval</span></span>
+<span><span class="co">##     prop 77.5598 78.1753 80.08144 80.02145 81.6847 83.6021    10</span></span>
+<span><span class="co">##  no_prop 71.5142 71.8502 75.02165 72.52145 75.6840 90.9746    10</span></span></code></pre>
 </div>
 <div class="section level2">
 <h2 id="visualizing-toy-bootstrap-samples">Visualizing toy bootstrap samples<a class="anchor" aria-label="anchor" href="#visualizing-toy-bootstrap-samples"></a>
@@ -676,14 +676,14 @@ block.</p>
 <span><span class="co">## [17] SummarizedExperiment_1.28.0 Biobase_2.58.0             </span></span>
 <span><span class="co">## [19] MatrixGenerics_1.10.0       matrixStats_0.63.0         </span></span>
 <span><span class="co">## [21] ExperimentHub_2.6.0         GenomicRanges_1.50.1       </span></span>
-<span><span class="co">## [23] GenomeInfoDb_1.34.3         IRanges_2.32.0             </span></span>
+<span><span class="co">## [23] GenomeInfoDb_1.34.4         IRanges_2.32.0             </span></span>
 <span><span class="co">## [25] S4Vectors_0.36.0            AnnotationHub_3.6.0        </span></span>
 <span><span class="co">## [27] BiocFileCache_2.6.0         dbplyr_2.2.1               </span></span>
 <span><span class="co">## [29] BiocGenerics_0.44.0        </span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## loaded via a namespace (and not attached):</span></span>
 <span><span class="co">##   [1] systemfonts_1.0.4             RcppHMM_1.2.2                </span></span>
-<span><span class="co">##   [3] lazyeval_0.2.2                BiocParallel_1.32.3          </span></span>
+<span><span class="co">##   [3] lazyeval_0.2.2                BiocParallel_1.32.4          </span></span>
 <span><span class="co">##   [5] digest_0.6.30                 yulab.utils_0.0.5            </span></span>
 <span><span class="co">##   [7] htmltools_0.5.3               fansi_1.0.3                  </span></span>
 <span><span class="co">##   [9] magrittr_2.0.3                memoise_2.0.1                </span></span>
@@ -705,7 +705,7 @@ block.</p>
 <span><span class="co">##  [41] speedglm_0.3-4                ellipsis_0.3.2               </span></span>
 <span><span class="co">##  [43] pkgconfig_2.0.3               XML_3.99-0.12                </span></span>
 <span><span class="co">##  [45] farver_2.1.1                  sass_0.4.4                   </span></span>
-<span><span class="co">##  [47] utf8_1.2.2                    DNAcopy_1.72.0               </span></span>
+<span><span class="co">##  [47] utf8_1.2.2                    DNAcopy_1.72.1               </span></span>
 <span><span class="co">##  [49] ggplotify_0.1.0               tidyselect_1.2.0             </span></span>
 <span><span class="co">##  [51] labeling_0.4.2                rlang_1.0.6                  </span></span>
 <span><span class="co">##  [53] later_1.3.0                   munsell_0.5.0                </span></span>
@@ -720,7 +720,7 @@ block.</p>
 <span><span class="co">##  [71] pracma_2.4.2                  xml2_1.3.3                   </span></span>
 <span><span class="co">##  [73] biomaRt_2.54.0                compiler_4.2.2               </span></span>
 <span><span class="co">##  [75] filelock_1.0.2                curl_4.3.3                   </span></span>
-<span><span class="co">##  [77] png_0.1-7                     interactiveDisplayBase_1.36.0</span></span>
+<span><span class="co">##  [77] png_0.1-8                     interactiveDisplayBase_1.36.0</span></span>
 <span><span class="co">##  [79] tibble_3.1.8                  bslib_0.4.1                  </span></span>
 <span><span class="co">##  [81] stringi_1.7.8                 highr_0.9                    </span></span>
 <span><span class="co">##  [83] desc_1.4.2                    lattice_0.20-45              </span></span>
