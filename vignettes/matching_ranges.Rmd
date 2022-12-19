@@ -336,9 +336,14 @@ while categorical features are plotted as stacked bar plots. All sets
 are also shown by default. Defaults can be overridden by setting the
 `type` and `sets` arguments. 
 
-Results from `matchRanges` can also be used
-in conjunction with `cobalt` for assessing covariate balance. For an example
-see [Using `cobalt` to assess balancing](#using_cobalt).
+Results from `matchRanges` can also be used in conjunction with `cobalt`
+for assessing covariate balance. We recommend using `cobalt` to calculate
+and report summary statistics to indicate adequately matched sets.
+For more detail on assessing covariate balance, refer to the detailed
+documentation on this topic in the `cobalt` vignette:
+`vignette("cobalt", package = "cobalt")`. For an example on how to use
+`cobalt` with `matchRanges` see 
+[Using `cobalt` to assess balancing](#using_cobalt).
 
 ### Accessing matched data
 
@@ -391,6 +396,7 @@ res <- bal.tab(f.build("set", covariates(mgr)),
 res
 love.plot(res)
 ```
+
 
 ## Choosing the `method` parameter
 
