@@ -97,7 +97,7 @@
 
       
 
-      </header><script src="nullranges_files/htmlwidgets-1.5.4/htmlwidgets.js"></script><script src="nullranges_files/viz-1.8.2/viz.js"></script><link href="nullranges_files/DiagrammeR-styles-0.2/styles.css" rel="stylesheet">
+      </header><script src="nullranges_files/htmlwidgets-1.6.0/htmlwidgets.js"></script><script src="nullranges_files/viz-1.8.2/viz.js"></script><link href="nullranges_files/DiagrammeR-styles-0.2/styles.css" rel="stylesheet">
 <script src="nullranges_files/grViz-binding-1.0.9/grViz.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
@@ -167,8 +167,8 @@ will be used in downstream computations of average methylation near gene
 start site?</li>
 </ul>
 <p>The following decision tree then informs what methods to choose:</p>
-<div id="htmlwidget-a66566e9af1d3d62bbe5" style="width:528px;height:500px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-a66566e9af1d3d62bbe5">{"x":{"diagram":"digraph {\n  graph [layout = dot, rankdir = TB]\n  \n  node [shape = rectangle]        \n  source [label = \"Features defined with respect to a pool\"]\n  poolyes [label = \"Yes\"]\n  poolno [label =  \"No\"]\n  cov [label = \"Potential confounding covariates\"]\n  covyes [label = \"Yes\"]\n  covno [label = \"No\"]\n  diffcov [label = \"Different covariate distribution\"]\n  diffcovyes [label = \"Yes\"]\n  diffcovno [label =  \"No\"]\n  match [label = \"matchRanges\"]\n  random [label = \"Random sample\"]\n  context [label = \"Local genomic context matters\"]\n  contextyes [label = \"Yes\"]\n  contextno [label = \"No\"]\n  cluster [label = \"Features cluster in genome\"]\n  random2 [label = \"Random sample\"]\n  clusteryes [label = \"Yes\"]\n  clusterno [label = \"No\"]\n  boot [label = \"bootRanges\"]\n  shuffle [label = \"Shuffle + exclusion\"]\n\n  source -> poolyes\n  source -> poolno\n  poolyes -> cov\n  cov -> covyes\n  cov -> covno\n  covyes -> diffcov\n  covno -> random\n  diffcov -> diffcovyes\n  diffcov -> diffcovno\n  diffcovyes -> match\n  diffcovno -> random\n  poolno -> context\n  context -> contextyes\n  context -> contextno\n  contextyes -> cluster\n  contextno -> random2\n  cluster -> clusteryes\n  cluster -> clusterno\n  clusteryes -> boot\n  clusterno -> shuffle\n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-12fd6464b7baa25ad69e" style="width:528px;height:500px;" class="grViz html-widget "></div>
+<script type="application/json" data-for="htmlwidget-12fd6464b7baa25ad69e">{"x":{"diagram":"digraph {\n  graph [layout = dot, rankdir = TB]\n  \n  node [shape = rectangle]        \n  source [label = \"Features defined with respect to a pool\"]\n  poolyes [label = \"Yes\"]\n  poolno [label =  \"No\"]\n  cov [label = \"Potential confounding covariates\"]\n  covyes [label = \"Yes\"]\n  covno [label = \"No\"]\n  diffcov [label = \"Different covariate distribution\"]\n  diffcovyes [label = \"Yes\"]\n  diffcovno [label =  \"No\"]\n  match [label = \"matchRanges\"]\n  random [label = \"Random sample\"]\n  context [label = \"Local genomic context matters\"]\n  contextyes [label = \"Yes\"]\n  contextno [label = \"No\"]\n  cluster [label = \"Features cluster in genome\"]\n  random2 [label = \"Random sample\"]\n  clusteryes [label = \"Yes\"]\n  clusterno [label = \"No\"]\n  boot [label = \"bootRanges\"]\n  shuffle [label = \"Shuffle + exclusion\"]\n\n  source -> poolyes\n  source -> poolno\n  poolyes -> cov\n  cov -> covyes\n  cov -> covno\n  covyes -> diffcov\n  covno -> random\n  diffcov -> diffcovyes\n  diffcov -> diffcovno\n  diffcovyes -> match\n  diffcovno -> random\n  poolno -> context\n  context -> contextyes\n  context -> contextno\n  contextyes -> cluster\n  contextno -> random2\n  cluster -> clusteryes\n  cluster -> clusterno\n  clusteryes -> boot\n  clusterno -> shuffle\n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 </div>
 <div class="section level3">
 <h3 id="related-work">Related work<a class="anchor" aria-label="anchor" href="#related-work"></a>
@@ -418,7 +418,7 @@ e105–5. <a href="https://doi.org/10.1093/nar/gku463" class="external-link">htt
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer>

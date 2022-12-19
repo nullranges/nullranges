@@ -103,7 +103,7 @@
       <h1 data-toc-skip>Segmented block bootstrap</h1>
                         <h4 data-toc-skip class="author">Wancen Mu</h4>
             
-            <h4 data-toc-skip class="date">12/12/2022</h4>
+            <h4 data-toc-skip class="date">12/19/2022</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/HEAD/vignettes/segmented_boot_ranges.Rmd" class="external-link"><code>vignettes/segmented_boot_ranges.Rmd</code></a></small>
       <div class="hidden name"><code>segmented_boot_ranges.Rmd</code></div>
@@ -531,9 +531,9 @@ below for visualization of the difference).</p>
 <span>    no_prop <span class="op">=</span> <span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">dhs</span>, <span class="va">blockLength</span>, seg <span class="op">=</span> <span class="va">seg</span>, proportionLength <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="op">)</span>, times<span class="op">=</span><span class="fl">10</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Unit: milliseconds</span></span>
-<span><span class="co">##     expr     min      lq     mean   median      uq      max neval</span></span>
-<span><span class="co">##     prop 85.7843 86.5531 88.32609 88.09145 89.2318  93.2042    10</span></span>
-<span><span class="co">##  no_prop 79.1964 79.8042 84.73016 80.78875 83.4492 112.5215    10</span></span></code></pre>
+<span><span class="co">##     expr      min       lq     mean    median       uq      max neval</span></span>
+<span><span class="co">##     prop 103.8382 105.8078 107.5346 107.36020 109.7141 110.6452    10</span></span>
+<span><span class="co">##  no_prop  96.3728  97.5318 104.1126  99.30535 101.6751 133.9390    10</span></span></code></pre>
 </div>
 <div class="section level2">
 <h2 id="visualizing-toy-bootstrap-samples">Visualizing toy bootstrap samples<a class="anchor" aria-label="anchor" href="#visualizing-toy-bootstrap-samples"></a>
@@ -671,11 +671,11 @@ block.</p>
 <span><span class="co">##  [7] patchwork_1.1.2             plyranges_1.18.0           </span></span>
 <span><span class="co">##  [9] nullranges_1.5.6            EnsDb.Hsapiens.v86_2.99.0  </span></span>
 <span><span class="co">## [11] ensembldb_2.22.0            AnnotationFilter_1.22.0    </span></span>
-<span><span class="co">## [13] GenomicFeatures_1.50.2      AnnotationDbi_1.60.0       </span></span>
+<span><span class="co">## [13] GenomicFeatures_1.50.3      AnnotationDbi_1.60.0       </span></span>
 <span><span class="co">## [15] nullrangesData_1.4.0        InteractionSet_1.26.0      </span></span>
 <span><span class="co">## [17] SummarizedExperiment_1.28.0 Biobase_2.58.0             </span></span>
 <span><span class="co">## [19] MatrixGenerics_1.10.0       matrixStats_0.63.0         </span></span>
-<span><span class="co">## [21] ExperimentHub_2.6.0         GenomicRanges_1.50.1       </span></span>
+<span><span class="co">## [21] ExperimentHub_2.6.0         GenomicRanges_1.50.2       </span></span>
 <span><span class="co">## [23] GenomeInfoDb_1.34.4         IRanges_2.32.0             </span></span>
 <span><span class="co">## [25] S4Vectors_0.36.1            AnnotationHub_3.6.0        </span></span>
 <span><span class="co">## [27] BiocFileCache_2.6.0         dbplyr_2.2.1               </span></span>
@@ -688,7 +688,7 @@ block.</p>
 <span><span class="co">##   [7] htmltools_0.5.4               fansi_1.0.3                  </span></span>
 <span><span class="co">##   [9] magrittr_2.0.3                memoise_2.0.1                </span></span>
 <span><span class="co">##  [11] ks_1.14.0                     Biostrings_2.66.0            </span></span>
-<span><span class="co">##  [13] pkgdown_2.0.6                 prettyunits_1.1.1            </span></span>
+<span><span class="co">##  [13] pkgdown_2.0.7                 prettyunits_1.1.1            </span></span>
 <span><span class="co">##  [15] colorspace_2.0-3              blob_1.2.3                   </span></span>
 <span><span class="co">##  [17] rappdirs_0.3.3                textshaping_0.3.6            </span></span>
 <span><span class="co">##  [19] xfun_0.35                     dplyr_1.0.10                 </span></span>
@@ -705,14 +705,14 @@ block.</p>
 <span><span class="co">##  [41] speedglm_0.3-4                ellipsis_0.3.2               </span></span>
 <span><span class="co">##  [43] pkgconfig_2.0.3               XML_3.99-0.13                </span></span>
 <span><span class="co">##  [45] farver_2.1.1                  sass_0.4.4                   </span></span>
-<span><span class="co">##  [47] utf8_1.2.2                    DNAcopy_1.72.1               </span></span>
+<span><span class="co">##  [47] utf8_1.2.2                    DNAcopy_1.72.2               </span></span>
 <span><span class="co">##  [49] ggplotify_0.1.0               tidyselect_1.2.0             </span></span>
 <span><span class="co">##  [51] labeling_0.4.2                rlang_1.0.6                  </span></span>
 <span><span class="co">##  [53] later_1.3.0                   munsell_0.5.0                </span></span>
 <span><span class="co">##  [55] BiocVersion_3.16.0            tools_4.2.2                  </span></span>
 <span><span class="co">##  [57] cachem_1.0.6                  cli_3.4.1                    </span></span>
 <span><span class="co">##  [59] generics_0.1.3                RSQLite_2.2.19               </span></span>
-<span><span class="co">##  [61] evaluate_0.18                 stringr_1.5.0                </span></span>
+<span><span class="co">##  [61] evaluate_0.19                 stringr_1.5.0                </span></span>
 <span><span class="co">##  [63] fastmap_1.1.0                 yaml_2.3.6                   </span></span>
 <span><span class="co">##  [65] ragg_1.2.4                    knitr_1.41                   </span></span>
 <span><span class="co">##  [67] bit64_4.0.5                   fs_1.5.2                     </span></span>
@@ -721,14 +721,14 @@ block.</p>
 <span><span class="co">##  [73] biomaRt_2.54.0                compiler_4.2.2               </span></span>
 <span><span class="co">##  [75] filelock_1.0.2                curl_4.3.3                   </span></span>
 <span><span class="co">##  [77] png_0.1-8                     interactiveDisplayBase_1.36.0</span></span>
-<span><span class="co">##  [79] tibble_3.1.8                  bslib_0.4.1                  </span></span>
+<span><span class="co">##  [79] tibble_3.1.8                  bslib_0.4.2                  </span></span>
 <span><span class="co">##  [81] stringi_1.7.8                 highr_0.9                    </span></span>
 <span><span class="co">##  [83] desc_1.4.2                    lattice_0.20-45              </span></span>
 <span><span class="co">##  [85] ProtGenerics_1.30.0           Matrix_1.5-3                 </span></span>
 <span><span class="co">##  [87] vctrs_0.5.1                   pillar_1.8.1                 </span></span>
 <span><span class="co">##  [89] lifecycle_1.0.3               BiocManager_1.30.19          </span></span>
 <span><span class="co">##  [91] jquerylib_0.1.4               data.table_1.14.6            </span></span>
-<span><span class="co">##  [93] bitops_1.0-7                  httpuv_1.6.6                 </span></span>
+<span><span class="co">##  [93] bitops_1.0-7                  httpuv_1.6.7                 </span></span>
 <span><span class="co">##  [95] rtracklayer_1.58.0            R6_2.5.1                     </span></span>
 <span><span class="co">##  [97] BiocIO_1.8.0                  promises_1.2.0.1             </span></span>
 <span><span class="co">##  [99] KernSmooth_2.23-20            codetools_0.2-18             </span></span>
@@ -737,8 +737,8 @@ block.</p>
 <span><span class="co">## [105] withr_2.5.0                   GenomicAlignments_1.34.0     </span></span>
 <span><span class="co">## [107] Rsamtools_2.14.0              GenomeInfoDbData_1.2.9       </span></span>
 <span><span class="co">## [109] parallel_4.2.2                hms_1.1.2                    </span></span>
-<span><span class="co">## [111] grid_4.2.2                    rmarkdown_2.18               </span></span>
-<span><span class="co">## [113] shiny_1.7.3                   restfulr_0.0.15</span></span></code></pre>
+<span><span class="co">## [111] grid_4.2.2                    rmarkdown_2.19               </span></span>
+<span><span class="co">## [113] shiny_1.7.4                   restfulr_0.0.15</span></span></code></pre>
 </div>
 <div class="section level2">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
@@ -823,7 +823,7 @@ Ensembl-based annotation resources</span>.”</span>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer>

@@ -104,7 +104,7 @@
                         <h4 data-toc-skip class="author">Eric S.
 Davis</h4>
             
-            <h4 data-toc-skip class="date">12/12/2022</h4>
+            <h4 data-toc-skip class="date">12/19/2022</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/HEAD/vignettes/matching_ranges.Rmd" class="external-link"><code>vignettes/matching_ranges.Rmd</code></a></small>
       <div class="hidden name"><code>matching_ranges.Rmd</code></div>
@@ -314,6 +314,10 @@ used to visualize all covariates like this:</p>
 while categorical features are plotted as stacked bar plots. All sets
 are also shown by default. Defaults can be overridden by setting the
 <code>type</code> and <code>sets</code> arguments.</p>
+<p>Results from <code>matchRanges</code> can also be used in conjunction
+with <code>cobalt</code> for assessing covariate balance. For an example
+see <a href="#using_cobalt">Using <code>cobalt</code> to assess
+balancing</a>.</p>
 </div>
 <div class="section level4">
 <h4 id="accessing-matched-data">Accessing matched data<a class="anchor" aria-label="anchor" href="#accessing-matched-data"></a>
@@ -364,6 +368,77 @@ In fact, <code>matched(x)</code> is a convenient wrapper around
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="fu"><a href="../reference/matched.html">matched</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span>, <span class="fu"><a href="../reference/pool.html">pool</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="../reference/indices.html">indices</a></span><span class="op">(</span><span class="va">mgr</span>, set <span class="op">=</span> <span class="st">'matched'</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## [1] TRUE</span></span></code></pre>
 </div>
+<div class="section level4">
+<h4 id="using-cobalt-to-assess-balancing">Using <code>cobalt</code> to assess balancing
+<a id="using_cobalt"></a><a class="anchor" aria-label="anchor" href="#using-cobalt-to-assess-balancing"></a>
+</h4>
+<p>This is straight-forward by accessing the data with
+<code>matchedData(x)</code>:</p>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ngreifer.github.io/cobalt/" class="external-link">cobalt</a></span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##  cobalt (Version 4.4.1, Build Date: 2022-11-03)</span></span></code></pre>
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ngreifer.github.io/cobalt/reference/bal.tab.html" class="external-link">bal.tab</a></span><span class="op">(</span><span class="fu"><a href="https://ngreifer.github.io/cobalt/reference/f.build.html" class="external-link">f.build</a></span><span class="op">(</span><span class="st">"set"</span>, <span class="fu"><a href="../reference/covariates.html">covariates</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>               data <span class="op">=</span> <span class="fu"><a href="../reference/matchedData.html">matchedData</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span>,</span>
+<span>               distance <span class="op">=</span> <span class="st">"ps"</span>, <span class="co"># name of column containing propensity score</span></span>
+<span>               focal <span class="op">=</span> <span class="st">"focal"</span>, <span class="co"># name of focal group in set column</span></span>
+<span>               which.treat <span class="op">=</span> <span class="st">"focal"</span>, <span class="co"># compare everything to focal</span></span>
+<span>               s.d.denom <span class="op">=</span> <span class="st">"all"</span><span class="op">)</span> <span class="co"># how to adjust standard deviation</span></span>
+<span></span>
+<span><span class="va">res</span></span></code></pre></div>
+<pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance by treatment pair</span></span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">##  - - - <span style="font-style: italic;">focal (0) vs. matched (1)</span> - - - </span></span>
+<span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
+<span><span class="co">##                Type Diff.Un</span></span>
+<span><span class="co">## ps         Distance  0.1088</span></span>
+<span><span class="co">## feature2    Contin.  0.1242</span></span>
+<span><span class="co">## feature3_a   Binary -0.0640</span></span>
+<span><span class="co">## feature3_b   Binary  0.0060</span></span>
+<span><span class="co">## feature3_c   Binary  0.0560</span></span>
+<span><span class="co">## feature3_d   Binary  0.0080</span></span>
+<span><span class="co">## feature3_e   Binary -0.0060</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## <span style="text-decoration: underline;">Sample sizes</span></span></span>
+<span><span class="co">##     focal matched</span></span>
+<span><span class="co">## All   500     500</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">##  - - - <span style="font-style: italic;">focal (0) vs. pool (1)</span> - - - </span></span>
+<span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
+<span><span class="co">##                Type Diff.Un</span></span>
+<span><span class="co">## ps         Distance -1.1340</span></span>
+<span><span class="co">## feature2    Contin.  0.5520</span></span>
+<span><span class="co">## feature3_a   Binary  0.2928</span></span>
+<span><span class="co">## feature3_b   Binary -0.0019</span></span>
+<span><span class="co">## feature3_c   Binary -0.3003</span></span>
+<span><span class="co">## feature3_d   Binary  0.0012</span></span>
+<span><span class="co">## feature3_e   Binary  0.0082</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## <span style="text-decoration: underline;">Sample sizes</span></span></span>
+<span><span class="co">##     focal  pool</span></span>
+<span><span class="co">## All   500 10000</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">##  - - - <span style="font-style: italic;">focal (0) vs. unmatched (1)</span> - - - </span></span>
+<span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
+<span><span class="co">##                Type Diff.Un</span></span>
+<span><span class="co">## ps         Distance -1.1994</span></span>
+<span><span class="co">## feature2    Contin.  0.5745</span></span>
+<span><span class="co">## feature3_a   Binary  0.3116</span></span>
+<span><span class="co">## feature3_b   Binary -0.0023</span></span>
+<span><span class="co">## feature3_c   Binary -0.3191</span></span>
+<span><span class="co">## feature3_d   Binary  0.0008</span></span>
+<span><span class="co">## feature3_e   Binary  0.0089</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## <span style="text-decoration: underline;">Sample sizes</span></span></span>
+<span><span class="co">##     focal unmatched</span></span>
+<span><span class="co">## All   500      9500</span></span>
+<span><span class="co">##  - - - - - - - - - - - - - - - - - - - - - - - - - -</span></span></code></pre>
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://ngreifer.github.io/cobalt/reference/love.plot.html" class="external-link">love.plot</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Warning: Standardized mean differences and raw mean differences are present in the same plot. </span></span>
+<span><span class="co">## Use the 'stars' argument to distinguish between them and appropriately label the x-axis.</span></span></code></pre>
+<p><img src="matching_ranges_files/figure-html/unnamed-chunk-13-1.png"><!-- --></p>
+</div>
 </div>
 <div class="section level3">
 <h3 id="choosing-the-method-parameter">Choosing the <code>method</code> parameter<a class="anchor" aria-label="anchor" href="#choosing-the-method-parameter"></a>
@@ -384,7 +459,7 @@ substitute.</p>
 <p>Attempts to find the nearest neighbor for each range by using a
 rolling-join (as implemented in the <code>data.table</code> package)
 between <code>focal</code> and <code>pool</code> propensity scores.</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
 <span><span class="va">mgr</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/matchRanges.html">matchRanges</a></span><span class="op">(</span>focal <span class="op">=</span> <span class="va">x</span><span class="op">[</span><span class="va">x</span><span class="op">$</span><span class="va">feature1</span><span class="op">]</span>,</span>
 <span>                   pool <span class="op">=</span> <span class="va">x</span><span class="op">[</span><span class="op">!</span><span class="va">x</span><span class="op">$</span><span class="va">feature1</span><span class="op">]</span>,</span>
@@ -393,13 +468,13 @@ between <code>focal</code> and <code>pool</code> propensity scores.</p>
 <span>                   replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">nn</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/overview.html">overview</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/plotPropensity.html">plotPropensity</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span></span></code></pre></div>
-<p><img src="matching_ranges_files/figure-html/unnamed-chunk-13-1.png"><!-- --></p>
+<p><img src="matching_ranges_files/figure-html/unnamed-chunk-14-1.png"><!-- --></p>
 <p>This method is best if you have a very large dataset because it is
 usually the fastest matching method. However, because sampling is done
 with replacement the user should be careful to assess the number of
 duplicate ranges pulled. This can be done using the
 <code><a href="../reference/indices.html">indices()</a></code> function:</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## Total number of duplicated indices</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/duplicated.html" class="external-link">duplicated</a></span><span class="op">(</span><span class="fu"><a href="../reference/indices.html">indices</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -435,7 +510,7 @@ probability of accepting a pool range into the matched set given by the
 ratio between the height of the density and the scaled (covering)
 density. If <code>method</code> or <code>replace</code> is not supplied,
 the default values are rejection sampling without replacement.</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
 <span><span class="va">mgr</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/matchRanges.html">matchRanges</a></span><span class="op">(</span>focal <span class="op">=</span> <span class="va">x</span><span class="op">[</span><span class="va">x</span><span class="op">$</span><span class="va">feature1</span><span class="op">]</span>,</span>
 <span>                   pool <span class="op">=</span> <span class="va">x</span><span class="op">[</span><span class="op">!</span><span class="va">x</span><span class="op">$</span><span class="va">feature1</span><span class="op">]</span>,</span>
@@ -444,7 +519,7 @@ the default values are rejection sampling without replacement.</p>
 <span>                   replace <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="va">rs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/overview.html">overview</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/plotPropensity.html">plotPropensity</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span></span></code></pre></div>
-<p><img src="matching_ranges_files/figure-html/unnamed-chunk-15-1.png"><!-- --></p>
+<p><img src="matching_ranges_files/figure-html/unnamed-chunk-16-1.png"><!-- --></p>
 <p>Rejection sampling is the fastest available matching method for
 sampling without replacement. Therefore, it is ideal to use on large
 datasets when sampling without replacement is important. However, this
@@ -465,7 +540,7 @@ selected matches is equal to the focal set. While matches are being
 found in each bin the bins stay small. However, as the number of bins
 with no matches increases the algorithm expands bin size faster, which
 maintains matching quality while decreasing run-time.</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
 <span><span class="va">mgr</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/matchRanges.html">matchRanges</a></span><span class="op">(</span>focal <span class="op">=</span> <span class="va">x</span><span class="op">[</span><span class="va">x</span><span class="op">$</span><span class="va">feature1</span><span class="op">]</span>,</span>
 <span>                   pool <span class="op">=</span> <span class="va">x</span><span class="op">[</span><span class="op">!</span><span class="va">x</span><span class="op">$</span><span class="va">feature1</span><span class="op">]</span>,</span>
@@ -474,12 +549,12 @@ maintains matching quality while decreasing run-time.</p>
 <span>                   replace <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="va">ss</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/overview.html">overview</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/plotPropensity.html">plotPropensity</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span></span></code></pre></div>
-<p><img src="matching_ranges_files/figure-html/unnamed-chunk-16-1.png"><!-- --></p>
+<p><img src="matching_ranges_files/figure-html/unnamed-chunk-17-1.png"><!-- --></p>
 <p>For very large data sets, users might notice a slight increase in run
 time compared to the other methods. Stratified sampling tends to work
 very well for discrete data, and often produces the best matches even on
 continuous data:</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## Extract difference in propensity scores</span></span>
 <span><span class="co">## between focal and matched sets</span></span>
 <span><span class="va">fmps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">nn</span>, <span class="va">rs</span>, <span class="va">ss</span><span class="op">)</span>, <span class="va">`[[`</span>, <span class="st">"quality"</span><span class="op">)</span></span>
@@ -524,7 +599,7 @@ as normal <code>GRanges</code> methods (e.g.s <code>seqnames</code>,
 <div class="section level2">
 <h2 id="session-information">Session information<a class="anchor" aria-label="anchor" href="#session-information"></a>
 </h2>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## R version 4.2.2 (2022-10-31)</span></span>
 <span><span class="co">## Platform: x86_64-pc-linux-gnu (64-bit)</span></span>
@@ -547,60 +622,61 @@ as normal <code>GRanges</code> methods (e.g.s <code>seqnames</code>,
 <span><span class="co">## [8] methods   base     </span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## other attached packages:</span></span>
-<span><span class="co">## [1] patchwork_1.1.2      GenomicRanges_1.50.1 GenomeInfoDb_1.34.4 </span></span>
-<span><span class="co">## [4] IRanges_2.32.0       S4Vectors_0.36.1     BiocGenerics_0.44.0 </span></span>
-<span><span class="co">## [7] ggplot2_3.4.0        plotgardener_1.4.2   nullranges_1.5.6    </span></span>
+<span><span class="co">##  [1] cobalt_4.4.1         patchwork_1.1.2      GenomicRanges_1.50.2</span></span>
+<span><span class="co">##  [4] GenomeInfoDb_1.34.4  IRanges_2.32.0       S4Vectors_0.36.1    </span></span>
+<span><span class="co">##  [7] BiocGenerics_0.44.0  ggplot2_3.4.0        plotgardener_1.4.2  </span></span>
+<span><span class="co">## [10] nullranges_1.5.6    </span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## loaded via a namespace (and not attached):</span></span>
 <span><span class="co">##  [1] bitops_1.0-7                matrixStats_0.63.0         </span></span>
 <span><span class="co">##  [3] fs_1.5.2                    progress_1.2.2             </span></span>
 <span><span class="co">##  [5] RColorBrewer_1.1-3          rprojroot_2.0.3            </span></span>
-<span><span class="co">##  [7] InteractionSet_1.26.0       tools_4.2.2                </span></span>
-<span><span class="co">##  [9] bslib_0.4.1                 utf8_1.2.2                 </span></span>
-<span><span class="co">## [11] R6_2.5.1                    KernSmooth_2.23-20         </span></span>
-<span><span class="co">## [13] DBI_1.1.3                   colorspace_2.0-3           </span></span>
-<span><span class="co">## [15] withr_2.5.0                 prettyunits_1.1.1          </span></span>
-<span><span class="co">## [17] tidyselect_1.2.0            curl_4.3.3                 </span></span>
-<span><span class="co">## [19] compiler_4.2.2              textshaping_0.3.6          </span></span>
-<span><span class="co">## [21] cli_3.4.1                   Biobase_2.58.0             </span></span>
-<span><span class="co">## [23] desc_1.4.2                  DelayedArray_0.24.0        </span></span>
-<span><span class="co">## [25] labeling_0.4.2              rtracklayer_1.58.0         </span></span>
-<span><span class="co">## [27] sass_0.4.4                  scales_1.2.1               </span></span>
-<span><span class="co">## [29] mvtnorm_1.1-3               ggridges_0.5.4             </span></span>
-<span><span class="co">## [31] pkgdown_2.0.6               speedglm_0.3-4             </span></span>
-<span><span class="co">## [33] yulab.utils_0.0.5           systemfonts_1.0.4          </span></span>
-<span><span class="co">## [35] stringr_1.5.0               digest_0.6.31              </span></span>
-<span><span class="co">## [37] Rsamtools_2.14.0            rmarkdown_2.18             </span></span>
-<span><span class="co">## [39] XVector_0.38.0              pkgconfig_2.0.3            </span></span>
-<span><span class="co">## [41] htmltools_0.5.4             MatrixGenerics_1.10.0      </span></span>
-<span><span class="co">## [43] highr_0.9                   fastmap_1.1.0              </span></span>
-<span><span class="co">## [45] rlang_1.0.6                 farver_2.1.1               </span></span>
-<span><span class="co">## [47] gridGraphics_0.5-1          jquerylib_0.1.4            </span></span>
-<span><span class="co">## [49] BiocIO_1.8.0                generics_0.1.3             </span></span>
-<span><span class="co">## [51] jsonlite_1.8.4              mclust_6.0.0               </span></span>
-<span><span class="co">## [53] BiocParallel_1.32.4         dplyr_1.0.10               </span></span>
-<span><span class="co">## [55] RCurl_1.98-1.9              magrittr_2.0.3             </span></span>
-<span><span class="co">## [57] ggplotify_0.1.0             GenomeInfoDbData_1.2.9     </span></span>
-<span><span class="co">## [59] Matrix_1.5-3                Rcpp_1.0.9                 </span></span>
-<span><span class="co">## [61] munsell_0.5.0               fansi_1.0.3                </span></span>
-<span><span class="co">## [63] lifecycle_1.0.3             stringi_1.7.8              </span></span>
-<span><span class="co">## [65] yaml_2.3.6                  MASS_7.3-58.1              </span></span>
-<span><span class="co">## [67] SummarizedExperiment_1.28.0 zlibbioc_1.44.0            </span></span>
-<span><span class="co">## [69] parallel_4.2.2              crayon_1.5.2               </span></span>
-<span><span class="co">## [71] lattice_0.20-45             Biostrings_2.66.0          </span></span>
-<span><span class="co">## [73] hms_1.1.2                   knitr_1.41                 </span></span>
-<span><span class="co">## [75] pillar_1.8.1                rjson_0.2.21               </span></span>
-<span><span class="co">## [77] codetools_0.2-18            strawr_0.0.9               </span></span>
-<span><span class="co">## [79] XML_3.99-0.13               glue_1.6.2                 </span></span>
-<span><span class="co">## [81] evaluate_0.18               data.table_1.14.6          </span></span>
-<span><span class="co">## [83] vctrs_0.5.1                 gtable_0.3.1               </span></span>
-<span><span class="co">## [85] purrr_0.3.5                 assertthat_0.2.1           </span></span>
-<span><span class="co">## [87] ks_1.14.0                   cachem_1.0.6               </span></span>
-<span><span class="co">## [89] xfun_0.35                   restfulr_0.0.15            </span></span>
-<span><span class="co">## [91] pracma_2.4.2                ragg_1.2.4                 </span></span>
-<span><span class="co">## [93] tibble_3.1.8                GenomicAlignments_1.34.0   </span></span>
-<span><span class="co">## [95] plyranges_1.18.0            memoise_2.0.1              </span></span>
-<span><span class="co">## [97] ellipsis_0.3.2</span></span></code></pre>
+<span><span class="co">##  [7] InteractionSet_1.26.0       backports_1.4.1            </span></span>
+<span><span class="co">##  [9] tools_4.2.2                 bslib_0.4.2                </span></span>
+<span><span class="co">## [11] utf8_1.2.2                  R6_2.5.1                   </span></span>
+<span><span class="co">## [13] KernSmooth_2.23-20          DBI_1.1.3                  </span></span>
+<span><span class="co">## [15] colorspace_2.0-3            withr_2.5.0                </span></span>
+<span><span class="co">## [17] prettyunits_1.1.1           tidyselect_1.2.0           </span></span>
+<span><span class="co">## [19] curl_4.3.3                  compiler_4.2.2             </span></span>
+<span><span class="co">## [21] textshaping_0.3.6           cli_3.4.1                  </span></span>
+<span><span class="co">## [23] Biobase_2.58.0              desc_1.4.2                 </span></span>
+<span><span class="co">## [25] DelayedArray_0.24.0         labeling_0.4.2             </span></span>
+<span><span class="co">## [27] rtracklayer_1.58.0          sass_0.4.4                 </span></span>
+<span><span class="co">## [29] scales_1.2.1                mvtnorm_1.1-3              </span></span>
+<span><span class="co">## [31] ggridges_0.5.4              pkgdown_2.0.7              </span></span>
+<span><span class="co">## [33] speedglm_0.3-4              yulab.utils_0.0.5          </span></span>
+<span><span class="co">## [35] systemfonts_1.0.4           stringr_1.5.0              </span></span>
+<span><span class="co">## [37] digest_0.6.31               Rsamtools_2.14.0           </span></span>
+<span><span class="co">## [39] rmarkdown_2.19              XVector_0.38.0             </span></span>
+<span><span class="co">## [41] pkgconfig_2.0.3             htmltools_0.5.4            </span></span>
+<span><span class="co">## [43] MatrixGenerics_1.10.0       highr_0.9                  </span></span>
+<span><span class="co">## [45] fastmap_1.1.0               rlang_1.0.6                </span></span>
+<span><span class="co">## [47] farver_2.1.1                gridGraphics_0.5-1         </span></span>
+<span><span class="co">## [49] jquerylib_0.1.4             BiocIO_1.8.0               </span></span>
+<span><span class="co">## [51] generics_0.1.3              jsonlite_1.8.4             </span></span>
+<span><span class="co">## [53] mclust_6.0.0                BiocParallel_1.32.4        </span></span>
+<span><span class="co">## [55] dplyr_1.0.10                RCurl_1.98-1.9             </span></span>
+<span><span class="co">## [57] magrittr_2.0.3              ggplotify_0.1.0            </span></span>
+<span><span class="co">## [59] GenomeInfoDbData_1.2.9      Matrix_1.5-3               </span></span>
+<span><span class="co">## [61] Rcpp_1.0.9                  munsell_0.5.0              </span></span>
+<span><span class="co">## [63] fansi_1.0.3                 lifecycle_1.0.3            </span></span>
+<span><span class="co">## [65] stringi_1.7.8               yaml_2.3.6                 </span></span>
+<span><span class="co">## [67] MASS_7.3-58.1               SummarizedExperiment_1.28.0</span></span>
+<span><span class="co">## [69] zlibbioc_1.44.0             parallel_4.2.2             </span></span>
+<span><span class="co">## [71] crayon_1.5.2                lattice_0.20-45            </span></span>
+<span><span class="co">## [73] Biostrings_2.66.0           hms_1.1.2                  </span></span>
+<span><span class="co">## [75] knitr_1.41                  pillar_1.8.1               </span></span>
+<span><span class="co">## [77] rjson_0.2.21                codetools_0.2-18           </span></span>
+<span><span class="co">## [79] strawr_0.0.9                XML_3.99-0.13              </span></span>
+<span><span class="co">## [81] glue_1.6.2                  evaluate_0.19              </span></span>
+<span><span class="co">## [83] data.table_1.14.6           vctrs_0.5.1                </span></span>
+<span><span class="co">## [85] gtable_0.3.1                purrr_0.3.5                </span></span>
+<span><span class="co">## [87] assertthat_0.2.1            ks_1.14.0                  </span></span>
+<span><span class="co">## [89] cachem_1.0.6                xfun_0.35                  </span></span>
+<span><span class="co">## [91] restfulr_0.0.15             pracma_2.4.2               </span></span>
+<span><span class="co">## [93] ragg_1.2.4                  tibble_3.1.8               </span></span>
+<span><span class="co">## [95] GenomicAlignments_1.34.0    plyranges_1.18.0           </span></span>
+<span><span class="co">## [97] memoise_2.0.1               ellipsis_0.3.2</span></span></code></pre>
 </div>
 <div class="section level2">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
@@ -633,7 +709,7 @@ Null Hypothesis Genomic Ranges via Covariate-Matched Sampling.”</span>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer>
