@@ -336,6 +336,10 @@ while categorical features are plotted as stacked bar plots. All sets
 are also shown by default. Defaults can be overridden by setting the
 `type` and `sets` arguments. 
 
+Results from `matchRanges` can also be used
+in conjunction with `cobalt` for assessing covariate balance. For an example
+see [Using `cobalt` to assess balancing](#using_cobalt).
+
 ### Accessing matched data
 
 Custom plots can be made by extracting data from the `Matched` object:
@@ -369,6 +373,23 @@ set='matched')`:
 
 ```{r}
 identical(matched(mgr), pool(mgr)[indices(mgr, set = 'matched')])
+```
+
+### Using `cobalt` to assess balancing <a id="using_cobalt" />
+
+This is straight-forward by accessing the data with `matchedData(x)`:
+
+```{r}
+library(cobalt)
+res <- bal.tab(f.build("set", covariates(mgr)),
+               data = matchedData(mgr),
+               distance = "ps", # name of column containing propensity score
+               focal = "focal", # name of focal group in set column
+               which.treat = "focal", # compare everything to focal
+               s.d.denom = "all") # how to adjust standard deviation
+
+res
+love.plot(res)
 ```
 
 ## Choosing the `method` parameter
