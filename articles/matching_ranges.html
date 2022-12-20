@@ -104,7 +104,7 @@
                         <h4 data-toc-skip class="author">Eric S.
 Davis</h4>
             
-            <h4 data-toc-skip class="date">12/19/2022</h4>
+            <h4 data-toc-skip class="date">12/20/2022</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/HEAD/vignettes/matching_ranges.Rmd" class="external-link"><code>vignettes/matching_ranges.Rmd</code></a></small>
       <div class="hidden name"><code>matching_ranges.Rmd</code></div>
@@ -128,7 +128,7 @@ of background ranges within the Bioconductor framework.</p>
 simulated example generated with the utility function
 <code><a href="../reference/makeExampleMatchedDataSet.html">makeExampleMatchedDataSet()</a></code>. We also provide an overview of
 the class struture and a guide for choosing among the supported matching
-methods. To see <code>matchedRanges()</code> used in real biological
+methods. To see <code><a href="../reference/matchRanges.html">matchRanges()</a></code> used in real biological
 examples, visit the <a href="matching_granges.html">Case study I: CTCF
 occupancy</a>, and <a href="matching_ginteractions.html">Case study II:
 CTCF orientation</a> vignettes.</p>
@@ -167,8 +167,7 @@ logistic regression model where the outcome <code>Y=1</code> for
 provided covariates <code>covar</code>. The resulting propensity scores
 are used to select matches using one of three available matching
 options: “nearest”, “rejection”, or “stratified” with or without
-replacement. For more information see the section on [Choosing the
-method parameter] below.</p>
+replacement. For more information see the section on <a href="#choosing_method">Choosing the method parameter</a> below.</p>
 </div>
 <div class="section level3">
 <h3 id="using-matchranges">Using <code>matchRanges()</code><a class="anchor" aria-label="anchor" href="#using-matchranges"></a>
@@ -261,8 +260,7 @@ documentation for each class, <code><a href="../reference/MatchedDataFrame.html"
 <p><code><a href="../reference/matchRanges.html">matchRanges()</a></code> uses <a href="https://en.wikipedia.org/wiki/Propensity_score_matching" class="external-link">propensity
 scores</a> to select matches using one of three available matching
 options: “nearest”, “rejection”, or “stratified” with or without
-replacement. For more information see the section on [Choosing the
-method parameter] below.</p>
+replacement. For more information see the section on <a href="#choosing_method">Choosing the method parameter</a> below.</p>
 <div class="section level4">
 <h4 id="assessing-quality-of-matching">Assessing quality of matching<a class="anchor" aria-label="anchor" href="#assessing-quality-of-matching"></a>
 </h4>
@@ -446,7 +444,8 @@ In fact, <code>matched(x)</code> is a convenient wrapper around
 </div>
 </div>
 <div class="section level3">
-<h3 id="choosing-the-method-parameter">Choosing the <code>method</code> parameter<a class="anchor" aria-label="anchor" href="#choosing-the-method-parameter"></a>
+<h3 id="choosing-the-method-parameter">Choosing the <code>method</code> parameter
+<a id="choosing_method"></a><a class="anchor" aria-label="anchor" href="#choosing-the-method-parameter"></a>
 </h3>
 <p>There are currently 3 available methods for selecting a matched
 set:</p>
