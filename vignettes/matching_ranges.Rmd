@@ -30,7 +30,7 @@ In this vignette, we provide an overview of `matchRanges()` and its
 associated functions. We start with a simulated example generated with
 the utility function `makeExampleMatchedDataSet()`. We also provide an
 overview of the class struture and a guide for choosing among the
-supported matching methods. To see `matchedRanges()` used in real
+supported matching methods. To see `matchRanges()` used in real
 biological examples, visit
 the [Case study I: CTCF occupancy](matching_granges.html),
 and [Case study II: CTCF orientation](matching_ginteractions.html)
@@ -244,7 +244,7 @@ where the outcome `Y=1` for `focal` and `Y=0` for `pool`, over the provided
 covariates `covar`. The resulting propensity scores are used to select matches
 using one of three available matching options: "nearest", "rejection", or
 "stratified" with or without replacement. For more information see the section
-on [Choosing the method parameter] below.
+on [Choosing the method parameter](#choosing_method) below.
 
 ## Using `matchRanges()`
 
@@ -294,8 +294,8 @@ or `?MatchedGInteractions`.
 [propensity scores](https://en.wikipedia.org/wiki/Propensity_score_matching) to
 select matches using one of three available matching options:
 "nearest", "rejection", or "stratified" with or without
-replacement. For more information see the section on [Choosing the
-method parameter] below.
+replacement. For more information see the section on 
+[Choosing the method parameter](#choosing_method) below.
 
 ### Assessing quality of matching
 
@@ -398,7 +398,7 @@ love.plot(res)
 ```
 
 
-## Choosing the `method` parameter
+## Choosing the `method` parameter <a id="choosing_method" />
 
 There are currently 3 available methods for selecting a matched set:
 
