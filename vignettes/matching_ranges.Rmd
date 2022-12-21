@@ -461,7 +461,7 @@ Uses a probability-based approach to select options in the `pool` that
 distributionally match the `focal` set based on propensity scores. The
 rejection sampling method first generates kernal-density estimates for
 both the focal and pool sets. Then a scale factor is determined by
-finding the point at which the difference in focal and pool densitites
+finding the point at which the difference in focal and pool densities
 is maximized. This scale factor is then applied such that the pool
 distribution covers the focal distribution at all points. Random
 sampling is then conducted, with probability of accepting a pool range
