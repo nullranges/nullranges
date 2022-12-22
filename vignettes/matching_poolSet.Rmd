@@ -1,0 +1,186 @@
+---
+title: "Creating a pool set for matchRanges"
+author: "Eric S. Davis"
+date: "`r format(Sys.Date(), '%m/%d/%Y')`"
+bibliography: library.bib
+output:
+  rmarkdown::html_document:
+    highlight: tango
+    toc: true
+    toc_float: true
+    fig_width: 5
+    fig_height: 3
+vignette: |
+  %\VignetteIndexEntry{1. Creating a pool set for matchRanges}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+## Introduction
+
+`matchRanges()` performs subset selection on a pool of ranges
+such that chosen covariates are distributionally matched to 
+a focal set of ranges. However, the generation of a set of 
+pool ranges is not a trivial task. This vignette provides some
+guidance for how to generate a pool of ranges.
+
+For this analysis, we use DNase peaks as a measure of open
+chromatin, and ChIP-seq for JUN peaks as a measure of JUN
+binding. Suppose we are interested in the properties of
+chromatin accessibility, but suspect that JUN-binding impacts
+accessibility. We can use `matchRanges()` to control for
+the DNase signal and the length of the site so we can compare
+our JUN-bound sites (i.e., our `focal` set) to sites where
+JUN is not bound (i.e., our `pool` set).
+
+## Obtaining example data
+
+First, we use `AnnotationHub` to access `GRanges` for DNase and
+JUN narrowPeaks in human (hg19) GM12878 cells:
+
+```{r, message=FALSE, warning=FALSE}
+library(AnnotationHub)
+ah <- AnnotationHub()
+
+dnase <- ah[["AH30743"]]
+junPeaks <- ah[["AH22814"]]
+
+dnase
+```
+
+Since we want to control for accessibility, we can use the
+`signalValue` from the DNase peaks as a covariate. DNase sites
+are also different lengths. If we suspect length might impact
+accessibility differently at JUN-bound sites, we can include it
+as a covariate as well. For visualization, let's convert these 
+to log-scale using `mutate()` from `plyranges`:
+
+```{r, message=FALSE, warning=FALSE}
+library(plyranges)
+dnase <- dnase |>
+  mutate(log10_signal = log10(signalValue + 1),
+         log10_length = log10(width(dnase) + 1))
+```
+
+## Creating the `focal` and `pool` sets
+
+Next we define our focal and pool sets. The `focal` set contains
+the feature of interest (i.e., DNase peaks bound by JUN),
+whereas the `pool` set lacks this feature (i.e., unbound DNase
+peaks). `matchRanges()` is designed to handle datasets that can
+be binarized into these two distinct groups. With `plyranges`
+it is easy to filter DNase sites by overlap (or lack of overlap)
+with JUN peaks:
+
+```{r message=FALSE, warning=FALSE}
+## Define focal and pool
+focal <- dnase |>
+  filter_by_overlaps(junPeaks)
+
+pool <- dnase |>
+  filter_by_non_overlaps(junPeaks)
+
+```
+
+The focal set must be smaller than the pool set for matching
+to work correctly. Matching is most effective when the pool
+set is much larger and covers all values in the focal set.
+
+```{r message=FALSE, warning=FALSE}
+length(focal)
+length(pool)
+
+length(pool)/length(focal)
+```
+
+Before matching, the focal set shows a different
+distribution of length and signal than the pool 
+set:
+
+```{r, message=FALSE, warning=FALSE}
+## Before matching, focal shows higher
+## signalValue than pool
+library(tidyr)
+library(ggplot2)
+bind_ranges(focal=focal,
+            pool=pool,
+            .id="set") |>
+  as.data.frame() |>
+  pivot_longer(cols=c("log10_length", "log10_signal"),
+               names_to="features",
+               values_to="values") |>
+  ggplot(aes(values, color=set)) +
+  facet_wrap(~features) +
+  stat_density(geom='line', position='identity') +
+  ggtitle("DNase sites") +
+  theme_bw() +
+  theme(plot.title=element_text(hjust=0.5))
+```
+
+## Obtaining the matched set with `matchRanges()`
+
+To control for these differences, we can use `matchRanges()` to
+select a subset of unbound DNase sites from the pool that have
+the same distribution of length and signal.
+
+```{r, message=FALSE, warning=FALSE}
+library(nullranges)
+set.seed(123)
+mgr <- matchRanges(focal=focal,
+                   pool=pool,
+                   covar=~log10_length + log10_signal,
+                   method='rejection',
+                   replace=FALSE)
+
+mgr
+```
+
+## Assessing covariate balance
+
+Now let's use the `plotCovariate()` function with `patchwork` to
+visualize how similar our matched distribution is to focal:
+
+```{r, message=FALSE, warning=FALSE}
+library(patchwork)
+lapply(covariates(mgr),
+       plotCovariate,
+       x=mgr,
+       sets=c('f', 'm', 'p')) |>
+  Reduce('+', x=_) +
+  plot_layout(guides="collect") +
+  plot_annotation(title="DNase sites",
+                  theme=theme(plot.title=element_text(hjust=0.40)))
+```
+
+An important part of propensity-score matching, is assessing
+similarity, or balance, between the focal and matched sets.
+One way is to visually examine the distributions as we have
+done above. Another way is to report summary statistics about
+the two sets. `cobalt` is a package designed to specifically
+address covariate balance after covariate matching. Below, we
+demonstrate how to use `cobalt` to calculate the standardized mean
+differences and visualize these statistics with a love plot.
+For more information about assessing covariate balance, refer
+to the detailed documentation in the `cobalt` vignette:
+`vignette("cobalt", package = "cobalt")`.
+
+```{r, message=FALSE, warning=FALSE}
+library(cobalt)
+res <- bal.tab(f.build("set", covariates(mgr)),
+               data=matchedData(mgr)[!set %in% 'unmatched'],
+               distance="ps",
+               focal="focal",
+               which.treat="focal",
+               s.d.denom="all")
+
+res
+
+plot(res) + xlim(c(-2, 2))
+
+```
+
+The "focal vs. matched" comparison shows much lower
+standardized mean differences than "focal vs. pool",
+indicating that the matched set has been
+successfully controlled for covariates of DNAse site
+length and signal.
