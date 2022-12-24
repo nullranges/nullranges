@@ -721,3 +721,236 @@ setMethod("matched", "MDF_OR_MGR_OR_MGI", function(x, ...) {
 setMethod("unmatched", "MDF_OR_MGR_OR_MGI", function(x, ...) {
   x@pool[indices(x, set = "unmatched"),]
 })
+
+## Coercion from "matchit" object to Matched* class ----------------------------
+
+#' Coerce `matchit` to `MatchedDataFrame`
+#' @inheritParams matchitToMatched
+#' @importFrom data.table data.table
+#' @importFrom MatchIt match.data
+#' @returns A `Matched` object.
+#' @noRd
+as_Matched <- function(x) {
+  
+  ## Get matched indices from matchit object
+  mi <- match.data(object=x, group='control') |>
+    rownames() |>
+    as.integer()
+  
+  ## Put these in terms of the pool set
+  pmi <- which(which(x$treat == 0) %in% mi)
+  
+  ## Assemble covarData and matchedData by set
+  covarData <- x$X
+  covarData <- data.table(cbind(id=x$treat, covarData, ps=x$distance))
+  matchedData <- rbind(
+    covarData[id==1, c(.SD, set='focal')],
+    covarData[mi, c(.SD, set='matched')],
+    covarData[id==0, c(.SD, set='pool')],
+    covarData[!mi, c(.SD, set='unmatched')]
+  )
+  
+  ## Construct Matched object
+  obj <- Matched(matchedData=matchedData,
+                 matchedIndex=pmi,
+                 covar=labels(terms(x$formula)),
+                 method=paste0("MatchIt_", x$info$method),
+                 replace=x$info$replace)
+  
+  return(obj)
+}
+
+#' Coerce `matchit` to `MatchedDataFrame`
+#' @inheritParams matchitToMatched
+#' @importFrom S4Vectors DataFrame
+#' @noRd
+as_MatchedDataFrame <- function(x) {
+  
+  ## Coerce to Matched object
+  md <- as_Matched(x)
+  d <- x$model$call$data
+  
+  ## Define focal & pool as DataFrames
+  focal <- DataFrame(d[x$treat == 1,])
+  pool <- DataFrame(d[x$treat == 0,])
+  
+  ## Combine matched data into MatchedDataFrame class
+  obj <- MatchedDataFrame(focal = focal,
+                          pool  = pool,
+                          matchedData = matchedData(md),
+                          matchedIndex = indices(md),
+                          covar = covariates(md),
+                          method = method(md),
+                          replace = withReplacement(md),
+                          delegate = DataFrame(pool[indices(md),]))
+  
+  ## Return MatchedDataFrame object
+  return(obj)
+}
+
+#' Coerce to ranges/interactions
+#' @param d data from `MatchIt`
+#' @param ranges `GRanges` or `GInteractions` object
+#' @param keep_mcols boolean, whether to keep metadata columns
+#' @param type either "GRanges" or "GInteractions"
+#' @importFrom mariner as_ginteractions
+#' @return A `GRanges` or `GInteractions` object depending on `type`
+#' @noRd
+coerceToRanges <- function(d, ranges, keep_mcols, type="GRanges") {
+  
+  ## Set coercion function
+  if (type=="GRanges") {
+    FUN <- \(d, mc) as_granges(d, keep_mcols=mc)
+  }
+  if (type=="GInteractions") {
+    FUN <- \(d, mc) as_ginteractions(d, keep.extra.columns=mc)
+  }
+  
+  ## Coerce to GRanges/GInteractions or add supplied
+  if (is.null(ranges)) {
+    g <- FUN(d, keep_mcols)
+  } else {
+    stopifnot(length(ranges) == nrow(d)) # must be same length
+    if (keep_mcols) {
+      mcols(ranges) <- cbind(mcols(ranges), d)
+    } else {
+      mcols(ranges) <- d
+    }
+    g <- ranges
+  }
+  
+  return(g)
+}
+
+
+#' Coerce `matchit` to `MatchedGRanges`
+#' @inheritParams matchitToMatched
+#' @importFrom plyranges as_granges
+#' @noRd
+as_MatchedGRanges <- function(x, ranges, keep_mcols) {
+
+  ## Coerce to Matched object
+  md <- as_Matched(x)
+  d <- x$model$call$data
+  
+  ## Coerce to GRanges or add supplied ranges
+  gr <- coerceToRanges(d, ranges, keep_mcols, "GRanges")
+  
+  ## Define focal & pool
+  focal <- gr[x$treat == 1,]
+  pool <- gr[x$treat == 0,]
+  
+  ## Combine matched data into MatchedGRanges class
+  obj <- MatchedGRanges(focal = focal,
+                        pool = pool,
+                        matchedData = matchedData(md),
+                        matchedIndex = indices(md),
+                        covar = covariates(md),
+                        method = method(md),
+                        replace = withReplacement(md),
+                        delegate = pool[indices(md)])
+  
+  ## Return MatchedGRanges object
+  return(obj)
+  
+}
+
+#' Coerce `matchit` to `MatchedGInteractions`
+#' @inheritParams matchitToMatched
+#' @param interactions A `GInteractions` object corresponding
+#'  to the rows of data input to `MatchIt`.
+#' @noRd
+as_MatchedGInteractions <- function(x, interactions, keep_mcols) {
+  
+  ## Coerce to Matched object
+  md <- as_Matched(x)
+  d <- x$model$call$data
+  
+  ## Coerce to GInteractions or add supplied interactions
+  gi <- coerceToRanges(d, interactions, keep_mcols, "GInteractions")
+  
+  ## Define focal & pool
+  focal <- gi[x$treat == 1,]
+  pool <- gi[x$treat == 0,]
+  
+  ## Combine matched data into MatchedGInteractions class
+  obj <- MatchedGInteractions(focal = focal,
+                              pool = pool,
+                              matchedData = matchedData(md),
+                              matchedIndex = indices(md),
+                              covar = covariates(md),
+                              method = method(md),
+                              replace = withReplacement(md),
+                              delegate = pool[indices(md),])
+  
+  ## Return MatchedGInteractions object
+  return(obj)
+}
+
+#' Execute null method
+#' @inheritParams matchitToMatched
+#' @noRd
+.matchitToMatched <- function(x, ranges, keep_mcols) {
+  
+  ## Dispatch on ranges
+  if (is(ranges, "GRanges")) {
+    as_MatchedGRanges(x, ranges, keep_mcols)
+  }
+  
+  if (is(ranges, "GInteractions")) {
+    as_MatchedGInteractions(x, ranges, keep_mcols)
+  }
+ 
+  ## Try each method if null
+  ans <- tryCatch(as_MatchedGRanges(x, ranges, keep_mcols),
+                  error=function(e) NULL)
+  if (!is.null(ans)) return(ans)
+  
+  ans <- tryCatch(as_MatchedGInteractions(x, ranges, keep_mcols),
+                  error=function(e) NULL)
+  if (!is.null(ans)) return(ans)
+  
+  return(as_MatchedDataFrame(x))
+}
+
+#' Coerce `matchit` to `Matched` object
+#' @param x A `matchit` object from `MatchIt` package.
+#' @param ranges A `GRanges` or `GInteractions` object
+#'  that is the same length as the data used to create
+#'  the `matchit` object, `x`.
+#' @param keep_mcols Logical whether to keep or existing
+#'  mcols of the object supplied in `ranges` or not.
+#'  Default is TRUE.
+#' @rdname matchitToMatched
+#' @return A `Matched` subclass object, depending on the
+#'  value of `ranges`. If `is(ranges, "GRanges")` then a
+#'  `MatchedGRanges` object is returned. If 
+#'  `is(ranges, "GInteractions")` then a `MatchedGInteractions`
+#'  object is returned. If `is.null(ranges)` then a
+#'  the function first attempts to coerce into the other
+#'  classes before coercing to `MatchedDataFrame`.
+#'  
+#' @examples 
+#' ## Create example data.frame dataset
+#' set.seed(123)
+#' x <- makeExampleMatchedDataSet(type="GRanges")
+#' 
+#' ## Convert GRanges to data.frame, pass to matchit,
+#' ## and convert to MatchedGRanges object
+#' set.seed(123)
+#' mgr <- 
+#'   as.data.frame(x) |>
+#'   matchit(formula=feature1 ~ feature2 + feature3,
+#'           data=_,
+#'           method='nearest',
+#'           replace=FALSE) |>
+#'   matchitToMatched()
+#' 
+#' ## Compatible with GRanges & Matched functions
+#' mgr
+#' plotCovariate(mgr)
+#' 
+#' @export
+setMethod("matchitToMatched",
+          signature(x="matchit"),
+          definition=.matchitToMatched)

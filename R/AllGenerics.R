@@ -89,3 +89,8 @@ setGeneric("matched", function(x, ...) standardGeneric("matched"))
 #' @rdname unmatched
 #' @export
 setGeneric("unmatched", function(x, ...) standardGeneric("unmatched"))
+
+#' @rdname matchitToMatched
+#' @export
+setGeneric("matchitToMatched", function(x, ranges=NULL, keep_mcols=TRUE) 
+  standardGeneric("matchitToMatched"))
