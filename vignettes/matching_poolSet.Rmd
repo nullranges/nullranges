@@ -18,11 +18,14 @@ vignette: |
 
 ## Introduction
 
-`matchRanges()` performs subset selection on a pool of ranges
+`matchRanges()` performs subset selection on a pool of genomic ranges
 such that chosen covariates are distributionally matched to 
-a focal set of ranges. However, the generation of a set of 
+a focal set of genomic ranges. 
+See the "Overview of matchRanges" vignette 
+`vignette("matching_ranges", package = "nullranges")` for more details.
+However, the generation of a set of 
 pool ranges is not a trivial task. This vignette provides some
-guidance for how to generate a pool of ranges.
+guidance for how to generate a pool of ranges with covariates.
 
 For this analysis, we use DNase peaks as a measure of open
 chromatin, and ChIP-seq for JUN peaks as a measure of JUN
