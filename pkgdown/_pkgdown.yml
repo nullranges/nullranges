@@ -25,6 +25,7 @@ articles:
     navbar: ~
     contents:
       - nullranges
+      - matching_pool_set
       - matching_ranges
       - matching_granges
       - matching_ginteractions
