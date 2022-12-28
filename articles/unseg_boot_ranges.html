@@ -40,7 +40,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.5.6</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.5.8</span>
       </span>
     </div>
 
@@ -60,6 +60,9 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
+      <a href="../articles/matching_pool_set.html">Creating a pool set for matchRanges</a>
+    </li>
+    <li>
       <a href="../articles/matching_ranges.html">Overview of matchRanges</a>
     </li>
     <li>
@@ -104,7 +107,7 @@
                         <h4 data-toc-skip class="author">Michael
 Love</h4>
             
-            <h4 data-toc-skip class="date">12/21/2022</h4>
+            <h4 data-toc-skip class="date">12/28/2022</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/HEAD/vignettes/unseg_boot_ranges.Rmd" class="external-link"><code>vignettes/unseg_boot_ranges.Rmd</code></a></small>
       <div class="hidden name"><code>unseg_boot_ranges.Rmd</code></div>
@@ -150,11 +153,11 @@ and the default for <code>withinChrom</code> is <code>FALSE</code>
 <span>                        type<span class="op">=</span><span class="st">"bootstrap"</span>, withinChrom<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></span>
 <span>  <span class="op">)</span>, times<span class="op">=</span><span class="fl">10</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Unit: milliseconds</span></span>
-<span><span class="co">##      expr      min       lq      mean   median        uq       max neval</span></span>
-<span><span class="co">##  p_within 927.8561 940.2091  953.3489 945.5346  948.7720 1042.5922    10</span></span>
-<span><span class="co">##  b_within 838.4814 852.5544 1035.9125 859.2192 1127.4728 1661.5008    10</span></span>
-<span><span class="co">##  p_across 215.8798 219.0884  252.8518 230.5246  269.0585  405.4047    10</span></span>
-<span><span class="co">##  b_across 240.1976 247.6663  331.3046 255.2366  280.0330  987.1430    10</span></span></code></pre>
+<span><span class="co">##      expr      min       lq     mean   median       uq       max neval</span></span>
+<span><span class="co">##  p_within 824.5503 833.2096 847.4219 835.9544 853.4446  922.5932    10</span></span>
+<span><span class="co">##  b_within 736.8564 763.4022 949.0833 771.9526 997.6061 1599.0899    10</span></span>
+<span><span class="co">##  p_across 192.3025 196.1432 226.1786 208.1874 235.5650  368.4397    10</span></span>
+<span><span class="co">##  b_across 215.4739 225.5184 310.1598 233.4895 250.0151  999.1190    10</span></span></code></pre>
 </div>
 <div class="section level2">
 <h2 id="visualize-on-synthetic-data">Visualize on synthetic data<a class="anchor" aria-label="anchor" href="#visualize-on-synthetic-data"></a>
@@ -267,7 +270,7 @@ larger blocks than previously.</p>
 <span><span class="co">## </span></span>
 <span><span class="co">## other attached packages:</span></span>
 <span><span class="co">##  [1] plotgardener_1.4.2          microbenchmark_1.4.9       </span></span>
-<span><span class="co">##  [3] nullranges_1.5.6            nullrangesData_1.4.0       </span></span>
+<span><span class="co">##  [3] nullranges_1.5.8            nullrangesData_1.4.0       </span></span>
 <span><span class="co">##  [5] InteractionSet_1.26.0       SummarizedExperiment_1.28.0</span></span>
 <span><span class="co">##  [7] Biobase_2.58.0              MatrixGenerics_1.10.0      </span></span>
 <span><span class="co">##  [9] matrixStats_0.63.0          GenomicRanges_1.50.2       </span></span>
@@ -298,7 +301,7 @@ larger blocks than previously.</p>
 <span><span class="co">##  [37] Rcpp_1.0.9                    jquerylib_0.1.4              </span></span>
 <span><span class="co">##  [39] pkgdown_2.0.7                 vctrs_0.5.1                  </span></span>
 <span><span class="co">##  [41] Biostrings_2.66.0             strawr_0.0.9                 </span></span>
-<span><span class="co">##  [43] rtracklayer_1.58.0            xfun_0.35                    </span></span>
+<span><span class="co">##  [43] rtracklayer_1.58.0            xfun_0.36                    </span></span>
 <span><span class="co">##  [45] stringr_1.5.0                 plyranges_1.18.0             </span></span>
 <span><span class="co">##  [47] mime_0.12                     lifecycle_1.0.3              </span></span>
 <span><span class="co">##  [49] restfulr_0.0.15               XML_3.99-0.13                </span></span>
@@ -309,10 +312,10 @@ larger blocks than previously.</p>
 <span><span class="co">##  [59] curl_4.3.3                    memoise_2.0.1                </span></span>
 <span><span class="co">##  [61] ggplot2_3.4.0                 yulab.utils_0.0.6            </span></span>
 <span><span class="co">##  [63] sass_0.4.4                    stringi_1.7.8                </span></span>
-<span><span class="co">##  [65] RSQLite_2.2.19                highr_0.9                    </span></span>
+<span><span class="co">##  [65] RSQLite_2.2.20                highr_0.10                   </span></span>
 <span><span class="co">##  [67] BiocVersion_3.16.0            BiocIO_1.8.0                 </span></span>
 <span><span class="co">##  [69] desc_1.4.2                    filelock_1.0.2               </span></span>
-<span><span class="co">##  [71] BiocParallel_1.32.4           rlang_1.0.6                  </span></span>
+<span><span class="co">##  [71] BiocParallel_1.32.5           rlang_1.0.6                  </span></span>
 <span><span class="co">##  [73] pkgconfig_2.0.3               systemfonts_1.0.4            </span></span>
 <span><span class="co">##  [75] bitops_1.0-7                  pracma_2.4.2                 </span></span>
 <span><span class="co">##  [77] evaluate_0.19                 lattice_0.20-45              </span></span>
