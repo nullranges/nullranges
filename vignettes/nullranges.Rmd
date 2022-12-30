@@ -9,12 +9,18 @@ vignette: |
   %\VignetteEncoding{UTF-8}
 ---
 
-The *nullranges* package contains functions for generation of feature
-sets (genomic regions) for exploring the null hypothesis of overlap or 
-colocalization of two observed feature sets. This package contains a
-number of vignettes describing different functionality, from basic to
-more advanced usage.
-For a listing of all the vignettes in the package, one can type:
+The *nullranges* package contains functions for generation of sets of
+genomic ranges, represented as *GRanges* objects, for exploring
+various null hypotheses. For example, one may want to assess the
+significance of the overlap of two sets of ranges, by generating
+statistics of what would be expected
+*under the null distribution of no relationship between these sets*.
+We note that many other test statistics are supported via
+the flexible framework described here, combining *nullranges* with
+*plyranges*.
+The *nullranges* package contains a number of vignettes describing
+different functionality, from basic to more advanced usage.  For a
+listing of all the vignettes in the package, one can type:
 
 ```{r eval=FALSE}
 vignette(package="nullranges")
@@ -22,25 +28,25 @@ vignette(package="nullranges")
 
 ## Choice of methods
 
-The *nullranges* package has two branches of functionality: *matching*
-or *bootstrapping* to generate null feature sets. 
+The *nullranges* package has two distinct branches of functionality: 
+*matching* or *bootstrapping* to generate null sets of genomic ranges. 
 
 In the vignette sections below we describe these two branches and give
 more formal definitions, where each branch has associated vignettes
-and man page sections.
+and man page sections (see *Reference* tab from the package website).
 To give a high level overview, we first provide a **decision tree**
 that helps to indicate the considerations when choosing between these
 branches of functionality.
 
 Define **features** as a set of genomic locations of interest, these
-are minimally a chromosome, start and width (1 bp or more), and
-optionally strand and metadata.
+are minimally represented with a chromosome, start and width,
+and optionally strand and metadata (genomic ranges).
 Given a set of features, suppose that we wish to create an alternate
 set that represents a null feature set, sometimes also referred to as
 "background" or a "control set". For example, we may see that our
-primary features are close to gene start sites, but are they closer
-than we would expect compared to a reasonable choice of
-null/background/control features?
+primary features are close to transcription start sites, but are they
+closer than we would expect compared to a reasonable choice of
+null features?
 
 Additionally, define **pool** as a much larger set of genomic
 locations compared to the primary features, and **covariates** as
@@ -64,12 +70,13 @@ Our choice of methods is informed by the following:
   *near in the genome* to the gene start sites or some other genomic
   feature set?
 * Do the features tend to be distributed in genomic coordinate space
-  such that they are clustered, e.g. open chromatin sites tend to
+  such that they are *clustered*, e.g. open chromatin sites tend to
   occur near each other?  Or do features that are near each other in
   the genome tend to have similar metadata of interest to the
   biological question, e.g. CpG's near each other having similar
   levels of methylation, which will be used in downstream computations
-  of average methylation near gene start site?
+  of average methylation near gene start site? Or is there variable
+  feature density that must be accounted for via genome segmentation?
 
 The following decision tree then informs what methods to choose:
 
@@ -122,6 +129,11 @@ DiagrammeR::grViz("digraph {
 }", height = 500)
 
 ```
+
+In summary, while *matchRanges* does not control for genomic
+distribution and clustering of features, *bootRanges* does not
+directly control for feature covariates independent of proximity and
+local context.
 
 ## Related work
 
