@@ -19,7 +19,7 @@ authors:
     href: https://trichelab.vai.org
   CZI:
     href: https://chanzuckerberg.com
-    
+
 articles:
   - title: Articles
     navbar: ~
@@ -29,13 +29,12 @@ articles:
       - matching_ranges
       - matching_granges
       - matching_ginteractions
-      - segmented_boot_ranges
-      - unseg_boot_ranges
-  
+      - bootRanges
+
 figures:
   fig.width: 5.5
   fig.retina: 1
-  
+
 reference:
   - title: "Bootstrapping Ranges"
     desc: "Block bootstrap ranges optionally within genome segmentation"
