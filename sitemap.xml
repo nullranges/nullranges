@@ -13,6 +13,9 @@
     <loc>https://nullranges.github.io/nullranges/LICENSE.html</loc>
   </url>
   <url>
+    <loc>https://nullranges.github.io/nullranges/articles/bootRanges.html</loc>
+  </url>
+  <url>
     <loc>https://nullranges.github.io/nullranges/articles/index.html</loc>
   </url>
   <url>
@@ -29,12 +32,6 @@
   </url>
   <url>
     <loc>https://nullranges.github.io/nullranges/articles/nullranges.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/articles/segmented_boot_ranges.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/articles/unseg_boot_ranges.html</loc>
   </url>
   <url>
     <loc>https://nullranges.github.io/nullranges/authors.html</loc>

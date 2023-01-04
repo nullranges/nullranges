@@ -49,10 +49,7 @@ GRanges, or GInteractions objects."><meta property="og:image" content="https://n
       <a href="../articles/matching_ginteractions.html">Case study II: CTCF orientation</a>
     </li>
     <li>
-      <a href="../articles/segmented_boot_ranges.html">Segmented block bootstrap</a>
-    </li>
-    <li>
-      <a href="../articles/unseg_boot_ranges.html">Unsegmented block bootstrap</a>
+      <a href="../articles/bootRanges.html">Introduction to bootRanges</a>
     </li>
   </ul></li>
 <li>
@@ -195,15 +192,15 @@ bioRxiv. doi: 10.1101/2022.08.05.502985</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     &lt;logical&gt; &lt;numeric&gt; &lt;character&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1       FALSE   5.60013           c</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2       FALSE   5.43395           c</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3       FALSE   4.65322           c</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4       FALSE   5.21935           a</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3       FALSE   4.47920           b</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4       FALSE   1.45446           c</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5       FALSE   2.99545           c</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ...       ...       ...         ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 496     FALSE   1.45446           c</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 497     FALSE   4.90340           c</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 498     FALSE   4.66673           e</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 499     FALSE   6.29441           a</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 500     FALSE   8.33985           c</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 496     FALSE   4.90340           c</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 497     FALSE   9.54752           b</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 498     FALSE   4.64822           c</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 499     FALSE   1.82828           d</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 500     FALSE   7.02681           b</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## Match with GRanges</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span></span>
@@ -216,15 +213,15 @@ bioRxiv. doi: 10.1101/2022.08.05.502985</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            &lt;Rle&gt;   &lt;IRanges&gt;  &lt;Rle&gt; | &lt;logical&gt; &lt;numeric&gt; &lt;character&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     [1]     chr1   4191-4290      * |     FALSE   5.60013           c</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     [2]     chr1   3668-3767      * |     FALSE   5.43395           c</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     [3]     chr1 10216-10315      * |     FALSE   4.65322           c</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     [4]     chr1   8409-8508      * |     FALSE   5.21935           a</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     [3]     chr1 10236-10335      * |     FALSE   4.47920           b</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     [4]     chr1   8451-8550      * |     FALSE   1.45446           c</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     [5]     chr1   5658-5757      * |     FALSE   2.99545           c</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     ...      ...         ...    ... .       ...       ...         ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   [496]     chr1   8451-8550      * |     FALSE   1.45446           c</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   [497]     chr1   7472-7571      * |     FALSE   4.90340           c</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   [498]     chr1   8313-8412      * |     FALSE   4.66673           e</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   [499]     chr1   8966-9065      * |     FALSE   6.29441           a</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   [500]     chr1   8276-8375      * |     FALSE   8.33985           c</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [496]     chr1   7472-7571      * |     FALSE   4.90340           c</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [497]     chr1   8316-8415      * |     FALSE   9.54752           b</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [498]     chr1   8987-9086      * |     FALSE   4.64822           c</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [499]     chr1   8288-8387      * |     FALSE   1.82828           d</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [500]     chr1     868-967      * |     FALSE   7.02681           b</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   -------</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   seqinfo: 1 sequence from an unspecified genome; no seqlengths</span>
 <span class="r-in"><span></span></span>
@@ -239,28 +236,28 @@ bioRxiv. doi: 10.1101/2022.08.05.502985</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             &lt;Rle&gt;   &lt;IRanges&gt;         &lt;Rle&gt;   &lt;IRanges&gt; | &lt;logical&gt; &lt;numeric&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     [1]      chr1   4191-4290 ---      chr1   4191-4290 |     FALSE   5.60013</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     [2]      chr1   3668-3767 ---      chr1   3668-3767 |     FALSE   5.43395</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     [3]      chr1 10216-10315 ---      chr1 10216-10315 |     FALSE   4.65322</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     [4]      chr1   8409-8508 ---      chr1   8409-8508 |     FALSE   5.21935</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     [3]      chr1 10236-10335 ---      chr1 10236-10335 |     FALSE   4.47920</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     [4]      chr1   8451-8550 ---      chr1   8451-8550 |     FALSE   1.45446</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     [5]      chr1   5658-5757 ---      chr1   5658-5757 |     FALSE   2.99545</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     ...       ...         ... ...       ...         ... .       ...       ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   [496]      chr1   8451-8550 ---      chr1   8451-8550 |     FALSE   1.45446</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   [497]      chr1   7472-7571 ---      chr1   7472-7571 |     FALSE   4.90340</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   [498]      chr1   8313-8412 ---      chr1   8313-8412 |     FALSE   4.66673</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   [499]      chr1   8966-9065 ---      chr1   8966-9065 |     FALSE   6.29441</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   [500]      chr1   8276-8375 ---      chr1   8276-8375 |     FALSE   8.33985</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [496]      chr1   7472-7571 ---      chr1   7472-7571 |     FALSE   4.90340</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [497]      chr1   8316-8415 ---      chr1   8316-8415 |     FALSE   9.54752</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [498]      chr1   8987-9086 ---      chr1   8987-9086 |     FALSE   4.64822</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [499]      chr1   8288-8387 ---      chr1   8288-8387 |     FALSE   1.82828</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [500]      chr1     868-967 ---      chr1     868-967 |     FALSE   7.02681</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            feature3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         &lt;character&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     [1]           c</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     [2]           c</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     [3]           c</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     [4]           a</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     [3]           b</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     [4]           c</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     [5]           c</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     ...         ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   [496]           c</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   [497]           c</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   [498]           e</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   [499]           a</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   [500]           c</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [497]           b</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [498]           c</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [499]           d</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [500]           b</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   -------</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   regions: 10500 ranges and 0 metadata columns</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   seqinfo: 1 sequence from an unspecified genome; no seqlengths</span>
@@ -301,15 +298,15 @@ bioRxiv. doi: 10.1101/2022.08.05.502985</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     &lt;logical&gt; &lt;numeric&gt; &lt;character&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1       FALSE   5.60013           c</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2       FALSE   5.43395           c</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3       FALSE   4.65322           c</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4       FALSE   5.21935           a</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3       FALSE   4.47920           b</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4       FALSE   1.45446           c</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5       FALSE   2.99545           c</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ...       ...       ...         ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 496     FALSE   1.45446           c</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 497     FALSE   4.90340           c</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 498     FALSE   4.66673           e</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 499     FALSE   6.29441           a</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 500     FALSE   8.33985           c</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 496     FALSE   4.90340           c</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 497     FALSE   9.54752           b</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 498     FALSE   4.64822           c</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 499     FALSE   1.82828           d</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 500     FALSE   7.02681           b</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## Stratified sampling without replacement</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span></span>

@@ -72,10 +72,7 @@
       <a href="../articles/matching_ginteractions.html">Case study II: CTCF orientation</a>
     </li>
     <li>
-      <a href="../articles/segmented_boot_ranges.html">Segmented block bootstrap</a>
-    </li>
-    <li>
-      <a href="../articles/unseg_boot_ranges.html">Unsegmented block bootstrap</a>
+      <a href="../articles/bootRanges.html">Introduction to bootRanges</a>
     </li>
   </ul>
 </li>
@@ -107,7 +104,7 @@
                         <h4 data-toc-skip class="author">Eric S.
 Davis</h4>
             
-            <h4 data-toc-skip class="date">12/30/2022</h4>
+            <h4 data-toc-skip class="date">01/04/2023</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/HEAD/vignettes/matching_granges.Rmd" class="external-link"><code>vignettes/matching_granges.Rmd</code></a></small>
       <div class="hidden name"><code>matching_granges.Rmd</code></div>
@@ -292,7 +289,7 @@ each set to give a quick idea of overall matching quality.</p>
 <p>Let’s visualize overall matching quality by plotting propensity
 scores for the focal, pool, and matched sets:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plotPropensity.html">plotPropensity</a></span><span class="op">(</span><span class="va">mgr</span>, sets <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'f'</span>, <span class="st">'p'</span>, <span class="st">'m'</span><span class="op">)</span>, type <span class="op">=</span> <span class="st">'ridges'</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plotPropensity.html">plotPropensity</a></span><span class="op">(</span><span class="va">mgr</span>, sets <span class="op">=</span> <span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'f'</span>, <span class="st">'p'</span>, <span class="st">'m'</span><span class="op">)</span>, type <span class="op">=</span> <span class="st">'ridges'</span><span class="op">)</span></span></code></pre></div>
 <p><img src="matching_granges_files/figure-html/unnamed-chunk-6-1.png"><!-- --></p>
 <p>From this plot, it is clear that the matched set is much closer to
 the focal set than the pool set.</p>
@@ -302,7 +299,7 @@ matched covariates along with <code>patchwork</code> and
 <code>plotCovarite</code> to visualize all distributions:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com" class="external-link">patchwork</a></span><span class="op">)</span></span>
-<span><span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="../reference/covariates.html">covariates</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span>, <span class="va">plotCovariate</span>, x<span class="op">=</span><span class="va">mgr</span>, sets <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'f'</span>, <span class="st">'m'</span>, <span class="st">'p'</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="../reference/covariates.html">covariates</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span>, <span class="va">plotCovariate</span>, x<span class="op">=</span><span class="va">mgr</span>, sets <span class="op">=</span> <span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'f'</span>, <span class="st">'m'</span>, <span class="st">'p'</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/funprog.html" class="external-link">Reduce</a></span><span class="op">(</span><span class="st">'/'</span>, <span class="va">plots</span><span class="op">)</span></span></code></pre></div>
 <p><img src="matching_granges_files/figure-html/unnamed-chunk-7-1.png"><!-- --></p>
 </div>
@@ -329,7 +326,7 @@ sets are unlooped).</p>
 <span><span class="op">)</span></span></code></pre></div>
 <p>We define some custom colors for our barplot:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>looped_focal<span class="op">=</span><span class="st">"#1F78B4"</span>,</span>
+<code class="sourceCode R"><span><span class="va">cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/c.html" class="external-link">c</a></span><span class="op">(</span>looped_focal<span class="op">=</span><span class="st">"#1F78B4"</span>,</span>
 <span>          unlooped_matched<span class="op">=</span><span class="st">"#A6CEE3"</span>,</span>
 <span>          unlooped_pool<span class="op">=</span><span class="st">"#33A02C"</span><span class="op">)</span></span></code></pre></div>
 <p>And finally we can make the plot, with a grouped summarization

@@ -72,10 +72,7 @@
       <a href="../articles/matching_ginteractions.html">Case study II: CTCF orientation</a>
     </li>
     <li>
-      <a href="../articles/segmented_boot_ranges.html">Segmented block bootstrap</a>
-    </li>
-    <li>
-      <a href="../articles/unseg_boot_ranges.html">Unsegmented block bootstrap</a>
+      <a href="../articles/bootRanges.html">Introduction to bootRanges</a>
     </li>
   </ul>
 </li>
@@ -107,7 +104,7 @@
                         <h4 data-toc-skip class="author">Eric S.
 Davis</h4>
             
-            <h4 data-toc-skip class="date">12/30/2022</h4>
+            <h4 data-toc-skip class="date">01/04/2023</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/HEAD/vignettes/matching_ginteractions.Rmd" class="external-link"><code>vignettes/matching_ginteractions.Rmd</code></a></small>
       <div class="hidden name"><code>matching_ginteractions.Rmd</code></div>
@@ -305,14 +302,14 @@ matching quality:</p>
 <p>Let’s visualize overall matching quality by plotting propensity
 scores for the focal, pool, and matched sets:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plotPropensity.html">plotPropensity</a></span><span class="op">(</span><span class="va">mgi</span>, sets <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'f'</span>, <span class="st">'p'</span>, <span class="st">'m'</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plotPropensity.html">plotPropensity</a></span><span class="op">(</span><span class="va">mgi</span>, sets <span class="op">=</span> <span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'f'</span>, <span class="st">'p'</span>, <span class="st">'m'</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="matching_ginteractions_files/figure-html/unnamed-chunk-7-1.png"><!-- --></p>
 <p>Log transformations can be applied to ‘x’, ‘y’, or both
 (<code>c('x', 'y')</code>) for plotting functions to make it easier to
 assess quality. It is clear that the matched set is very well matched to
 the focal set:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plotPropensity.html">plotPropensity</a></span><span class="op">(</span><span class="va">mgi</span>, sets <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'f'</span>, <span class="st">'p'</span>, <span class="st">'m'</span><span class="op">)</span>, log <span class="op">=</span> <span class="st">'x'</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plotPropensity.html">plotPropensity</a></span><span class="op">(</span><span class="va">mgi</span>, sets <span class="op">=</span> <span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'f'</span>, <span class="st">'p'</span>, <span class="st">'m'</span><span class="op">)</span>, log <span class="op">=</span> <span class="st">'x'</span><span class="op">)</span></span></code></pre></div>
 <p><img src="matching_ginteractions_files/figure-html/unnamed-chunk-8-1.png"><!-- --></p>
 <p>We can ensure that covariate distributions have been matched
 appropriately by using the <code><a href="../reference/covariates.html">covariates()</a></code> function to extract
@@ -320,7 +317,7 @@ matched covariates along with <code>patchwork</code> and
 <code>plotCovarite</code> to visualize all distributions:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com" class="external-link">patchwork</a></span><span class="op">)</span></span>
-<span><span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="../reference/covariates.html">covariates</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span>, <span class="va">plotCovariate</span>, x<span class="op">=</span><span class="va">mgi</span>, sets <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'f'</span>, <span class="st">'m'</span>, <span class="st">'p'</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="../reference/covariates.html">covariates</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span>, <span class="va">plotCovariate</span>, x<span class="op">=</span><span class="va">mgi</span>, sets <span class="op">=</span> <span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'f'</span>, <span class="st">'m'</span>, <span class="st">'p'</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/funprog.html" class="external-link">Reduce</a></span><span class="op">(</span><span class="st">'/'</span>, <span class="va">plots</span><span class="op">)</span></span></code></pre></div>
 <p><img src="matching_ginteractions_files/figure-html/unnamed-chunk-9-1.png"><!-- --></p>
 </div>
@@ -336,7 +333,7 @@ our covariates. The accessor function <code><a href="../reference/focal.html">fo
 sets:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## Generate a randomly selected set from all binPairs</span></span>
-<span><span class="va">all</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="../reference/focal.html">focal</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span>, <span class="fu"><a href="../reference/pool.html">pool</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">all</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="../reference/focal.html">focal</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span>, <span class="fu"><a href="../reference/pool.html">pool</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
 <span><span class="va">random</span> <span class="op">&lt;-</span> <span class="va">all</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">all</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span>, replace <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co">## Calculate the percent of convergent CTCF sites for each group</span></span>
@@ -345,10 +342,10 @@ sets:</p>
 <span><span class="va">g3</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">random</span><span class="op">$</span><span class="va">convergent</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">random</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span></span>
 <span><span class="va">g4</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">$</span><span class="va">convergent</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">mgi</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span></span>
 <span><span class="co">## Visualize</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html" class="external-link">barplot</a></span><span class="op">(</span>height <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">g1</span>, <span class="va">g2</span>, <span class="va">g3</span>, <span class="va">g4</span><span class="op">)</span>,</span>
-<span>        names.arg <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'looped\n(focal)'</span>, <span class="st">'unlooped\n(pool)'</span>,</span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html" class="external-link">barplot</a></span><span class="op">(</span>height <span class="op">=</span> <span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">g1</span>, <span class="va">g2</span>, <span class="va">g3</span>, <span class="va">g4</span><span class="op">)</span>,</span>
+<span>        names.arg <span class="op">=</span> <span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'looped\n(focal)'</span>, <span class="st">'unlooped\n(pool)'</span>,</span>
 <span>                      <span class="st">'all pairs\n(random)'</span>, <span class="st">'unlooped\n(matched)'</span><span class="op">)</span>,</span>
-<span>        col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'#1F78B4'</span>, <span class="st">'#33A02C'</span>, <span class="st">'orange2'</span>, <span class="st">'#A6CEE3'</span><span class="op">)</span>, </span>
+<span>        col <span class="op">=</span> <span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'#1F78B4'</span>, <span class="st">'#33A02C'</span>, <span class="st">'orange2'</span>, <span class="st">'#A6CEE3'</span><span class="op">)</span>, </span>
 <span>        ylab <span class="op">=</span> <span class="st">"Convergent CTCF Sites (%)"</span>,</span>
 <span>        main <span class="op">=</span> <span class="st">"Testing the Convergence Rule"</span>,</span>
 <span>        border <span class="op">=</span> <span class="cn">NA</span>,</span>
