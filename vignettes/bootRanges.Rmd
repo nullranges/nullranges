@@ -419,8 +419,8 @@ ggplot(boot_stats, aes(sumSignal)) +
   geom_vline(xintercept = sum(x_obs$signalValue ))
 ```
 
-### Derive statistics of interest from other formats than *GRanges*
-Instead of deriving statistics of interest from *GRanges* metadata column or genome position, count matrix from *SummerizedExperiment* or *SingleCellExperiment* could also be used. One case study is to assess the
+## Case study II: Bootstrapping peaks count matrix in single-cell design
+Instead of deriving statistics of interest directly from *GRanges* metadata column or genome position, count matrix from *SummerizedExperiment* or *SingleCellExperiment* could also be used. One case study is to assess the
 correlation of the all pairs of genes and promoter peaks from Chromium
 Single Cell Multiome ATAC + Gene Expression. 
 
