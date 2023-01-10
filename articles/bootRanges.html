@@ -103,7 +103,7 @@
       <h1 data-toc-skip>Introduction to bootRanges</h1>
                         <h4 data-toc-skip class="author">Wancen Mu</h4>
             
-            <h4 data-toc-skip class="date">01/04/2023</h4>
+            <h4 data-toc-skip class="date">01/10/2023</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/HEAD/vignettes/bootRanges.Rmd" class="external-link"><code>vignettes/bootRanges.Rmd</code></a></small>
       <div class="hidden name"><code>bootRanges.Rmd</code></div>
@@ -662,12 +662,12 @@ blocks moving across chromosomes).</p>
 <span><span class="op">)</span>, times<span class="op">=</span><span class="fl">10</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Unit: milliseconds</span></span>
 <span><span class="co">##            expr      min       lq      mean    median       uq      max neval</span></span>
-<span><span class="co">##        seg_prop  73.3119  76.7965  78.74240  77.08635  78.9821  91.4054    10</span></span>
-<span><span class="co">##     seg_no_prop  70.7912  71.1207  72.37490  71.92910  72.5851  75.6804    10</span></span>
-<span><span class="co">##  unseg_p_within 496.9939 500.7186 518.46189 523.16340 530.6425 537.3139    10</span></span>
-<span><span class="co">##  unseg_b_within 408.7020 418.7497 426.54652 424.85650 434.0590 450.1728    10</span></span>
-<span><span class="co">##  unseg_p_across  73.6331  73.8979  75.83108  74.45600  75.3507  88.5717    10</span></span>
-<span><span class="co">##  unseg_b_across  80.4067  80.8362  81.55119  80.98445  81.5760  86.0543    10</span></span></code></pre>
+<span><span class="co">##        seg_prop  72.6553  77.6946  79.46475  78.16110  78.6857  93.2853    10</span></span>
+<span><span class="co">##     seg_no_prop  71.6779  72.1382  73.17390  72.45180  73.0924  76.9244    10</span></span>
+<span><span class="co">##  unseg_p_within 500.0055 505.2050 524.68170 528.91315 537.1181 549.9253    10</span></span>
+<span><span class="co">##  unseg_b_within 409.4567 421.9330 429.11397 429.33955 436.6302 451.4376    10</span></span>
+<span><span class="co">##  unseg_p_across  74.3327  74.6761  76.73918  75.45975  76.0646  90.0797    10</span></span>
+<span><span class="co">##  unseg_b_across  81.1750  81.6795  83.00348  82.24310  83.3383  87.9387    10</span></span></code></pre>
 <p>Overall, schemes of across chromosome are fastest and are preferred.
 Segmented and unsegmented have similar running time. For the unsegmented
 bootstrap, the block bootstrap will be preferred over block permutation,
@@ -899,7 +899,7 @@ larger blocks than previously.</p>
 <span><span class="co">## [17] SummarizedExperiment_1.28.0 Biobase_2.58.0             </span></span>
 <span><span class="co">## [19] MatrixGenerics_1.10.0       matrixStats_0.63.0         </span></span>
 <span><span class="co">## [21] ExperimentHub_2.6.0         GenomicRanges_1.50.2       </span></span>
-<span><span class="co">## [23] GenomeInfoDb_1.34.4         IRanges_2.32.0             </span></span>
+<span><span class="co">## [23] GenomeInfoDb_1.34.6         IRanges_2.32.0             </span></span>
 <span><span class="co">## [25] S4Vectors_0.36.1            AnnotationHub_3.6.0        </span></span>
 <span><span class="co">## [27] BiocFileCache_2.6.0         dbplyr_2.2.1               </span></span>
 <span><span class="co">## [29] BiocGenerics_0.44.0        </span></span>
