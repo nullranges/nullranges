@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Overview of matchRanges • nullranges</title>
+<title>Introduction to matchRanges • nullranges</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
 <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png">
@@ -17,7 +17,7 @@
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="Overview of matchRanges">
+<script src="../pkgdown.js"></script><meta property="og:title" content="Introduction to matchRanges">
 <meta property="og:description" content="nullranges">
 <meta property="og:image" content="https://nullranges.github.io/nullranges/logo.png">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
@@ -40,7 +40,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.5.9</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.5.10</span>
       </span>
     </div>
 
@@ -60,19 +60,19 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="../articles/matching_pool_set.html">Creating a pool set for matchRanges</a>
-    </li>
-    <li>
-      <a href="../articles/matching_ranges.html">Overview of matchRanges</a>
-    </li>
-    <li>
-      <a href="../articles/matching_granges.html">Case study I: CTCF occupancy</a>
-    </li>
-    <li>
-      <a href="../articles/matching_ginteractions.html">Case study II: CTCF orientation</a>
-    </li>
-    <li>
       <a href="../articles/bootRanges.html">Introduction to bootRanges</a>
+    </li>
+    <li>
+      <a href="../articles/matchRanges.html">Introduction to matchRanges</a>
+    </li>
+    <li>
+      <a href="../articles/matching_granges.html">Matching case study I: CTCF occupancy</a>
+    </li>
+    <li>
+      <a href="../articles/matching_ginteractions.html">Matching case study II: CTCF orientation</a>
+    </li>
+    <li>
+      <a href="../articles/matching_pool_set.html">Creating a pool set for matchRanges</a>
     </li>
   </ul>
 </li>
@@ -100,14 +100,14 @@
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1 data-toc-skip>Overview of matchRanges</h1>
+      <h1 data-toc-skip>Introduction to matchRanges</h1>
                         <h4 data-toc-skip class="author">Eric S.
 Davis</h4>
             
-            <h4 data-toc-skip class="date">01/10/2023</h4>
+            <h4 data-toc-skip class="date">01/13/2023</h4>
       
-      <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/HEAD/vignettes/matching_ranges.Rmd" class="external-link"><code>vignettes/matching_ranges.Rmd</code></a></small>
-      <div class="hidden name"><code>matching_ranges.Rmd</code></div>
+      <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/HEAD/vignettes/matchRanges.Rmd" class="external-link"><code>vignettes/matchRanges.Rmd</code></a></small>
+      <div class="hidden name"><code>matchRanges.Rmd</code></div>
 
     </div>
 
@@ -134,7 +134,7 @@ occupancy</a>, and <a href="matching_ginteractions.html">Case study II:
 CTCF orientation</a> vignettes.</p>
 <p>For a description of the method, see <span class="citation">Davis et
 al. (2022)</span>.</p>
-<p><img src="matching_ranges_files/figure-html/unnamed-chunk-1-1.png"><!-- --></p>
+<p><img src="matchRanges_files/figure-html/unnamed-chunk-1-1.png"><!-- --></p>
 </div>
 <div class="section level3">
 <h3 id="terminology">Terminology<a class="anchor" aria-label="anchor" href="#terminology"></a>
@@ -295,19 +295,19 @@ returned. It also reports the mean difference in focal-matched sets:</p>
 overall:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotPropensity.html">plotPropensity</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span></span></code></pre></div>
-<p><img src="matching_ranges_files/figure-html/unnamed-chunk-6-1.png"><!-- --></p>
+<p><img src="matchRanges_files/figure-html/unnamed-chunk-6-1.png"><!-- --></p>
 <p>The distributions of features can be visualized in each set with
 <code><a href="../reference/plotCovariate.html">plotCovariate()</a></code>:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotCovariate.html">plotCovariate</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span></span></code></pre></div>
-<p><img src="matching_ranges_files/figure-html/unnamed-chunk-7-1.png"><!-- --></p>
+<p><img src="matchRanges_files/figure-html/unnamed-chunk-7-1.png"><!-- --></p>
 <p>Since these functions return ggplots, <code>patchwork</code> can be
 used to visualize all covariates like this:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com" class="external-link">patchwork</a></span><span class="op">)</span></span>
 <span><span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="../reference/covariates.html">covariates</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span>, <span class="va">plotCovariate</span>, x<span class="op">=</span><span class="va">mgr</span>, sets <span class="op">=</span> <span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'f'</span>, <span class="st">'m'</span>, <span class="st">'p'</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/funprog.html" class="external-link">Reduce</a></span><span class="op">(</span><span class="st">'/'</span>, <span class="va">plots</span><span class="op">)</span></span></code></pre></div>
-<p><img src="matching_ranges_files/figure-html/unnamed-chunk-8-1.png"><!-- --></p>
+<p><img src="matchRanges_files/figure-html/unnamed-chunk-8-1.png"><!-- --></p>
 <p>By default, continuous features are plotted as density line plots
 while categorical features are plotted as stacked bar plots. All sets
 are also shown by default. Defaults can be overridden by setting the
@@ -440,7 +440,7 @@ In fact, <code>matched(x)</code> is a convenient wrapper around
 <code class="sourceCode R"><span><span class="fu"><a href="https://ngreifer.github.io/cobalt/reference/love.plot.html" class="external-link">love.plot</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Warning: Standardized mean differences and raw mean differences are present in the same plot. </span></span>
 <span><span class="co">## Use the 'stars' argument to distinguish between them and appropriately label the x-axis.</span></span></code></pre>
-<p><img src="matching_ranges_files/figure-html/unnamed-chunk-13-1.png"><!-- --></p>
+<p><img src="matchRanges_files/figure-html/unnamed-chunk-13-1.png"><!-- --></p>
 </div>
 </div>
 <div class="section level3">
@@ -472,7 +472,7 @@ between <code>focal</code> and <code>pool</code> propensity scores.</p>
 <span>                   replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">nn</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/overview.html">overview</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/plotPropensity.html">plotPropensity</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span></span></code></pre></div>
-<p><img src="matching_ranges_files/figure-html/unnamed-chunk-14-1.png"><!-- --></p>
+<p><img src="matchRanges_files/figure-html/unnamed-chunk-14-1.png"><!-- --></p>
 <p>This method is best if you have a very large dataset because it is
 usually the fastest matching method. However, because sampling is done
 with replacement the user should be careful to assess the number of
@@ -523,7 +523,7 @@ the default values are rejection sampling without replacement.</p>
 <span>                   replace <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="va">rs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/overview.html">overview</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/plotPropensity.html">plotPropensity</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span></span></code></pre></div>
-<p><img src="matching_ranges_files/figure-html/unnamed-chunk-16-1.png"><!-- --></p>
+<p><img src="matchRanges_files/figure-html/unnamed-chunk-16-1.png"><!-- --></p>
 <p>Rejection sampling is the fastest available matching method for
 sampling without replacement. Therefore, it is ideal to use on large
 datasets when sampling without replacement is important. However, this
@@ -553,7 +553,7 @@ maintains matching quality while decreasing run-time.</p>
 <span>                   replace <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="va">ss</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/overview.html">overview</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/plotPropensity.html">plotPropensity</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span></span></code></pre></div>
-<p><img src="matching_ranges_files/figure-html/unnamed-chunk-17-1.png"><!-- --></p>
+<p><img src="matchRanges_files/figure-html/unnamed-chunk-17-1.png"><!-- --></p>
 <p>For very large data sets, users might notice a slight increase in run
 time compared to the other methods. Stratified sampling tends to work
 very well for discrete data, and often produces the best matches even on
@@ -629,7 +629,7 @@ as normal <code>GRanges</code> methods (e.g.s <code>seqnames</code>,
 <span><span class="co">##  [1] cobalt_4.4.1         patchwork_1.1.2      GenomicRanges_1.50.2</span></span>
 <span><span class="co">##  [4] GenomeInfoDb_1.34.6  IRanges_2.32.0       S4Vectors_0.36.1    </span></span>
 <span><span class="co">##  [7] BiocGenerics_0.44.0  ggplot2_3.4.0        plotgardener_1.4.2  </span></span>
-<span><span class="co">## [10] nullranges_1.5.9    </span></span>
+<span><span class="co">## [10] nullranges_1.5.10   </span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## loaded via a namespace (and not attached):</span></span>
 <span><span class="co">##  [1] bitops_1.0-7                matrixStats_0.63.0         </span></span>
@@ -641,8 +641,8 @@ as normal <code>GRanges</code> methods (e.g.s <code>seqnames</code>,
 <span><span class="co">## [13] KernSmooth_2.23-20          DBI_1.1.3                  </span></span>
 <span><span class="co">## [15] colorspace_2.0-3            withr_2.5.0                </span></span>
 <span><span class="co">## [17] prettyunits_1.1.1           tidyselect_1.2.0           </span></span>
-<span><span class="co">## [19] curl_4.3.3                  compiler_4.2.2             </span></span>
-<span><span class="co">## [21] textshaping_0.3.6           cli_3.5.0                  </span></span>
+<span><span class="co">## [19] curl_5.0.0                  compiler_4.2.2             </span></span>
+<span><span class="co">## [21] textshaping_0.3.6           cli_3.6.0                  </span></span>
 <span><span class="co">## [23] Biobase_2.58.0              desc_1.4.2                 </span></span>
 <span><span class="co">## [25] DelayedArray_0.24.0         labeling_0.4.2             </span></span>
 <span><span class="co">## [27] rtracklayer_1.58.0          sass_0.4.4                 </span></span>
@@ -664,7 +664,7 @@ as normal <code>GRanges</code> methods (e.g.s <code>seqnames</code>,
 <span><span class="co">## [59] GenomeInfoDbData_1.2.9      Matrix_1.5-3               </span></span>
 <span><span class="co">## [61] Rcpp_1.0.9                  munsell_0.5.0              </span></span>
 <span><span class="co">## [63] fansi_1.0.3                 lifecycle_1.0.3            </span></span>
-<span><span class="co">## [65] stringi_1.7.8               yaml_2.3.6                 </span></span>
+<span><span class="co">## [65] stringi_1.7.12              yaml_2.3.6                 </span></span>
 <span><span class="co">## [67] MASS_7.3-58.1               SummarizedExperiment_1.28.0</span></span>
 <span><span class="co">## [69] zlibbioc_1.44.0             parallel_4.2.2             </span></span>
 <span><span class="co">## [71] crayon_1.5.2                lattice_0.20-45            </span></span>
@@ -674,11 +674,11 @@ as normal <code>GRanges</code> methods (e.g.s <code>seqnames</code>,
 <span><span class="co">## [79] strawr_0.0.9                XML_3.99-0.13              </span></span>
 <span><span class="co">## [81] glue_1.6.2                  evaluate_0.19              </span></span>
 <span><span class="co">## [83] data.table_1.14.6           vctrs_0.5.1                </span></span>
-<span><span class="co">## [85] gtable_0.3.1                purrr_1.0.0                </span></span>
+<span><span class="co">## [85] gtable_0.3.1                purrr_1.0.1                </span></span>
 <span><span class="co">## [87] assertthat_0.2.1            ks_1.14.0                  </span></span>
 <span><span class="co">## [89] cachem_1.0.6                xfun_0.36                  </span></span>
 <span><span class="co">## [91] restfulr_0.0.15             pracma_2.4.2               </span></span>
-<span><span class="co">## [93] ragg_1.2.4                  tibble_3.1.8               </span></span>
+<span><span class="co">## [93] ragg_1.2.5                  tibble_3.1.8               </span></span>
 <span><span class="co">## [95] GenomicAlignments_1.34.0    plyranges_1.18.0           </span></span>
 <span><span class="co">## [97] memoise_2.0.1               ellipsis_0.3.2</span></span></code></pre>
 </div>
