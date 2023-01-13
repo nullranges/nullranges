@@ -1,5 +1,5 @@
 ---
-title: "Case study I: CTCF occupancy"
+title: "Matching case study I: CTCF occupancy"
 author: "Eric S. Davis"
 date: "`r format(Sys.Date(), '%m/%d/%Y')`"
 output:
@@ -10,7 +10,7 @@ output:
     fig_width: 5
     fig_height: 3
 vignette: |
-  %\VignetteIndexEntry{2. Case study I: CTCF occupancy}
+  %\VignetteIndexEntry{3. Matching case study I: CTCF occupancy}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 editor_options: 

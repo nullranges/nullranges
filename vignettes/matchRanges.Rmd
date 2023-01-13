@@ -1,5 +1,5 @@
 ---
-title: "Overview of matchRanges"
+title: "Introduction to matchRanges"
 author: "Eric S. Davis"
 date: "`r format(Sys.Date(), '%m/%d/%Y')`"
 bibliography: library.bib
@@ -11,7 +11,7 @@ output:
     fig_width: 5
     fig_height: 3
 vignette: |
-  %\VignetteIndexEntry{1. Overview of matchRanges}
+  %\VignetteIndexEntry{2. Introduction to matchRanges}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

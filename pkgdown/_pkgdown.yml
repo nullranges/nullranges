@@ -25,11 +25,11 @@ articles:
     navbar: ~
     contents:
       - nullranges
-      - matching_pool_set
-      - matching_ranges
+      - bootRanges
+      - matchRanges
       - matching_granges
       - matching_ginteractions
-      - bootRanges
+      - matching_pool_set
 
 figures:
   fig.width: 5.5
