@@ -17,7 +17,7 @@ editor_options:
     wrap: 72
 ---
 
-# Overview 
+# Introduction 
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(fig.width=5, fig.height=5, message=FALSE, warning=FALSE)
@@ -35,6 +35,26 @@ implemented in a python software called Genome Structure Correlation,
 [GSC](https://github.com/ParkerLab/encodegsc).
 
 Our description of the *bootRanges* methods is described in @bootRanges.
+
+# Quick start
+
+Minimal code for running `bootRanges()` is shown below. Genome
+segmentation `seg` and excluded regions `exclude` are optional.
+
+```{r eval=FALSE}
+eh <- ExperimentHub()
+ah <- AnnotationHub()
+seg <- eh[["EH7307"]] # genome segmentation for hg38
+exclude <- ah[["AH107305"]] # Kundaje excluded regions for hg38, see below
+set.seed(5) # set seed for reproducibility
+blockLength <- 5e5 # size of blocks to bootstrap
+R <- 10 # number of iterations of the bootstrap
+boots <- bootRanges(ranges, blockLength=blockLength, R=R,
+                    seg=seg, exclude=exclude)
+# `boots` can then be used with plyranges commands
+```
+
+# Method overview
 
 Several algorithms are implemented in `bootRanges()`, including
 segmented or not, where in the segmented version, blocks are sampled
