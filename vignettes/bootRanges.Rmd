@@ -123,7 +123,7 @@ of this vignette.
 
 # Segmented block bootstrap
 
-## Case study: Bootstrapping DHS from ENCODE
+## Case study I: Bootstrapping DHS from ENCODE
 
 ### Import excluded regions
 
@@ -168,20 +168,19 @@ test statistics become stable as block length increases (See
 
 There are two options to build segmentation *GRanges*, either:
 
--   Use exiting segmentation (e.g. ChromHMM, etc.) downloaded from
-    AnnotationHub or external to Bioconductor (BED files imported with
-    *rtracklayer*)
--   Perform a de-novo segmentation of the genome using feature density,
-    e.g. gene density 
+- Use exiting segmentation (e.g. ChromHMM, etc.) downloaded from
+  AnnotationHub or external to Bioconductor (BED files imported with
+  *rtracklayer*)
+- Perform a de-novo segmentation of the genome using feature density,
+  e.g. gene density 
 
-#### Pre-built segmentations
+**Pre-built segmentations**
 
 Given that these evaluations take time and involve consideration of
 multiple criteria, we have provided our recommended segmentation for
 hg38. *nullranges* has generated pre-built segmentations for easy use
-by 
-following below section [Segmentation by gene
-density](#Segmentation%20by%20gene%20density). Either pre-built
+by following below section *Segmentation by gene density*
+Either pre-built
 segmentations using *CBS* or *HMM* methods with $L_s=2e6$ considering excludable
 regions can be selected from *ExperimentHub*. We find that the
 segmentation and block length shown here could be used for most
@@ -195,7 +194,7 @@ seg_hmm <- eh[["EH7308"]]
 seg <- seg_cbs
 ```
 
-#### Segmentation by gene density
+**Segmentation by gene density**
 
 This section describes how we generate pre-built segmentations. First
 we obtain the Ensembl genes [@ensembl2021] for segmenting by gene 
@@ -226,7 +225,7 @@ g <- sort(g)
 table(seqnames(g))
 ```
 
-##### CBS segmentation
+**CBS segmentation**
 
 We first demonstrate the use a CBS segmentation as implemented in
 *DNAcopy* [@dnacopy].
@@ -273,7 +272,7 @@ region <- GRanges("chr16", IRanges(3e7,4e7))
 plotSegment(seg_cbs, exclude, type="ranges", region=region)
 ```
 
-#### Alternatively: HMM segmentation
+**Alternatively: HMM segmentation**
 
 Here we use an alternative segmentation implemented in the *RcppHMM*
 CRAN package, using the `initGHMM`, `learnEM`, and `viterbi` functions.
@@ -351,7 +350,7 @@ not contain small ranges. If one wanted to also avoid generation of
 bootstrapped features that overlap small excluded ranges, then omit this
 filtering step (use the original, complete `exclude` feature set).
 
-## Assessing quality of bootstrap samples
+### Assessing quality of bootstrap samples
 
 We can examine properties of permuted y over iterations, and compare
 to the original y. To do so, we first add the original features as
@@ -400,8 +399,7 @@ combined %>% plyranges::filter(iter %in% 0:3) %>%
             vjust=1.5)
 ```
 
-
-## Derive statistics of interest
+### Derive statistics of interest
 
 Suppose we have a set of features `x` and we are interested in evaluating the $\color{brown}{\text{enrichment of this set with the DHS}}$. We can calculate for example the sum observed number of overlaps for features in `x`  with DHS in whole genome (or something more complicated, e.g. the maximum log fold change or signal value for DHS peaks within a `maxgap` window of `x`).
 
@@ -489,25 +487,28 @@ used. One case study is to assess the
 correlation of the all pairs of genes and promoter peaks from Chromium
 Single Cell Multiome ATAC + Gene Expression. 
 
-* Pseudo code:
+Pseudo-code:
 
-1.  Generate a GRanges object and extracting
-count matrix from *SingleCellExperiment*.
-2.  Save the count matrix in GRanges's metadata column as a `NumericList()` format 
-3.  Perform `bootranges()` and use *plyranges* in downstream analysis.
+1. Generate a GRanges object and extracting count matrix from
+   *SingleCellExperiment* 
+2. Save the count matrix in GRanges's metadata column as a
+   `NumericList()` format
+3. Perform `bootranges()` and use *plyranges* in downstream analysis
 
 ```{r, eval=FALSE}
 ## split sparse count matrix into NumericList
 rna <- rna_Granges[-which(rna.sd==0)] %>%
-  mutate(counts1 = NumericList(asplit(rna.scaled, 1)))%>% sort()
+  mutate(counts1 = NumericList(asplit(rna.scaled, 1))) %>% sort()
 promoter <- promoter_Granges[-which(promoter.sd==0)] %>%
   mutate(counts2 = NumericList(asplit(promoter.scaled, 1))) %>% sort()
-
-bootranges <- bootRanges(promoter,blockLength = 5e5,R=R,type = "bootstrap", withinChrom = F)
-## draw mean correlation distribution plot
-cor_whole<-rna %>% join_overlap_inner(bootranges, maxgap=1000) %>%
+## bootstrap promoters
+bootranges <- bootRanges(promoter, blockLength = 5e5,
+                         R = R, type = "bootstrap", withinChrom = FALSE)
+## mean correlation distribution
+cor_whole <- rna %>%
+  join_overlap_inner(bootranges, maxgap=1000) %>%
   mutate(rho = 1/(n(col)-1) * sum(counts1 * counts2)) %>%
-  select(rho,iter) %>%
+  select(rho, iter) %>%
   group_by(iter) %>%
   summarise(meanCor = mean(rho)) %>%
   as.data.frame()
@@ -632,7 +633,7 @@ gr$state_col <- factor(seg$state_col[idx])
 plotGRanges(gr)
 ```
 
-### Not scaling by segmentation
+## Scaling vs. not scaling by segment length
 
 We can visualize block bootstrapped ranges when the blocks do not scale
 to segment state length:
@@ -643,8 +644,6 @@ gr_prime <- bootRanges(gr, blockLength = 25, seg = seg,
                        proportionLength = FALSE)
 plotGRanges(gr_prime)
 ```
-
-### Scaling by segmentation
 
 This time the blocks scale to the segment state length. Note that in
 this case `blockLength` is the *maximal* block length possible, but the
