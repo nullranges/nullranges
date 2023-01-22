@@ -8,7 +8,7 @@ articles:
   matching_granges: matching_granges.html
   matching_pool_set: matching_pool_set.html
   nullranges: nullranges.html
-last_built: 2023-01-17T00:25Z
+last_built: 2023-01-22T20:15Z
 urls:
   reference: https://nullranges.github.io/nullranges/reference
   article: https://nullranges.github.io/nullranges/articles
