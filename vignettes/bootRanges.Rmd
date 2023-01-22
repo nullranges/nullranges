@@ -123,12 +123,12 @@ of this vignette.
 
 # Segmented block bootstrap
 
-## Case study I: Bootstrapping DHS from ENCODE
+## Case study I: DHS
 
 ### Import excluded regions
 
-$\color{brown}{\text{To avoid placing bootstrap features into regions
-of the genome that don’t typically have features}}$, we import
+To avoid placing bootstrap features into regions
+of the genome that don’t typically have features, we import
 excluded regions including ENCODE-produced excludable
 regions[@encode_exclude], telomeres from UCSC, centromeres. These, and
 other excludable sets, are assembled in the
@@ -180,11 +180,10 @@ Given that these evaluations take time and involve consideration of
 multiple criteria, we have provided our recommended segmentation for
 hg38. *nullranges* has generated pre-built segmentations for easy use
 by following below section *Segmentation by gene density*
-Either pre-built
-segmentations using *CBS* or *HMM* methods with $L_s=2e6$ considering excludable
-regions can be selected from *ExperimentHub*. We find that the
-segmentation and block length shown here could be used for most
-analysis of hg38. 
+Either pre-built segmentations using *CBS* or *HMM* methods with
+$L_s=2e6$ considering excludable regions can be selected from
+*ExperimentHub*. We find that the segmentation and block length shown
+here could be used for most analysis of hg38.
 
 ```{r, message=FALSE, warning=FALSE}
 suppressPackageStartupMessages(library(ExperimentHub))
@@ -304,13 +303,13 @@ These steps are included in *nullrangesData* in the
 `inst/scripts/make-dhs-data.R` script. 
 
 For speed of the vignette, we restrict to a smaller number of DHS,
-filtering by the signal value. We also remove unrelated metadata columns that we
-don't need for the bootstrap analysis. Because we are interested in
-signal value for DHS peaks later, we only keep it here. Consider, when
-creating 
-bootstrapped data, that you will be creating an object many times larger
-than your original features, so $\color{brown}{\text{filtering and trimming}}$
-extra metadata can help make the analysis more efficient.
+filtering by the signal value. We also remove unrelated metadata
+columns that we don't need for the bootstrap analysis. Because we are
+interested in signal value for DHS peaks later, we only keep it
+here. Consider, when creating bootstrapped data, that you will be
+creating an object many times larger than your original features, so
+$\color{brown}{\text{filtering and trimming}}$ extra metadata can help
+make the analysis more efficient.
 
 ```{r}
 suppressPackageStartupMessages(library(nullrangesData))
@@ -401,7 +400,12 @@ combined %>% plyranges::filter(iter %in% 0:3) %>%
 
 ### Derive statistics of interest
 
-Suppose we have a set of features `x` and we are interested in evaluating the $\color{brown}{\text{enrichment of this set with the DHS}}$. We can calculate for example the sum observed number of overlaps for features in `x`  with DHS in whole genome (or something more complicated, e.g. the maximum log fold change or signal value for DHS peaks within a `maxgap` window of `x`).
+Suppose we have a set of features `x` and we are interested in
+evaluating the enrichment of this set with the
+DHS. We can calculate for example the sum observed number of
+overlaps for features in `x`  with DHS in whole genome (or something
+more complicated, e.g. the maximum log fold change or signal value for
+DHS peaks within a `maxgap` window of `x`). 
 
 ```{r}
 x <- GRanges("chr2", IRanges(1 + 50:99 * 1e6, width=1e6), x_id=1:50)
@@ -478,7 +482,7 @@ ggplot(boot_stats, aes(sumSignal)) +
   geom_vline(xintercept = sum(x_obs$signalValue ))
 ```
 
-## Case study II: Bootstrapping peaks count matrix in single-cell multi-omics
+## Case study II: Single cell multi-omics
 
 Instead of deriving statistics of interest directly from *GRanges*
 metadata column or genome position, count matrix from
@@ -555,7 +559,7 @@ block permutation, as the latter provides additional variance with
 respect to e.g. the total number and repetition of individual input
 ranges per iteration. 
 
-# Visualizing toy bootstrap samples
+# Visualizing bootstrap types
 
 Below we present a toy example for visualizing the segmented block
 bootstrap. First, we define a helper function for plotting *GRanges*
@@ -633,7 +637,7 @@ gr$state_col <- factor(seg$state_col[idx])
 plotGRanges(gr)
 ```
 
-## Scaling vs. not scaling by segment length
+**Scaling vs. not scaling by segment length**
 
 We can visualize block bootstrapped ranges when the blocks do not scale
 to segment state length:
