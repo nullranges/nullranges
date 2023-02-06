@@ -374,7 +374,6 @@ the original feature set y.
 
 ```{r, warning=FALSE}
 suppressPackageStartupMessages(library(ggridges))
-suppressPackageStartupMessages(library(dplyr))
 suppressPackageStartupMessages(library(purrr))
 suppressPackageStartupMessages(library(ggplot2))
 interdist <- function(dat) {
