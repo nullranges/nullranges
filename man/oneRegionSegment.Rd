@@ -8,6 +8,10 @@ oneRegionSegment(x, seqlength)
 }
 \arguments{
 \item{x}{a single region as GRanges object}
+
+\item{seqlength}{optional, the length of the chromosome,
+if not provided, the function will attempt to pull this
+using \code{genome(x)} and the \code{Seqinfo} function}
 }
 \value{
 a segmentation (GRanges object) with the region of

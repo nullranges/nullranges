@@ -374,6 +374,7 @@ the original feature set y.
 
 ```{r, warning=FALSE}
 suppressPackageStartupMessages(library(ggridges))
+suppressPackageStartupMessages(library(dplyr))
 suppressPackageStartupMessages(library(purrr))
 suppressPackageStartupMessages(library(ggplot2))
 interdist <- function(dat) {
@@ -382,7 +383,6 @@ interdist <- function(dat) {
     ifelse(x$seqnames == y$seqnames,
            x$start + floor((x$width - 1)/2) -
            y$start-floor((y$width - 1)/2), NA)}
-
 combined %>% plyranges::filter(iter %in% 0:3) %>%
   plyranges::select(iter) %>%
   as.data.frame() %>% 

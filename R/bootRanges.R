@@ -30,7 +30,7 @@
 #' quantile rbinom rnorm runif terms
 #' @importFrom S4Vectors Rle
 #' @importFrom IRanges IRanges successiveIRanges mid
-#' @importFrom GenomicRanges tileGenome sort GRangesList
+#' @importFrom GenomicRanges tileGenome sort GRangesList genome
 #' @importFrom GenomeInfoDb seqlengths seqlengths<- seqlevels sortSeqlevels
 #'
 #' @references

@@ -4,6 +4,9 @@
 #' region of one chromosome (seqnames).
 #'
 #' @param x a single region as GRanges object
+#' @param seqlength optional, the length of the chromosome,
+#' if not provided, the function will attempt to pull this
+#' using \code{genome(x)} and the \code{Seqinfo} function
 #'
 #' @return a segmentation (GRanges object) with the region of
 #' interest designated as state 2, and the rest of the chromosome
