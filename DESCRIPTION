@@ -1,6 +1,6 @@
 Package: nullranges
 Title: Generation of null ranges via bootstrapping or covariate matching
-Version: 1.5.13
+Version: 1.5.14
 Authors@R: c(
     person("Michael", "Love", role = c("aut", "cre"),
       email = "michaelisaiahlove@gmail.com",
@@ -76,4 +76,4 @@ Encoding: UTF-8
 LazyData: true
 VignetteBuilder: knitr
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
