@@ -147,7 +147,10 @@ exclude_3 <- ah[["AH107355"]]
 # hg38.UCSC.short_arm
 exclude_4 <- ah[["AH107356"]]
 # combine them
-exclude <- reduce(c(exclude_1, exclude_2, exclude_3, exclude_4)) %>% sort()
+suppressWarnings({
+  exclude <- trim(c(exclude_1, exclude_2, exclude_3, exclude_4))
+})
+exclude <- sort(GenomicRanges::reduce(exclude))
 ```
 
 ### Segmentations choices
@@ -377,22 +380,26 @@ suppressPackageStartupMessages(library(ggridges))
 suppressPackageStartupMessages(library(purrr))
 suppressPackageStartupMessages(library(ggplot2))
 interdist <- function(dat) {
-    x = dat[-1,]
-    y = dat[-nrow(dat),]
+    x <- dat[-1,]
+    y <- dat[-nrow(dat),]
     ifelse(x$seqnames == y$seqnames,
            x$start + floor((x$width - 1)/2) -
-           y$start-floor((y$width - 1)/2), NA)}
+           y$start - floor((y$width - 1)/2), NA)
+}
 combined %>% plyranges::filter(iter %in% 0:3) %>%
+  mutate(iter = droplevels(iter)) %>%
   plyranges::select(iter) %>%
   as.data.frame() %>% 
-  nest(-iter) %>%
-  mutate(interdist = map(data, ~interdist(.))) %>% 
-  dplyr::select(iter,interdist) %>% 
+  nest(data = !iter) %>%
+  mutate(interdist = map(data, interdist)) %>% 
+  dplyr::select(iter, interdist) %>% 
   unnest(interdist) %>% 
-  mutate(type = ifelse(iter == 0, "original", "boot")) %>% 
-  ggplot(aes(log10(interdist), iter, fill=type)) +
-  geom_density_ridges(alpha = 0.75) +
-  geom_text(data=head(stats,4),
+  mutate(type = ifelse(iter == 0, "original", "boot"),
+         interdist = pmax(interdist, 0)) %>%
+  filter(!is.na(interdist)) %>%
+  ggplot(aes(log10(interdist + 1), iter, fill=type)) +
+  geom_density_ridges(alpha = 0.75)
+  geom_text(data = head(stats, 4),
             aes(x=1.5, y=iter, label=paste0("n=",n), fill=NULL),
             vjust=1.5)
 ```
@@ -521,42 +528,6 @@ For more examples of combining `bootRanges` from *nullranges* with
 *plyranges* piped operations, see the relevant chapter in the
 [tidy-ranges-tutorial](https://nullranges.github.io/tidy-ranges-tutorial/bootstrap-overlap.html)
 book.
-
-# Timing on DHS peaks
-
-As we said in previous, unsegmented is sufficient if the purpose is
-for testing association between a smaller set of sequences rather than
-genome-wide, such as transcripts, then the unsegmented algorithm would
-be sufficient. The following chunk of code evaluates various types of 
-bootstrap/permutation schemes, first segmented, then unsegmented
-within chromosome, and finally unsegmented across 
-chromosome (the default). The default `type` is bootstrap, and the
-default for `withinChrom` is `FALSE` (bootstrapping with blocks moving
-across chromosomes).
-
-```{r}
-library(microbenchmark)
-microbenchmark(
-  list=alist(
-    seg_prop = bootRanges(dhs, blockLength, seg = seg, proportionLength = TRUE),
-    seg_no_prop = bootRanges(dhs, blockLength, seg = seg, proportionLength = FALSE),
-    unseg_p_within=bootRanges(dhs, blockLength=blockLength,
-                        type="permute", withinChrom=TRUE),
-    unseg_b_within=bootRanges(dhs, blockLength=blockLength,
-                        type="bootstrap", withinChrom=TRUE),
-    unseg_p_across=bootRanges(dhs, blockLength=blockLength,
-                        type="permute", withinChrom=FALSE),
-    unseg_b_across=bootRanges(dhs, blockLength=blockLength,
-                        type="bootstrap", withinChrom=FALSE)
-), times=10)
-```
-
-Overall, schemes of across chromosome are fastest and are
-preferred. Segmented and unsegmented have similar running time. For
-the unsegmented bootstrap, the block bootstrap will be preferred over
-block permutation, as the latter provides additional variance with
-respect to e.g. the total number and repetition of individual input
-ranges per iteration. 
 
 # Visualizing bootstrap types
 

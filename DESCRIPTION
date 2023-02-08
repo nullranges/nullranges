@@ -37,7 +37,6 @@ Suggests:
     excluderanges,
     ensembldb,
     EnsDb.Hsapiens.v86,
-    microbenchmark,
     patchwork,
     plotgardener,
     dplyr,

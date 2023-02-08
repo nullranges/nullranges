@@ -11,6 +11,13 @@
 #' @return a segmentation (GRanges object) with the region of
 #' interest designated as state 2, and the rest of the chromosome
 #' as state 1.
+#'
+#' @examples
+#'
+#' x <- GRanges("chr1", IRanges(10e6+1,width=1e6))
+#' library(GenomeInfoDb)
+#' genome(x) <- "hg19"
+#' seg <- oneRegionSegment(x)
 #' 
 #' @export
 oneRegionSegment <- function(x, seqlength) {

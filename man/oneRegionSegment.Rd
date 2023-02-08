@@ -22,3 +22,11 @@ as state 1.
 This function makes a segmentation (GRanges) based on one
 region of one chromosome (seqnames).
 }
+\examples{
+
+x <- GRanges("chr1", IRanges(10e6+1,width=1e6))
+library(GenomeInfoDb)
+genome(x) <- "hg19"
+seg <- oneRegionSegment(x)
+
+}
