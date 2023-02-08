@@ -24,8 +24,9 @@ region of one chromosome (seqnames).
 }
 \examples{
 
-x <- GRanges("chr1", IRanges(10e6+1,width=1e6))
+library(GenomicRanges)
 library(GenomeInfoDb)
+x <- GRanges("chr1", IRanges(10e6+1,width=1e6))
 genome(x) <- "hg19"
 seg <- oneRegionSegment(x)
 
