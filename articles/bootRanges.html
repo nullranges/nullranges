@@ -103,7 +103,7 @@
       <h1 data-toc-skip>Introduction to bootRanges</h1>
                         <h4 data-toc-skip class="author">Wancen Mu</h4>
             
-            <h4 data-toc-skip class="date">02/06/2023</h4>
+            <h4 data-toc-skip class="date">02/08/2023</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/HEAD/vignettes/bootRanges.Rmd" class="external-link"><code>vignettes/bootRanges.Rmd</code></a></small>
       <div class="hidden name"><code>bootRanges.Rmd</code></div>
@@ -241,7 +241,10 @@ package <span class="citation">(Ogata et al. 2022)</span>.</p>
 <span><span class="co"># hg38.UCSC.short_arm</span></span>
 <span><span class="va">exclude_4</span> <span class="op">&lt;-</span> <span class="va">ah</span><span class="op">[[</span><span class="st">"AH107356"</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="co"># combine them</span></span>
-<span><span class="va">exclude</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/IRanges/man/inter-range-methods.html" class="external-link">reduce</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">exclude_1</span>, <span class="va">exclude_2</span>, <span class="va">exclude_3</span>, <span class="va">exclude_4</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span><span class="op">{</span></span>
+<span>  <span class="va">exclude</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/IRanges/man/Views-class.html" class="external-link">trim</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">exclude_1</span>, <span class="va">exclude_2</span>, <span class="va">exclude_3</span>, <span class="va">exclude_4</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span></span>
+<span><span class="va">exclude</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="fu">GenomicRanges</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/IRanges/man/inter-range-methods.html" class="external-link">reduce</a></span><span class="op">(</span><span class="va">exclude</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="segmentations-choices">Segmentations choices<a class="anchor" aria-label="anchor" href="#segmentations-choices"></a>
@@ -504,25 +507,34 @@ the original feature set y.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://purrr.tidyverse.org/" class="external-link">purrr</a></span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">interdist</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">dat</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="va">x</span> <span class="op">=</span> <span class="va">dat</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span>,<span class="op">]</span></span>
-<span>    <span class="va">y</span> <span class="op">=</span> <span class="va">dat</span><span class="op">[</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">dat</span><span class="op">)</span>,<span class="op">]</span></span>
+<span>    <span class="va">x</span> <span class="op">&lt;-</span> <span class="va">dat</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span>,<span class="op">]</span></span>
+<span>    <span class="va">y</span> <span class="op">&lt;-</span> <span class="va">dat</span><span class="op">[</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">dat</span><span class="op">)</span>,<span class="op">]</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">x</span><span class="op">$</span><span class="va">seqnames</span> <span class="op">==</span> <span class="va">y</span><span class="op">$</span><span class="va">seqnames</span>,</span>
 <span>           <span class="va">x</span><span class="op">$</span><span class="va">start</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">floor</a></span><span class="op">(</span><span class="op">(</span><span class="va">x</span><span class="op">$</span><span class="va">width</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span><span class="op">/</span><span class="fl">2</span><span class="op">)</span> <span class="op">-</span></span>
-<span>           <span class="va">y</span><span class="op">$</span><span class="va">start</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">floor</a></span><span class="op">(</span><span class="op">(</span><span class="va">y</span><span class="op">$</span><span class="va">width</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span><span class="op">/</span><span class="fl">2</span><span class="op">)</span>, <span class="cn">NA</span><span class="op">)</span><span class="op">}</span></span>
+<span>           <span class="va">y</span><span class="op">$</span><span class="va">start</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">floor</a></span><span class="op">(</span><span class="op">(</span><span class="va">y</span><span class="op">$</span><span class="va">width</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span><span class="op">/</span><span class="fl">2</span><span class="op">)</span>, <span class="cn">NA</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
 <span><span class="va">combined</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu">plyranges</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">iter</span> <span class="op"><a href="https://rdrr.io/pkg/BiocGenerics/man/match.html" class="external-link">%in%</a></span> <span class="fl">0</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>iter <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/droplevels.html" class="external-link">droplevels</a></span><span class="op">(</span><span class="va">iter</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu">plyranges</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">iter</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
-<span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/nest.html" class="external-link">nest</a></span><span class="op">(</span><span class="op">-</span><span class="va">iter</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>interdist <span class="op">=</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span><span class="va">data</span>, <span class="op">~</span><span class="fu">interdist</span><span class="op">(</span><span class="va">.</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">iter</span>,<span class="va">interdist</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/nest.html" class="external-link">nest</a></span><span class="op">(</span>data <span class="op">=</span> <span class="op">!</span><span class="va">iter</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>interdist <span class="op">=</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span><span class="va">data</span>, <span class="va">interdist</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">iter</span>, <span class="va">interdist</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/unnest.html" class="external-link">unnest</a></span><span class="op">(</span><span class="va">interdist</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">iter</span> <span class="op">==</span> <span class="fl">0</span>, <span class="st">"original"</span>, <span class="st">"boot"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log10</a></span><span class="op">(</span><span class="va">interdist</span><span class="op">)</span>, <span class="va">iter</span>, fill<span class="op">=</span><span class="va">type</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://wilkelab.org/ggridges/reference/geom_density_ridges.html" class="external-link">geom_density_ridges</a></span><span class="op">(</span>alpha <span class="op">=</span> <span class="fl">0.75</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_text.html" class="external-link">geom_text</a></span><span class="op">(</span>data<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">stats</span>,<span class="fl">4</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">iter</span> <span class="op">==</span> <span class="fl">0</span>, <span class="st">"original"</span>, <span class="st">"boot"</span><span class="op">)</span>,</span>
+<span>         interdist <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/Extremes.html" class="external-link">pmax</a></span><span class="op">(</span><span class="va">interdist</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">interdist</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log10</a></span><span class="op">(</span><span class="va">interdist</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span>, <span class="va">iter</span>, fill<span class="op">=</span><span class="va">type</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://wilkelab.org/ggridges/reference/geom_density_ridges.html" class="external-link">geom_density_ridges</a></span><span class="op">(</span>alpha <span class="op">=</span> <span class="fl">0.75</span><span class="op">)</span></span></code></pre></div>
+<p><img src="bootRanges_files/figure-html/unnamed-chunk-11-1.png"><!-- --></p>
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_text.html" class="external-link">geom_text</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">stats</span>, <span class="fl">4</span><span class="op">)</span>,</span>
 <span>            <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="fl">1.5</span>, y<span class="op">=</span><span class="va">iter</span>, label<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"n="</span>,<span class="va">n</span><span class="op">)</span>, fill<span class="op">=</span><span class="cn">NULL</span><span class="op">)</span>,</span>
 <span>            vjust<span class="op">=</span><span class="fl">1.5</span><span class="op">)</span></span></code></pre></div>
-<p><img src="bootRanges_files/figure-html/unnamed-chunk-11-1.png"><!-- --></p>
+<pre><code><span><span class="co">## mapping: x = 1.5, y = ~iter, label = ~paste0("n=", n), fill = NULL </span></span>
+<span><span class="co">## geom_text: parse = FALSE, check_overlap = FALSE, na.rm = FALSE</span></span>
+<span><span class="co">## stat_identity: na.rm = FALSE</span></span>
+<span><span class="co">## position_identity</span></span></code></pre>
 </div>
 <div class="section level4">
 <h4 id="derive-statistics-of-interest">Derive statistics of interest<a class="anchor" aria-label="anchor" href="#derive-statistics-of-interest"></a>
@@ -533,13 +545,13 @@ calculate for example the sum observed number of overlaps for features
 in <code>x</code> with DHS in whole genome (or something more
 complicated, e.g. the maximum log fold change or signal value for DHS
 peaks within a <code>maxgap</code> window of <code>x</code>).</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html" class="external-link">GRanges</a></span><span class="op">(</span><span class="st">"chr2"</span>, <span class="fu"><a href="https://rdrr.io/pkg/IRanges/man/IRanges-constructor.html" class="external-link">IRanges</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="fl">50</span><span class="op">:</span><span class="fl">99</span> <span class="op">*</span> <span class="fl">1e6</span>, width<span class="op">=</span><span class="fl">1e6</span><span class="op">)</span>, x_id<span class="op">=</span><span class="fl">1</span><span class="op">:</span><span class="fl">50</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="statistic-i-the-total-number-of-overlaps">Statistic I: the total number of overlaps<a class="anchor" aria-label="anchor" href="#statistic-i-the-total-number-of-overlaps"></a>
 </h4>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="va">x</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>n_overlaps <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/plyranges/man/ranges-count-overlaps.html" class="external-link">count_overlaps</a></span><span class="op">(</span><span class="va">.</span>, <span class="va">dhs</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span> <span class="va">x</span><span class="op">$</span><span class="va">n_overlaps</span> <span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## [1] 64</span></span></code></pre>
@@ -551,7 +563,7 @@ intermediate output is.</p>
 <p>Note that we need to use <code><a href="https://tidyr.tidyverse.org/reference/complete.html" class="external-link">tidyr::complete</a></code> in order to
 fill in combinations of <code>x</code> and <code>iter</code> where the
 overlap was 0.</p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">boot_stats</span> <span class="op">&lt;-</span> <span class="va">x</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/pkg/plyranges/man/overlap-joins.html" class="external-link">join_overlap_inner</a></span><span class="op">(</span><span class="va">boots</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">x_id</span>, <span class="va">iter</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarize</a></span><span class="op">(</span>n_overlaps <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/plyranges/man/n.html" class="external-link">n</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
@@ -575,7 +587,7 @@ need to generate many bootstrap genomes of data.</p>
 <p>Finally we can plot a histogram. In this case, as the <code>x</code>
 features were arbitrary, our observed value falls within the
 distribution of sum number of overlap bootstrapped peaks with <span class="math inline">\(x\)</span>.</p>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">boot_stats</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">sumOverlaps</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_histogram.html" class="external-link">geom_histogram</a></span><span class="op">(</span>binwidth<span class="op">=</span><span class="fl">5</span><span class="op">)</span><span class="op">+</span></span>
@@ -585,11 +597,11 @@ distribution of sum number of overlap bootstrapped peaks with <span class="math 
 <div class="section level4">
 <h4 id="statistic-ii-the-sum-of-signal-value-for-nearby-peaks">Statistic II: the sum of signal value for nearby peaks<a class="anchor" aria-label="anchor" href="#statistic-ii-the-sum-of-signal-value-for-nearby-peaks"></a>
 </h4>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x_obs</span> <span class="op">&lt;-</span> <span class="va">x</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/pkg/plyranges/man/overlap-joins.html" class="external-link">join_overlap_inner</a></span><span class="op">(</span><span class="va">dhs</span>,maxgap<span class="op">=</span><span class="fl">1e3</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">x_obs</span><span class="op">$</span><span class="va">signalValue</span> <span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## [1] 9503</span></span></code></pre>
-<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">boot_stats</span> <span class="op">&lt;-</span> <span class="va">x</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/pkg/plyranges/man/overlap-joins.html" class="external-link">join_overlap_inner</a></span><span class="op">(</span><span class="va">boots</span>,maxgap<span class="op">=</span><span class="fl">1e3</span><span class="op">)</span>  <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">x_id</span>, <span class="va">iter</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarize</a></span><span class="op">(</span>Signal <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">signalValue</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
@@ -599,7 +611,7 @@ distribution of sum number of overlap bootstrapped peaks with <span class="math 
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarize</a></span><span class="op">(</span>sumSignal <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">Signal</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Still in this case, our observed value falls within the distribution
 of bootstrapped statistics.</p>
-<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">boot_stats</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">sumSignal</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_histogram.html" class="external-link">geom_histogram</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_vline</a></span><span class="op">(</span>xintercept <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">x_obs</span><span class="op">$</span><span class="va">signalValue</span> <span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -625,7 +637,7 @@ ATAC + Gene Expression.</p>
 <li>Perform <code>bootranges()</code> and use <em>plyranges</em> in
 downstream analysis</li>
 </ol>
-<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## split sparse count matrix into NumericList</span></span>
 <span><span class="va">rna</span> <span class="op">&lt;-</span> <span class="va">rna_Granges</span><span class="op">[</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/which.html" class="external-link">which</a></span><span class="op">(</span><span class="va">rna.sd</span><span class="op">==</span><span class="fl">0</span><span class="op">)</span><span class="op">]</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>counts1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/IRanges/man/AtomicList-class.html" class="external-link">NumericList</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/asplit.html" class="external-link">asplit</a></span><span class="op">(</span><span class="va">rna.scaled</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -647,48 +659,6 @@ downstream analysis</li>
 relevant chapter in the <a href="https://nullranges.github.io/tidy-ranges-tutorial/bootstrap-overlap.html" class="external-link">tidy-ranges-tutorial</a>
 book.</p>
 </div>
-</div>
-<div class="section level2">
-<h2 id="timing-on-dhs-peaks">Timing on DHS peaks<a class="anchor" aria-label="anchor" href="#timing-on-dhs-peaks"></a>
-</h2>
-<p>As we said in previous, unsegmented is sufficient if the purpose is
-for testing association between a smaller set of sequences rather than
-genome-wide, such as transcripts, then the unsegmented algorithm would
-be sufficient. The following chunk of code evaluates various types of
-bootstrap/permutation schemes, first segmented, then unsegmented within
-chromosome, and finally unsegmented across chromosome (the default). The
-default <code>type</code> is bootstrap, and the default for
-<code>withinChrom</code> is <code>FALSE</code> (bootstrapping with
-blocks moving across chromosomes).</p>
-<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/joshuaulrich/microbenchmark/" class="external-link">microbenchmark</a></span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/microbenchmark/man/microbenchmark.html" class="external-link">microbenchmark</a></span><span class="op">(</span></span>
-<span>  list<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">alist</a></span><span class="op">(</span></span>
-<span>    seg_prop <span class="op">=</span> <span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">dhs</span>, <span class="va">blockLength</span>, seg <span class="op">=</span> <span class="va">seg</span>, proportionLength <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
-<span>    seg_no_prop <span class="op">=</span> <span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">dhs</span>, <span class="va">blockLength</span>, seg <span class="op">=</span> <span class="va">seg</span>, proportionLength <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>,</span>
-<span>    unseg_p_within<span class="op">=</span><span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">dhs</span>, blockLength<span class="op">=</span><span class="va">blockLength</span>,</span>
-<span>                        type<span class="op">=</span><span class="st">"permute"</span>, withinChrom<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>,</span>
-<span>    unseg_b_within<span class="op">=</span><span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">dhs</span>, blockLength<span class="op">=</span><span class="va">blockLength</span>,</span>
-<span>                        type<span class="op">=</span><span class="st">"bootstrap"</span>, withinChrom<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>,</span>
-<span>    unseg_p_across<span class="op">=</span><span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">dhs</span>, blockLength<span class="op">=</span><span class="va">blockLength</span>,</span>
-<span>                        type<span class="op">=</span><span class="st">"permute"</span>, withinChrom<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span>,</span>
-<span>    unseg_b_across<span class="op">=</span><span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">dhs</span>, blockLength<span class="op">=</span><span class="va">blockLength</span>,</span>
-<span>                        type<span class="op">=</span><span class="st">"bootstrap"</span>, withinChrom<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="op">)</span>, times<span class="op">=</span><span class="fl">10</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Unit: milliseconds</span></span>
-<span><span class="co">##            expr      min       lq      mean    median       uq      max neval</span></span>
-<span><span class="co">##        seg_prop  76.5663  80.9547  81.61042  81.77510  82.7861  84.7662    10</span></span>
-<span><span class="co">##     seg_no_prop  74.8697  75.6516  79.56455  76.49490  76.8143  94.9008    10</span></span>
-<span><span class="co">##  unseg_p_within 528.0303 546.5564 558.03084 553.26770 574.0545 599.0415    10</span></span>
-<span><span class="co">##  unseg_b_within 431.2219 440.2342 449.48682 452.49615 457.3004 462.9377    10</span></span>
-<span><span class="co">##  unseg_p_across  78.0615  79.0767  79.83850  79.51295  80.2858  83.1048    10</span></span>
-<span><span class="co">##  unseg_b_across  84.3097  85.0310  86.41670  85.98025  87.0861  91.0517    10</span></span></code></pre>
-<p>Overall, schemes of across chromosome are fastest and are preferred.
-Segmented and unsegmented have similar running time. For the unsegmented
-bootstrap, the block bootstrap will be preferred over block permutation,
-as the latter provides additional variance with respect to e.g. the
-total number and repetition of individual input ranges per
-iteration.</p>
 </div>
 <div class="section level2">
 <h2 id="visualizing-bootstrap-types">Visualizing bootstrap types<a class="anchor" aria-label="anchor" href="#visualizing-bootstrap-types"></a>
@@ -813,21 +783,20 @@ block.</p>
 <span><span class="co">## [8] base     </span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## other attached packages:</span></span>
-<span><span class="co">##  [1] plotgardener_1.4.2          microbenchmark_1.4.9       </span></span>
-<span><span class="co">##  [3] ggplot2_3.4.0               purrr_1.0.1                </span></span>
-<span><span class="co">##  [5] ggridges_0.5.4              tidyr_1.3.0                </span></span>
-<span><span class="co">##  [7] patchwork_1.1.2             plyranges_1.18.0           </span></span>
-<span><span class="co">##  [9] nullranges_1.5.15           EnsDb.Hsapiens.v86_2.99.0  </span></span>
-<span><span class="co">## [11] ensembldb_2.22.0            AnnotationFilter_1.22.0    </span></span>
-<span><span class="co">## [13] GenomicFeatures_1.50.4      AnnotationDbi_1.60.0       </span></span>
-<span><span class="co">## [15] nullrangesData_1.4.0        InteractionSet_1.26.1      </span></span>
-<span><span class="co">## [17] SummarizedExperiment_1.28.0 Biobase_2.58.0             </span></span>
-<span><span class="co">## [19] MatrixGenerics_1.10.0       matrixStats_0.63.0         </span></span>
-<span><span class="co">## [21] ExperimentHub_2.6.0         GenomicRanges_1.50.2       </span></span>
-<span><span class="co">## [23] GenomeInfoDb_1.34.9         IRanges_2.32.0             </span></span>
-<span><span class="co">## [25] S4Vectors_0.36.1            AnnotationHub_3.6.0        </span></span>
-<span><span class="co">## [27] BiocFileCache_2.6.0         dbplyr_2.3.0               </span></span>
-<span><span class="co">## [29] BiocGenerics_0.44.0        </span></span>
+<span><span class="co">##  [1] plotgardener_1.4.2          ggplot2_3.4.0              </span></span>
+<span><span class="co">##  [3] purrr_1.0.1                 ggridges_0.5.4             </span></span>
+<span><span class="co">##  [5] tidyr_1.3.0                 patchwork_1.1.2            </span></span>
+<span><span class="co">##  [7] plyranges_1.18.0            nullranges_1.5.15          </span></span>
+<span><span class="co">##  [9] EnsDb.Hsapiens.v86_2.99.0   ensembldb_2.22.0           </span></span>
+<span><span class="co">## [11] AnnotationFilter_1.22.0     GenomicFeatures_1.50.4     </span></span>
+<span><span class="co">## [13] AnnotationDbi_1.60.0        nullrangesData_1.4.0       </span></span>
+<span><span class="co">## [15] InteractionSet_1.26.1       SummarizedExperiment_1.28.0</span></span>
+<span><span class="co">## [17] Biobase_2.58.0              MatrixGenerics_1.10.0      </span></span>
+<span><span class="co">## [19] matrixStats_0.63.0          ExperimentHub_2.6.0        </span></span>
+<span><span class="co">## [21] GenomicRanges_1.50.2        GenomeInfoDb_1.34.9        </span></span>
+<span><span class="co">## [23] IRanges_2.32.0              S4Vectors_0.36.1           </span></span>
+<span><span class="co">## [25] AnnotationHub_3.6.0         BiocFileCache_2.6.0        </span></span>
+<span><span class="co">## [27] dbplyr_2.3.0                BiocGenerics_0.44.0        </span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## loaded via a namespace (and not attached):</span></span>
 <span><span class="co">##   [1] systemfonts_1.0.4             RcppHMM_1.2.2                </span></span>
@@ -863,7 +832,7 @@ block.</p>
 <span><span class="co">##  [61] evaluate_0.20                 stringr_1.5.0                </span></span>
 <span><span class="co">##  [63] fastmap_1.1.0                 yaml_2.3.7                   </span></span>
 <span><span class="co">##  [65] ragg_1.2.5                    knitr_1.42                   </span></span>
-<span><span class="co">##  [67] bit64_4.0.5                   fs_1.6.0                     </span></span>
+<span><span class="co">##  [67] bit64_4.0.5                   fs_1.6.1                     </span></span>
 <span><span class="co">##  [69] KEGGREST_1.38.0               mime_0.12                    </span></span>
 <span><span class="co">##  [71] pracma_2.4.2                  xml2_1.3.3                   </span></span>
 <span><span class="co">##  [73] biomaRt_2.54.0                compiler_4.2.2               </span></span>
