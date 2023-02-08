@@ -705,10 +705,11 @@ state of the segmentation that the original ranges fall in).</p>
 <span>  state <span class="op">=</span> <span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span>,<span class="fl">1</span>,<span class="fl">3</span>,<span class="fl">3</span>,<span class="fl">2</span>,<span class="fl">1</span><span class="op">)</span>,</span>
 <span>  state_col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">7</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
+<p><em>Temporarily turning off these code chunks while we fix upstream
+code</em></p>
 <p>We can visualize with our helper function:</p>
 <div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">plotGRanges</span><span class="op">(</span><span class="va">seg</span><span class="op">)</span></span></code></pre></div>
-<p><img src="bootRanges_files/figure-html/toysegments-1.png"><!-- --></p>
 <p>Now create small ranges distributed uniformly across the toy
 genome:</p>
 <div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
@@ -729,7 +730,6 @@ genome:</p>
 <span><span class="va">gr</span><span class="op">$</span><span class="va">state</span> <span class="op">&lt;-</span> <span class="va">seg</span><span class="op">$</span><span class="va">state</span><span class="op">[</span><span class="va">idx</span><span class="op">]</span></span>
 <span><span class="va">gr</span><span class="op">$</span><span class="va">state_col</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">seg</span><span class="op">$</span><span class="va">state_col</span><span class="op">[</span><span class="va">idx</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="fu">plotGRanges</span><span class="op">(</span><span class="va">gr</span><span class="op">)</span></span></code></pre></div>
-<p><img src="bootRanges_files/figure-html/toyrangesI-1.png"><!-- --></p>
 <p><strong>Scaling vs. not scaling by segment length</strong></p>
 <p>We can visualize block bootstrapped ranges when the blocks do not
 scale to segment state length:</p>
@@ -738,7 +738,6 @@ scale to segment state length:</p>
 <span><span class="va">gr_prime</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">gr</span>, blockLength <span class="op">=</span> <span class="fl">25</span>, seg <span class="op">=</span> <span class="va">seg</span>,</span>
 <span>                       proportionLength <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="fu">plotGRanges</span><span class="op">(</span><span class="va">gr_prime</span><span class="op">)</span></span></code></pre></div>
-<p><img src="bootRanges_files/figure-html/toy-no-prop-1.png"><!-- --></p>
 <p>This time the blocks scale to the segment state length. Note that in
 this case <code>blockLength</code> is the <em>maximal</em> block length
 possible, but the actual block lengths per segment will be smaller
@@ -749,7 +748,6 @@ genome segmentation).</p>
 <span><span class="va">gr_prime</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">gr</span>, blockLength <span class="op">=</span> <span class="fl">50</span>, seg <span class="op">=</span> <span class="va">seg</span>,</span>
 <span>                       proportionLength <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="fu">plotGRanges</span><span class="op">(</span><span class="va">gr_prime</span><span class="op">)</span></span></code></pre></div>
-<p><img src="bootRanges_files/figure-html/toy-prop-1.png"><!-- --></p>
 <p>Note that some ranges from adjacent states are allowed to be placed
 within different states in the bootstrap sample. This is because, during
 the random sampling of blocks of original data, a block is allowed to
