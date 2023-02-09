@@ -40,7 +40,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.5.15</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.5.16</span>
       </span>
     </div>
 
@@ -103,7 +103,7 @@
       <h1 data-toc-skip>Introduction to bootRanges</h1>
                         <h4 data-toc-skip class="author">Wancen Mu</h4>
             
-            <h4 data-toc-skip class="date">02/08/2023</h4>
+            <h4 data-toc-skip class="date">02/09/2023</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/HEAD/vignettes/bootRanges.Rmd" class="external-link"><code>vignettes/bootRanges.Rmd</code></a></small>
       <div class="hidden name"><code>bootRanges.Rmd</code></div>
@@ -429,44 +429,32 @@ the granularity of the bootstrap distribution that is needed.)</p>
 <span><span class="va">blockLength</span> <span class="op">&lt;-</span> <span class="fl">5e5</span></span>
 <span><span class="va">boots</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">dhs</span>, <span class="va">blockLength</span>, R <span class="op">=</span> <span class="va">R</span>, seg <span class="op">=</span> <span class="va">seg</span>, exclude<span class="op">=</span><span class="va">exclude</span><span class="op">)</span></span>
 <span><span class="va">boots</span></span></code></pre></div>
-<pre><code><span><span class="co">## BootRanges object with 310434 ranges and 5 metadata columns:</span></span>
-<span><span class="co">##            seqnames            ranges strand |        id signalValue     block</span></span>
-<span><span class="co">##               &lt;Rle&gt;         &lt;IRanges&gt;  &lt;Rle&gt; | &lt;integer&gt;   &lt;numeric&gt; &lt;integer&gt;</span></span>
-<span><span class="co">##        [1]     chr1     242791-242940      * |       347         120         5</span></span>
-<span><span class="co">##        [2]     chr1     256031-256180      * |       348         194         5</span></span>
-<span><span class="co">##        [3]     chr1     391535-391684      * |      5301         109         8</span></span>
-<span><span class="co">##        [4]     chr1     421046-421195      * |      5302         106         8</span></span>
-<span><span class="co">##        [5]     chr1     438186-438335      * |      5303         232         8</span></span>
-<span><span class="co">##        ...      ...               ...    ... .       ...         ...       ...</span></span>
-<span><span class="co">##   [310430]     chrY 27090908-27091057      * |      2133         105     12441</span></span>
-<span><span class="co">##   [310431]     chrY 27194968-27195117      * |      2134         128     12441</span></span>
-<span><span class="co">##   [310432]     chrY 27224188-27224337      * |      2135         153     12441</span></span>
-<span><span class="co">##   [310433]     chrY 27234153-27234302      * |      2136         125     12441</span></span>
-<span><span class="co">##   [310434]     chrY 27789879-27790028      * |      2116         118     12442</span></span>
-<span><span class="co">##             iter blockLength</span></span>
-<span><span class="co">##            &lt;Rle&gt;       &lt;Rle&gt;</span></span>
-<span><span class="co">##        [1]     1      500000</span></span>
-<span><span class="co">##        [2]     1      500000</span></span>
-<span><span class="co">##        [3]     1      500000</span></span>
-<span><span class="co">##        [4]     1      500000</span></span>
-<span><span class="co">##        [5]     1      500000</span></span>
-<span><span class="co">##        ...   ...         ...</span></span>
-<span><span class="co">##   [310430]    50      500000</span></span>
-<span><span class="co">##   [310431]    50      500000</span></span>
-<span><span class="co">##   [310432]    50      500000</span></span>
-<span><span class="co">##   [310433]    50      500000</span></span>
-<span><span class="co">##   [310434]    50      500000</span></span>
+<pre><code><span><span class="co">## BootRanges object with 310434 ranges and 3 metadata columns:</span></span>
+<span><span class="co">##            seqnames            ranges strand |        id signalValue  iter</span></span>
+<span><span class="co">##               &lt;Rle&gt;         &lt;IRanges&gt;  &lt;Rle&gt; | &lt;integer&gt;   &lt;numeric&gt; &lt;Rle&gt;</span></span>
+<span><span class="co">##        [1]     chr1     242791-242940      * |       347         120     1</span></span>
+<span><span class="co">##        [2]     chr1     256031-256180      * |       348         194     1</span></span>
+<span><span class="co">##        [3]     chr1     391535-391684      * |      5301         109     1</span></span>
+<span><span class="co">##        [4]     chr1     421046-421195      * |      5302         106     1</span></span>
+<span><span class="co">##        [5]     chr1     438186-438335      * |      5303         232     1</span></span>
+<span><span class="co">##        ...      ...               ...    ... .       ...         ...   ...</span></span>
+<span><span class="co">##   [310430]     chrY 27090908-27091057      * |      2133         105    50</span></span>
+<span><span class="co">##   [310431]     chrY 27194968-27195117      * |      2134         128    50</span></span>
+<span><span class="co">##   [310432]     chrY 27224188-27224337      * |      2135         153    50</span></span>
+<span><span class="co">##   [310433]     chrY 27234153-27234302      * |      2136         125    50</span></span>
+<span><span class="co">##   [310434]     chrY 27789879-27790028      * |      2116         118    50</span></span>
 <span><span class="co">##   -------</span></span>
 <span><span class="co">##   seqinfo: 24 sequences from hg38 genome</span></span></code></pre>
 <p>What is returned here? The <code>bootRanges</code> function returns a
 <em>bootRanges</em> object, which is a simple sub-class of
-<em>GRanges</em>. The iteration (<code>iter</code>) and the block length
-(<code>blockLength</code>) are recorded as metadata columns, accessible
-via <code>mcols</code>. We return the bootstrapped ranges as
-<em>GRanges</em> rather than <em>GRangesList</em>, as the former is more
-compatible with downstream overlap joins with <em>plyranges</em>, where
-the iteration column can be used with <code>group_by</code> to provide
-per bootstrap summary statistics, as shown below.</p>
+<em>GRanges</em>. The iteration (<code>iter</code>) and (optionally) the
+block length (<code>blockLength</code>) are recorded as metadata
+columns, accessible via <code>mcols</code>. We return the bootstrapped
+ranges as <em>GRanges</em> rather than <em>GRangesList</em>, as the
+former is more compatible with downstream overlap joins with
+<em>plyranges</em>, where the iteration column can be used with
+<code>group_by</code> to provide per bootstrap summary statistics, as
+shown below.</p>
 <p>Note that we use the <code>exclude</code> object from the previous
 step, which does not contain small ranges. If one wanted to also avoid
 generation of bootstrapped features that overlap small excluded ranges,
@@ -659,6 +647,88 @@ downstream analysis</li>
 relevant chapter in the <a href="https://nullranges.github.io/tidy-ranges-tutorial/bootstrap-overlap.html" class="external-link">tidy-ranges-tutorial</a>
 book.</p>
 </div>
+<div class="section level3">
+<h3 id="case-study-iii-block-bootstrap-one-region">Case study III: Block bootstrap one region<a class="anchor" aria-label="anchor" href="#case-study-iii-block-bootstrap-one-region"></a>
+</h3>
+<p>Generally, it makes sense to block bootstrap the entire genome at
+once. This is motivated by the “tidy analysis” paradigm where loops are
+avoided by stacking data into a longer format. This makes computation
+more efficient in our case (as a single overlap call can be made with
+all regions of interest at once, across multiple bootstrap iterations),
+and it also can simplify code and avoid repetition.</p>
+<p>However, in some cases, there is a single region of interest, and it
+is desired to generate bootstrap data within this one region. For this,
+we have a convenience function that enables bootstrap computation.</p>
+<p>Suppose we have data in the following region of chromosome 1:</p>
+<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">nullrangesData</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">dhs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/nullrangesData/man/DHSA549Hg38.html" class="external-link">DHSA549Hg38</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">region</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html" class="external-link">GRanges</a></span><span class="op">(</span><span class="st">"chr1"</span>, <span class="fu"><a href="https://rdrr.io/pkg/IRanges/man/IRanges-constructor.html" class="external-link">IRanges</a></span><span class="op">(</span><span class="fl">10e6</span> <span class="op">+</span> <span class="fl">1</span>, width<span class="op">=</span><span class="fl">1e6</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html" class="external-link">GRanges</a></span><span class="op">(</span><span class="st">"chr1"</span>, <span class="fu"><a href="https://rdrr.io/pkg/IRanges/man/IRanges-constructor.html" class="external-link">IRanges</a></span><span class="op">(</span><span class="fl">10e6</span> <span class="op">+</span> <span class="fl">0</span><span class="op">:</span><span class="fl">9</span> <span class="op">*</span> <span class="fl">1e5</span> <span class="op">+</span> <span class="fl">1</span>, width<span class="op">=</span><span class="fl">1e4</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">dhs</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/pkg/plyranges/man/ranges-filter-overlaps.html" class="external-link">filter_by_overlaps</a></span><span class="op">(</span><span class="va">region</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="cn">NULL</span><span class="op">)</span></span>
+<span><span class="va">x</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>num_overlaps <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/plyranges/man/ranges-count-overlaps.html" class="external-link">count_overlaps</a></span><span class="op">(</span><span class="va">.</span>, <span class="va">y</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## GRanges object with 10 ranges and 1 metadata column:</span></span>
+<span><span class="co">##        seqnames            ranges strand | num_overlaps</span></span>
+<span><span class="co">##           &lt;Rle&gt;         &lt;IRanges&gt;  &lt;Rle&gt; |    &lt;integer&gt;</span></span>
+<span><span class="co">##    [1]     chr1 10000001-10010000      * |            0</span></span>
+<span><span class="co">##    [2]     chr1 10100001-10110000      * |            2</span></span>
+<span><span class="co">##    [3]     chr1 10200001-10210000      * |            1</span></span>
+<span><span class="co">##    [4]     chr1 10300001-10310000      * |            0</span></span>
+<span><span class="co">##    [5]     chr1 10400001-10410000      * |            5</span></span>
+<span><span class="co">##    [6]     chr1 10500001-10510000      * |            2</span></span>
+<span><span class="co">##    [7]     chr1 10600001-10610000      * |            0</span></span>
+<span><span class="co">##    [8]     chr1 10700001-10710000      * |            0</span></span>
+<span><span class="co">##    [9]     chr1 10800001-10810000      * |            1</span></span>
+<span><span class="co">##   [10]     chr1 10900001-10910000      * |            1</span></span>
+<span><span class="co">##   -------</span></span>
+<span><span class="co">##   seqinfo: 1 sequence from an unspecified genome; no seqlengths</span></span></code></pre>
+<p>We can easily bootstrap data just in this region using the following
+code:</p>
+<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">seg</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/oneRegionSegment.html">oneRegionSegment</a></span><span class="op">(</span><span class="va">region</span>, seqlength<span class="op">=</span><span class="fl">248956422</span><span class="op">)</span></span>
+<span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqlevels-wrappers.html" class="external-link">keepSeqlevels</a></span><span class="op">(</span><span class="va">y</span>, <span class="st">"chr1"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">boot</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">y</span>, blockLength<span class="op">=</span><span class="fl">1e5</span>, R<span class="op">=</span><span class="fl">1</span>, seg<span class="op">=</span><span class="va">seg</span>,</span>
+<span>                   proportionLength<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">boot</span></span></code></pre></div>
+<pre><code><span><span class="co">## BootRanges object with 83 ranges and 1 metadata column:</span></span>
+<span><span class="co">##        seqnames            ranges strand |  iter</span></span>
+<span><span class="co">##           &lt;Rle&gt;         &lt;IRanges&gt;  &lt;Rle&gt; | &lt;Rle&gt;</span></span>
+<span><span class="co">##    [1]     chr1 10001821-10001970      * |     1</span></span>
+<span><span class="co">##    [2]     chr1 10002381-10002530      * |     1</span></span>
+<span><span class="co">##    [3]     chr1 10003041-10003190      * |     1</span></span>
+<span><span class="co">##    [4]     chr1 10003536-10003685      * |     1</span></span>
+<span><span class="co">##    [5]     chr1 10004001-10004150      * |     1</span></span>
+<span><span class="co">##    ...      ...               ...    ... .   ...</span></span>
+<span><span class="co">##   [79]     chr1 10918882-10919031      * |     1</span></span>
+<span><span class="co">##   [80]     chr1 10953082-10953231      * |     1</span></span>
+<span><span class="co">##   [81]     chr1 10961702-10961851      * |     1</span></span>
+<span><span class="co">##   [82]     chr1 10993742-10993891      * |     1</span></span>
+<span><span class="co">##   [83]     chr1 10995862-10996011      * |     1</span></span>
+<span><span class="co">##   -------</span></span>
+<span><span class="co">##   seqinfo: 1 sequence from hg38 genome</span></span></code></pre>
+<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">x</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>num_overlaps <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/plyranges/man/ranges-count-overlaps.html" class="external-link">count_overlaps</a></span><span class="op">(</span><span class="va">.</span>, <span class="va">boot</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## GRanges object with 10 ranges and 1 metadata column:</span></span>
+<span><span class="co">##        seqnames            ranges strand | num_overlaps</span></span>
+<span><span class="co">##           &lt;Rle&gt;         &lt;IRanges&gt;  &lt;Rle&gt; |    &lt;integer&gt;</span></span>
+<span><span class="co">##    [1]     chr1 10000001-10010000      * |            5</span></span>
+<span><span class="co">##    [2]     chr1 10100001-10110000      * |            0</span></span>
+<span><span class="co">##    [3]     chr1 10200001-10210000      * |            1</span></span>
+<span><span class="co">##    [4]     chr1 10300001-10310000      * |            5</span></span>
+<span><span class="co">##    [5]     chr1 10400001-10410000      * |            1</span></span>
+<span><span class="co">##    [6]     chr1 10500001-10510000      * |            0</span></span>
+<span><span class="co">##    [7]     chr1 10600001-10610000      * |            5</span></span>
+<span><span class="co">##    [8]     chr1 10700001-10710000      * |            0</span></span>
+<span><span class="co">##    [9]     chr1 10800001-10810000      * |            5</span></span>
+<span><span class="co">##   [10]     chr1 10900001-10910000      * |            0</span></span>
+<span><span class="co">##   -------</span></span>
+<span><span class="co">##   seqinfo: 1 sequence from an unspecified genome; no seqlengths</span></span></code></pre>
+<p>Here it is important to use <code>proportionLength=FALSE</code> so
+that the blocks will be of the size specified and not smaller (they
+would otherwise be scaled down proportional to the fraction of
+<code>region</code> compared to the chromosome).</p>
+</div>
 </div>
 <div class="section level2">
 <h2 id="visualizing-bootstrap-types">Visualizing bootstrap types<a class="anchor" aria-label="anchor" href="#visualizing-bootstrap-types"></a>
@@ -668,7 +738,7 @@ bootstrap. First, we define a helper function for plotting
 <em>GRanges</em> using <em>plotgardener</em> <span class="citation">(Kramer et al. 2022)</span>. A key aspect here is that
 we color the original and bootstrapped ranges by the genomic state (the
 state of the segmentation that the original ranges fall in).</p>
-<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://phanstiellab.github.io/plotgardener" class="external-link">plotgardener</a></span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">my_palette</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">n</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"red"</span>,<span class="st">"green3"</span>,<span class="st">"red3"</span>,<span class="st">"dodgerblue"</span>,</span>
@@ -694,7 +764,7 @@ state of the segmentation that the original ranges fall in).</p>
 <span>  <span class="op">}</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>Create a toy genome segmentation:</p>
-<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://bioconductor.org/packages/GenomicRanges" class="external-link">GenomicRanges</a></span><span class="op">)</span></span>
 <span><span class="va">seq_nms</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"chr1"</span>,<span class="st">"chr2"</span><span class="op">)</span>, <span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>,<span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">seg</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html" class="external-link">GRanges</a></span><span class="op">(</span></span>
@@ -708,11 +778,11 @@ state of the segmentation that the original ranges fall in).</p>
 <p><em>Temporarily turning off these code chunks while we fix upstream
 code</em></p>
 <p>We can visualize with our helper function:</p>
-<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">plotGRanges</span><span class="op">(</span><span class="va">seg</span><span class="op">)</span></span></code></pre></div>
 <p>Now create small ranges distributed uniformly across the toy
 genome:</p>
-<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">200</span></span>
 <span><span class="va">gr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html" class="external-link">GRanges</a></span><span class="op">(</span></span>
@@ -733,7 +803,7 @@ genome:</p>
 <p><strong>Scaling vs. not scaling by segment length</strong></p>
 <p>We can visualize block bootstrapped ranges when the blocks do not
 scale to segment state length:</p>
-<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">gr_prime</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">gr</span>, blockLength <span class="op">=</span> <span class="fl">25</span>, seg <span class="op">=</span> <span class="va">seg</span>,</span>
 <span>                       proportionLength <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
@@ -743,7 +813,7 @@ this case <code>blockLength</code> is the <em>maximal</em> block length
 possible, but the actual block lengths per segment will be smaller
 (proportional to the fraction of basepairs covered by that state in the
 genome segmentation).</p>
-<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">gr_prime</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">gr</span>, blockLength <span class="op">=</span> <span class="fl">50</span>, seg <span class="op">=</span> <span class="va">seg</span>,</span>
 <span>                       proportionLength <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
@@ -758,7 +828,7 @@ block.</p>
 <div class="section level2">
 <h2 id="session-information">Session information<a class="anchor" aria-label="anchor" href="#session-information"></a>
 </h2>
-<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb50"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## R version 4.2.2 (2022-10-31)</span></span>
 <span><span class="co">## Platform: x86_64-pc-linux-gnu (64-bit)</span></span>
@@ -784,7 +854,7 @@ block.</p>
 <span><span class="co">##  [1] plotgardener_1.4.2          ggplot2_3.4.0              </span></span>
 <span><span class="co">##  [3] purrr_1.0.1                 ggridges_0.5.4             </span></span>
 <span><span class="co">##  [5] tidyr_1.3.0                 patchwork_1.1.2            </span></span>
-<span><span class="co">##  [7] plyranges_1.18.0            nullranges_1.5.15          </span></span>
+<span><span class="co">##  [7] plyranges_1.18.0            nullranges_1.5.16          </span></span>
 <span><span class="co">##  [9] EnsDb.Hsapiens.v86_2.99.0   ensembldb_2.22.0           </span></span>
 <span><span class="co">## [11] AnnotationFilter_1.22.0     GenomicFeatures_1.50.4     </span></span>
 <span><span class="co">## [13] AnnotationDbi_1.60.0        nullrangesData_1.4.0       </span></span>

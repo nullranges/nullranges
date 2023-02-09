@@ -20,7 +20,7 @@ and iteration and block length indicated by metadata columns"><meta property="og
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.5.15</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.5.16</span>
       </span>
     </div>
 
@@ -93,7 +93,8 @@ and iteration and block length indicated by metadata columns</p>
 <span>  excludeOption <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"drop"</span>, <span class="st">"trim"</span><span class="op">)</span>,</span>
 <span>  proportionLength <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"bootstrap"</span>, <span class="st">"permute"</span><span class="op">)</span>,</span>
-<span>  withinChrom <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  withinChrom <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  storeBlockLength <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -128,8 +129,10 @@ bootstrap ranges that overlap a excluded region</p></dd>
 
 <dt>proportionLength</dt>
 <dd><p>for the segmented block bootstrap,
-whether to use scaled block lengths, (scaling by the proportion
-of the segmentation state out of the total genome length)</p></dd>
+whether to use scaled block lengths (scaling by the proportion
+of the segmentation state out of the total genome length).
+That is, the resulting blocks will be of size less than
+<code>blockLength</code></p></dd>
 
 
 <dt>type</dt>
@@ -140,6 +143,11 @@ of the segmentation state out of the total genome length)</p></dd>
 <dd><p>whether to re-sample (bootstrap) ranges
 across chromosomes (default) or only within chromosomes
 (un-segmented bootstrap only)</p></dd>
+
+
+<dt>storeBlockLength</dt>
+<dd><p>whether to save blockLength as a
+metadata column</p></dd>
 
 </dl></div>
     <div id="value">
