@@ -338,14 +338,14 @@ boots <- bootRanges(dhs, blockLength, R = R, seg = seg, exclude=exclude)
 boots
 ```
 
-What is returned here? The `bootRanges` function returns a *bootRanges*
-object, which is a simple sub-class of *GRanges*. The iteration (`iter`)
-and the block length (`blockLength`) are recorded as metadata columns,
-accessible via `mcols`. We return the bootstrapped ranges as *GRanges*
-rather than *GRangesList*, as the former is more compatible with
-downstream overlap joins with *plyranges*, where the iteration column
-can be used with `group_by` to provide per bootstrap summary statistics,
-as shown below.
+What is returned here? The `bootRanges` function returns a
+*bootRanges* object, which is a simple sub-class of *GRanges*. The
+iteration (`iter`) and (optionally) the block length (`blockLength`)
+are recorded as metadata columns, accessible via `mcols`. We return
+the bootstrapped ranges as *GRanges* rather than *GRangesList*, as the
+former is more compatible with downstream overlap joins with
+*plyranges*, where the iteration column can be used with `group_by` to
+provide per bootstrap summary statistics, as shown below.
 
 Note that we use the `exclude` object from the previous step, which does
 not contain small ranges. If one wanted to also avoid generation of
@@ -528,6 +528,50 @@ For more examples of combining `bootRanges` from *nullranges* with
 *plyranges* piped operations, see the relevant chapter in the
 [tidy-ranges-tutorial](https://nullranges.github.io/tidy-ranges-tutorial/bootstrap-overlap.html)
 book.
+
+## Case study III: Block bootstrap one region
+
+Generally, it makes sense to block bootstrap the entire genome at
+once. This is motivated by the "tidy analysis" paradigm where loops
+are avoided by stacking data into a longer format. This makes
+computation more efficient in our case (as a single overlap call can
+be made with all regions of interest at once, across multiple
+bootstrap iterations), and it also can simplify code and avoid
+repetition. 
+
+However, in some cases, there is a single region of interest, and it
+is desired to generate bootstrap data within this one region. For
+this, we have a convenience function that enables bootstrap
+computation.
+
+Suppose we have data in the following region of chromosome 1:
+
+```{r}
+suppressPackageStartupMessages(library(nullrangesData))
+dhs <- DHSA549Hg38()
+region <- GRanges("chr1", IRanges(10e6 + 1, width=1e6))
+x <- GRanges("chr1", IRanges(10e6 + 0:9 * 1e5 + 1, width=1e4))
+y <- dhs %>% filter_by_overlaps(region) %>% select(NULL)
+x %>% mutate(num_overlaps = count_overlaps(., y))
+```
+
+We can easily bootstrap data just in this region using the following
+code:
+
+```{r}
+seg <- oneRegionSegment(region, seqlength=248956422)
+y <- keepSeqlevels(y, "chr1")
+set.seed(1)
+boot <- bootRanges(y, blockLength=1e5, R=1, seg=seg,
+                   proportionLength=FALSE)
+boot
+x %>% mutate(num_overlaps = count_overlaps(., boot))
+```
+
+Here it is important to use `proportionLength=FALSE` so that the
+blocks will be of the size specified and not smaller (they would
+otherwise be scaled down proportional to the fraction of `region`
+compared to the chromosome).
 
 # Visualizing bootstrap types
 

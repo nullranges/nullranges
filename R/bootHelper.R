@@ -25,12 +25,14 @@ oneRegionSegment <- function(x, seqlength) {
   stopifnot(length(x) == 1)
   chrom <- as.character(seqnames(x))
   g <- genome(x)[[chrom]]
-  if (missing(seqlength) & !is.na(g)) {
-    si <- GenomeInfoDb::Seqinfo(genome=g)
-    seqlength <- seqlengths(si[chrom])[[1]]
+  if (missing(seqlength)) {
+    if (!is.na(g)) {
+      si <- GenomeInfoDb::Seqinfo(genome=g)
+      seqlength <- seqlengths(si[chrom])[[1]]
     } else {
       stop("function requires seqlength argument or Seqinfo-supported genome")
     }
+  }
   GRanges(seqnames(x),
           IRanges(c(1,start(x),end(x)+1),
                   c(start(x)-1,end(x),seqlength)),

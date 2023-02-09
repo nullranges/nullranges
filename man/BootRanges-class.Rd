@@ -6,7 +6,8 @@
 \alias{BootRanges}
 \title{BootRanges object}
 \description{
-This class extends the GRanges class. It is expected to have
-an \code{iter} metadata column indicating the iterations of the
-bootstrap, which are concatenated together.
+This class extends the GRanges class. As produced by bootRanges,
+it will have an \code{iter} column indicating the iterations of the
+bootstrap, and a optionally a \code{blockLength} column indicating the
+blockLength parameter.
 }

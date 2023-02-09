@@ -1,7 +1,7 @@
 #' Block bootstrap for genomic ranges
 #'
 #' Performs a block bootstrap, optionally with respect
-#' to a genome segmentation. Returns a \code{bootRanges} object,
+#' to a genome segmentation. Returns a `bootRanges` object,
 #' which is a GRanges object with all the ranges concatenated,
 #' and iteration and block length indicated by metadata columns
 #'
@@ -12,15 +12,19 @@
 #' @param seg the segmentation GRanges, with a column ("state")
 #' indicating segmentation state (optional)
 #' @param exclude the GRanges of excluded regions (optional)
-#' @param excludeOption whether to \code{"drop"} or \code{"trim"}
+#' @param excludeOption whether to `"drop"` or `"trim"`
 #' bootstrap ranges that overlap a excluded region
 #' @param proportionLength for the segmented block bootstrap,
-#' whether to use scaled block lengths, (scaling by the proportion
-#' of the segmentation state out of the total genome length)
+#' whether to use scaled block lengths (scaling by the proportion
+#' of the segmentation state out of the total genome length).
+#' That is, the resulting blocks will be of size less than
+#' `blockLength`
 #' @param type the type of null generation (un-segmented bootstrap only)
 #' @param withinChrom whether to re-sample (bootstrap) ranges
 #' across chromosomes (default) or only within chromosomes
 #' (un-segmented bootstrap only)
+#' @param storeBlockLength whether to save blockLength as a
+#' metadata column
 #'
 #' @return a BootRanges (GRanges object) with the bootstrapped ranges,
 #' where iteration and block length are recorded as metadata columns
@@ -66,7 +70,8 @@ bootRanges <- function(y, blockLength, R = 1,
                        excludeOption = c("drop", "trim"),
                        proportionLength = TRUE,
                        type = c("bootstrap", "permute"),
-                       withinChrom = FALSE) {
+                       withinChrom = FALSE,
+                       storeBlockLength = FALSE) {
   chr_lens <- seqlengths(y)
   stopifnot(all(!is.na(chr_lens)))
   excludeOption <- match.arg(excludeOption)
@@ -110,7 +115,10 @@ bootRanges <- function(y, blockLength, R = 1,
   lens <- lengths(br)
   br <- do.call(c, br)
   mcols(br)$iter <- Rle(factor(rep(seq_len(R), lens), levels=seq_len(R)))
-  mcols(br)$blockLength <- Rle(as.integer(blockLength))
+  if (storeBlockLength) {
+    mcols(br)$blockLength <- Rle(as.integer(blockLength))
+  }
+  mcols(br)$block <- NULL # this is not needed except for debugging perhaps
   new("BootRanges", br)
 }
 

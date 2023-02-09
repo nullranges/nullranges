@@ -13,7 +13,8 @@ bootRanges(
   excludeOption = c("drop", "trim"),
   proportionLength = TRUE,
   type = c("bootstrap", "permute"),
-  withinChrom = FALSE
+  withinChrom = FALSE,
+  storeBlockLength = FALSE
 )
 }
 \arguments{
@@ -33,14 +34,19 @@ indicating segmentation state (optional)}
 bootstrap ranges that overlap a excluded region}
 
 \item{proportionLength}{for the segmented block bootstrap,
-whether to use scaled block lengths, (scaling by the proportion
-of the segmentation state out of the total genome length)}
+whether to use scaled block lengths (scaling by the proportion
+of the segmentation state out of the total genome length).
+That is, the resulting blocks will be of size less than
+\code{blockLength}}
 
 \item{type}{the type of null generation (un-segmented bootstrap only)}
 
 \item{withinChrom}{whether to re-sample (bootstrap) ranges
 across chromosomes (default) or only within chromosomes
 (un-segmented bootstrap only)}
+
+\item{storeBlockLength}{whether to save blockLength as a
+metadata column}
 }
 \value{
 a BootRanges (GRanges object) with the bootstrapped ranges,

@@ -1,21 +1,15 @@
 #' BootRanges object
 #'
-#' This class extends the GRanges class. It is expected to have
-#' an `iter` metadata column indicating the iterations of the
-#' bootstrap, which are concatenated together.
+#' This class extends the GRanges class. As produced by bootRanges,
+#' it will have an `iter` column indicating the iterations of the
+#' bootstrap, and a optionally a `blockLength` column indicating the
+#' blockLength parameter.
 #' 
 #' @import methods
 #' @export
 BootRanges <- setClass(
   Class = "BootRanges",
   contains = "GRanges"
-)
-
-setValidity(
-  Class = "BootRanges",
-  method = function(object) {
-    stopifnot("iter" %in% names(mcols(object)))
-  }
 )
 
 #' Matched objects
