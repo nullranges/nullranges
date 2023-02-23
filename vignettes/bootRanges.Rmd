@@ -462,7 +462,7 @@ number of overlap bootstrapped peaks with $x$.
 suppressPackageStartupMessages(library(ggplot2))
 ggplot(boot_stats, aes(sumOverlaps)) +
   geom_histogram(binwidth=5)+
-  geom_vline(xintercept = sum(x$n_overlaps))
+  geom_vline(xintercept = sum(x$n_overlaps), linetype = "dashed")
 ```
 
 ### Statistic II: the sum of signal value for nearby peaks
@@ -485,43 +485,116 @@ of bootstrapped statistics.
 ```{r boot-histII}
 ggplot(boot_stats, aes(sumSignal)) +
   geom_histogram()+
-  geom_vline(xintercept = sum(x_obs$signalValue ))
+  geom_vline(xintercept = sum(x_obs$signalValue), linetype = "dashed")
 ```
 
 ## Case study II: Single cell multi-omics
 
 Instead of deriving statistics of interest directly from *GRanges*
-metadata column or genome position, count matrix from
+simple metadata column or genome position, count matrix from
 *SummerizedExperiment* or *SingleCellExperiment* could also be
-used. One case study is to assess the 
+used. In this way, we have to extract count matrix from
+   *SingleCellExperiment* and save it in GRanges's metadata column as a `NumericList()` format. Then perform the block bootstrap. One case study is to assess the 
 correlation of the all pairs of genes and promoter peaks from Chromium
 Single Cell Multiome ATAC + Gene Expression. 
 
-Pseudo-code:
 
-1. Generate a GRanges object and extracting count matrix from
-   *SingleCellExperiment* 
-2. Save the count matrix in GRanges's metadata column as a
-   `NumericList()` format
-3. Perform `bootranges()` and use *plyranges* in downstream analysis
-
-```{r, eval=FALSE}
+We demonstrate usage by loading 10X [Multiome](https://raw.githack.com/bioFAM/MOFA2_tutorials/master/R_tutorials/10x_scRNA_scATAC.html). The first two pre-processed steps are included in *nullrangesData* in the
+`inst/scripts/make-multiome-data.R` script.  Here, we aggregate 14 cell types across cluster-sample groups.
+```{r}
 ## split sparse count matrix into NumericList
-rna <- rna_Granges[-which(rna.sd==0)] %>%
-  mutate(counts1 = NumericList(asplit(rna.scaled, 1))) %>% sort()
-promoter <- promoter_Granges[-which(promoter.sd==0)] %>%
-  mutate(counts2 = NumericList(asplit(promoter.scaled, 1))) %>% sort()
+# sc_rna <- rna_Granges[-which(rna.sd==0)] %>%
+#   mutate(counts1 = NumericList(asplit(rna.scaled, 1))) %>% sort()
+# sc_promoter <- promoter_Granges[-which(promoter.sd==0)] %>%
+#   mutate(counts2 = NumericList(asplit(promoter.scaled, 1))) %>% sort()
+suppressPackageStartupMessages(library(nullrangesData))
+data("sc_rna")
+sc_rna
+sc_rna$counts1
+nct <- length(sc_rna$counts1[[1]])
+print(paste("There are", nct, "cell types"))
+data("sc_promoter")
+
 ## bootstrap promoters
-bootranges <- bootRanges(promoter, blockLength = 5e5,
-                         R = R, type = "bootstrap", withinChrom = FALSE)
+library(BSgenome.Hsapiens.UCSC.hg38)
+genome <- BSgenome.Hsapiens.UCSC.hg38
+
+seqlengths(sc_promoter) <- seqlengths(genome)[1:22] # pull chrom lens from USCS
+R=50
+bootranges <- bootRanges(sc_promoter,blockLength = 5e5,R=R,type = "bootstrap", withinChrom = F)
+```
+There are two option downstream pipelines to follow after generating a bootranges object. One is use *Plyranges* in downstream analysis as previous sections, another one is creating a *tidySummarizedExperiment* object where each row save derived
+interested statistics. 
+
+* Plyranges: 
+
+We can compute the mean correlation of the all pairs of genes and promoter peaks over iterations and compare to the observed statistic. The histogram below shows that our observed value falls far from the distribution of bootstrapped statistics, as we expected for this real data.
+```{r}
+cor_gr<- sc_rna %>% join_overlap_inner(sc_promoter, maxgap=1000) %>%
+  mutate(rho = 1/(nct-1) * sum(counts1 * counts2)) %>%
+  summarise(meanCor = mean(rho))
 ## mean correlation distribution
-cor_whole <- rna %>%
+cor_boot <- sc_rna %>%
   join_overlap_inner(bootranges, maxgap=1000) %>%
-  mutate(rho = 1/(n(col)-1) * sum(counts1 * counts2)) %>%
+  mutate(rho = 1/(nct-1) * sum(counts1 * counts2)) %>%
   select(rho, iter) %>%
   group_by(iter) %>%
   summarise(meanCor = mean(rho)) %>%
   as.data.frame()
+
+ggplot(cor_boot, aes(meanCor)) +
+  geom_histogram(binwidth=0.01)+
+  geom_vline(xintercept = cor_gr$meanCor,linetype = "dashed")+
+  theme_classic()
+```
+
+If one is interested in assessing significance of gene-promoter pairs per gene, one can also do `plyranges::select` (*gene*, *peak*, *rho*) and `plyranges::group_by` *gene*.
+
+* TidySE:
+
+Create an RangedSE for each modality, then find the overlap using the below helper function.
+```{r}
+library(tidySummarizedExperiment)
+library(purrr)
+# make an SE where each row is an overlap
+makeOverlapSE <- function(se_rna, se_promoter) {
+  idx <- rowRanges(se_rna) %>% join_overlap_inner(rowRanges(se_promoter),maxgap = 1000)
+  assay_x <- assay(se_rna, "rna")[ idx$gene, ]
+  assay_y <- assay(se_promoter, "promoter")[ idx$peak, ]
+  # this is needed to build the SE
+  rownames(assay_x) <- rownames(assay_y) <- seq_along( idx$gene )
+  new_ranges <- rowRanges(se_rna)[ idx$gene ]
+  names(new_ranges) <- seq_along( idx$gene )
+  SummarizedExperiment(
+    assays=list(x=assay_x, y=assay_y),
+    rowRanges=new_ranges
+  )
+}
+
+# create SE for observed data
+se_rna <- SummarizedExperiment(
+  assays=list(rna=do.call(rbind,sc_rna$counts1)),
+  rowRanges=sc_rna)
+se_promoter <- SummarizedExperiment(
+  assays=list(promoter=do.call(rbind,sc_promoter$counts2)),
+  rowRanges=sc_promoter)
+
+se <- makeOverlapSE(se_rna, se_promoter)
+se2 <- se %>%
+  as_tibble() %>%
+  nest(data = -.feature) %>%
+  mutate(rho = map(data,
+                   function(data) data %>% summarize(rho = cor(x, y))
+  )) %>%
+  unnest(rho) %>%
+  select(-data)
+print(paste("mean correlation is", mean(se2$rho)))
+
+# create SE for bootranges data
+se_promoter_booots <- SummarizedExperiment(
+  assays=list(promoter=do.call(rbind,bootranges$counts2)),
+  rowRanges=bootranges)
+
 ```
 
 For more examples of combining `bootRanges` from *nullranges* with
