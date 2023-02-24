@@ -59,6 +59,7 @@ Imports:
     ggplot2,
     grDevices,
     plyranges,
+    tidySummarizedExperiment,
     ks,
     speedglm,
     data.table,
