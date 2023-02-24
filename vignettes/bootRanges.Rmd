@@ -536,6 +536,7 @@ cor_gr<- sc_rna %>% join_overlap_inner(sc_promoter, maxgap=1000) %>%
 ## mean correlation distribution
 cor_boot <- sc_rna %>%
   join_overlap_inner(bootranges, maxgap=1000) %>%
+  # vectorized code are 10 times faster than cor(counts1, counts2) for plyranges pipeline
   mutate(rho = 1/(nct-1) * sum(counts1 * counts2)) %>%
   select(rho, iter) %>%
   group_by(iter) %>%
@@ -563,11 +564,10 @@ makeOverlapSE <- function(se_rna, se_promoter) {
   assay_y <- assay(se_promoter, "promoter")[ idx$peak, ]
   # this is needed to build the SE
   rownames(assay_x) <- rownames(assay_y) <- seq_along( idx$gene )
-  new_ranges <- rowRanges(se_rna)[ idx$gene ]
-  names(new_ranges) <- seq_along( idx$gene )
+  names(idx) <- seq_along( idx$gene )
   SummarizedExperiment(
     assays=list(x=assay_x, y=assay_y),
-    rowRanges=new_ranges
+    rowRanges=idx
   )
 }
 
@@ -580,7 +580,7 @@ se_promoter <- SummarizedExperiment(
   rowRanges=sc_promoter)
 
 se <- makeOverlapSE(se_rna, se_promoter)
-se2 <- se %>%
+se <- se %>%
   as_tibble() %>%
   nest(data = -.feature) %>%
   mutate(rho = map(data,
@@ -588,13 +588,31 @@ se2 <- se %>%
   )) %>%
   unnest(rho) %>%
   select(-data)
-print(paste("mean correlation is", mean(se2$rho)))
+
+print(paste("mean correlation is", mean(se$rho)))
 
 # create SE for bootranges data
-se_promoter_booots <- SummarizedExperiment(
+se_promoter_boots <- SummarizedExperiment(
   assays=list(promoter=do.call(rbind,bootranges$counts2)),
   rowRanges=bootranges)
+se_boots <- makeOverlapSE(se_rna, se_promoter_boots)
 
+se_boots <- se_boots %>%
+  as_tibble() %>%
+  nest(data = -c(.feature,iter)) %>%
+  # vectorized code similar to cor(counts1, counts2) for tidySE pipeline
+  mutate(rho = map(data,
+                   function(data) data %>% summarize(rho = cor(x, y))
+  )) %>%
+  unnest(rho) %>%
+  select(-data)
+
+cor_boot <- se_boots %>% group_by(iter) %>% 
+  summarise(meanCor = mean(rho)) 
+ggplot(cor_boot, aes(meanCor)) +
+  geom_histogram(binwidth=0.01)+
+  geom_vline(xintercept = mean(se$rho),linetype = "dashed")+
+  theme_classic()
 ```
 
 For more examples of combining `bootRanges` from *nullranges* with
