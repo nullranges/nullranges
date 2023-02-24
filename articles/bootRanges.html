@@ -40,7 +40,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.5.16</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.5.17</span>
       </span>
     </div>
 
@@ -103,7 +103,7 @@
       <h1 data-toc-skip>Introduction to bootRanges</h1>
                         <h4 data-toc-skip class="author">Wancen Mu</h4>
             
-            <h4 data-toc-skip class="date">02/09/2023</h4>
+            <h4 data-toc-skip class="date">02/24/2023</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/HEAD/vignettes/bootRanges.Rmd" class="external-link"><code>vignettes/bootRanges.Rmd</code></a></small>
       <div class="hidden name"><code>bootRanges.Rmd</code></div>
@@ -579,7 +579,7 @@ distribution of sum number of overlap bootstrapped peaks with <span class="math 
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">boot_stats</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">sumOverlaps</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_histogram.html" class="external-link">geom_histogram</a></span><span class="op">(</span>binwidth<span class="op">=</span><span class="fl">5</span><span class="op">)</span><span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_vline</a></span><span class="op">(</span>xintercept <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">x</span><span class="op">$</span><span class="va">n_overlaps</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_vline</a></span><span class="op">(</span>xintercept <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">x</span><span class="op">$</span><span class="va">n_overlaps</span><span class="op">)</span>, linetype <span class="op">=</span> <span class="st">"dashed"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="bootRanges_files/figure-html/boot-histI-1.png"><!-- --></p>
 </div>
 <div class="section level4">
@@ -602,7 +602,7 @@ of bootstrapped statistics.</p>
 <div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">boot_stats</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">sumSignal</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_histogram.html" class="external-link">geom_histogram</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_vline</a></span><span class="op">(</span>xintercept <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">x_obs</span><span class="op">$</span><span class="va">signalValue</span> <span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_vline</a></span><span class="op">(</span>xintercept <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">x_obs</span><span class="op">$</span><span class="va">signalValue</span><span class="op">)</span>, linetype <span class="op">=</span> <span class="st">"dashed"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="bootRanges_files/figure-html/boot-histII-1.png"><!-- --></p>
 </div>
 </div>
@@ -610,38 +610,188 @@ of bootstrapped statistics.</p>
 <h3 id="case-study-ii-single-cell-multi-omics">Case study II: Single cell multi-omics<a class="anchor" aria-label="anchor" href="#case-study-ii-single-cell-multi-omics"></a>
 </h3>
 <p>Instead of deriving statistics of interest directly from
-<em>GRanges</em> metadata column or genome position, count matrix from
-<em>SummerizedExperiment</em> or <em>SingleCellExperiment</em> could
-also be used. One case study is to assess the correlation of the all
-pairs of genes and promoter peaks from Chromium Single Cell Multiome
-ATAC + Gene Expression.</p>
-<p>Pseudo-code:</p>
-<ol style="list-style-type: decimal">
-<li>Generate a GRanges object and extracting count matrix from
-<em>SingleCellExperiment</em>
-</li>
-<li>Save the count matrix in GRanges’s metadata column as a
-<code><a href="https://rdrr.io/pkg/IRanges/man/AtomicList-class.html" class="external-link">NumericList()</a></code> format</li>
-<li>Perform <code>bootranges()</code> and use <em>plyranges</em> in
-downstream analysis</li>
-</ol>
+<em>GRanges</em> simple metadata column or genome position, count matrix
+from <em>SummerizedExperiment</em> or <em>SingleCellExperiment</em>
+could also be used. In this way, we have to extract count matrix from
+<em>SingleCellExperiment</em> and save it in GRanges’s metadata column
+as a <code><a href="https://rdrr.io/pkg/IRanges/man/AtomicList-class.html" class="external-link">NumericList()</a></code> format. Then perform the block
+bootstrap. One case study is to assess the correlation of the all pairs
+of genes and promoter peaks from Chromium Single Cell Multiome ATAC +
+Gene Expression.</p>
+<p>We demonstrate usage by loading 10X <a href="https://raw.githack.com/bioFAM/MOFA2_tutorials/master/R_tutorials/10x_scRNA_scATAC.html" class="external-link">Multiome</a>.
+The first two pre-processed steps are included in
+<em>nullrangesData</em> in the
+<code>inst/scripts/make-multiome-data.R</code> script. Here, we
+aggregate 14 cell types across cluster-sample groups.</p>
 <div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## split sparse count matrix into NumericList</span></span>
-<span><span class="va">rna</span> <span class="op">&lt;-</span> <span class="va">rna_Granges</span><span class="op">[</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/which.html" class="external-link">which</a></span><span class="op">(</span><span class="va">rna.sd</span><span class="op">==</span><span class="fl">0</span><span class="op">)</span><span class="op">]</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>counts1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/IRanges/man/AtomicList-class.html" class="external-link">NumericList</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/asplit.html" class="external-link">asplit</a></span><span class="op">(</span><span class="va">rna.scaled</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="va">promoter</span> <span class="op">&lt;-</span> <span class="va">promoter_Granges</span><span class="op">[</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/which.html" class="external-link">which</a></span><span class="op">(</span><span class="va">promoter.sd</span><span class="op">==</span><span class="fl">0</span><span class="op">)</span><span class="op">]</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>counts2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/IRanges/man/AtomicList-class.html" class="external-link">NumericList</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/asplit.html" class="external-link">asplit</a></span><span class="op">(</span><span class="va">promoter.scaled</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co"># sc_rna &lt;- rna_Granges[-which(rna.sd==0)] %&gt;%</span></span>
+<span><span class="co">#   mutate(counts1 = NumericList(asplit(rna.scaled, 1))) %&gt;% sort()</span></span>
+<span><span class="co"># sc_promoter &lt;- promoter_Granges[-which(promoter.sd==0)] %&gt;%</span></span>
+<span><span class="co">#   mutate(counts2 = NumericList(asplit(promoter.scaled, 1))) %&gt;% sort()</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">nullrangesData</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"sc_rna"</span><span class="op">)</span></span>
+<span><span class="va">sc_rna</span></span></code></pre></div>
+<pre><code><span><span class="co">## GRanges object with 28225 ranges and 2 metadata columns:</span></span>
+<span><span class="co">##           seqnames            ranges strand |        gene</span></span>
+<span><span class="co">##              &lt;Rle&gt;         &lt;IRanges&gt;  &lt;Rle&gt; | &lt;character&gt;</span></span>
+<span><span class="co">##       [1]     chr1     120931-133723      * |  AL627309.1</span></span>
+<span><span class="co">##       [2]     chr1     140338-140339      * |  AL627309.2</span></span>
+<span><span class="co">##       [3]     chr1     149706-173862      * |  AL627309.5</span></span>
+<span><span class="co">##       [4]     chr1     160445-160446      * |  AL627309.4</span></span>
+<span><span class="co">##       [5]     chr1     266854-266855      * |  AP006222.2</span></span>
+<span><span class="co">##       ...      ...               ...    ... .         ...</span></span>
+<span><span class="co">##   [28221]    chr22 50597151-50597152      * |    U62317.3</span></span>
+<span><span class="co">##   [28222]    chr22 50600792-50600793      * |    MAPK8IP2</span></span>
+<span><span class="co">##   [28223]    chr22 50628151-50628173      * |        ARSA</span></span>
+<span><span class="co">##   [28224]    chr22 50674641-50729572      * |      SHANK3</span></span>
+<span><span class="co">##   [28225]    chr22 50783620-50783663      * |      RABL2B</span></span>
+<span><span class="co">##                                        counts1</span></span>
+<span><span class="co">##                                  &lt;NumericList&gt;</span></span>
+<span><span class="co">##       [1]    -0.227594, 0.249144, 0.419668,...</span></span>
+<span><span class="co">##       [2]    -0.267261,-0.267261,-0.267261,...</span></span>
+<span><span class="co">##       [3]       -0.39115,-0.10318, 1.02400,...</span></span>
+<span><span class="co">##       [4]  0.1516318,-0.0605821, 1.9885284,...</span></span>
+<span><span class="co">##       [5]    -0.267261,-0.267261,-0.267261,...</span></span>
+<span><span class="co">##       ...                                  ...</span></span>
+<span><span class="co">##   [28221]    -0.267261,-0.267261,-0.267261,...</span></span>
+<span><span class="co">##   [28222]     0.701249,-0.546908,-0.546908,...</span></span>
+<span><span class="co">##   [28223]    -0.509022, 0.201242, 1.618880,...</span></span>
+<span><span class="co">##   [28224]    -0.267261,-0.267261,-0.267261,...</span></span>
+<span><span class="co">##   [28225]  0.9252646,-0.0774203,-0.2877604,...</span></span>
+<span><span class="co">##   -------</span></span>
+<span><span class="co">##   seqinfo: 22 sequences from an unspecified genome; no seqlengths</span></span></code></pre>
+<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">sc_rna</span><span class="op">$</span><span class="va">counts1</span></span></code></pre></div>
+<pre><code><span><span class="co">## NumericList of length 28225</span></span>
+<span><span class="co">## [["AL627309.1"]] naive CD4 T cells=-0.227593693377078 ...</span></span>
+<span><span class="co">## [["AL627309.2"]] naive CD4 T cells=-0.267261241912414 ...</span></span>
+<span><span class="co">## [["AL627309.5"]] naive CD4 T cells=-0.391149533167055 ...</span></span>
+<span><span class="co">## [["AL627309.4"]] naive CD4 T cells=0.151631764936785 ...</span></span>
+<span><span class="co">## [["AP006222.2"]] naive CD4 T cells=-0.267261241912414 ...</span></span>
+<span><span class="co">## [["AL669831.2"]] naive CD4 T cells=-0.808611132030424 ...</span></span>
+<span><span class="co">## [["LINC01409"]] naive CD4 T cells=0.127336072910782 ...</span></span>
+<span><span class="co">## [["FAM87B"]] naive CD4 T cells=-0.236248384278253 ...</span></span>
+<span><span class="co">## [["LINC00115"]] naive CD4 T cells=-0.707000061683988 ...</span></span>
+<span><span class="co">## [["LINC01128"]] naive CD4 T cells=1.07886624919774 ...</span></span>
+<span><span class="co">## ...</span></span>
+<span><span class="co">## &lt;28215 more elements&gt;</span></span></code></pre>
+<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">nct</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">sc_rna</span><span class="op">$</span><span class="va">counts1</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"There are"</span>, <span class="va">nct</span>, <span class="st">"cell types"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## [1] "There are 14 cell types"</span></span></code></pre>
+<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"sc_promoter"</span><span class="op">)</span></span>
+<span></span>
 <span><span class="co">## bootstrap promoters</span></span>
-<span><span class="va">bootranges</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">promoter</span>, blockLength <span class="op">=</span> <span class="fl">5e5</span>,</span>
-<span>                         R <span class="op">=</span> <span class="va">R</span>, type <span class="op">=</span> <span class="st">"bootstrap"</span>, withinChrom <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">BSgenome.Hsapiens.UCSC.hg38</span><span class="op">)</span></span>
+<span><span class="va">genome</span> <span class="op">&lt;-</span> <span class="va">BSgenome.Hsapiens.UCSC.hg38</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqinfo.html" class="external-link">seqlengths</a></span><span class="op">(</span><span class="va">sc_promoter</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqinfo.html" class="external-link">seqlengths</a></span><span class="op">(</span><span class="va">genome</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">22</span><span class="op">]</span> <span class="co"># pull chrom lens from USCS</span></span>
+<span><span class="va">R</span><span class="op">=</span><span class="fl">50</span></span>
+<span><span class="va">bootranges</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">sc_promoter</span>,blockLength <span class="op">=</span> <span class="fl">5e5</span>,R<span class="op">=</span><span class="va">R</span>,type <span class="op">=</span> <span class="st">"bootstrap"</span>, withinChrom <span class="op">=</span> <span class="cn">F</span><span class="op">)</span></span></code></pre></div>
+<p>There are two option downstream pipelines to follow after generating
+a bootranges object. One is use <em>Plyranges</em> in downstream
+analysis as previous sections, another one is creating a
+<em>tidySummarizedExperiment</em> object where each row save derived
+interested statistics.</p>
+<ul>
+<li>Plyranges:</li>
+</ul>
+<p>We can compute the mean correlation of the all pairs of genes and
+promoter peaks over iterations and compare to the observed statistic.
+The histogram below shows that our observed value falls far from the
+distribution of bootstrapped statistics, as we expected for this real
+data.</p>
+<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">cor_gr</span><span class="op">&lt;-</span> <span class="va">sc_rna</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/pkg/plyranges/man/overlap-joins.html" class="external-link">join_overlap_inner</a></span><span class="op">(</span><span class="va">sc_promoter</span>, maxgap<span class="op">=</span><span class="fl">1000</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>rho <span class="op">=</span> <span class="fl">1</span><span class="op">/</span><span class="op">(</span><span class="va">nct</span><span class="op">-</span><span class="fl">1</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">counts1</span> <span class="op">*</span> <span class="va">counts2</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise</a></span><span class="op">(</span>meanCor <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">rho</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">## mean correlation distribution</span></span>
-<span><span class="va">cor_whole</span> <span class="op">&lt;-</span> <span class="va">rna</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span><span class="va">cor_boot</span> <span class="op">&lt;-</span> <span class="va">sc_rna</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/plyranges/man/overlap-joins.html" class="external-link">join_overlap_inner</a></span><span class="op">(</span><span class="va">bootranges</span>, maxgap<span class="op">=</span><span class="fl">1000</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>rho <span class="op">=</span> <span class="fl">1</span><span class="op">/</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/plyranges/man/n.html" class="external-link">n</a></span><span class="op">(</span><span class="va">col</span><span class="op">)</span><span class="op">-</span><span class="fl">1</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">counts1</span> <span class="op">*</span> <span class="va">counts2</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="co"># vectorized code are 10 times faster than cor(counts1, counts2) for plyranges pipeline</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>rho <span class="op">=</span> <span class="fl">1</span><span class="op">/</span><span class="op">(</span><span class="va">nct</span><span class="op">-</span><span class="fl">1</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">counts1</span> <span class="op">*</span> <span class="va">counts2</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">rho</span>, <span class="va">iter</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">iter</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise</a></span><span class="op">(</span>meanCor <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">rho</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">cor_boot</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">meanCor</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_histogram.html" class="external-link">geom_histogram</a></span><span class="op">(</span>binwidth<span class="op">=</span><span class="fl">0.01</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_vline</a></span><span class="op">(</span>xintercept <span class="op">=</span> <span class="va">cor_gr</span><span class="op">$</span><span class="va">meanCor</span>,linetype <span class="op">=</span> <span class="st">"dashed"</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_classic</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p><img src="bootRanges_files/figure-html/unnamed-chunk-17-1.png"><!-- --></p>
+<p>If one is interested in assessing significance of gene-promoter pairs
+per gene, one can also do <code><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">plyranges::select</a></code> (<em>gene</em>,
+<em>peak</em>, <em>rho</em>) and <code><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">plyranges::group_by</a></code>
+<em>gene</em>.</p>
+<ul>
+<li>TidySE:</li>
+</ul>
+<p>Create an RangedSE for each modality, then find the overlap using the
+below helper function.</p>
+<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/stemangiola/tidySummarizedExperiment" class="external-link">tidySummarizedExperiment</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://purrr.tidyverse.org/" class="external-link">purrr</a></span><span class="op">)</span></span>
+<span><span class="co"># make an SE where each row is an overlap</span></span>
+<span><span class="va">makeOverlapSE</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">se_rna</span>, <span class="va">se_promoter</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">idx</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/MatrixGenerics/man/rowRanges.html" class="external-link">rowRanges</a></span><span class="op">(</span><span class="va">se_rna</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/pkg/plyranges/man/overlap-joins.html" class="external-link">join_overlap_inner</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/MatrixGenerics/man/rowRanges.html" class="external-link">rowRanges</a></span><span class="op">(</span><span class="va">se_promoter</span><span class="op">)</span>,maxgap <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span>
+<span>  <span class="va">assay_x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">se_rna</span>, <span class="st">"rna"</span><span class="op">)</span><span class="op">[</span> <span class="va">idx</span><span class="op">$</span><span class="va">gene</span>, <span class="op">]</span></span>
+<span>  <span class="va">assay_y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">se_promoter</span>, <span class="st">"promoter"</span><span class="op">)</span><span class="op">[</span> <span class="va">idx</span><span class="op">$</span><span class="va">peak</span>, <span class="op">]</span></span>
+<span>  <span class="co"># this is needed to build the SE</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/row_colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">assay_x</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/row_colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">assay_y</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span> <span class="va">idx</span><span class="op">$</span><span class="va">gene</span> <span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">idx</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span> <span class="va">idx</span><span class="op">$</span><span class="va">gene</span> <span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/RangedSummarizedExperiment-class.html" class="external-link">SummarizedExperiment</a></span><span class="op">(</span></span>
+<span>    assays<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">assay_x</span>, y<span class="op">=</span><span class="va">assay_y</span><span class="op">)</span>,</span>
+<span>    rowRanges<span class="op">=</span><span class="va">idx</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="co"># create SE for observed data</span></span>
+<span><span class="va">se_rna</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/RangedSummarizedExperiment-class.html" class="external-link">SummarizedExperiment</a></span><span class="op">(</span></span>
+<span>  assays<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>rna<span class="op">=</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>,<span class="va">sc_rna</span><span class="op">$</span><span class="va">counts1</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  rowRanges<span class="op">=</span><span class="va">sc_rna</span><span class="op">)</span></span>
+<span><span class="va">se_promoter</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/RangedSummarizedExperiment-class.html" class="external-link">SummarizedExperiment</a></span><span class="op">(</span></span>
+<span>  assays<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>promoter<span class="op">=</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>,<span class="va">sc_promoter</span><span class="op">$</span><span class="va">counts2</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  rowRanges<span class="op">=</span><span class="va">sc_promoter</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">se</span> <span class="op">&lt;-</span> <span class="fu">makeOverlapSE</span><span class="op">(</span><span class="va">se_rna</span>, <span class="va">se_promoter</span><span class="op">)</span></span>
+<span><span class="va">se</span> <span class="op">&lt;-</span> <span class="va">se</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://tibble.tidyverse.org/reference/as_tibble.html" class="external-link">as_tibble</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/nest.html" class="external-link">nest</a></span><span class="op">(</span>data <span class="op">=</span> <span class="op">-</span><span class="va">.feature</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>rho <span class="op">=</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span><span class="va">data</span>,</span>
+<span>                   <span class="kw">function</span><span class="op">(</span><span class="va">data</span><span class="op">)</span> <span class="va">data</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarize</a></span><span class="op">(</span>rho <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/unnest.html" class="external-link">unnest</a></span><span class="op">(</span><span class="va">rho</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="op">-</span><span class="va">data</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"mean correlation is"</span>, <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">se</span><span class="op">$</span><span class="va">rho</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## [1] "mean correlation is 0.328436113658566"</span></span></code></pre>
+<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># create SE for bootranges data</span></span>
+<span><span class="va">se_promoter_boots</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/RangedSummarizedExperiment-class.html" class="external-link">SummarizedExperiment</a></span><span class="op">(</span></span>
+<span>  assays<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>promoter<span class="op">=</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>,<span class="va">bootranges</span><span class="op">$</span><span class="va">counts2</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  rowRanges<span class="op">=</span><span class="va">bootranges</span><span class="op">)</span></span>
+<span><span class="va">se_boots</span> <span class="op">&lt;-</span> <span class="fu">makeOverlapSE</span><span class="op">(</span><span class="va">se_rna</span>, <span class="va">se_promoter_boots</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">se_boots</span> <span class="op">&lt;-</span> <span class="va">se_boots</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://tibble.tidyverse.org/reference/as_tibble.html" class="external-link">as_tibble</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/nest.html" class="external-link">nest</a></span><span class="op">(</span>data <span class="op">=</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">.feature</span>,<span class="va">iter</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="co"># vectorized code similar to cor(counts1, counts2) for tidySE pipeline</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>rho <span class="op">=</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span><span class="va">data</span>,</span>
+<span>                   <span class="kw">function</span><span class="op">(</span><span class="va">data</span><span class="op">)</span> <span class="va">data</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarize</a></span><span class="op">(</span>rho <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/unnest.html" class="external-link">unnest</a></span><span class="op">(</span><span class="va">rho</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="op">-</span><span class="va">data</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">cor_boot</span> <span class="op">&lt;-</span> <span class="va">se_boots</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">iter</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise</a></span><span class="op">(</span>meanCor <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">rho</span><span class="op">)</span><span class="op">)</span> </span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">cor_boot</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">meanCor</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_histogram.html" class="external-link">geom_histogram</a></span><span class="op">(</span>binwidth<span class="op">=</span><span class="fl">0.01</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_vline</a></span><span class="op">(</span>xintercept <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">se</span><span class="op">$</span><span class="va">rho</span><span class="op">)</span>,linetype <span class="op">=</span> <span class="st">"dashed"</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_classic</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p><img src="bootRanges_files/figure-html/unnamed-chunk-18-1.png"><!-- --></p>
 <p>For more examples of combining <code>bootRanges</code> from
 <em>nullranges</em> with <em>plyranges</em> piped operations, see the
 relevant chapter in the <a href="https://nullranges.github.io/tidy-ranges-tutorial/bootstrap-overlap.html" class="external-link">tidy-ranges-tutorial</a>
@@ -660,7 +810,7 @@ and it also can simplify code and avoid repetition.</p>
 is desired to generate bootstrap data within this one region. For this,
 we have a convenience function that enables bootstrap computation.</p>
 <p>Suppose we have data in the following region of chromosome 1:</p>
-<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">nullrangesData</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">dhs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/nullrangesData/man/DHSA549Hg38.html" class="external-link">DHSA549Hg38</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">region</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html" class="external-link">GRanges</a></span><span class="op">(</span><span class="st">"chr1"</span>, <span class="fu"><a href="https://rdrr.io/pkg/IRanges/man/IRanges-constructor.html" class="external-link">IRanges</a></span><span class="op">(</span><span class="fl">10e6</span> <span class="op">+</span> <span class="fl">1</span>, width<span class="op">=</span><span class="fl">1e6</span><span class="op">)</span><span class="op">)</span></span>
@@ -684,7 +834,7 @@ we have a convenience function that enables bootstrap computation.</p>
 <span><span class="co">##   seqinfo: 1 sequence from an unspecified genome; no seqlengths</span></span></code></pre>
 <p>We can easily bootstrap data just in this region using the following
 code:</p>
-<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb50"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">seg</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/oneRegionSegment.html">oneRegionSegment</a></span><span class="op">(</span><span class="va">region</span>, seqlength<span class="op">=</span><span class="fl">248956422</span><span class="op">)</span></span>
 <span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqlevels-wrappers.html" class="external-link">keepSeqlevels</a></span><span class="op">(</span><span class="va">y</span>, <span class="st">"chr1"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
@@ -707,7 +857,7 @@ code:</p>
 <span><span class="co">##   [83]     chr1 10995862-10996011      * |     1</span></span>
 <span><span class="co">##   -------</span></span>
 <span><span class="co">##   seqinfo: 1 sequence from hg38 genome</span></span></code></pre>
-<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb52"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>num_overlaps <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/plyranges/man/ranges-count-overlaps.html" class="external-link">count_overlaps</a></span><span class="op">(</span><span class="va">.</span>, <span class="va">boot</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## GRanges object with 10 ranges and 1 metadata column:</span></span>
 <span><span class="co">##        seqnames            ranges strand | num_overlaps</span></span>
@@ -738,7 +888,7 @@ bootstrap. First, we define a helper function for plotting
 <em>GRanges</em> using <em>plotgardener</em> <span class="citation">(Kramer et al. 2022)</span>. A key aspect here is that
 we color the original and bootstrapped ranges by the genomic state (the
 state of the segmentation that the original ranges fall in).</p>
-<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb54"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://phanstiellab.github.io/plotgardener" class="external-link">plotgardener</a></span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">my_palette</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">n</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"red"</span>,<span class="st">"green3"</span>,<span class="st">"red3"</span>,<span class="st">"dodgerblue"</span>,</span>
@@ -764,7 +914,7 @@ state of the segmentation that the original ranges fall in).</p>
 <span>  <span class="op">}</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>Create a toy genome segmentation:</p>
-<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb55"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://bioconductor.org/packages/GenomicRanges" class="external-link">GenomicRanges</a></span><span class="op">)</span></span>
 <span><span class="va">seq_nms</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"chr1"</span>,<span class="st">"chr2"</span><span class="op">)</span>, <span class="fu"><a href="https://phanstiellab.github.io/plotgardener/reference/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>,<span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">seg</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html" class="external-link">GRanges</a></span><span class="op">(</span></span>
@@ -778,11 +928,11 @@ state of the segmentation that the original ranges fall in).</p>
 <p><em>Temporarily turning off these code chunks while we fix upstream
 code</em></p>
 <p>We can visualize with our helper function:</p>
-<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb56"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">plotGRanges</span><span class="op">(</span><span class="va">seg</span><span class="op">)</span></span></code></pre></div>
 <p>Now create small ranges distributed uniformly across the toy
 genome:</p>
-<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb57"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">200</span></span>
 <span><span class="va">gr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html" class="external-link">GRanges</a></span><span class="op">(</span></span>
@@ -803,7 +953,7 @@ genome:</p>
 <p><strong>Scaling vs. not scaling by segment length</strong></p>
 <p>We can visualize block bootstrapped ranges when the blocks do not
 scale to segment state length:</p>
-<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb58"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">gr_prime</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">gr</span>, blockLength <span class="op">=</span> <span class="fl">25</span>, seg <span class="op">=</span> <span class="va">seg</span>,</span>
 <span>                       proportionLength <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
@@ -813,7 +963,7 @@ this case <code>blockLength</code> is the <em>maximal</em> block length
 possible, but the actual block lengths per segment will be smaller
 (proportional to the fraction of basepairs covered by that state in the
 genome segmentation).</p>
-<div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb59"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">gr_prime</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bootRanges.html">bootRanges</a></span><span class="op">(</span><span class="va">gr</span>, blockLength <span class="op">=</span> <span class="fl">50</span>, seg <span class="op">=</span> <span class="va">seg</span>,</span>
 <span>                       proportionLength <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
@@ -828,15 +978,15 @@ block.</p>
 <div class="section level2">
 <h2 id="session-information">Session information<a class="anchor" aria-label="anchor" href="#session-information"></a>
 </h2>
-<div class="sourceCode" id="cb50"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb60"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## R version 4.2.2 (2022-10-31)</span></span>
+<pre><code><span><span class="co">## R Under development (unstable) (2023-02-16 r83857)</span></span>
 <span><span class="co">## Platform: x86_64-pc-linux-gnu (64-bit)</span></span>
 <span><span class="co">## Running under: Ubuntu 22.04.1 LTS</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## Matrix products: default</span></span>
-<span><span class="co">## BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3</span></span>
-<span><span class="co">## LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.20.so</span></span>
+<span><span class="co">## BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3 </span></span>
+<span><span class="co">## LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.20.so;  LAPACK version 3.10.0</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## locale:</span></span>
 <span><span class="co">##  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              </span></span>
@@ -846,84 +996,90 @@ block.</p>
 <span><span class="co">##  [9] LC_ADDRESS=C               LC_TELEPHONE=C            </span></span>
 <span><span class="co">## [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       </span></span>
 <span><span class="co">## </span></span>
+<span><span class="co">## time zone: UTC</span></span>
+<span><span class="co">## tzcode source: system (glibc)</span></span>
+<span><span class="co">## </span></span>
 <span><span class="co">## attached base packages:</span></span>
 <span><span class="co">## [1] stats4    stats     graphics  grDevices utils     datasets  methods  </span></span>
 <span><span class="co">## [8] base     </span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## other attached packages:</span></span>
-<span><span class="co">##  [1] plotgardener_1.4.2          ggplot2_3.4.0              </span></span>
-<span><span class="co">##  [3] purrr_1.0.1                 ggridges_0.5.4             </span></span>
-<span><span class="co">##  [5] tidyr_1.3.0                 patchwork_1.1.2            </span></span>
-<span><span class="co">##  [7] plyranges_1.18.0            nullranges_1.5.16          </span></span>
-<span><span class="co">##  [9] EnsDb.Hsapiens.v86_2.99.0   ensembldb_2.22.0           </span></span>
-<span><span class="co">## [11] AnnotationFilter_1.22.0     GenomicFeatures_1.50.4     </span></span>
-<span><span class="co">## [13] AnnotationDbi_1.60.0        nullrangesData_1.4.0       </span></span>
-<span><span class="co">## [15] InteractionSet_1.26.1       SummarizedExperiment_1.28.0</span></span>
-<span><span class="co">## [17] Biobase_2.58.0              MatrixGenerics_1.10.0      </span></span>
-<span><span class="co">## [19] matrixStats_0.63.0          ExperimentHub_2.6.0        </span></span>
-<span><span class="co">## [21] GenomicRanges_1.50.2        GenomeInfoDb_1.34.9        </span></span>
-<span><span class="co">## [23] IRanges_2.32.0              S4Vectors_0.36.1           </span></span>
-<span><span class="co">## [25] AnnotationHub_3.6.0         BiocFileCache_2.6.0        </span></span>
-<span><span class="co">## [27] dbplyr_2.3.0                BiocGenerics_0.44.0        </span></span>
+<span><span class="co">##  [1] plotgardener_1.5.3                tidySummarizedExperiment_1.9.4   </span></span>
+<span><span class="co">##  [3] BSgenome.Hsapiens.UCSC.hg38_1.4.5 BSgenome_1.67.4                  </span></span>
+<span><span class="co">##  [5] rtracklayer_1.59.1                Biostrings_2.67.0                </span></span>
+<span><span class="co">##  [7] XVector_0.39.0                    ggplot2_3.4.1                    </span></span>
+<span><span class="co">##  [9] purrr_1.0.1                       ggridges_0.5.4                   </span></span>
+<span><span class="co">## [11] tidyr_1.3.0                       patchwork_1.1.2                  </span></span>
+<span><span class="co">## [13] plyranges_1.19.0                  nullranges_1.5.17                </span></span>
+<span><span class="co">## [15] EnsDb.Hsapiens.v86_2.99.0         ensembldb_2.23.2                 </span></span>
+<span><span class="co">## [17] AnnotationFilter_1.23.0           GenomicFeatures_1.51.4           </span></span>
+<span><span class="co">## [19] AnnotationDbi_1.61.0              nullrangesData_1.5.1             </span></span>
+<span><span class="co">## [21] InteractionSet_1.27.0             SummarizedExperiment_1.29.1      </span></span>
+<span><span class="co">## [23] Biobase_2.59.0                    MatrixGenerics_1.11.0            </span></span>
+<span><span class="co">## [25] matrixStats_0.63.0                ExperimentHub_2.7.0              </span></span>
+<span><span class="co">## [27] GenomicRanges_1.51.4              GenomeInfoDb_1.35.15             </span></span>
+<span><span class="co">## [29] IRanges_2.33.0                    S4Vectors_0.37.3                 </span></span>
+<span><span class="co">## [31] AnnotationHub_3.7.1               BiocFileCache_2.7.2              </span></span>
+<span><span class="co">## [33] dbplyr_2.3.0                      BiocGenerics_0.45.0              </span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## loaded via a namespace (and not attached):</span></span>
-<span><span class="co">##   [1] systemfonts_1.0.4             RcppHMM_1.2.2                </span></span>
-<span><span class="co">##   [3] lazyeval_0.2.2                BiocParallel_1.32.5          </span></span>
-<span><span class="co">##   [5] digest_0.6.31                 yulab.utils_0.0.6            </span></span>
-<span><span class="co">##   [7] htmltools_0.5.4               fansi_1.0.4                  </span></span>
-<span><span class="co">##   [9] magrittr_2.0.3                memoise_2.0.1                </span></span>
-<span><span class="co">##  [11] ks_1.14.0                     Biostrings_2.66.0            </span></span>
-<span><span class="co">##  [13] pkgdown_2.0.7                 prettyunits_1.1.1            </span></span>
-<span><span class="co">##  [15] colorspace_2.1-0              blob_1.2.3                   </span></span>
-<span><span class="co">##  [17] rappdirs_0.3.3                textshaping_0.3.6            </span></span>
-<span><span class="co">##  [19] xfun_0.37                     dplyr_1.1.0                  </span></span>
-<span><span class="co">##  [21] crayon_1.5.2                  RCurl_1.98-1.10              </span></span>
-<span><span class="co">##  [23] jsonlite_1.8.4                glue_1.6.2                   </span></span>
-<span><span class="co">##  [25] gtable_0.3.1                  zlibbioc_1.44.0              </span></span>
-<span><span class="co">##  [27] XVector_0.38.0                strawr_0.0.9                 </span></span>
-<span><span class="co">##  [29] DelayedArray_0.24.0           scales_1.2.1                 </span></span>
-<span><span class="co">##  [31] mvtnorm_1.1-3                 DBI_1.1.3                    </span></span>
-<span><span class="co">##  [33] Rcpp_1.0.10                   xtable_1.8-4                 </span></span>
-<span><span class="co">##  [35] progress_1.2.2                gridGraphics_0.5-1           </span></span>
-<span><span class="co">##  [37] bit_4.0.5                     mclust_6.0.0                 </span></span>
-<span><span class="co">##  [39] httr_1.4.4                    RColorBrewer_1.1-3           </span></span>
-<span><span class="co">##  [41] speedglm_0.3-4                ellipsis_0.3.2               </span></span>
-<span><span class="co">##  [43] pkgconfig_2.0.3               XML_3.99-0.13                </span></span>
-<span><span class="co">##  [45] farver_2.1.1                  sass_0.4.5                   </span></span>
-<span><span class="co">##  [47] utf8_1.2.3                    DNAcopy_1.72.3               </span></span>
-<span><span class="co">##  [49] ggplotify_0.1.0               tidyselect_1.2.0             </span></span>
-<span><span class="co">##  [51] labeling_0.4.2                rlang_1.0.6                  </span></span>
-<span><span class="co">##  [53] later_1.3.0                   munsell_0.5.0                </span></span>
-<span><span class="co">##  [55] BiocVersion_3.16.0            tools_4.2.2                  </span></span>
-<span><span class="co">##  [57] cachem_1.0.6                  cli_3.6.0                    </span></span>
-<span><span class="co">##  [59] generics_0.1.3                RSQLite_2.2.20               </span></span>
-<span><span class="co">##  [61] evaluate_0.20                 stringr_1.5.0                </span></span>
-<span><span class="co">##  [63] fastmap_1.1.0                 yaml_2.3.7                   </span></span>
-<span><span class="co">##  [65] ragg_1.2.5                    knitr_1.42                   </span></span>
-<span><span class="co">##  [67] bit64_4.0.5                   fs_1.6.1                     </span></span>
-<span><span class="co">##  [69] KEGGREST_1.38.0               mime_0.12                    </span></span>
-<span><span class="co">##  [71] pracma_2.4.2                  xml2_1.3.3                   </span></span>
-<span><span class="co">##  [73] biomaRt_2.54.0                compiler_4.2.2               </span></span>
-<span><span class="co">##  [75] filelock_1.0.2                curl_5.0.0                   </span></span>
-<span><span class="co">##  [77] png_0.1-8                     interactiveDisplayBase_1.36.0</span></span>
-<span><span class="co">##  [79] tibble_3.1.8                  bslib_0.4.2                  </span></span>
-<span><span class="co">##  [81] stringi_1.7.12                highr_0.10                   </span></span>
-<span><span class="co">##  [83] desc_1.4.2                    lattice_0.20-45              </span></span>
-<span><span class="co">##  [85] ProtGenerics_1.30.0           Matrix_1.5-3                 </span></span>
-<span><span class="co">##  [87] vctrs_0.5.2                   pillar_1.8.1                 </span></span>
-<span><span class="co">##  [89] lifecycle_1.0.3               BiocManager_1.30.19          </span></span>
-<span><span class="co">##  [91] jquerylib_0.1.4               data.table_1.14.6            </span></span>
-<span><span class="co">##  [93] bitops_1.0-7                  httpuv_1.6.8                 </span></span>
-<span><span class="co">##  [95] rtracklayer_1.58.0            R6_2.5.1                     </span></span>
-<span><span class="co">##  [97] BiocIO_1.8.0                  promises_1.2.0.1             </span></span>
-<span><span class="co">##  [99] KernSmooth_2.23-20            codetools_0.2-19             </span></span>
-<span><span class="co">## [101] MASS_7.3-58.2                 assertthat_0.2.1             </span></span>
-<span><span class="co">## [103] rprojroot_2.0.3               rjson_0.2.21                 </span></span>
-<span><span class="co">## [105] withr_2.5.0                   GenomicAlignments_1.34.0     </span></span>
-<span><span class="co">## [107] Rsamtools_2.14.0              GenomeInfoDbData_1.2.9       </span></span>
-<span><span class="co">## [109] parallel_4.2.2                hms_1.1.2                    </span></span>
-<span><span class="co">## [111] grid_4.2.2                    rmarkdown_2.20               </span></span>
-<span><span class="co">## [113] shiny_1.7.4                   restfulr_0.0.15</span></span></code></pre>
+<span><span class="co">##   [1] strawr_0.0.9                  RColorBrewer_1.1-3           </span></span>
+<span><span class="co">##   [3] jsonlite_1.8.4                magrittr_2.0.3               </span></span>
+<span><span class="co">##   [5] farver_2.1.1                  rmarkdown_2.20               </span></span>
+<span><span class="co">##   [7] fs_1.6.1                      BiocIO_1.9.2                 </span></span>
+<span><span class="co">##   [9] zlibbioc_1.45.0               ragg_1.2.5                   </span></span>
+<span><span class="co">##  [11] vctrs_0.5.2                   memoise_2.0.1                </span></span>
+<span><span class="co">##  [13] Rsamtools_2.15.1              RCurl_1.98-1.10              </span></span>
+<span><span class="co">##  [15] htmltools_0.5.4               progress_1.2.2               </span></span>
+<span><span class="co">##  [17] curl_5.0.0                    gridGraphics_0.5-1           </span></span>
+<span><span class="co">##  [19] sass_0.4.5                    pracma_2.4.2                 </span></span>
+<span><span class="co">##  [21] KernSmooth_2.23-20            bslib_0.4.2                  </span></span>
+<span><span class="co">##  [23] htmlwidgets_1.6.1             desc_1.4.2                   </span></span>
+<span><span class="co">##  [25] plotly_4.10.1                 cachem_1.0.6                 </span></span>
+<span><span class="co">##  [27] GenomicAlignments_1.35.0      mime_0.12                    </span></span>
+<span><span class="co">##  [29] lifecycle_1.0.3               pkgconfig_2.0.3              </span></span>
+<span><span class="co">##  [31] Matrix_1.5-3                  R6_2.5.1                     </span></span>
+<span><span class="co">##  [33] fastmap_1.1.0                 GenomeInfoDbData_1.2.9       </span></span>
+<span><span class="co">##  [35] shiny_1.7.4                   digest_0.6.31                </span></span>
+<span><span class="co">##  [37] colorspace_2.1-0              rprojroot_2.0.3              </span></span>
+<span><span class="co">##  [39] textshaping_0.3.6             RSQLite_2.3.0                </span></span>
+<span><span class="co">##  [41] labeling_0.4.2                filelock_1.0.2               </span></span>
+<span><span class="co">##  [43] fansi_1.0.4                   httr_1.4.4                   </span></span>
+<span><span class="co">##  [45] compiler_4.3.0                bit64_4.0.5                  </span></span>
+<span><span class="co">##  [47] withr_2.5.0                   speedglm_0.3-4               </span></span>
+<span><span class="co">##  [49] BiocParallel_1.33.9           DBI_1.1.3                    </span></span>
+<span><span class="co">##  [51] highr_0.10                    biomaRt_2.55.0               </span></span>
+<span><span class="co">##  [53] MASS_7.3-58.2                 rappdirs_0.3.3               </span></span>
+<span><span class="co">##  [55] DelayedArray_0.25.0           rjson_0.2.21                 </span></span>
+<span><span class="co">##  [57] DNAcopy_1.73.0                tools_4.3.0                  </span></span>
+<span><span class="co">##  [59] interactiveDisplayBase_1.37.0 httpuv_1.6.9                 </span></span>
+<span><span class="co">##  [61] glue_1.6.2                    restfulr_0.0.15              </span></span>
+<span><span class="co">##  [63] promises_1.2.0.1              grid_4.3.0                   </span></span>
+<span><span class="co">##  [65] generics_0.1.3                gtable_0.3.1                 </span></span>
+<span><span class="co">##  [67] data.table_1.14.8             hms_1.1.2                    </span></span>
+<span><span class="co">##  [69] xml2_1.3.3                    utf8_1.2.3                   </span></span>
+<span><span class="co">##  [71] BiocVersion_3.17.1            pillar_1.8.1                 </span></span>
+<span><span class="co">##  [73] stringr_1.5.0                 yulab.utils_0.0.6            </span></span>
+<span><span class="co">##  [75] later_1.3.0                   dplyr_1.1.0                  </span></span>
+<span><span class="co">##  [77] lattice_0.20-45               bit_4.0.5                    </span></span>
+<span><span class="co">##  [79] ks_1.14.0                     tidyselect_1.2.0             </span></span>
+<span><span class="co">##  [81] knitr_1.42                    ProtGenerics_1.31.0          </span></span>
+<span><span class="co">##  [83] xfun_0.37                     stringi_1.7.12               </span></span>
+<span><span class="co">##  [85] lazyeval_0.2.2                yaml_2.3.7                   </span></span>
+<span><span class="co">##  [87] evaluate_0.20                 codetools_0.2-19             </span></span>
+<span><span class="co">##  [89] tibble_3.1.8                  BiocManager_1.30.20          </span></span>
+<span><span class="co">##  [91] ggplotify_0.1.0               cli_3.6.0                    </span></span>
+<span><span class="co">##  [93] xtable_1.8-4                  systemfonts_1.0.4            </span></span>
+<span><span class="co">##  [95] munsell_0.5.0                 jquerylib_0.1.4              </span></span>
+<span><span class="co">##  [97] Rcpp_1.0.10                   png_0.1-8                    </span></span>
+<span><span class="co">##  [99] XML_3.99-0.13                 parallel_4.3.0               </span></span>
+<span><span class="co">## [101] ellipsis_0.3.2                pkgdown_2.0.7                </span></span>
+<span><span class="co">## [103] assertthat_0.2.1              blob_1.2.3                   </span></span>
+<span><span class="co">## [105] prettyunits_1.1.1             mclust_6.0.0                 </span></span>
+<span><span class="co">## [107] bitops_1.0-7                  viridisLite_0.4.1            </span></span>
+<span><span class="co">## [109] mvtnorm_1.1-3                 scales_1.2.1                 </span></span>
+<span><span class="co">## [111] crayon_1.5.2                  RcppHMM_1.2.2                </span></span>
+<span><span class="co">## [113] rlang_1.0.6                   KEGGREST_1.39.0</span></span></code></pre>
 </div>
 <div class="section level2">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
