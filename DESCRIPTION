@@ -37,6 +37,7 @@ Suggests:
     excluderanges,
     ensembldb,
     EnsDb.Hsapiens.v86,
+    BSgenome.Hsapiens.UCSC.hg38,
     patchwork,
     plotgardener,
     dplyr,
