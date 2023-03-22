@@ -54,9 +54,7 @@ orientations between pairs of genomic regions that are 1) connected by loops, 2)
 connected by loops, 3) randomly chosen, or 4) not connected by loops, but matched for
 the strength of CTCF sites and distance between loop anchors.
 
-*Temporarily turning off these code chunks while we fix upstream code*
-
-```{r, eval=FALSE, message=FALSE, warning=FALSE, echo=FALSE, fig.width=8.5, fig.height=6.5, eval=TRUE}
+```{r, message=FALSE, warning=FALSE, echo=FALSE, fig.width=8.5, fig.height=6.5, eval=TRUE}
 ## Define colors
 colors <- c("#e19995", "#adaf64", "#4fbe9b", "#6eb3d9", "#d098d7")
 ## Create artificial GInteractions

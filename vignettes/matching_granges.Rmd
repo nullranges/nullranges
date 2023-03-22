@@ -45,9 +45,7 @@ regions. We use the `hg19_10kb_bins` dataset from the
 along the genome with CTCF, DNase, and loop feature annotations from
 GM12878 (see `?nullrangesData::hg19_10kb_bins`). 
 
-*Temporarily turning off these code chunks while we fix upstream code*
-
-```{r, eval=FALSE, message=FALSE, warning=FALSE, echo=FALSE, fig.width=8.5, fig.height=6.5}
+```{r, message=FALSE, warning=FALSE, echo=FALSE, fig.width=8.5, fig.height=6.5}
 ## Define colors
 colors <- c("#e19995", "#adaf64", "#4fbe9b", "#6eb3d9", "#d098d7")
 

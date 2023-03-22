@@ -38,9 +38,7 @@ vignettes.
 
 For a description of the method, see @matchRanges.
 
-*Temporarily turning off these code chunks while we fix upstream code*
-
-```{r, eval=FALSE, message=FALSE, warning=FALSE, echo=FALSE, fig.width=8.5, fig.height=6.5}
+```{r, message=FALSE, warning=FALSE, echo=FALSE, fig.width=8.5, fig.height=6.5}
 
 ## Make grid of coordinates
 makeCoords <- function(npts) {
