@@ -556,6 +556,7 @@ matchRanges_MatchedDataFrame <- function(focal, pool, covar, method, replace) {
 #' @rawNamespace import(data.table, except = c(between, shift, first, second, indices))
 #' @importFrom rlang f_lhs f_rhs
 #' @importFrom ks kde
+#' @importFrom stats glm
 #' @import S4Vectors
 #' 
 #' @export
