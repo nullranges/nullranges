@@ -309,14 +309,18 @@ propensityMatch <- function(covarData, covars, method, replace) {
   f <- as.formula(paste("id ~", paste(covars, collapse = "+")))
 
   ## Run glm model
-  model <- speedglm(formula = f, data = covarData,
-                    family = binomial("logit"), fitted = TRUE, model = TRUE)
 
+  # April 2023 - speedglm is removed from CRAN so we cannot use it here...
+  #model <- speedglm(formula = f, data = covarData,
+  #                  family = binomial("logit"), fitted = TRUE, model = TRUE)
+  model <- glm(formula = f, data = covarData,
+               family = binomial("logit"))
+  
   ## Get propensity scores of focal and pool sets as vectors
   id <- NULL
   ps <- NULL
 
-  psData <- data.table(ps = predict(model, type = "response"), id = model$model$id)
+  psData <- data.table(ps = predict(model, type = "response"), id = covarData$id)
   fps <- psData[id == 1, ps]
   pps <- psData[id == 0, ps]
 
@@ -551,7 +555,6 @@ matchRanges_MatchedDataFrame <- function(focal, pool, covar, method, replace) {
 #'
 #' @rawNamespace import(data.table, except = c(between, shift, first, second, indices))
 #' @importFrom rlang f_lhs f_rhs
-#' @importFrom speedglm speedglm
 #' @importFrom ks kde
 #' @import S4Vectors
 #' 

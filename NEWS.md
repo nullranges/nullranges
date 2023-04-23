@@ -1,3 +1,8 @@
+# nullranges 1.5.19
+
+* Remove speedglm dependency as it was removed from CRAN
+  (April 2023).
+
 # nullranges 1.1.13
 
 * Bug fix that allows nearest matching method to handle
