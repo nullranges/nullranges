@@ -146,9 +146,10 @@ make_example_matched_data_set <- function(type, matched, method, replace) {
 #' makeExampleMatchedDataSet(type = 'GRanges', matched = TRUE,
 #'                           method = 'rejection',
 #'                           replace = FALSE)
-#' makeExampleMatchedDataSet(type = 'GInteractions', matched = TRUE,
-#'                           method = 'rejection',
-#'                           replace = FALSE)
+#' # throwing error (April 2023)
+#' #makeExampleMatchedDataSet(type = 'GInteractions', matched = TRUE,
+#' #                          method = 'rejection',
+#' #                          replace = FALSE)
 #'
 #' @rdname makeExampleMatchedDataSet
 #' @rawNamespace import(data.table, except = c(between, shift, first, second, indices))

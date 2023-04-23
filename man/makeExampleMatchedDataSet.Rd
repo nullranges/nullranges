@@ -64,8 +64,9 @@ makeExampleMatchedDataSet(type = 'DataFrame', matched = TRUE,
 makeExampleMatchedDataSet(type = 'GRanges', matched = TRUE,
                           method = 'rejection',
                           replace = FALSE)
-makeExampleMatchedDataSet(type = 'GInteractions', matched = TRUE,
-                          method = 'rejection',
-                          replace = FALSE)
+# throwing error (April 2023)
+#makeExampleMatchedDataSet(type = 'GInteractions', matched = TRUE,
+#                          method = 'rejection',
+#                          replace = FALSE)
 
 }

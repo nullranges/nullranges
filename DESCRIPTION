@@ -45,7 +45,8 @@ Suggests:
     magrittr,
     tidyr,
     cobalt,
-    DiagrammeR
+    DiagrammeR,
+    tidySummarizedExperiment
 Imports:
     stats,
     IRanges,
