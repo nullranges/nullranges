@@ -494,14 +494,19 @@ Instead of deriving statistics of interest directly from *GRanges*
 simple metadata column or genome position, count matrix from
 *SummerizedExperiment* or *SingleCellExperiment* could also be
 used. In this way, we have to extract count matrix from
-   *SingleCellExperiment* and save it in GRanges's metadata column as a `NumericList()` format. Then perform the block bootstrap. One case study is to assess the 
-correlation of the all pairs of genes and promoter peaks from Chromium
-Single Cell Multiome ATAC + Gene Expression. 
+*SingleCellExperiment* and save it in GRanges's metadata column as a
+`NumericList()` format. Then perform the block bootstrap. One case
+study is to assess the correlation of the all pairs of genes and
+promoter peaks from Chromium Single Cell Multiome ATAC + Gene
+Expression.
 
+We demonstrate usage by loading 10X
+[Multiome](https://raw.githack.com/bioFAM/MOFA2_tutorials/master/R_tutorials/10x_scRNA_scATAC.html). The
+first two pre-processed steps are included in *nullrangesData* in the
+`inst/scripts/make-multiome-data.R` script. Here, we aggregate 14
+cell types across cluster-sample groups.
 
-We demonstrate usage by loading 10X [Multiome](https://raw.githack.com/bioFAM/MOFA2_tutorials/master/R_tutorials/10x_scRNA_scATAC.html). The first two pre-processed steps are included in *nullrangesData* in the
-`inst/scripts/make-multiome-data.R` script.  Here, we aggregate 14 cell types across cluster-sample groups.
-```{r}
+```{r eval=FALSE}
 ## split sparse count matrix into NumericList
 # sc_rna <- rna_Granges[-which(rna.sd==0)] %>%
 #   mutate(counts1 = NumericList(asplit(rna.scaled, 1))) %>% sort()
@@ -523,14 +528,19 @@ seqlengths(sc_promoter) <- seqlengths(genome)[1:22] # pull chrom lens from USCS
 R=50
 bootranges <- bootRanges(sc_promoter,blockLength = 5e5,R=R,type = "bootstrap", withinChrom = F)
 ```
-There are two option downstream pipelines to follow after generating a bootranges object. One is use *Plyranges* in downstream analysis as previous sections, another one is creating a *tidySummarizedExperiment* object where each row save derived
-interested statistics. 
+
+There are two option downstream pipelines to follow after generating a
+bootranges object. One is use *Plyranges* in downstream analysis as
+previous sections, another one is creating a
+*tidySummarizedExperiment* object where each row save derived
+interested statistics.
 
 * Plyranges: 
 
 We can compute the mean correlation of the all pairs of genes and promoter peaks over iterations and compare to the observed statistic. The histogram below shows that our observed value falls far from the distribution of bootstrapped statistics, as we expected for this real data.
-```{r}
-cor_gr<- sc_rna %>% join_overlap_inner(sc_promoter, maxgap=1000) %>%
+
+```{r eval=FALSE}
+cor_gr <- sc_rna %>% join_overlap_inner(sc_promoter, maxgap=1000) %>%
   mutate(rho = 1/(nct-1) * sum(counts1 * counts2)) %>%
   summarise(meanCor = mean(rho))
 ## mean correlation distribution
@@ -551,10 +561,11 @@ ggplot(cor_boot, aes(meanCor)) +
 
 If one is interested in assessing significance of gene-promoter pairs per gene, one can also do `plyranges::select` (*gene*, *peak*, *rho*) and `plyranges::group_by` *gene*.
 
-* TidySE:
+* tidySummarizedExperiment:
 
 Create an RangedSE for each modality, then find the overlap using the below helper function.
-```{r}
+
+```{r eval=FALSE}
 library(tidySummarizedExperiment)
 library(purrr)
 # make an SE where each row is an overlap
