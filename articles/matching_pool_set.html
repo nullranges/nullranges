@@ -40,7 +40,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.5.17</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.5.21</span>
       </span>
     </div>
 
@@ -104,7 +104,7 @@
                         <h4 data-toc-skip class="author">Eric S.
 Davis</h4>
             
-            <h4 data-toc-skip class="date">02/24/2023</h4>
+            <h4 data-toc-skip class="date">04/24/2023</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/HEAD/vignettes/matching_pool_set.Rmd" class="external-link"><code>vignettes/matching_pool_set.Rmd</code></a></small>
       <div class="hidden name"><code>matching_pool_set.Rmd</code></div>
@@ -255,30 +255,30 @@ from the pool that have the same distribution of length and signal.</p>
 <pre><code><span><span class="co">## MatchedGRanges object with 2490 ranges and 8 metadata columns:</span></span>
 <span><span class="co">##          seqnames              ranges strand |        name     score</span></span>
 <span><span class="co">##             &lt;Rle&gt;           &lt;IRanges&gt;  &lt;Rle&gt; | &lt;character&gt; &lt;numeric&gt;</span></span>
-<span><span class="co">##      [1]     chr6 113984225-113984478      * |  Rank_64343       109</span></span>
-<span><span class="co">##      [2]    chr16   48570061-48571600      * |   Rank_4446       868</span></span>
-<span><span class="co">##      [3]     chr1 161275547-161276296      * |  Rank_13560       511</span></span>
-<span><span class="co">##      [4]     chr8   57123613-57125188      * |  Rank_17342       425</span></span>
-<span><span class="co">##      [5]    chr11 109968155-109968666      * |  Rank_28462       273</span></span>
+<span><span class="co">##      [1]    chr13   42242369-42242758      * |  Rank_13919       498</span></span>
+<span><span class="co">##      [2]     chr4 148721069-148721751      * |   Rank_6820       733</span></span>
+<span><span class="co">##      [3]     chr1 167522710-167523305      * |   Rank_8764       655</span></span>
+<span><span class="co">##      [4]    chr22   36771568-36771911      * |  Rank_61304       119</span></span>
+<span><span class="co">##      [5]    chr12   27863138-27864123      * |   Rank_9430       628</span></span>
 <span><span class="co">##      ...      ...                 ...    ... .         ...       ...</span></span>
-<span><span class="co">##   [2486]     chr6 105933368-105933836      * |  Rank_41619       187</span></span>
-<span><span class="co">##   [2487]     chr4   39640072-39640962      * |   Rank_7935       694</span></span>
-<span><span class="co">##   [2488]     chr6 142467978-142468763      * |    Rank_299      1445</span></span>
-<span><span class="co">##   [2489]     chr6   29705878-29706112      * |  Rank_40812       192</span></span>
-<span><span class="co">##   [2490]     chrX     1446534-1447244      * |  Rank_10116       612</span></span>
+<span><span class="co">##   [2486]     chr1 236311692-236312194      * |  Rank_31397       247</span></span>
+<span><span class="co">##   [2487]     chr9 135257201-135258016      * |  Rank_10743       592</span></span>
+<span><span class="co">##   [2488]     chr6     2842064-2842353      * |  Rank_46877       165</span></span>
+<span><span class="co">##   [2489]    chr11     1542262-1543612      * |   Rank_9405       628</span></span>
+<span><span class="co">##   [2490]     chr7   90561352-90561734      * |  Rank_44121       176</span></span>
 <span><span class="co">##          signalValue    pValue    qValue      peak log10_signal log10_length</span></span>
 <span><span class="co">##            &lt;numeric&gt; &lt;numeric&gt; &lt;numeric&gt; &lt;numeric&gt;    &lt;numeric&gt;    &lt;numeric&gt;</span></span>
-<span><span class="co">##      [1]     6.08107   10.9641   8.69152        56     0.850099      2.40654</span></span>
-<span><span class="co">##      [2]    30.40438   86.8017  82.99189       381     1.496990      3.18780</span></span>
-<span><span class="co">##      [3]    18.45349   51.1650  48.00531       508     1.288998      2.87564</span></span>
-<span><span class="co">##      [4]    11.90209   42.5775  39.56615       709     1.110660      3.19783</span></span>
-<span><span class="co">##      [5]    12.85419   27.3748  24.65642       424     1.141581      2.71012</span></span>
+<span><span class="co">##      [1]    19.99541   49.8679  46.71972       107     1.322124      2.59218</span></span>
+<span><span class="co">##      [2]    21.33174   73.3284  69.75892       208     1.348923      2.83506</span></span>
+<span><span class="co">##      [3]    22.83272   65.5173  62.09552       349     1.377174      2.77597</span></span>
+<span><span class="co">##      [4]     7.14122   11.9399   9.63032       258     0.910689      2.53782</span></span>
+<span><span class="co">##      [5]    23.80406   62.8724  59.48975       599     1.394523      2.99432</span></span>
 <span><span class="co">##      ...         ...       ...       ...       ...          ...          ...</span></span>
-<span><span class="co">##   [2486]     8.78026   18.7808   16.2795       224      0.99035      2.67210</span></span>
-<span><span class="co">##   [2487]    18.94283   69.4010   65.9168       585      1.29979      2.95036</span></span>
-<span><span class="co">##   [2488]    45.22771  144.5366  139.4656       320      1.66490      2.89597</span></span>
-<span><span class="co">##   [2489]     9.05478   19.2570   16.7450       117      1.00237      2.37291</span></span>
-<span><span class="co">##   [2490]    23.32798   61.2148   57.8613       475      1.38611      2.85248</span></span>
+<span><span class="co">##   [2486]    10.63635   24.7928   22.1325       223     1.065817      2.70243</span></span>
+<span><span class="co">##   [2487]    19.80561   59.2923   55.9855       398     1.318180      2.91222</span></span>
+<span><span class="co">##   [2488]     8.06895   16.5491   14.1081        93     0.957557      2.46389</span></span>
+<span><span class="co">##   [2489]    23.80406   62.8724   59.4898       968     1.394523      3.13098</span></span>
+<span><span class="co">##   [2490]     8.43572   17.6751   15.2014       173     0.974775      2.58433</span></span>
 <span><span class="co">##   -------</span></span>
 <span><span class="co">##   seqinfo: 298 sequences (2 circular) from hg19 genome</span></span></code></pre>
 </div>
@@ -325,9 +325,9 @@ covariate balance, refer to the detailed documentation in the
 <span><span class="co">##  - - - <span style="font-style: italic;">focal (0) vs. matched (1)</span> - - - </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
 <span><span class="co">##                  Type Diff.Un</span></span>
-<span><span class="co">## ps           Distance  0.0332</span></span>
-<span><span class="co">## log10_length  Contin.  0.0881</span></span>
-<span><span class="co">## log10_signal  Contin.  0.0650</span></span>
+<span><span class="co">## ps           Distance  0.0594</span></span>
+<span><span class="co">## log10_length  Contin.  0.0862</span></span>
+<span><span class="co">## log10_signal  Contin.  0.0415</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Sample sizes</span></span></span>
 <span><span class="co">##     focal matched</span></span>
@@ -336,9 +336,9 @@ covariate balance, refer to the detailed documentation in the
 <span><span class="co">##  - - - <span style="font-style: italic;">focal (0) vs. pool (1)</span> - - - </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
 <span><span class="co">##                  Type Diff.Un</span></span>
-<span><span class="co">## ps           Distance -1.5469</span></span>
+<span><span class="co">## ps           Distance -1.5447</span></span>
 <span><span class="co">## log10_length  Contin. -1.4070</span></span>
-<span><span class="co">## log10_signal  Contin. -1.7407</span></span>
+<span><span class="co">## log10_signal  Contin. -1.7405</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Sample sizes</span></span></span>
 <span><span class="co">##     focal   pool</span></span>
