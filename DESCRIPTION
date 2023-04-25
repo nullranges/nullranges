@@ -1,6 +1,6 @@
 Package: nullranges
 Title: Generation of null ranges via bootstrapping or covariate matching
-Version: 1.6.0
+Version: 1.7.0
 Authors@R: c(
     person("Michael", "Love", role = c("aut", "cre"),
       email = "michaelisaiahlove@gmail.com",
