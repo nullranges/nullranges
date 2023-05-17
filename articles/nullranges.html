@@ -40,7 +40,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.5.22</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.7.0</span>
       </span>
     </div>
 
@@ -175,8 +175,8 @@ methylation near gene start site? Or is there variable feature density
 that must be accounted for via genome segmentation?</li>
 </ul>
 <p>The following decision tree then informs what methods to choose:</p>
-<div id="htmlwidget-f29d17f5ac5482785d13" style="width:528px;height:500px;" class="grViz html-widget "></div>
-<script type="application/json" data-for="htmlwidget-f29d17f5ac5482785d13">{"x":{"diagram":"digraph {\n  graph [layout = dot, rankdir = TB]\n  \n  node [shape = rectangle]        \n  source [label = \"Features defined with respect to a pool\"]\n  poolyes [label = \"Yes\"]\n  poolno [label =  \"No\"]\n  cov [label = \"Potential confounding covariates\"]\n  covyes [label = \"Yes\"]\n  covno [label = \"No\"]\n  diffcov [label = \"Different covariate distribution\"]\n  diffcovyes [label = \"Yes\"]\n  diffcovno [label =  \"No\"]\n  match [label = \"matchRanges\"]\n  random [label = \"Random sample\"]\n  context [label = \"Local genomic context matters\"]\n  contextyes [label = \"Yes\"]\n  contextno [label = \"No\"]\n  cluster [label = \"Features cluster in genome\"]\n  random2 [label = \"Random sample\"]\n  clusteryes [label = \"Yes\"]\n  clusterno [label = \"No\"]\n  boot [label = \"bootRanges\"]\n  shuffle [label = \"Shuffle + exclusion\"]\n\n  source -> poolyes\n  source -> poolno\n  poolyes -> cov\n  cov -> covyes\n  cov -> covno\n  covyes -> diffcov\n  covno -> random\n  diffcov -> diffcovyes\n  diffcov -> diffcovno\n  diffcovyes -> match\n  diffcovno -> random\n  poolno -> context\n  context -> contextyes\n  context -> contextno\n  contextyes -> cluster\n  contextno -> random2\n  cluster -> clusteryes\n  cluster -> clusterno\n  clusteryes -> boot\n  clusterno -> shuffle\n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script><p>In summary, while <em>matchRanges</em> does not control for genomic
+<div id="htmlwidget-0c94fb497d431f43ac90" style="width:528px;height:500px;" class="grViz html-widget "></div>
+<script type="application/json" data-for="htmlwidget-0c94fb497d431f43ac90">{"x":{"diagram":"digraph {\n  graph [layout = dot, rankdir = TB]\n  \n  node [shape = rectangle]        \n  source [label = \"Features defined with respect to a pool\"]\n  poolyes [label = \"Yes\"]\n  poolno [label =  \"No\"]\n  cov [label = \"Potential confounding covariates\"]\n  covyes [label = \"Yes\"]\n  covno [label = \"No\"]\n  diffcov [label = \"Different covariate distribution\"]\n  diffcovyes [label = \"Yes\"]\n  diffcovno [label =  \"No\"]\n  match [label = \"matchRanges\"]\n  random [label = \"Random sample\"]\n  context [label = \"Local genomic context matters\"]\n  contextyes [label = \"Yes\"]\n  contextno [label = \"No\"]\n  cluster [label = \"Features cluster in genome\"]\n  random2 [label = \"Random sample\"]\n  clusteryes [label = \"Yes\"]\n  clusterno [label = \"No\"]\n  boot [label = \"bootRanges\"]\n  shuffle [label = \"Shuffle + exclusion\"]\n\n  source -> poolyes\n  source -> poolno\n  poolyes -> cov\n  cov -> covyes\n  cov -> covno\n  covyes -> diffcov\n  covno -> random\n  diffcov -> diffcovyes\n  diffcov -> diffcovno\n  diffcovyes -> match\n  diffcovno -> random\n  poolno -> context\n  context -> contextyes\n  context -> contextno\n  contextyes -> cluster\n  contextno -> random2\n  cluster -> clusteryes\n  cluster -> clusterno\n  clusteryes -> boot\n  clusterno -> shuffle\n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script><p>In summary, while <em>matchRanges</em> does not control for genomic
 distribution and clustering of features, <em>bootRanges</em> does not
 directly control for feature covariates independent of proximity and
 local context.</p>
@@ -229,7 +229,7 @@ one or more covariates. This is the “matching” case. Note that the
 features in <span class="math inline">\(y'\)</span> are original
 features, just drawn from a different pool than y. The
 <em>matchRanges</em> method is described in <span class="citation">Davis
-et al. (2022)</span> <a href="https://doi.org/10.1101/2022.08.05.502985" class="external-link">doi:
+et al. (2023)</span> <a href="https://doi.org/10.1101/2022.08.05.502985" class="external-link">doi:
 10.1101/2022.08.05.502985</a>.</li>
 <li>Generating a new set of genomic features <span class="math inline">\(y'\)</span>, constructing them from the
 original set <span class="math inline">\(y\)</span> by selecting blocks
@@ -238,7 +238,7 @@ more than once. This is the “bootstrapping” case. Note that, in this
 case, <span class="math inline">\(y'\)</span> is an artificial
 feature set, although the re-sampled features can retain covariates such
 as score from the original feature set <span class="math inline">\(y\)</span>. The <em>bootRanges</em> method is
-described in <span class="citation">Mu et al. (2022)</span> <a href="https://doi.org/10.1101/2022.09.02.506382" class="external-link">doi:
+described in <span class="citation">Mu et al. (2023)</span> <a href="https://doi.org/10.1101/2022.09.02.506382" class="external-link">doi:
 10.1101/2022.09.02.506382</a>.</li>
 </ol>
 </div>
@@ -278,7 +278,7 @@ control via visual inspection of diagnostic plots.</p>
 features should <em>not</em> be placed, including the ENCODE Exclusion
 List <span class="citation">(Amemiya, Kundaje, and Boyle 2019)</span>.
 This and other excluded ranges are made available in the <a href="https://dozmorovlab.github.io/excluderanges/" class="external-link">excluderanges</a>
-Bioconductor package by Mikhail Dozmorov <em>et al.</em> <span class="citation">(Ogata et al. 2022)</span>. Use of excluded ranges is
+Bioconductor package by Mikhail Dozmorov <em>et al.</em> <span class="citation">(Ogata et al. 2023)</span>. Use of excluded ranges is
 demonstrated in the segmented block bootstrap vignette.</p>
 </div>
 <div class="section level2">
@@ -298,9 +298,9 @@ Inference.”</span> <em>The Annals of Applied Statistics</em> 4 (4):
 </div>
 <div id="ref-matchRanges" class="csl-entry">
 Davis, Eric S., Wancen Mu, Stuart Lee, Mikhail G. Dozmorov, Michael I.
-Love, and Douglas H. Phanstiel. 2022. <span>“matchRanges: Generating
+Love, and Douglas H. Phanstiel. 2023. <span>“matchRanges: Generating
 Null Hypothesis Genomic Ranges via Covariate-Matched Sampling.”</span>
-<em>bioRxiv</em>. <a href="https://doi.org/10.1101/2022.08.05.502985" class="external-link">https://doi.org/10.1101/2022.08.05.502985</a>.
+<em>Bioinformatics</em>. <a href="https://doi.org/10.1093/bioinformatics/btad197" class="external-link">https://doi.org/10.1093/bioinformatics/btad197</a>.
 </div>
 <div id="ref-de_2014" class="csl-entry">
 De, Subhajyoti, Brent S Pedersen, and Katerina Kechris. 2014. <span>“The
@@ -385,16 +385,16 @@ Regions.”</span> <em>Nature Biotechnology</em> 28 (5): 495–501. <a href="htt
 </div>
 <div id="ref-bootRanges" class="csl-entry">
 Mu, Wancen, Eric S. Davis, Stuart Lee, Mikhail G. Dozmorov, Douglas H.
-Phanstiel, and Michael I. Love. 2022. <span>“bootRanges: Flexible
+Phanstiel, and Michael I. Love. 2023. <span>“bootRanges: Flexible
 Generation of Null Sets of Genomic Ranges for Hypothesis
-Testing.”</span> <em>bioRxiv</em>. <a href="https://doi.org/10.1101/2022.09.02.506382" class="external-link">https://doi.org/10.1101/2022.09.02.506382</a>.
+Testing.”</span> <em>Bioinformatics</em>. <a href="https://doi.org/10.1093/bioinformatics/btad190" class="external-link">https://doi.org/10.1093/bioinformatics/btad190</a>.
 </div>
 <div id="ref-excluderanges" class="csl-entry">
 Ogata, Jonathan D., Wancen Mu, Eric S. Davis, Bingjie Xue, J. Chuck
 Harrell, Nathan C. Sheffield, Douglas H. Phanstiel, Michael I. Love, and
-Mikhail G. Dozmorov. 2022. <span>“Excluderanges: Exclusion Sets for
+Mikhail G. Dozmorov. 2023. <span>“Excluderanges: Exclusion Sets for
 T2T-CHM13, GRCm39, and Other Genome Assemblies.”</span>
-<em>bioRxiv</em>. <a href="https://doi.org/10.1101/2022.11.21.517407" class="external-link">https://doi.org/10.1101/2022.11.21.517407</a>.
+<em>Bioinformatics</em>. <a href="https://doi.org/10.1093/bioinformatics/btad198" class="external-link">https://doi.org/10.1093/bioinformatics/btad198</a>.
 </div>
 <div id="ref-LOLA" class="csl-entry">
 Sheffield, Nathan C, and Christoph Bock. 2016. <span>“<span>LOLA</span>:
