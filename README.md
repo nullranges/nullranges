@@ -42,25 +42,25 @@ r-cran-progress r-cran-ggridges r-cran-biocmanager
 r-bioc-rtracklayer r-bioc-genomicalignments r-bioc-interactionset
 ```
 
-## Manuscripts
+## Papers
 
-*matchRanges* manuscript:
+*matchRanges* paper:
 
 Eric S. Davis, Wancen Mu, Stuart Lee, Mikhail G. Dozmorov,
-Michael I. Love, Douglas H. Phanstiel. (2022)
+Michael I. Love, Douglas H. Phanstiel. (2023)
 "matchRanges: Generating null hypothesis genomic ranges
 via covariate-matched sampling."
-*bioRxiv*
-[doi: 10.1101/2022.08.05.502985](https://doi.org/10.1101/2022.08.05.502985)
+*Bioinformatics*
+[doi: 10.1093/bioinformatics/btad197](https://doi.org/10.1093/bioinformatics/btad197)
 
-*bootRanges* manuscript:
+*bootRanges* paper:
 
 Wancen Mu, Eric S. Davis, Stuart Lee, Mikhail G. Dozmorov,
 Douglas H. Phanstiel, Michael I. Love.
-(2022) "bootRanges: Flexible generation of null sets
+(2023) "bootRanges: Flexible generation of null sets
 of genomic ranges for hypothesis testing."
-*bioRxiv*
-[doi: 10.1101/2022.09.02.506382](https://doi.org/10.1101/2022.09.02.506382)
+*Bioinformatics*
+[doi: 10.1093/bioinformatics/btad190](https://doi.org/10.1093/bioinformatics/btad190)
 
 ## Tidy Ranges Tutorial
 

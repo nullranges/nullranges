@@ -8,14 +8,14 @@ citEntry(entry = "Article",
                                    as.person("Mikhail G Dozmorov"),
                                    as.person("Michael I Love"),
                                    as.person("Douglas H Phanstiel")),
-         journal      = "bioRxiv",
-         year         = "2022",
-         doi          = "10.1101/2022.08.05.502985",
+         journal      = "Bioinformatics",
+         year         = "2023",
+         doi          = "10.1093/bioinformatics/btad197",
 
-         textVersion  = paste("Eric S Davis, Wancen Mu, Stuart Lee, Mikhail G Dozmorov, Michael I Love, Douglas H Phanstiel. (2022).",
+         textVersion  = paste("Eric S Davis, Wancen Mu, Stuart Lee, Mikhail G Dozmorov, Michael I Love, Douglas H Phanstiel. (2023).",
                               "matchRanges: Generating null hypothesis genomic ranges via covariate-matched sampling",
-                              "biorxiv,",
-                              "<doi:10.1101/2022.08.05.502985>.")
+                              "Bioinformatics,",
+                              "<doi:10.1093/bioinformatics/btad197>.")
 )
 
 citEntry(entry = "Article",
@@ -26,12 +26,12 @@ citEntry(entry = "Article",
                                    as.person("Mikhail G Dozmorov"),
                                    as.person("Douglas H Phanstiel"),
                                    as.person("Michael I Love")),
-         journal      = "bioRxiv",
-         year         = "2022",
-         doi          = "10.1101/2022.09.02.506382",
+         journal      = "Bioinformatics",
+         year         = "2023",
+         doi          = "10.1093/bioinformatics/btad190",
 
-         textVersion  = paste("Wancen Mu, Eric S Davis, Stuart Lee, Mikhail G Dozmorov, Douglas H Phanstiel, Michael I Love. (2022).",
+         textVersion  = paste("Wancen Mu, Eric S Davis, Stuart Lee, Mikhail G Dozmorov, Douglas H Phanstiel, Michael I Love. (2023).",
                               "bootRanges: Flexible generation of null sets of genomic ranges for hypothesis testing",
-                              "biorxiv,",
-                              "<doi:10.1101/2022.09.02.506382>.")
+                              "Bioinformatics,",
+                              "<doi:10.1093/bioinformatics/btad190>.")
 )
