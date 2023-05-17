@@ -1,7 +1,7 @@
 ## Read more about GitHub actions the features of this GitHub Actions workflow
 ## at https://lcolladotor.github.io/biocthis/articles/biocthis.html#use_bioc_github_action
 ##
-## For more details, check the biocthis releaseoper notes vignette at
+## For more details, check the biocthis developer notes vignette at
 ## https://lcolladotor.github.io/biocthis/articles/biocthis_dev_notes.html
 ##
 ## You can add this workflow to other packages using:
@@ -22,9 +22,9 @@
 
 on:
   push:
-    branches: [release]
+    branches: [devel]
   pull_request:
-    branches: [release]
+    branches: [devel]
 
 name: R-CMD-check-bioc
 
@@ -201,13 +201,13 @@ jobs:
         shell: Rscript {0}
 
       - name: Install covr
-        if: github.ref == 'refs/heads/release' && env.run_covr == 'true' && runner.os == 'Linux'
+        if: github.ref == 'refs/heads/devel' && env.run_covr == 'true' && runner.os == 'Linux'
         run: |
           remotes::install_cran("covr")
         shell: Rscript {0}
 
       - name: Install pkgdown
-        if: github.ref == 'refs/heads/release' && env.run_pkgdown == 'true' && runner.os == 'Linux'
+        if: github.ref == 'refs/heads/devel' && env.run_pkgdown == 'true' && runner.os == 'Linux'
         run: |
           remotes::install_cran("pkgdown")
         shell: Rscript {0}
@@ -253,17 +253,17 @@ jobs:
       #   shell: Rscript {0}
 
       - name: Test coverage
-        if: github.ref == 'refs/heads/release' && env.run_covr == 'true' && runner.os == 'Linux'
+        if: github.ref == 'refs/heads/devel' && env.run_covr == 'true' && runner.os == 'Linux'
         run: |
           covr::codecov()
         shell: Rscript {0}
 
       - name: Install package
-        if: github.ref == 'refs/heads/release' && env.run_pkgdown == 'true' && runner.os == 'Linux'
+        if: github.ref == 'refs/heads/devel' && env.run_pkgdown == 'true' && runner.os == 'Linux'
         run: R CMD INSTALL .
 
       - name: Deploy package
-        if: github.ref == 'refs/heads/release' && env.run_pkgdown == 'true' && runner.os == 'Linux'
+        if: github.ref == 'refs/heads/devel' && env.run_pkgdown == 'true' && runner.os == 'Linux'
         run: |
           git config --local user.email "actions@github.com"
           git config --local user.name "GitHub Actions"
