@@ -49,6 +49,10 @@ exclude <- ah[["AH107305"]] # Kundaje excluded regions for hg38, see below
 set.seed(5) # set seed for reproducibility
 blockLength <- 5e5 # size of blocks to bootstrap
 R <- 10 # number of iterations of the bootstrap
+# remove non-standard chromosomes and mitochondrial genome
+ranges <- keepStandardChromosomes(ranges, pruning.mode="coarse")
+seqlevels(ranges, pruning.mode="coarse") <- setdiff(seqlevels(ranges), "MT")
+# generate bootstraps
 boots <- bootRanges(ranges, blockLength=blockLength, R=R,
                     seg=seg, exclude=exclude)
 # `boots` can then be used with plyranges commands
@@ -326,9 +330,10 @@ table(seqnames(dhs))
 
 Now we apply a segmented block bootstrap with blocks of size 500kb, to
 the peaks. Here we show generation of 50 iterations of a block bootstrap
-followed by a typical overlap analysis using *plyranges* [@Lee2019]. (We
-might normally do 100 iterations or more, depending on the granularity
-of the bootstrap distribution that is needed.)
+followed by a typical overlap analysis using *plyranges* [@Lee2019].
+
+Note that we must remove non-standard chromosomes and mitochondrial
+genome, as these are typically shorter than our desired `blockLength`.
 
 ```{r}
 set.seed(5) # for reproducibility
@@ -519,14 +524,11 @@ sc_rna$counts1
 nct <- length(sc_rna$counts1[[1]])
 print(paste("There are", nct, "cell types"))
 data("sc_promoter")
-
 ## bootstrap promoters
 library(BSgenome.Hsapiens.UCSC.hg38)
 genome <- BSgenome.Hsapiens.UCSC.hg38
-
 seqlengths(sc_promoter) <- seqlengths(genome)[1:22] # pull chrom lens from USCS
-R=50
-bootranges <- bootRanges(sc_promoter,blockLength = 5e5,R=R,type = "bootstrap", withinChrom = F)
+bootranges <- bootRanges(sc_promoter, blockLength = 5e5, R=50)
 ```
 
 There are two option downstream pipelines to follow after generating a
@@ -537,7 +539,11 @@ interested statistics.
 
 * Plyranges: 
 
-We can compute the mean correlation of the all pairs of genes and promoter peaks over iterations and compare to the observed statistic. The histogram below shows that our observed value falls far from the distribution of bootstrapped statistics, as we expected for this real data.
+We can compute the mean correlation of the all pairs of genes and
+promoter peaks over iterations and compare to the observed
+statistic. The histogram below shows that our observed value falls far
+from the distribution of bootstrapped statistics, as we expected for
+this real data. 
 
 ```{r eval=FALSE}
 cor_gr <- sc_rna %>% join_overlap_inner(sc_promoter, maxgap=1000) %>%
@@ -552,22 +558,25 @@ cor_boot <- sc_rna %>%
   group_by(iter) %>%
   summarise(meanCor = mean(rho)) %>%
   as.data.frame()
-
 ggplot(cor_boot, aes(meanCor)) +
   geom_histogram(binwidth=0.01)+
   geom_vline(xintercept = cor_gr$meanCor,linetype = "dashed")+
   theme_classic()
 ```
 
-If one is interested in assessing significance of gene-promoter pairs per gene, one can also do `plyranges::select` (*gene*, *peak*, *rho*) and `plyranges::group_by` *gene*.
+If one is interested in assessing significance of gene-promoter pairs
+per gene, one can also do `plyranges::select` (*gene*, *peak*, *rho*)
+and `plyranges::group_by` *gene*.
 
 * tidySummarizedExperiment:
 
-Create an RangedSE for each modality, then find the overlap using the below helper function.
+Create an RangedSE for each modality, then find the overlap using the
+below helper function. 
 
 ```{r eval=FALSE}
 library(tidySummarizedExperiment)
 library(purrr)
+
 # make an SE where each row is an overlap
 makeOverlapSE <- function(se_rna, se_promoter) {
   idx <- rowRanges(se_rna) %>% join_overlap_inner(rowRanges(se_promoter),maxgap = 1000)
@@ -595,7 +604,7 @@ se <- se %>%
   as_tibble() %>%
   nest(data = -.feature) %>%
   mutate(rho = map(data,
-                   function(data) data %>% summarize(rho = cor(x, y))
+    function(data) data %>% summarize(rho = cor(x, y))
   )) %>%
   unnest(rho) %>%
   select(-data)
