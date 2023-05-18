@@ -132,8 +132,8 @@ matchRanges(focal = x[x$feature1,],
 matchRanges manuscript:
 
 Eric S. Davis, Wancen Mu, Stuart Lee, Mikhail G. Dozmorov,
-Michael I. Love, Douglas H. Phanstiel. 2022.
+Michael I. Love, Douglas H. Phanstiel. 2023.
 "matchRanges: Generating null hypothesis genomic ranges
 via covariate-matched sampling."
-bioRxiv. doi: 10.1101/2022.08.05.502985
+Bioinformatics. doi: 10.1093/bioinformatics/btad197
 }

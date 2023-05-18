@@ -72,9 +72,9 @@ bootRanges manuscript:
 
 Wancen Mu, Eric S. Davis, Stuart Lee, Mikhail G. Dozmorov,
 Douglas H. Phanstiel, Michael I. Love.
-2022. "bootRanges: Flexible generation of null sets
+2023. "bootRanges: Flexible generation of null sets
 of genomic ranges for hypothesis testing."
-bioRxiv. doi: 10.1101/2022.09.02.506382
+Bioinformatics. doi: 10.1093/bioinformatics/btad190
 
 Original method describing the segmented block bootstrap for genomic features:
 
