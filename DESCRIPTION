@@ -64,6 +64,7 @@ Imports:
     data.table,
     progress,
     ggridges
+Remotes: EricSDavis/mariner
 biocViews: Visualization, GeneSetEnrichment,
     FunctionalGenomics, Epigenetics,
     GeneRegulation, GeneTarget,
