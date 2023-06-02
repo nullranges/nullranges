@@ -92,14 +92,18 @@ nnMatch <- function(fps, pps, replace) {
 #' @noRd
 rejectSample <- function(fps, pps) {
 
+  if (!requireNamespace("ks", quietly = TRUE)) {
+    stop("rejection sampling requires installing the CRAN package 'ks'")
+  }
+  
   ## Ensure fps <= pps
   if (length(fps) > length(pps)) {
     stop("focal must be <= pool for method = 'rejection'.")
   }
 
   ## Kernal density estimates for focal and pool
-  df <- kde(fps)
-  dp <- kde(pps)
+  df <- ks::kde(fps)
+  dp <- ks::kde(pps)
 
   ## Set scale by finding the highest point of density ratios (focal/pool)
   ## This ensures that pool covers focal at all points
@@ -555,7 +559,6 @@ matchRanges_MatchedDataFrame <- function(focal, pool, covar, method, replace) {
 #'
 #' @rawNamespace import(data.table, except = c(between, shift, first, second, indices))
 #' @importFrom rlang f_lhs f_rhs
-#' @importFrom ks kde
 #' @importFrom stats glm
 #' @import S4Vectors
 #' 

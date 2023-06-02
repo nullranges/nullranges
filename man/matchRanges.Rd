@@ -7,7 +7,7 @@
 \alias{matchRanges,GInteractions,GInteractions,formula,character_OR_missing,logical_OR_missing-method}
 \title{Generate a covariate-matched control set of ranges}
 \usage{
-matchRanges(focal, pool, covar, method = "rejection", replace = FALSE, ...)
+matchRanges(focal, pool, covar, method = "nearest", replace = TRUE, ...)
 
 \S4method{matchRanges}{DF_OR_df_OR_dt,DF_OR_df_OR_dt,formula,character_OR_missing,logical_OR_missing}(focal, pool, covar, method, replace)
 

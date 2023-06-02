@@ -29,6 +29,7 @@ Suggests:
     testthat,
     knitr,
     rmarkdown,
+    ks,
     DNAcopy,
     RcppHMM,
     AnnotationHub,
@@ -60,7 +61,6 @@ Imports:
     ggplot2,
     grDevices,
     plyranges,
-    ks,
     data.table,
     progress,
     ggridges
