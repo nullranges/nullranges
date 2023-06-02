@@ -19,7 +19,7 @@ GRanges, or GInteractions objects."><meta property="og:image" content="https://n
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.7.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.7.3</span>
       </span>
     </div>
 
@@ -82,7 +82,7 @@ GRanges, or GInteractions objects.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">matchRanges</span><span class="op">(</span><span class="va">focal</span>, <span class="va">pool</span>, <span class="va">covar</span>, method <span class="op">=</span> <span class="st">"rejection"</span>, replace <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">matchRanges</span><span class="op">(</span><span class="va">focal</span>, <span class="va">pool</span>, <span class="va">covar</span>, method <span class="op">=</span> <span class="st">"nearest"</span>, replace <span class="op">=</span> <span class="cn">TRUE</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S4 method for DF_OR_df_OR_dt,DF_OR_df_OR_dt,formula,character_OR_missing,logical_OR_missing</span></span>
 <span><span class="fu">matchRanges</span><span class="op">(</span><span class="va">focal</span>, <span class="va">pool</span>, <span class="va">covar</span>, <span class="va">method</span>, <span class="va">replace</span><span class="op">)</span></span>
@@ -190,17 +190,17 @@ Bioinformatics. doi: 10.1093/bioinformatics/btad197</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> MatchedDataFrame with 500 rows and 3 columns</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      feature1  feature2    feature3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     &lt;logical&gt; &lt;numeric&gt; &lt;character&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1       FALSE  2.108420           c</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2       FALSE  5.991699           b</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3       FALSE  5.696525           b</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4       FALSE  0.409923           a</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5       FALSE  9.330107           b</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1       FALSE   2.87088           c</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2       FALSE   3.54290           c</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3       FALSE   7.11436           c</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4       FALSE  10.78965           b</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5       FALSE   4.25960           c</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ...       ...       ...         ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 496     FALSE   3.27301           b</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 497     FALSE   8.05522           c</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 498     FALSE   2.01576           a</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 499     FALSE   6.60221           b</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 500     FALSE   7.79926           c</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 496     FALSE  0.173349           e</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 497     FALSE  4.362421           a</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 498     FALSE  3.182474           e</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 499     FALSE  4.688994           d</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 500     FALSE  5.068635           d</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## Match with GRanges</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span></span>
@@ -209,19 +209,19 @@ Bioinformatics. doi: 10.1093/bioinformatics/btad197</p>
 <span class="r-in"><span>            pool <span class="op">=</span> <span class="va">x</span><span class="op">[</span><span class="op">!</span><span class="va">x</span><span class="op">$</span><span class="va">feature1</span>,<span class="op">]</span>,</span></span>
 <span class="r-in"><span>            covar <span class="op">=</span> <span class="op">~</span><span class="va">feature2</span> <span class="op">+</span> <span class="va">feature3</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> MatchedGRanges object with 500 ranges and 3 metadata columns:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         seqnames      ranges strand |  feature1  feature2    feature3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            &lt;Rle&gt;   &lt;IRanges&gt;  &lt;Rle&gt; | &lt;logical&gt; &lt;numeric&gt; &lt;character&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     [1]     chr1   6600-6699      * |     FALSE  2.108420           c</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     [2]     chr1   5698-5797      * |     FALSE  5.991699           b</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     [3]     chr1 10386-10485      * |     FALSE  5.696525           b</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     [4]     chr1   4119-4218      * |     FALSE  0.409923           a</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     [5]     chr1   9577-9676      * |     FALSE  9.330107           b</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     ...      ...         ...    ... .       ...       ...         ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   [496]     chr1   1275-1374      * |     FALSE   3.27301           b</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   [497]     chr1   4976-5075      * |     FALSE   8.05522           c</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   [498]     chr1   3917-4016      * |     FALSE   2.01576           a</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   [499]     chr1 10205-10304      * |     FALSE   6.60221           b</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   [500]     chr1   1841-1940      * |     FALSE   7.79926           c</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         seqnames    ranges strand |  feature1  feature2    feature3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt; | &lt;logical&gt; &lt;numeric&gt; &lt;character&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     [1]     chr1 8696-8795      * |     FALSE   2.87088           c</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     [2]     chr1 4386-4485      * |     FALSE   3.54290           c</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     [3]     chr1 1094-1193      * |     FALSE   7.11436           c</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     [4]     chr1 5705-5804      * |     FALSE  10.78965           b</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     [5]     chr1 1643-1742      * |     FALSE   4.25960           c</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     ...      ...       ...    ... .       ...       ...         ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [496]     chr1 7288-7387      * |     FALSE  0.173349           e</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [497]     chr1 5539-5638      * |     FALSE  4.362421           a</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [498]     chr1 8499-8598      * |     FALSE  3.182474           e</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [499]     chr1 6507-6606      * |     FALSE  4.688994           d</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [500]     chr1 1860-1959      * |     FALSE  5.068635           d</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   -------</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   seqinfo: 1 sequence from an unspecified genome; no seqlengths</span>
 <span class="r-in"><span></span></span>
@@ -232,32 +232,32 @@ Bioinformatics. doi: 10.1093/bioinformatics/btad197</p>
 <span class="r-in"><span>            pool <span class="op">=</span> <span class="va">x</span><span class="op">[</span><span class="op">!</span><span class="va">x</span><span class="op">$</span><span class="va">feature1</span>,<span class="op">]</span>,</span></span>
 <span class="r-in"><span>            covar <span class="op">=</span> <span class="op">~</span><span class="va">feature2</span> <span class="op">+</span> <span class="va">feature3</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> MatchedGInteractions object with 500 interactions and 3 metadata columns:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         seqnames1     ranges1     seqnames2     ranges2 |  feature1  feature2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             &lt;Rle&gt;   &lt;IRanges&gt;         &lt;Rle&gt;   &lt;IRanges&gt; | &lt;logical&gt; &lt;numeric&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     [1]      chr1   6600-6699 ---      chr1   6600-6699 |     FALSE  2.108420</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     [2]      chr1   5698-5797 ---      chr1   5698-5797 |     FALSE  5.991699</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     [3]      chr1 10386-10485 ---      chr1 10386-10485 |     FALSE  5.696525</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     [4]      chr1   4119-4218 ---      chr1   4119-4218 |     FALSE  0.409923</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     [5]      chr1   9577-9676 ---      chr1   9577-9676 |     FALSE  9.330107</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     ...       ...         ... ...       ...         ... .       ...       ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   [496]      chr1   1275-1374 ---      chr1   1275-1374 |     FALSE   3.27301</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   [497]      chr1   4976-5075 ---      chr1   4976-5075 |     FALSE   8.05522</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   [498]      chr1   3917-4016 ---      chr1   3917-4016 |     FALSE   2.01576</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   [499]      chr1 10205-10304 ---      chr1 10205-10304 |     FALSE   6.60221</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   [500]      chr1   1841-1940 ---      chr1   1841-1940 |     FALSE   7.79926</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         seqnames1   ranges1     seqnames2   ranges2 |  feature1  feature2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             &lt;Rle&gt; &lt;IRanges&gt;         &lt;Rle&gt; &lt;IRanges&gt; | &lt;logical&gt; &lt;numeric&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     [1]      chr1 8696-8795 ---      chr1 8696-8795 |     FALSE   2.87088</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     [2]      chr1 4386-4485 ---      chr1 4386-4485 |     FALSE   3.54290</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     [3]      chr1 1094-1193 ---      chr1 1094-1193 |     FALSE   7.11436</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     [4]      chr1 5705-5804 ---      chr1 5705-5804 |     FALSE  10.78965</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     [5]      chr1 1643-1742 ---      chr1 1643-1742 |     FALSE   4.25960</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     ...       ...       ... ...       ...       ... .       ...       ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [496]      chr1 7288-7387 ---      chr1 7288-7387 |     FALSE  0.173349</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [497]      chr1 5539-5638 ---      chr1 5539-5638 |     FALSE  4.362421</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [498]      chr1 8499-8598 ---      chr1 8499-8598 |     FALSE  3.182474</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [499]      chr1 6507-6606 ---      chr1 6507-6606 |     FALSE  4.688994</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [500]      chr1 1860-1959 ---      chr1 1860-1959 |     FALSE  5.068635</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            feature3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         &lt;character&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     [1]           c</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     [2]           b</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     [3]           b</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     [4]           a</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     [5]           b</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     [2]           c</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     [3]           c</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     [4]           b</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     [5]           c</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     ...         ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   [496]           b</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   [497]           c</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   [498]           a</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   [499]           b</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   [500]           c</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [496]           e</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [497]           a</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [498]           e</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [499]           d</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [500]           d</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   -------</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   regions: 10500 ranges and 0 metadata columns</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   seqinfo: 1 sequence from an unspecified genome; no seqlengths</span>

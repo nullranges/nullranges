@@ -40,7 +40,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.7.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.7.3</span>
       </span>
     </div>
 
@@ -104,7 +104,7 @@
                         <h4 data-toc-skip class="author">Eric S.
 Davis</h4>
             
-            <h4 data-toc-skip class="date">05/18/2023</h4>
+            <h4 data-toc-skip class="date">06/02/2023</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/HEAD/vignettes/matching_granges.Rmd" class="external-link"><code>vignettes/matching_granges.Rmd</code></a></small>
       <div class="hidden name"><code>matching_granges.Rmd</code></div>
@@ -198,30 +198,30 @@ sites per bin:</p>
 <pre><code><span><span class="co">## MatchedGRanges object with 13979 ranges and 5 metadata columns:</span></span>
 <span><span class="co">##           seqnames              ranges strand | n_ctcf_sites ctcfSignal</span></span>
 <span><span class="co">##              &lt;Rle&gt;           &lt;IRanges&gt;  &lt;Rle&gt; |    &lt;numeric&gt;  &lt;numeric&gt;</span></span>
-<span><span class="co">##       [1]     chr3 107520001-107530000      * |            0    0.00000</span></span>
-<span><span class="co">##       [2]     chr5 143180001-143190000      * |            0    0.00000</span></span>
-<span><span class="co">##       [3]    chr19   18190001-18200000      * |            0    0.00000</span></span>
-<span><span class="co">##       [4]     chr7   30210001-30220000      * |            0    0.00000</span></span>
-<span><span class="co">##       [5]     chr2 238530001-238540000      * |            1    5.35384</span></span>
+<span><span class="co">##       [1]    chr10   25240001-25250000      * |            1    5.06009</span></span>
+<span><span class="co">##       [2]     chr2 192860001-192870000      * |            0    0.00000</span></span>
+<span><span class="co">##       [3]    chr10   90060001-90070000      * |            0    0.00000</span></span>
+<span><span class="co">##       [4]     chr7     3840001-3850000      * |            0    0.00000</span></span>
+<span><span class="co">##       [5]    chr14   77370001-77380000      * |            1    7.66659</span></span>
 <span><span class="co">##       ...      ...                 ...    ... .          ...        ...</span></span>
-<span><span class="co">##   [13975]    chr14   68060001-68070000      * |            1    6.38626</span></span>
-<span><span class="co">##   [13976]     chr2 191700001-191710000      * |            0    0.00000</span></span>
-<span><span class="co">##   [13977]     chr9   13220001-13230000      * |            0    0.00000</span></span>
-<span><span class="co">##   [13978]     chr4   40300001-40310000      * |            1    4.82893</span></span>
-<span><span class="co">##   [13979]    chr16   24670001-24680000      * |            0    0.00000</span></span>
+<span><span class="co">##   [13975]     chr1 154910001-154920000      * |            2    7.70130</span></span>
+<span><span class="co">##   [13976]     chr4 185960001-185970000      * |            1    7.13074</span></span>
+<span><span class="co">##   [13977]     chr1 236080001-236090000      * |            0    0.00000</span></span>
+<span><span class="co">##   [13978]     chr5   35290001-35300000      * |            0    0.00000</span></span>
+<span><span class="co">##   [13979]    chr11 119300001-119310000      * |            0    0.00000</span></span>
 <span><span class="co">##           n_dnase_sites dnaseSignal    looped</span></span>
 <span><span class="co">##                &lt;factor&gt;   &lt;numeric&gt; &lt;logical&gt;</span></span>
-<span><span class="co">##       [1]            2     10.20343     FALSE</span></span>
-<span><span class="co">##       [2]            2     10.97785     FALSE</span></span>
-<span><span class="co">##       [3]            3+    12.26576     FALSE</span></span>
-<span><span class="co">##       [4]            1     11.58243     FALSE</span></span>
-<span><span class="co">##       [5]            3+     9.43115     FALSE</span></span>
+<span><span class="co">##       [1]            3+    12.33182     FALSE</span></span>
+<span><span class="co">##       [2]            1     10.80692     FALSE</span></span>
+<span><span class="co">##       [3]            1      8.56733     FALSE</span></span>
+<span><span class="co">##       [4]            0      7.96488     FALSE</span></span>
+<span><span class="co">##       [5]            3+    13.38591     FALSE</span></span>
 <span><span class="co">##       ...           ...         ...       ...</span></span>
-<span><span class="co">##   [13975]            3+    12.50117     FALSE</span></span>
-<span><span class="co">##   [13976]            1      9.95555     FALSE</span></span>
-<span><span class="co">##   [13977]            0      7.17512     FALSE</span></span>
-<span><span class="co">##   [13978]            3+    14.49135     FALSE</span></span>
-<span><span class="co">##   [13979]            2     11.79441     FALSE</span></span>
+<span><span class="co">##   [13975]            3+    13.99531     FALSE</span></span>
+<span><span class="co">##   [13976]            1      9.63596     FALSE</span></span>
+<span><span class="co">##   [13977]            3+    11.32430     FALSE</span></span>
+<span><span class="co">##   [13978]            1      9.57321     FALSE</span></span>
+<span><span class="co">##   [13979]            1      8.58206     FALSE</span></span>
 <span><span class="co">##   -------</span></span>
 <span><span class="co">##   seqinfo: 23 sequences from hg19 genome</span></span></code></pre>
 <p>When the focal and pool arguments are <code>GRanges</code> objects,
@@ -260,20 +260,20 @@ workflow.</p>
 <pre><code><span><span class="co">## MatchedGRanges object: </span></span>
 <span><span class="co">##        set      N dnaseSignal.mean dnaseSignal.sd n_dnase_sites.0</span></span>
 <span><span class="co">##      focal  13979             10.0            1.9            2341</span></span>
-<span><span class="co">##    matched  13979             10.0            1.9            2327</span></span>
+<span><span class="co">##    matched  13979             10.0            1.9            2340</span></span>
 <span><span class="co">##       pool 289662              7.9            2.7          222164</span></span>
-<span><span class="co">##  unmatched 275683              7.8            2.7          219837</span></span>
+<span><span class="co">##  unmatched 277229              7.8            2.7          219844</span></span>
 <span><span class="co">##  n_dnase_sites.1 n_dnase_sites.2 n_dnase_sites.3+ ps.mean ps.sd</span></span>
 <span><span class="co">##             4829            2353             4456   0.130 0.072</span></span>
-<span><span class="co">##             5089            2519             4044   0.130 0.071</span></span>
+<span><span class="co">##             5146            2447             4046   0.130 0.072</span></span>
 <span><span class="co">##            34826           13627            19045   0.042 0.061</span></span>
-<span><span class="co">##            29737           11108            15001   0.037 0.057</span></span>
+<span><span class="co">##            30269           11504            15612   0.038 0.058</span></span>
 <span><span class="co">## --------</span></span>
 <span><span class="co">## focal - matched: </span></span>
 <span><span class="co">##  dnaseSignal.mean dnaseSignal.sd n_dnase_sites.0 n_dnase_sites.1</span></span>
-<span><span class="co">##             0.038         -0.021              14            -260</span></span>
+<span><span class="co">##             0.013         0.0085               1            -320</span></span>
 <span><span class="co">##  n_dnase_sites.2 n_dnase_sites.3+ ps.mean   ps.sd</span></span>
-<span><span class="co">##             -170              410   3e-04 0.00042</span></span></code></pre>
+<span><span class="co">##              -94              410 3.9e-07 1.1e-06</span></span></code></pre>
 <p>For continuous covariates (such as <code>dnaseSignal</code>),
 <code><a href="../reference/overview.html">overview()</a></code> shows the mean and standard deviation between
 each matched set. For categorical covariates, such as
@@ -379,64 +379,61 @@ followed by some ggplot2 code:</p>
 <span><span class="co">##  [9] ExperimentHub_2.8.0         AnnotationHub_3.8.0        </span></span>
 <span><span class="co">## [11] BiocFileCache_2.8.0         dbplyr_2.3.2               </span></span>
 <span><span class="co">## [13] ggplot2_3.4.2               plotgardener_1.6.0         </span></span>
-<span><span class="co">## [15] nullranges_1.7.2            GenomicRanges_1.52.0       </span></span>
+<span><span class="co">## [15] nullranges_1.7.3            GenomicRanges_1.52.0       </span></span>
 <span><span class="co">## [17] GenomeInfoDb_1.36.0         IRanges_2.34.0             </span></span>
 <span><span class="co">## [19] S4Vectors_0.38.1            BiocGenerics_0.46.0        </span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## loaded via a namespace (and not attached):</span></span>
-<span><span class="co">##   [1] RColorBrewer_1.1-3            strawr_0.0.91                </span></span>
-<span><span class="co">##   [3] jsonlite_1.8.4                magrittr_2.0.3               </span></span>
-<span><span class="co">##   [5] farver_2.1.1                  rmarkdown_2.21               </span></span>
-<span><span class="co">##   [7] fs_1.6.2                      BiocIO_1.10.0                </span></span>
-<span><span class="co">##   [9] zlibbioc_1.46.0               ragg_1.2.5                   </span></span>
-<span><span class="co">##  [11] vctrs_0.6.2                   memoise_2.0.1                </span></span>
-<span><span class="co">##  [13] Rsamtools_2.16.0              RCurl_1.98-1.12              </span></span>
-<span><span class="co">##  [15] htmltools_0.5.5               S4Arrays_1.0.4               </span></span>
-<span><span class="co">##  [17] curl_5.0.0                    gridGraphics_0.5-1           </span></span>
-<span><span class="co">##  [19] sass_0.4.6                    pracma_2.4.2                 </span></span>
-<span><span class="co">##  [21] KernSmooth_2.23-21            bslib_0.4.2                  </span></span>
-<span><span class="co">##  [23] desc_1.4.2                    cachem_1.0.8                 </span></span>
-<span><span class="co">##  [25] GenomicAlignments_1.36.0      mime_0.12                    </span></span>
-<span><span class="co">##  [27] lifecycle_1.0.3               pkgconfig_2.0.3              </span></span>
-<span><span class="co">##  [29] Matrix_1.5-4                  R6_2.5.1                     </span></span>
-<span><span class="co">##  [31] fastmap_1.1.1                 GenomeInfoDbData_1.2.10      </span></span>
-<span><span class="co">##  [33] shiny_1.7.4                   digest_0.6.31                </span></span>
-<span><span class="co">##  [35] colorspace_2.1-0              AnnotationDbi_1.62.1         </span></span>
-<span><span class="co">##  [37] rprojroot_2.0.3               textshaping_0.3.6            </span></span>
-<span><span class="co">##  [39] RSQLite_2.3.1                 filelock_1.0.2               </span></span>
-<span><span class="co">##  [41] labeling_0.4.2                fansi_1.0.4                  </span></span>
-<span><span class="co">##  [43] httr_1.4.6                    compiler_4.3.0               </span></span>
-<span><span class="co">##  [45] bit64_4.0.5                   withr_2.5.0                  </span></span>
-<span><span class="co">##  [47] BiocParallel_1.34.1           DBI_1.1.3                    </span></span>
-<span><span class="co">##  [49] highr_0.10                    rappdirs_0.3.3               </span></span>
-<span><span class="co">##  [51] DelayedArray_0.26.2           rjson_0.2.21                 </span></span>
-<span><span class="co">##  [53] tools_4.3.0                   interactiveDisplayBase_1.38.0</span></span>
-<span><span class="co">##  [55] httpuv_1.6.11                 glue_1.6.2                   </span></span>
-<span><span class="co">##  [57] restfulr_0.0.15               promises_1.2.0.1             </span></span>
-<span><span class="co">##  [59] generics_0.1.3                gtable_0.3.3                 </span></span>
-<span><span class="co">##  [61] data.table_1.14.8             utf8_1.2.3                   </span></span>
-<span><span class="co">##  [63] XVector_0.40.0                BiocVersion_3.17.1           </span></span>
-<span><span class="co">##  [65] pillar_1.9.0                  stringr_1.5.0                </span></span>
-<span><span class="co">##  [67] yulab.utils_0.0.6             later_1.3.1                  </span></span>
-<span><span class="co">##  [69] dplyr_1.1.2                   lattice_0.21-8               </span></span>
-<span><span class="co">##  [71] rtracklayer_1.60.0            bit_4.0.5                    </span></span>
-<span><span class="co">##  [73] ks_1.14.0                     tidyselect_1.2.0             </span></span>
-<span><span class="co">##  [75] Biostrings_2.68.1             knitr_1.42                   </span></span>
-<span><span class="co">##  [77] xfun_0.39                     stringi_1.7.12               </span></span>
-<span><span class="co">##  [79] yaml_2.3.7                    evaluate_0.21                </span></span>
-<span><span class="co">##  [81] codetools_0.2-19              tibble_3.2.1                 </span></span>
-<span><span class="co">##  [83] BiocManager_1.30.20           ggplotify_0.1.0              </span></span>
-<span><span class="co">##  [85] cli_3.6.1                     xtable_1.8-4                 </span></span>
-<span><span class="co">##  [87] systemfonts_1.0.4             munsell_0.5.0                </span></span>
-<span><span class="co">##  [89] jquerylib_0.1.4               Rcpp_1.0.10                  </span></span>
-<span><span class="co">##  [91] png_0.1-8                     XML_3.99-0.14                </span></span>
-<span><span class="co">##  [93] parallel_4.3.0                ellipsis_0.3.2               </span></span>
-<span><span class="co">##  [95] pkgdown_2.0.7                 blob_1.2.4                   </span></span>
-<span><span class="co">##  [97] mclust_6.0.0                  bitops_1.0-7                 </span></span>
-<span><span class="co">##  [99] mvtnorm_1.1-3                 scales_1.2.1                 </span></span>
-<span><span class="co">## [101] ggridges_0.5.4                purrr_1.0.1                  </span></span>
-<span><span class="co">## [103] crayon_1.5.2                  rlang_1.1.1                  </span></span>
-<span><span class="co">## [105] KEGGREST_1.40.0</span></span></code></pre>
+<span><span class="co">##   [1] DBI_1.1.3                     bitops_1.0-7                 </span></span>
+<span><span class="co">##   [3] rlang_1.1.1                   magrittr_2.0.3               </span></span>
+<span><span class="co">##   [5] ggridges_0.5.4                compiler_4.3.0               </span></span>
+<span><span class="co">##   [7] RSQLite_2.3.1                 png_0.1-8                    </span></span>
+<span><span class="co">##   [9] systemfonts_1.0.4             vctrs_0.6.2                  </span></span>
+<span><span class="co">##  [11] stringr_1.5.0                 pkgconfig_2.0.3              </span></span>
+<span><span class="co">##  [13] crayon_1.5.2                  fastmap_1.1.1                </span></span>
+<span><span class="co">##  [15] ellipsis_0.3.2                XVector_0.40.0               </span></span>
+<span><span class="co">##  [17] labeling_0.4.2                utf8_1.2.3                   </span></span>
+<span><span class="co">##  [19] promises_1.2.0.1              Rsamtools_2.16.0             </span></span>
+<span><span class="co">##  [21] rmarkdown_2.22                strawr_0.0.91                </span></span>
+<span><span class="co">##  [23] ragg_1.2.5                    purrr_1.0.1                  </span></span>
+<span><span class="co">##  [25] bit_4.0.5                     xfun_0.39                    </span></span>
+<span><span class="co">##  [27] zlibbioc_1.46.0               cachem_1.0.8                 </span></span>
+<span><span class="co">##  [29] jsonlite_1.8.4                blob_1.2.4                   </span></span>
+<span><span class="co">##  [31] later_1.3.1                   highr_0.10                   </span></span>
+<span><span class="co">##  [33] DelayedArray_0.26.3           interactiveDisplayBase_1.38.0</span></span>
+<span><span class="co">##  [35] BiocParallel_1.34.2           parallel_4.3.0               </span></span>
+<span><span class="co">##  [37] R6_2.5.1                      bslib_0.4.2                  </span></span>
+<span><span class="co">##  [39] stringi_1.7.12                RColorBrewer_1.1-3           </span></span>
+<span><span class="co">##  [41] rtracklayer_1.60.0            jquerylib_0.1.4              </span></span>
+<span><span class="co">##  [43] Rcpp_1.0.10                   knitr_1.43                   </span></span>
+<span><span class="co">##  [45] httpuv_1.6.11                 Matrix_1.5-4.1               </span></span>
+<span><span class="co">##  [47] tidyselect_1.2.0              yaml_2.3.7                   </span></span>
+<span><span class="co">##  [49] codetools_0.2-19              curl_5.0.0                   </span></span>
+<span><span class="co">##  [51] lattice_0.21-8                tibble_3.2.1                 </span></span>
+<span><span class="co">##  [53] KEGGREST_1.40.0               shiny_1.7.4                  </span></span>
+<span><span class="co">##  [55] withr_2.5.0                   evaluate_0.21                </span></span>
+<span><span class="co">##  [57] gridGraphics_0.5-1            desc_1.4.2                   </span></span>
+<span><span class="co">##  [59] Biostrings_2.68.1             BiocManager_1.30.20          </span></span>
+<span><span class="co">##  [61] pillar_1.9.0                  filelock_1.0.2               </span></span>
+<span><span class="co">##  [63] generics_0.1.3                rprojroot_2.0.3              </span></span>
+<span><span class="co">##  [65] RCurl_1.98-1.12               BiocVersion_3.17.1           </span></span>
+<span><span class="co">##  [67] munsell_0.5.0                 scales_1.2.1                 </span></span>
+<span><span class="co">##  [69] xtable_1.8-4                  glue_1.6.2                   </span></span>
+<span><span class="co">##  [71] tools_4.3.0                   BiocIO_1.10.0                </span></span>
+<span><span class="co">##  [73] data.table_1.14.8             GenomicAlignments_1.36.0     </span></span>
+<span><span class="co">##  [75] fs_1.6.2                      XML_3.99-0.14                </span></span>
+<span><span class="co">##  [77] AnnotationDbi_1.62.1          colorspace_2.1-0             </span></span>
+<span><span class="co">##  [79] GenomeInfoDbData_1.2.10       restfulr_0.0.15              </span></span>
+<span><span class="co">##  [81] cli_3.6.1                     rappdirs_0.3.3               </span></span>
+<span><span class="co">##  [83] textshaping_0.3.6             fansi_1.0.4                  </span></span>
+<span><span class="co">##  [85] S4Arrays_1.0.4                dplyr_1.1.2                  </span></span>
+<span><span class="co">##  [87] gtable_0.3.3                  yulab.utils_0.0.6            </span></span>
+<span><span class="co">##  [89] sass_0.4.6                    digest_0.6.31                </span></span>
+<span><span class="co">##  [91] ggplotify_0.1.0               rjson_0.2.21                 </span></span>
+<span><span class="co">##  [93] farver_2.1.1                  memoise_2.0.1                </span></span>
+<span><span class="co">##  [95] htmltools_0.5.5               pkgdown_2.0.7                </span></span>
+<span><span class="co">##  [97] lifecycle_1.0.3               httr_1.4.6                   </span></span>
+<span><span class="co">##  [99] mime_0.12                     bit64_4.0.5</span></span></code></pre>
 </div>
   </div>
 

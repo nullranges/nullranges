@@ -40,7 +40,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.7.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.7.3</span>
       </span>
     </div>
 
@@ -104,7 +104,7 @@
                         <h4 data-toc-skip class="author">Eric S.
 Davis</h4>
             
-            <h4 data-toc-skip class="date">05/18/2023</h4>
+            <h4 data-toc-skip class="date">06/02/2023</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/HEAD/vignettes/matchRanges.Rmd" class="external-link"><code>vignettes/matchRanges.Rmd</code></a></small>
       <div class="hidden name"><code>matchRanges.Rmd</code></div>
@@ -210,17 +210,17 @@ ranges where <code>feature1</code> is <code>TRUE</code> to ranges where
 <pre><code><span><span class="co">## MatchedGRanges object with 500 ranges and 3 metadata columns:</span></span>
 <span><span class="co">##         seqnames    ranges strand |  feature1  feature2    feature3</span></span>
 <span><span class="co">##            &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt; | &lt;logical&gt; &lt;numeric&gt; &lt;character&gt;</span></span>
-<span><span class="co">##     [1]     chr1  961-1060      * |     FALSE  11.50740           c</span></span>
-<span><span class="co">##     [2]     chr1 1093-1192      * |     FALSE   7.81353           b</span></span>
-<span><span class="co">##     [3]     chr1 9326-9425      * |     FALSE   2.33037           c</span></span>
-<span><span class="co">##     [4]     chr1   693-792      * |     FALSE   5.39294           c</span></span>
-<span><span class="co">##     [5]     chr1 8196-8295      * |     FALSE   5.39564           b</span></span>
+<span><span class="co">##     [1]     chr1 8696-8795      * |     FALSE   2.87088           c</span></span>
+<span><span class="co">##     [2]     chr1 4386-4485      * |     FALSE   3.54290           c</span></span>
+<span><span class="co">##     [3]     chr1 1094-1193      * |     FALSE   7.11436           c</span></span>
+<span><span class="co">##     [4]     chr1 5705-5804      * |     FALSE  10.78965           b</span></span>
+<span><span class="co">##     [5]     chr1 1643-1742      * |     FALSE   4.25960           c</span></span>
 <span><span class="co">##     ...      ...       ...    ... .       ...       ...         ...</span></span>
-<span><span class="co">##   [496]     chr1 5784-5883      * |     FALSE   4.07012           c</span></span>
-<span><span class="co">##   [497]     chr1 9779-9878      * |     FALSE   5.48155           c</span></span>
-<span><span class="co">##   [498]     chr1 3982-4081      * |     FALSE   2.70234           c</span></span>
-<span><span class="co">##   [499]     chr1 9765-9864      * |     FALSE   1.82836           e</span></span>
-<span><span class="co">##   [500]     chr1 4239-4338      * |     FALSE   4.84758           b</span></span>
+<span><span class="co">##   [496]     chr1 7288-7387      * |     FALSE  0.173349           e</span></span>
+<span><span class="co">##   [497]     chr1 5539-5638      * |     FALSE  4.362421           a</span></span>
+<span><span class="co">##   [498]     chr1 8499-8598      * |     FALSE  3.182474           e</span></span>
+<span><span class="co">##   [499]     chr1 6507-6606      * |     FALSE  4.688994           d</span></span>
+<span><span class="co">##   [500]     chr1 1860-1959      * |     FALSE  5.068635           d</span></span>
 <span><span class="co">##   -------</span></span>
 <span><span class="co">##   seqinfo: 1 sequence from an unspecified genome; no seqlengths</span></span></code></pre>
 <p>The resulting <code>MatchedGRanges</code> object is a set of null
@@ -234,17 +234,17 @@ behave just as normal <code>GRanges</code> would:</p>
 <pre><code><span><span class="co">## MatchedGRanges object with 500 ranges and 3 metadata columns:</span></span>
 <span><span class="co">##         seqnames      ranges strand |  feature1  feature2    feature3</span></span>
 <span><span class="co">##            &lt;Rle&gt;   &lt;IRanges&gt;  &lt;Rle&gt; | &lt;logical&gt; &lt;numeric&gt; &lt;character&gt;</span></span>
-<span><span class="co">##     [1]     chr1     505-604      * |     FALSE  10.17287           c</span></span>
-<span><span class="co">##     [2]     chr1     511-610      * |     FALSE   5.54519           c</span></span>
-<span><span class="co">##     [3]     chr1     524-623      * |     FALSE   4.73711           a</span></span>
-<span><span class="co">##     [4]     chr1     531-630      * |     FALSE   2.77477           b</span></span>
-<span><span class="co">##     [5]     chr1     587-686      * |     FALSE   1.38699           a</span></span>
+<span><span class="co">##     [1]     chr1     508-607      * |     FALSE   3.54480           c</span></span>
+<span><span class="co">##     [2]     chr1     508-607      * |     FALSE   3.54480           c</span></span>
+<span><span class="co">##     [3]     chr1     510-609      * |     FALSE   5.28640           c</span></span>
+<span><span class="co">##     [4]     chr1     526-625      * |     FALSE   3.82276           a</span></span>
+<span><span class="co">##     [5]     chr1     529-628      * |     FALSE   3.22564           b</span></span>
 <span><span class="co">##     ...      ...         ...    ... .       ...       ...         ...</span></span>
-<span><span class="co">##   [496]     chr1 10437-10536      * |     FALSE   4.89686           d</span></span>
-<span><span class="co">##   [497]     chr1 10455-10554      * |     FALSE   6.81547           c</span></span>
-<span><span class="co">##   [498]     chr1 10467-10566      * |     FALSE   8.29775           d</span></span>
+<span><span class="co">##   [496]     chr1 10414-10513      * |     FALSE   9.14097           b</span></span>
+<span><span class="co">##   [497]     chr1 10446-10545      * |     FALSE  11.23394           e</span></span>
+<span><span class="co">##   [498]     chr1 10480-10579      * |     FALSE   5.64670           a</span></span>
 <span><span class="co">##   [499]     chr1 10483-10582      * |     FALSE   3.72415           c</span></span>
-<span><span class="co">##   [500]     chr1 10488-10587      * |     FALSE   6.35081           b</span></span>
+<span><span class="co">##   [500]     chr1 10495-10594      * |     FALSE   5.37738           b</span></span>
 <span><span class="co">##   -------</span></span>
 <span><span class="co">##   seqinfo: 1 sequence from an unspecified genome; no seqlengths</span></span></code></pre>
 <p>We can change the <code>type</code> argument of
@@ -277,20 +277,20 @@ returned. It also reports the mean difference in focal-matched sets:</p>
 <pre><code><span><span class="co">## MatchedGRanges object: </span></span>
 <span><span class="co">##        set     N feature2.mean feature2.sd feature3.a feature3.b feature3.c</span></span>
 <span><span class="co">##      focal   500           4.1         1.9         66        157        206</span></span>
-<span><span class="co">##    matched   500           4.2         2.6         54        146        236</span></span>
+<span><span class="co">##    matched   500           4.6         2.7         48        155        223</span></span>
 <span><span class="co">##       pool 10000           6.0         3.4       4248       3121       1117</span></span>
-<span><span class="co">##  unmatched  9500           6.1         3.4       4194       2975        881</span></span>
+<span><span class="co">##  unmatched  9559           6.0         3.4       4200       2978        936</span></span>
 <span><span class="co">##  feature3.d feature3.e ps.mean ps.sd</span></span>
 <span><span class="co">##          49         22   0.100 0.076</span></span>
-<span><span class="co">##          43         21   0.110 0.078</span></span>
+<span><span class="co">##          48         26   0.100 0.076</span></span>
 <span><span class="co">##         992        522   0.045 0.051</span></span>
-<span><span class="co">##         949        501   0.041 0.046</span></span>
+<span><span class="co">##         946        499   0.042 0.048</span></span>
 <span><span class="co">## --------</span></span>
 <span><span class="co">## focal - matched: </span></span>
 <span><span class="co">##  feature2.mean feature2.sd feature3.a feature3.b feature3.c feature3.d</span></span>
-<span><span class="co">##         -0.098       -0.66         12         11        -30          6</span></span>
-<span><span class="co">##  feature3.e ps.mean   ps.sd</span></span>
-<span><span class="co">##           1  -0.008 -0.0021</span></span></code></pre>
+<span><span class="co">##          -0.48       -0.79         18          2        -17          1</span></span>
+<span><span class="co">##  feature3.e  ps.mean    ps.sd</span></span>
+<span><span class="co">##          -4 -5.8e-06 -6.8e-06</span></span></code></pre>
 <p>Visualizing propensity scores can show how well sets were matched
 overall:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
@@ -336,11 +336,11 @@ balancing</a>.</p>
 <span><span class="co">##     4:  1 4.141017        a 0.01771986     focal</span></span>
 <span><span class="co">##     5:  1 4.258575        c 0.17308581     focal</span></span>
 <span><span class="co">##    ---                                          </span></span>
-<span><span class="co">## 20496:  0 1.235781        b 0.08945367 unmatched</span></span>
-<span><span class="co">## 20497:  0 1.696712        a 0.02707977 unmatched</span></span>
-<span><span class="co">## 20498:  0 6.111404        a 0.01255772 unmatched</span></span>
-<span><span class="co">## 20499:  0 2.216575        d 0.07578989 unmatched</span></span>
-<span><span class="co">## 20500:  0 5.330029        b 0.04535856 unmatched</span></span></code></pre>
+<span><span class="co">## 20555:  0 1.235781        b 0.08945367 unmatched</span></span>
+<span><span class="co">## 20556:  0 1.696712        a 0.02707977 unmatched</span></span>
+<span><span class="co">## 20557:  0 6.111404        a 0.01255772 unmatched</span></span>
+<span><span class="co">## 20558:  0 2.216575        d 0.07578989 unmatched</span></span>
+<span><span class="co">## 20559:  0 5.330029        b 0.04535856 unmatched</span></span></code></pre>
 <p>Attributes of the <code>Matched</code> object can be extracted with
 the following accessor functions:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
@@ -348,8 +348,8 @@ the following accessor functions:</p>
 <span><span class="fu"><a href="../reference/method.html">method</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/withReplacement.html">withReplacement</a></span><span class="op">(</span><span class="va">mgr</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## [1] "feature2" "feature3"</span></span>
-<span><span class="co">## [1] "rejection"</span></span>
-<span><span class="co">## [1] FALSE</span></span></code></pre>
+<span><span class="co">## [1] "nearest"</span></span>
+<span><span class="co">## [1] TRUE</span></span></code></pre>
 <p>Each set can also be extracted with the following accessor
 functions:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
@@ -360,7 +360,7 @@ functions:</p>
 <pre><code><span><span class="co">## [1] "GRanges object with 500 ranges and 3 metadata columns"</span></span>
 <span><span class="co">## [1] "GRanges object with 10000 ranges and 3 metadata columns"</span></span>
 <span><span class="co">## [1] "GRanges object with 500 ranges and 3 metadata columns"</span></span>
-<span><span class="co">## [1] "GRanges object with 9500 ranges and 3 metadata columns"</span></span></code></pre>
+<span><span class="co">## [1] "GRanges object with 9559 ranges and 3 metadata columns"</span></span></code></pre>
 <p>The <code><a href="../reference/indices.html">indices()</a></code> function can be used to find the original
 indices for each set. For example,
 <code>indices(x, set="matched")</code> will supply the indices from the
@@ -394,13 +394,13 @@ In fact, <code>matched(x)</code> is a convenient wrapper around
 <span><span class="co">##  - - - <span style="font-style: italic;">focal (0) vs. matched (1)</span> - - - </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
 <span><span class="co">##                Type Diff.Un</span></span>
-<span><span class="co">## ps         Distance  0.1518</span></span>
-<span><span class="co">## feature2    Contin.  0.0288</span></span>
-<span><span class="co">## feature3_a   Binary -0.0240</span></span>
-<span><span class="co">## feature3_b   Binary -0.0220</span></span>
-<span><span class="co">## feature3_c   Binary  0.0600</span></span>
-<span><span class="co">## feature3_d   Binary -0.0120</span></span>
-<span><span class="co">## feature3_e   Binary -0.0020</span></span>
+<span><span class="co">## ps         Distance  0.0001</span></span>
+<span><span class="co">## feature2    Contin.  0.1399</span></span>
+<span><span class="co">## feature3_a   Binary -0.0360</span></span>
+<span><span class="co">## feature3_b   Binary -0.0040</span></span>
+<span><span class="co">## feature3_c   Binary  0.0340</span></span>
+<span><span class="co">## feature3_d   Binary -0.0020</span></span>
+<span><span class="co">## feature3_e   Binary  0.0080</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Sample sizes</span></span></span>
 <span><span class="co">##     focal matched</span></span>
@@ -409,8 +409,8 @@ In fact, <code>matched(x)</code> is a convenient wrapper around
 <span><span class="co">##  - - - <span style="font-style: italic;">focal (0) vs. pool (1)</span> - - - </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
 <span><span class="co">##                Type Diff.Un</span></span>
-<span><span class="co">## ps         Distance -1.1340</span></span>
-<span><span class="co">## feature2    Contin.  0.5520</span></span>
+<span><span class="co">## ps         Distance -1.1274</span></span>
+<span><span class="co">## feature2    Contin.  0.5523</span></span>
 <span><span class="co">## feature3_a   Binary  0.2928</span></span>
 <span><span class="co">## feature3_b   Binary -0.0019</span></span>
 <span><span class="co">## feature3_c   Binary -0.3003</span></span>
@@ -424,17 +424,17 @@ In fact, <code>matched(x)</code> is a convenient wrapper around
 <span><span class="co">##  - - - <span style="font-style: italic;">focal (0) vs. unmatched (1)</span> - - - </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
 <span><span class="co">##                Type Diff.Un</span></span>
-<span><span class="co">## ps         Distance -1.2016</span></span>
-<span><span class="co">## feature2    Contin.  0.5795</span></span>
-<span><span class="co">## feature3_a   Binary  0.3095</span></span>
-<span><span class="co">## feature3_b   Binary -0.0008</span></span>
-<span><span class="co">## feature3_c   Binary -0.3193</span></span>
-<span><span class="co">## feature3_d   Binary  0.0019</span></span>
-<span><span class="co">## feature3_e   Binary  0.0087</span></span>
+<span><span class="co">## ps         Distance -1.1745</span></span>
+<span><span class="co">## feature2    Contin.  0.5703</span></span>
+<span><span class="co">## feature3_a   Binary  0.3074</span></span>
+<span><span class="co">## feature3_b   Binary -0.0025</span></span>
+<span><span class="co">## feature3_c   Binary -0.3141</span></span>
+<span><span class="co">## feature3_d   Binary  0.0010</span></span>
+<span><span class="co">## feature3_e   Binary  0.0082</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Sample sizes</span></span></span>
 <span><span class="co">##     focal unmatched</span></span>
-<span><span class="co">## All   500      9500</span></span>
+<span><span class="co">## All   500      9559</span></span>
 <span><span class="co">##  - - - - - - - - - - - - - - - - - - - - - - - - - -</span></span></code></pre>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://ngreifer.github.io/cobalt/reference/love.plot.html" class="external-link">love.plot</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span></code></pre></div>
@@ -632,7 +632,7 @@ as normal <code>GRanges</code> methods (e.g.s <code>seqnames</code>,
 <span><span class="co">##  [1] cobalt_4.5.1         patchwork_1.1.2      GenomicRanges_1.52.0</span></span>
 <span><span class="co">##  [4] GenomeInfoDb_1.36.0  IRanges_2.34.0       S4Vectors_0.38.1    </span></span>
 <span><span class="co">##  [7] BiocGenerics_0.46.0  ggplot2_3.4.2        plotgardener_1.6.0  </span></span>
-<span><span class="co">## [10] nullranges_1.7.2    </span></span>
+<span><span class="co">## [10] nullranges_1.7.3    </span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## loaded via a namespace (and not attached):</span></span>
 <span><span class="co">##  [1] bitops_1.0-7                rlang_1.1.1                </span></span>
@@ -643,20 +643,20 @@ as normal <code>GRanges</code> methods (e.g.s <code>seqnames</code>,
 <span><span class="co">## [11] crayon_1.5.2                fastmap_1.1.1              </span></span>
 <span><span class="co">## [13] backports_1.4.1             XVector_0.40.0             </span></span>
 <span><span class="co">## [15] labeling_0.4.2              utf8_1.2.3                 </span></span>
-<span><span class="co">## [17] Rsamtools_2.16.0            rmarkdown_2.21             </span></span>
+<span><span class="co">## [17] Rsamtools_2.16.0            rmarkdown_2.22             </span></span>
 <span><span class="co">## [19] pracma_2.4.2                strawr_0.0.91              </span></span>
 <span><span class="co">## [21] ragg_1.2.5                  purrr_1.0.1                </span></span>
 <span><span class="co">## [23] xfun_0.39                   zlibbioc_1.46.0            </span></span>
 <span><span class="co">## [25] cachem_1.0.8                jsonlite_1.8.4             </span></span>
 <span><span class="co">## [27] progress_1.2.2              highr_0.10                 </span></span>
-<span><span class="co">## [29] DelayedArray_0.26.2         chk_0.8.1                  </span></span>
-<span><span class="co">## [31] BiocParallel_1.34.1         prettyunits_1.1.1          </span></span>
+<span><span class="co">## [29] DelayedArray_0.26.3         chk_0.9.0                  </span></span>
+<span><span class="co">## [31] BiocParallel_1.34.2         prettyunits_1.1.1          </span></span>
 <span><span class="co">## [33] parallel_4.3.0              R6_2.5.1                   </span></span>
 <span><span class="co">## [35] plyranges_1.20.0            bslib_0.4.2                </span></span>
 <span><span class="co">## [37] stringi_1.7.12              RColorBrewer_1.1-3         </span></span>
 <span><span class="co">## [39] rtracklayer_1.60.0          jquerylib_0.1.4            </span></span>
 <span><span class="co">## [41] Rcpp_1.0.10                 SummarizedExperiment_1.30.1</span></span>
-<span><span class="co">## [43] knitr_1.42                  Matrix_1.5-4               </span></span>
+<span><span class="co">## [43] knitr_1.43                  Matrix_1.5-4.1             </span></span>
 <span><span class="co">## [45] tidyselect_1.2.0            yaml_2.3.7                 </span></span>
 <span><span class="co">## [47] codetools_0.2-19            curl_5.0.0                 </span></span>
 <span><span class="co">## [49] lattice_0.21-8              tibble_3.2.1               </span></span>
