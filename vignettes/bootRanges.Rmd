@@ -44,7 +44,7 @@ segmentation `seg` and excluded regions `exclude` are optional.
 ```{r eval=FALSE}
 eh <- ExperimentHub()
 ah <- AnnotationHub()
-seg <- eh[["EH7307"]] # genome segmentation for hg38
+seg <- eh[["EH7307"]] # pre-built genome segmentation for hg38
 exclude <- ah[["AH107305"]] # Kundaje excluded regions for hg38, see below
 set.seed(5) # set seed for reproducibility
 blockLength <- 5e5 # size of blocks to bootstrap
@@ -58,43 +58,58 @@ boots <- bootRanges(ranges, blockLength=blockLength, R=R,
 # `boots` can then be used with plyranges commands
 ```
 
+The `boots` object will contain a column, `iter` which marks the
+different bootstrap samples that were generated. This allows for tidy
+analysis with *plyranges*, e.g. counting the number of overlapping
+ranges, per bootstrap iteration. For more examples of combining
+`bootRanges` with *plyranges* operations, see the
+[tidy ranges tutorial](https://nullranges.github.io/tidy-ranges-tutorial/).
+
 # Method overview
 
-Several algorithms are implemented in `bootRanges()`, including
-segmented or not, where in the segmented version, blocks are sampled
-with respect to a particular genome segmentation.
-Overall, we recommend segmented block bootstrap given the
+Several algorithms are implemented in `bootRanges()`, including a
+segmented and unsegmented version, where in the former, blocks are
+sampled with respect to a particular genome segmentation.
+Overall, we recommend the segmented block bootstrap given the
 heterogeneity of structure across the entire genome. If the purpose is
 block bootstrapping ranges within a smaller set of sequences, such as
 motifs within transcript sequence, then the unsegmented algorithm
-would be sufficient. 
+would be sufficient.
 
-In a segmented block bootstrap, the blocks are sampled and placed within
-regions of a genome *segmentation*. That is, for a genome segmented into
-states $1,2, \dots, S$, blocks from state *s* will be used to tile the ranges
-of state *s* in each bootstrap sample. The process can be visualized in
-(A), a block with length $L_b$ is randomly sampled with replacement
+In a segmented block bootstrap, the blocks are sampled and placed
+within regions of a genome *segmentation*. That is, for a genome
+segmented into states $1,2, \dots, S$, only blocks from state *s* will
+be used to sample the ranges of state *s* in each bootstrap
+sample. The process can be visualized in diagram panel (A) below,
+where a block with length $L_b$ is randomly sampled with replacement
 from state "red" and the features (ranges) that overlap this block are
 then copied to the first tile (which is in the "red" state). The
 sampling is allowed across chromosome (as shown here), as long as the
 two blocks are in the same state.
 
+Note that *nullranges* provides both functions for generating a genome
+segmentation from e.g. gene density, described below, as well as a
+default segmentation for hg38 that can be used directly.
+
 An example workflow of `bootRanges()` used in combination with
-*plyranges* [@Lee2019] is diagrammed in (B), and can be summarized as: 
+*plyranges* [@Lee2019] is diagrammed in panel (B) below, and can be
+summarized as:
 
 1.  Compute statistics of interest between *GRanges* of feature $x$
     and *GRanges* of feature $y$ to assess association in the original
     data. This could be an enrichment (amount of overlap) or other
     possible statistics making use of covariates associated with each
-    range 
-2.  `bootRanges()` with optional arguments `seg` (segmentation) and
-    `exclude` (excluded regions as compiled by @excluderanges) to
-    create a *BootRanges* object ($y'$)
-3.  Compute bootstrap distribution of test statistics between
-    *GRanges* of feature $x$ and $y'$ using *plyranges*
-4.  A bootstrap p-value or $z$ test can be performed for testing the
-    null hypothesis that there is no true biological enrichment of the
-    original data (that bootstrap data often has as high an enrichment
+    range
+2.  Generate bootstrap samples of $y$: `bootRanges()` with optional
+    arguments `seg` (segmentation) and `exclude` (excluded regions as
+    compiled by @excluderanges) to create a *BootRanges* object ($y'$)
+3.  Compute the bootstrap distribution of test statistics between
+    *GRanges* of feature $x$ and $y'$ using *plyranges* (compute
+    overlaps of all features in $x$ with all features in $y'$,
+    grouping by the bootstrap sample)
+4.  Conpute a bootstrap p-value or $z$ test to test the null
+    hypothesis that there is no association between $x$ and $y$
+    (e.g. that the bootstrap data often has as high an enrichment
     as the observed data)
 
 ```{r, echo=FALSE}
@@ -102,13 +117,16 @@ knitr::include_graphics("images/bootRanges.jpeg")
 ```
 
 In this vignette, we give an example of segmenting the hg38 genome by
-Ensembl gene density, create bootstrapped peaks and evaluate overlaps
-for observed peaks and bootstrap peaks in two types of statistics,
-then we profile the time of different algorithms to generate a single
-block bootstrap sample. Finally, we use toy datasets to visualize what
-a segmented and unsegmented block bootstrap sample looks like.
+Ensembl gene density, performing bootstrap sampling of peaks ranges,
+and evaluating overlaps for observed peaks and bootstrap peaks. We
+also provide other examples of statistics that can be computed with
+the `bootRanges` framework, including a single cell multi-omics
+example and a special case of bootstrapping features in one region of
+the genome.
 
-A finally consideration is whether the blocks should scale
+**Proportional blocks:**
+A finally consideration is whether the blocks used to generate the
+bootstrap samples should scale
 proportionally to the segment state length, with the default setting
 of `proportionLength=TRUE`. When blocks scale proportionally,
 `blockLength` provides the maximal length of a block, while the actual
@@ -159,52 +177,57 @@ exclude <- sort(GenomicRanges::reduce(exclude))
 
 ### Segmentations choices
 
-Most of the datasets we examine, the density of ranges of interest
+For most genomic datasets we examine, the density of ranges of interest
 (e.g. ChIP- or ATAC-seq peaks) is often correlated to other
-large-scale patterns of other genomic features, such as
-genes. @bickel_2010 
-motivate the idea of bootstrapping with respect to
-a segmented genome given known, large-scale genomic structures such as
+large-scale patterns of other genomic features, such as density of
+genes. 
+@bickel_2010 therefore proposed the idea of bootstrapping with respect to
+a **segmented genome** given known, large-scale genomic structures such as
 isochores ("larger than 300kb").
 
-$\color{brown}{\text{A genomic segmentation can be considered if}}$
-1) it defines large (e.g. on the order of ∼1 Mb), relatively
-homogeneous segments and 2) the variance of the distribution of the
-test statistics become stable as block length increases (See
-@bootRanges Fig 2 A). 
+A genomic segmentation can be considered if
+it defines large (e.g. on the order of ∼1 Mb), relatively
+homogeneous segments with respect to feature density, and 
+the variance of the distribution of the test statistics become stable
+as block length increases (see @bootRanges Fig 2A). 
 
-There are two options to build segmentation *GRanges*, either:
+There are two options for choosing a segmentation, either:
 
-- Use exiting segmentation (e.g. ChromHMM, etc.) downloaded from
+- Use an exiting segmentation (e.g. ChromHMM, etc.) downloaded from
   AnnotationHub or external to Bioconductor (BED files imported with
   *rtracklayer*)
-- Perform a de-novo segmentation of the genome using feature density,
-  e.g. gene density 
+- Perform a *de novo* segmentation of the genome using feature density,
+  e.g. gene density
 
 **Pre-built segmentations**
 
-Given that these evaluations take time and involve consideration of
+Given that these genome segmentation evaluations take time and involve consideration of
 multiple criteria, we have provided our recommended segmentation for
-hg38. *nullranges* has generated pre-built segmentations for easy use
-by following below section *Segmentation by gene density*
-Either pre-built segmentations using *CBS* or *HMM* methods with
-$L_s=2e6$ considering excludable regions can be selected from
-*ExperimentHub*. We find that the segmentation and block length shown
-here could be used for most analysis of hg38.
+hg38. *nullranges* has generated pre-built segmentations for easy use,
+which were generated using code outlined below in the *Segmentation by
+gene density* section.
+
+Pre-built segmentations using either *CBS* or *HMM* methods with
+$L_s=2e6$ considering excludable regions can be downloaded directly
+from *ExperimentHub*. We find that the segmentation and block length
+(500kb) shown in the case study below could be used for most analyses
+of hg38.
 
 ```{r, message=FALSE, warning=FALSE}
 suppressPackageStartupMessages(library(ExperimentHub))
 eh <- ExperimentHub()
-seg_cbs <- eh[["EH7307"]]
+seg_cbs <- eh[["EH7307"]] # prefer CBS for hg38
 seg_hmm <- eh[["EH7308"]]
 seg <- seg_cbs
 ```
 
 **Segmentation by gene density**
 
-This section describes how we generate pre-built segmentations. First
-we obtain the Ensembl genes [@ensembl2021] for segmenting by gene 
-density. We obtain these using the *ensembldb* package [@ensembldb].
+This section describes how we generated the pre-built segmentations,
+such that users with a different genome can generate a segmentation
+for their own purposes. First we obtain the Ensembl genes
+[@ensembl2021] for segmenting by gene density. We obtain these using
+the *ensembldb* package [@ensembldb].
 
 ```{r}
 suppressPackageStartupMessages(library(ensembldb))
@@ -221,8 +244,10 @@ hypersensitive sites, or DHS, defined below).
 ```{r}
 library(GenomeInfoDb)
 g <- keepStandardChromosomes(g, pruning.mode = "coarse")
+# MT is too small for bootstrapping, so must be removed
 seqlevels(g, pruning.mode="coarse") <- setdiff(seqlevels(g), "MT")
 # normally we would assign a new style, but for recent host issues
+# that produced vignette build problems, we use `paste0`
 ## seqlevelsStyle(g) <- "UCSC" 
 seqlevels(g) <- paste0("chr", seqlevels(g))
 genome(g) <- "hg38"
@@ -233,7 +258,7 @@ table(seqnames(g))
 
 **CBS segmentation**
 
-We first demonstrate the use a CBS segmentation as implemented in
+We first demonstrate the use of a CBS segmentation as implemented in
 *DNAcopy* [@dnacopy].
 
 We load the *nullranges* and *plyranges* packages, and *patchwork* in
@@ -267,11 +292,10 @@ plots[[1]]
 plots[[2]] + plots[[3]]
 ```
 
-Note here, the default *ranges* plot gives whole genome and every
-fractured bind regions represents state transformations happens.
-However, some transformations within small ranges cannot be visualized,
-e.g 1kb. If user want to look into specific ranges of segmentation
-state, the *region* argument is flexible to support.
+Note here, the default *ranges* plot shows the whole genome.  Some of
+the state transitions within small regions cannot be visualized.  One
+can look into specific regions to observe segmentation states, by
+specifying the `region` argument.
 
 ```{r, fig.width=4, fig.height=3}
 region <- GRanges("chr16", IRanges(3e7,4e7))
@@ -293,30 +317,31 @@ plots[[1]]
 plots[[2]] + plots[[3]]
 ```
 
-### Running bootranges
+### Running bootRanges
 
 We use a set of DNase hypersensitivity sites (DHS) from the ENCODE
 project [@encode] in A549 cell line (ENCSR614GWM). Here, for speed, we
 work with a pre-processed data object from ExperimentHub, created using
 the following steps:
 
--   Download ENCODE DNase hypersensitive peaks in A549 from
-    *AnnotationHub*
--   Subset to standard chromosomes and remove mitochondrial DNA
--   Use a chain file from UCSC to lift ranges from hg19 to hg38
--   Sort the DHS features to be bootstrapped
+* Download ENCODE DNase hypersensitive peaks in A549 from
+  *AnnotationHub*
+* Subset to standard chromosomes and remove mitochondrial DNA
+* Use a chain file from UCSC to lift ranges from hg19 to hg38
+* Sort the DHS features to be bootstrapped
 
 These steps are included in *nullrangesData* in the
 `inst/scripts/make-dhs-data.R` script. 
 
 For speed of the vignette, we restrict to a smaller number of DHS,
 filtering by the signal value. We also remove unrelated metadata
-columns that we don't need for the bootstrap analysis. Because we are
-interested in signal value for DHS peaks later, we only keep it
-here. Consider, when creating bootstrapped data, that you will be
-creating an object many times larger than your original features, so
-$\color{brown}{\text{filtering and trimming}}$ extra metadata can help
-make the analysis more efficient.
+columns that we don't need for the bootstrap analysis.
+Because we are interested in signal value for DHS peaks later, we only
+keep this column. Consider, when creating bootstrapped data, that you will be
+creating an object *many times larger* than your original data
+(i.e. multipled by `R` the number of bootstrap iterations), so
+**filtering** down to key ranges and **selecting** only the relevant
+metadata can help make the analysis much more efficient.
 
 ```{r}
 suppressPackageStartupMessages(library(nullrangesData))
@@ -332,8 +357,9 @@ Now we apply a segmented block bootstrap with blocks of size 500kb, to
 the peaks. Here we show generation of 50 iterations of a block bootstrap
 followed by a typical overlap analysis using *plyranges* [@Lee2019].
 
-Note that we must remove non-standard chromosomes and mitochondrial
-genome, as these are typically shorter than our desired `blockLength`.
+Note that we have already removed non-standard chromosomes and
+mitochondrial chromosome, as these are typically shorter than our
+desired `blockLength` (see e.g. code in Quick Start above).
 
 ```{r}
 set.seed(5) # for reproducibility
@@ -344,7 +370,7 @@ boots
 ```
 
 What is returned here? The `bootRanges` function returns a
-*bootRanges* object, which is a simple sub-class of *GRanges*. The
+*BootRanges* object, which is a simple sub-class of *GRanges*. The
 iteration (`iter`) and (optionally) the block length (`blockLength`)
 are recorded as metadata columns, accessible via `mcols`. We return
 the bootstrapped ranges as *GRanges* rather than *GRangesList*, as the
@@ -391,10 +417,11 @@ interdist <- function(dat) {
            x$start + floor((x$width - 1)/2) -
            y$start - floor((y$width - 1)/2), NA)
 }
+# just looking at first 3 iterations...
 combined %>% plyranges::filter(iter %in% 0:3) %>%
   mutate(iter = droplevels(iter)) %>%
   plyranges::select(iter) %>%
-  as.data.frame() %>% 
+  as_tibble() %>% 
   nest(data = !iter) %>%
   mutate(interdist = map(data, interdist)) %>% 
   dplyr::select(iter, interdist) %>% 
@@ -403,7 +430,7 @@ combined %>% plyranges::filter(iter %in% 0:3) %>%
          interdist = pmax(interdist, 0)) %>%
   filter(!is.na(interdist)) %>%
   ggplot(aes(log10(interdist + 1), iter, fill=type)) +
-  geom_density_ridges(alpha = 0.75)
+  geom_density_ridges(alpha = 0.75) +
   geom_text(data = head(stats, 4),
             aes(x=1.5, y=iter, label=paste0("n=",n), fill=NULL),
             vjust=1.5)
@@ -421,7 +448,6 @@ DHS peaks within a `maxgap` window of `x`).
 ```{r}
 x <- GRanges("chr2", IRanges(1 + 50:99 * 1e6, width=1e6), x_id=1:50)
 ```
-
 ### Statistic I: the total number of overlaps
 
 ```{r}
@@ -441,7 +467,7 @@ combinations of `x` and `iter` where the overlap was 0.
 boot_stats <- x %>% join_overlap_inner(boots) %>%
   group_by(x_id, iter) %>%
   summarize(n_overlaps = n()) %>%
-  as.data.frame() %>%
+  as_tibble() %>%
   complete(x_id, iter, fill=list(n_overlaps = 0)) %>%
   group_by(iter) %>%
   summarize(sumOverlaps = sum(n_overlaps))
@@ -452,8 +478,8 @@ by `iter` is general and allows for more complex analysis than just mean
 overlap (e.g. how many times an `x` range has 1 or more overlap, what is
 the mean or max signal value for peaks overlapping ranges in `x`, etc.).
 
-If one is interested in assessing $\color{brown}{\text{feature-wise}}$ 
-statistics instead of $\color{brown}{\text{genome-wise}}$ statistics, 
+If one is interested in assessing *feature-wise*
+statistics instead of *genome-wise* statistics, 
 eg.,the mean observed number of overlaps per feature or mean base pair 
 overlap in `x`, one can also group by both (`block`,`iter`). 10,000 total 
 blocks may therefore be sufficient to derive a bootstrap distribution, 
@@ -495,19 +521,27 @@ ggplot(boot_stats, aes(sumSignal)) +
 
 ## Case study II: Single cell multi-omics
 
-Instead of deriving statistics of interest directly from *GRanges*
-simple metadata column or genome position, count matrix from
-*SummerizedExperiment* or *SingleCellExperiment* could also be
-used. In this way, we have to extract count matrix from
-*SingleCellExperiment* and save it in GRanges's metadata column as a
-`NumericList()` format. Then perform the block bootstrap. One case
-study is to assess the correlation of the all pairs of genes and
-promoter peaks from Chromium Single Cell Multiome ATAC + Gene
-Expression.
+This case study provides an example of a more complex statistic of
+interest. 
+Instead of computing simple overlap, or some function of a single
+metadata column, e.g. `signal` above, a statistic can be computed on a
+count matrix from a *SummerizedExperiment* or *SingleCellExperiment*.
+Here we provide unevaluated code for such an example.
 
-We demonstrate usage by loading 10X
-[Multiome](https://raw.githack.com/bioFAM/MOFA2_tutorials/master/R_tutorials/10x_scRNA_scATAC.html). The
-first two pre-processed steps are included in *nullrangesData* in the
+We use a trick to perform computation on a count matrix within plyranges:
+we extract count matrix data from a *SingleCellExperiment*
+(e.g. pseudobulk summaries of cell type specific expression or
+accessibility) and save it in a GRanges's metadata column as a
+`NumericList()` format. This allows us to perform the block bootstrap
+and quickly compute statistics using *plyranges*. The case study we
+consider here is to assess the correlation of gene expression and
+promoter peak accessibility from a dataset of Chromium Single Cell
+Multiome ATAC + Gene Expression.
+
+We first load the 10X
+[Multiome](https://raw.githack.com/bioFAM/MOFA2_tutorials/master/R_tutorials/10x_scRNA_scATAC.html)
+data, as compiled by the MOFA2 tutorial.
+The first two pre-processed steps are included in *nullrangesData* in the
 `inst/scripts/make-multiome-data.R` script. Here, we aggregate 14
 cell types across cluster-sample groups.
 
@@ -531,19 +565,20 @@ seqlengths(sc_promoter) <- seqlengths(genome)[1:22] # pull chrom lens from USCS
 bootranges <- bootRanges(sc_promoter, blockLength = 5e5, R=50)
 ```
 
-There are two option downstream pipelines to follow after generating a
-bootranges object. One is use *Plyranges* in downstream analysis as
-previous sections, another one is creating a
-*tidySummarizedExperiment* object where each row save derived
-interested statistics.
+There are two options for downstream pipelines for computing
+statistics after generating a *BootRanges* object. 
+One is to use *plyranges* in downstream analysis as
+in the previous sections, while another is to create a
+*tidySummarizedExperiment* object used to compute the statistics of
+interest.
 
-* Plyranges: 
+**Plyranges**
 
 We can compute the mean correlation of the all pairs of genes and
-promoter peaks over iterations and compare to the observed
-statistic. The histogram below shows that our observed value falls far
+promoter peaks over all bootstrap iterations and compare to the observed
+statistic. The histogram will show that our observed value falls far
 from the distribution of bootstrapped statistics, as we expected for
-this real data. 
+this dataset.
 
 ```{r eval=FALSE}
 cor_gr <- sc_rna %>% join_overlap_inner(sc_promoter, maxgap=1000) %>%
@@ -564,14 +599,15 @@ ggplot(cor_boot, aes(meanCor)) +
   theme_classic()
 ```
 
-If one is interested in assessing significance of gene-promoter pairs
-per gene, one can also do `plyranges::select` (*gene*, *peak*, *rho*)
+If one is interested in assessing the significance of gene-promoter pairs
+per gene, one can also use `plyranges::select` (*gene*, *peak*, *rho*)
 and `plyranges::group_by` *gene*.
 
-* tidySummarizedExperiment:
+**tidySummarizedExperiment**
 
-Create an RangedSE for each modality, then find the overlap using the
-below helper function. 
+In order to use *tidySummarizedExperiment* to compute the same
+operation, we first must create an RangedSE for each modality, and
+then we can find the overlaps..
 
 ```{r eval=FALSE}
 library(tidySummarizedExperiment)
@@ -610,7 +646,11 @@ se <- se %>%
   select(-data)
 
 print(paste("mean correlation is", mean(se$rho)))
+```
 
+Repeating for the bootstrapping case
+
+```{r eval=FALSE}
 # create SE for bootranges data
 se_promoter_boots <- SummarizedExperiment(
   assays=list(promoter=do.call(rbind,bootranges$counts2)),
