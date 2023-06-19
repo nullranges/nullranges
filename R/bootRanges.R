@@ -2,10 +2,11 @@
 #'
 #' Performs a block bootstrap, optionally with respect
 #' to a genome segmentation. Returns a `bootRanges` object,
-#' which is a GRanges object with all the ranges concatenated,
-#' and iteration and block length indicated by metadata columns.
-#' Note that this function requires input ranges have seqlengths
-#' associated, and that these are not shorter than `blockLength`.
+#' which is a GRanges object with all the ranges from the
+#' bootstrap iterations concatenated.
+#' 
+#' Note that this function requires input ranges have associated
+#' `seqlengths`, and that these must not be shorter than `blockLength`.
 #' See `Seqinfo`, `seqlevels`, and `keepStandardChromosomes` functions
 #' and their use in the Quick Start section of the vignette.
 #'

@@ -55,10 +55,12 @@ where iteration and block length are recorded as metadata columns
 \description{
 Performs a block bootstrap, optionally with respect
 to a genome segmentation. Returns a \code{bootRanges} object,
-which is a GRanges object with all the ranges concatenated,
-and iteration and block length indicated by metadata columns.
-Note that this function requires input ranges have seqlengths
-associated, and that these are not shorter than \code{blockLength}.
+which is a GRanges object with all the ranges from the
+bootstrap iterations concatenated.
+}
+\details{
+Note that this function requires input ranges have associated
+\code{seqlengths}, and that these must not be shorter than \code{blockLength}.
 See \code{Seqinfo}, \code{seqlevels}, and \code{keepStandardChromosomes} functions
 and their use in the Quick Start section of the vignette.
 }
