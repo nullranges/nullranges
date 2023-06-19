@@ -44,18 +44,25 @@ segmentation `seg` and excluded regions `exclude` are optional.
 ```{r eval=FALSE}
 eh <- ExperimentHub()
 ah <- AnnotationHub()
+# some default resources:
 seg <- eh[["EH7307"]] # pre-built genome segmentation for hg38
 exclude <- ah[["AH107305"]] # Kundaje excluded regions for hg38, see below
+
 set.seed(5) # set seed for reproducibility
 blockLength <- 5e5 # size of blocks to bootstrap
 R <- 10 # number of iterations of the bootstrap
-# remove non-standard chromosomes and mitochondrial genome
+
+# input `ranges` require seqlengths, if missing see `GenomeInfoDb::Seqinfo`
+seqlengths(ranges)
+# next, we remove non-standard chromosomes ...
 ranges <- keepStandardChromosomes(ranges, pruning.mode="coarse")
+# ... and mitochondrial genome, as these are too short
 seqlevels(ranges, pruning.mode="coarse") <- setdiff(seqlevels(ranges), "MT")
+
 # generate bootstraps
 boots <- bootRanges(ranges, blockLength=blockLength, R=R,
                     seg=seg, exclude=exclude)
-# `boots` can then be used with plyranges commands
+# `boots` can then be used with plyranges commands, e.g. join_overlap_*
 ```
 
 The `boots` object will contain a column, `iter` which marks the
