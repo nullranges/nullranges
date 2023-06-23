@@ -370,6 +370,19 @@ summary(matched(mgr))
 summary(unmatched(mgr))
 ```
 
+A "tidy" version of key sets can be obtained using *plyranges* and the
+`bind_ranges` function. This enables efficient comparisons across sets
+with other *plyranges* functionality (`group_by`, `summarize`, etc.).
+
+```{r message=FALSE}
+library(plyranges)
+bind_ranges(
+  focal = focal(mgr),
+  pool = pool(mgr),
+  matched = matched(mgr), .id="type"
+)
+```
+
 The `indices()` function can be used to find the original indices for
 each set. For example, `indices(x, set="matched")` will supply the
 indices from the `pool` set that corresponds to the `matched` set. In
