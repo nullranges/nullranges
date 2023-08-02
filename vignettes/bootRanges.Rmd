@@ -783,13 +783,13 @@ seg <- GRanges(
 
 We can visualize with our helper function:
 
-```{r toysegments, fig.width=5, fig.height=4}
+```{r toysegments, fig.width=5, fig.height=4, eval=FALSE}
 plotGRanges(seg)
 ```
 
 Now create small ranges distributed uniformly across the toy genome:
 
-```{r toyrangesI, fig.width=5, fig.height=4}
+```{r toyrangesI, fig.width=5, fig.height=4, eval=FALSE}
 set.seed(1)
 n <- 200
 gr <- GRanges(
@@ -814,7 +814,7 @@ plotGRanges(gr)
 We can visualize block bootstrapped ranges when the blocks do not scale
 to segment state length:
 
-```{r toy-no-prop, fig.width=5, fig.height=4}
+```{r toy-no-prop, fig.width=5, fig.height=4, eval=FALSE}
 set.seed(1)
 gr_prime <- bootRanges(gr, blockLength = 25, seg = seg,
                        proportionLength = FALSE)
@@ -826,7 +826,7 @@ this case `blockLength` is the *maximal* block length possible, but the
 actual block lengths per segment will be smaller (proportional to the
 fraction of basepairs covered by that state in the genome segmentation).
 
-```{r toy-prop, fig.width=5, fig.height=4}
+```{r toy-prop, fig.width=5, fig.height=4, eval=FALSE}
 set.seed(1)
 gr_prime <- bootRanges(gr, blockLength = 50, seg = seg,
                        proportionLength = TRUE)
