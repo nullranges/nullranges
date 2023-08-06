@@ -65,7 +65,7 @@ of genomic ranges for hypothesis testing."
 ## Tidy Ranges Tutorial
 
 Additional tutorial material for performing
-[tidy ranges](https://tidybiology.github.io/tidy-ranges-tutorial)
+[tidy ranges](https://tidyomics.github.io/tidy-ranges-tutorial)
 analysis is currently being developed.
 
 ## Funding

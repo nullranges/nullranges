@@ -70,7 +70,7 @@ different bootstrap samples that were generated. This allows for tidy
 analysis with *plyranges*, e.g. counting the number of overlapping
 ranges, per bootstrap iteration. For more examples of combining
 `bootRanges` with *plyranges* operations, see the
-[tidy ranges tutorial](https://tidybiology.github.io/tidy-ranges-tutorial/).
+[tidy ranges tutorial](https://tidyomics.github.io/tidy-ranges-tutorial/).
 
 # Method overview
 
@@ -684,7 +684,7 @@ ggplot(cor_boot, aes(meanCor)) +
 
 For more examples of combining `bootRanges` from *nullranges* with
 *plyranges* piped operations, see the relevant chapter in the
-[tidy-ranges-tutorial](https://tidybiology.github.io/tidy-ranges-tutorial/bootstrap-overlap.html)
+[tidy-ranges-tutorial](https://tidyomics.github.io/tidy-ranges-tutorial/bootstrap-overlap.html)
 book.
 
 ## Case study III: Block bootstrap one region
