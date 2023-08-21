@@ -443,7 +443,29 @@ combined %>% plyranges::filter(iter %in% 0:3) %>%
             vjust=1.5)
 ```
 
-### Derive statistics of interest
+### Bootstrapping and plyranges
+
+We will now show how to combine bootstrapping with *plyranges* to
+perform statistical enrichment analysis.
+The general idea will be to combine the long vector of bootstrapped
+ranges, indexed by `iter`, with another set of ranges to compute
+enrichment. We will explore this idea across a number of case studies
+below. In pseudocode, the general outline will be:
+
+```{r eval=FALSE}
+# pseudocode for the general paradigm:
+boots <- bootRanges(y) # make bootstrapped y
+x %>% join_overlap_inner(boots) %>% # overlaps of x with bootstrapped y
+  group_by(x_id, iter) %>% # collate by x ID and the bootstrap iteration
+  summarize(some_statistic = ...) %>% # compute some summary on metadata
+  as_tibble() %>% # pass to tibble
+  complete(
+    x_id, iter, # for any missing combinations of x ID and iter...
+    fill=list(some_statistic = 0) # ...fill in missing values
+  )
+```
+
+### Statistic I: the total number of overlaps
 
 Suppose we have a set of features `x` and we are interested in
 evaluating the enrichment of this set with the
@@ -455,7 +477,6 @@ DHS peaks within a `maxgap` window of `x`).
 ```{r}
 x <- GRanges("chr2", IRanges(1 + 50:99 * 1e6, width=1e6), x_id=1:50)
 ```
-### Statistic I: the total number of overlaps
 
 ```{r}
 x <- x %>% mutate(n_overlaps = count_overlaps(., dhs))
@@ -464,8 +485,10 @@ sum( x$n_overlaps )
 
 We can repeat this with the bootstrapped features using a `group_by`
 command, a `summarize`, followed by a second `group_by` and `summarize`.
-It may help to step through these commands one by one to understand what
-the intermediate output is.
+If it is your first time working with *plyranges*, it may help you to
+step through these commands one by one, breaking the pipe at
+intermediate points, to understand what the intermediate 
+output is, and how it combines to provide the final statistics.
 
 Note that we need to use `tidyr::complete` in order to fill in
 combinations of `x` and `iter` where the overlap was 0.
