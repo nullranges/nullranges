@@ -25,8 +25,8 @@ by the user}
 \value{
 a GRanges with metadata columns containing:
 \itemize{
-\item{state} {segmentation state}
-\item{counts} {average number of genes}
+\item state segmentation state
+\item counts average number of genes
 }
 }
 \description{
