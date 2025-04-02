@@ -1,3 +1,7 @@
+# nullranges 1.13.1
+
+* Removing unevaluated code in vignette
+
 # nullranges 1.5.19
 
 * Remove speedglm dependency as it was removed from CRAN
