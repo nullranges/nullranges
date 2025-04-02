@@ -42,12 +42,10 @@ Suggests:
     patchwork,
     plotgardener,
     dplyr,
-    purrr,
     magrittr,
     tidyr,
     cobalt,
-    DiagrammeR,
-    tidySummarizedExperiment
+    DiagrammeR
 Imports:
     stats,
     IRanges,
