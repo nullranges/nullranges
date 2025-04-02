@@ -1,126 +1,44 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://nullranges.github.io/nullranges/404.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/CODE_OF_CONDUCT.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/CONTRIBUTING.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/LICENSE.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/articles/bootRanges.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/articles/matchRanges.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/articles/matching_ginteractions.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/articles/matching_granges.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/articles/matching_pool_set.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/articles/nullranges.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/authors.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/index.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/news/index.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/reference/BootRanges-class.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/reference/MatchedDataFrame.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/reference/MatchedGInteractions.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/reference/MatchedGRanges.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/reference/bootRanges.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/reference/combnCov.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/reference/covariates.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/reference/focal.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/reference/indices.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/reference/makeExampleMatchedDataSet.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/reference/matchRanges.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/reference/matched.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/reference/matchedClass.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/reference/matchedData.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/reference/method.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/reference/oneRegionSegment.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/reference/overview-methods.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/reference/overview.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/reference/plotCovariate.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/reference/plotPropensity.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/reference/plotSegment.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/reference/pool.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/reference/reduceSegment.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/reference/segmentDensity.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/reference/unmatched.html</loc>
-  </url>
-  <url>
-    <loc>https://nullranges.github.io/nullranges/reference/withReplacement.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>https://nullranges.github.io/nullranges/404.html</loc></url>
+<url><loc>https://nullranges.github.io/nullranges/CODE_OF_CONDUCT.html</loc></url>
+<url><loc>https://nullranges.github.io/nullranges/CONTRIBUTING.html</loc></url>
+<url><loc>https://nullranges.github.io/nullranges/LICENSE.html</loc></url>
+<url><loc>https://nullranges.github.io/nullranges/articles/bootRanges.html</loc></url>
+<url><loc>https://nullranges.github.io/nullranges/articles/index.html</loc></url>
+<url><loc>https://nullranges.github.io/nullranges/articles/matchRanges.html</loc></url>
+<url><loc>https://nullranges.github.io/nullranges/articles/matching_ginteractions.html</loc></url>
+<url><loc>https://nullranges.github.io/nullranges/articles/matching_granges.html</loc></url>
+<url><loc>https://nullranges.github.io/nullranges/articles/matching_pool_set.html</loc></url>
+<url><loc>https://nullranges.github.io/nullranges/articles/nullranges.html</loc></url>
+<url><loc>https://nullranges.github.io/nullranges/authors.html</loc></url>
+<url><loc>https://nullranges.github.io/nullranges/index.html</loc></url>
+<url><loc>https://nullranges.github.io/nullranges/news/index.html</loc></url>
+<url><loc>https://nullranges.github.io/nullranges/reference/BootRanges-class.html</loc></url>
+<url><loc>https://nullranges.github.io/nullranges/reference/MatchedDataFrame.html</loc></url>
+<url><loc>https://nullranges.github.io/nullranges/reference/MatchedGInteractions.html</loc></url>
+<url><loc>https://nullranges.github.io/nullranges/reference/MatchedGRanges.html</loc></url>
+<url><loc>https://nullranges.github.io/nullranges/reference/bootRanges.html</loc></url>
+<url><loc>https://nullranges.github.io/nullranges/reference/combnCov.html</loc></url>
+<url><loc>https://nullranges.github.io/nullranges/reference/covariates.html</loc></url>
+<url><loc>https://nullranges.github.io/nullranges/reference/focal.html</loc></url>
+<url><loc>https://nullranges.github.io/nullranges/reference/index.html</loc></url>
+<url><loc>https://nullranges.github.io/nullranges/reference/indices.html</loc></url>
+<url><loc>https://nullranges.github.io/nullranges/reference/makeExampleMatchedDataSet.html</loc></url>
+<url><loc>https://nullranges.github.io/nullranges/reference/matchRanges.html</loc></url>
+<url><loc>https://nullranges.github.io/nullranges/reference/matched.html</loc></url>
+<url><loc>https://nullranges.github.io/nullranges/reference/matchedClass.html</loc></url>
+<url><loc>https://nullranges.github.io/nullranges/reference/matchedData.html</loc></url>
+<url><loc>https://nullranges.github.io/nullranges/reference/method.html</loc></url>
+<url><loc>https://nullranges.github.io/nullranges/reference/oneRegionSegment.html</loc></url>
+<url><loc>https://nullranges.github.io/nullranges/reference/overview-methods.html</loc></url>
+<url><loc>https://nullranges.github.io/nullranges/reference/overview.html</loc></url>
+<url><loc>https://nullranges.github.io/nullranges/reference/plotCovariate.html</loc></url>
+<url><loc>https://nullranges.github.io/nullranges/reference/plotPropensity.html</loc></url>
+<url><loc>https://nullranges.github.io/nullranges/reference/plotSegment.html</loc></url>
+<url><loc>https://nullranges.github.io/nullranges/reference/pool.html</loc></url>
+<url><loc>https://nullranges.github.io/nullranges/reference/reduceSegment.html</loc></url>
+<url><loc>https://nullranges.github.io/nullranges/reference/segmentDensity.html</loc></url>
+<url><loc>https://nullranges.github.io/nullranges/reference/unmatched.html</loc></url>
+<url><loc>https://nullranges.github.io/nullranges/reference/withReplacement.html</loc></url>
 </urlset>
+

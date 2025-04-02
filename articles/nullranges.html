@@ -12,21 +12,19 @@
 <link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png">
 <link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png">
 <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png">
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
+<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
 <script src="../pkgdown.js"></script><meta property="og:title" content="Introduction to nullranges">
-<meta property="og:description" content="nullranges">
-<meta property="og:image" content="https://nullranges.github.io/nullranges/logo.png">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
-    
+
 
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -40,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.7.10</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.13.1</span>
       </span>
     </div>
 
@@ -55,7 +53,7 @@
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
-     
+
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
@@ -84,7 +82,7 @@
 <li>
   <a href="https://github.com/nullranges/nullranges/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
-     
+
   </a>
 </li>
       </ul>
@@ -95,16 +93,16 @@
 </div>
 <!--/.navbar -->
 
-      
 
-      </header><script src="nullranges_files/htmlwidgets-1.6.2/htmlwidgets.js"></script><script src="nullranges_files/viz-1.8.2/viz.js"></script><link href="nullranges_files/DiagrammeR-styles-0.2/styles.css" rel="stylesheet">
-<script src="nullranges_files/grViz-binding-1.0.10/grViz.js"></script><div class="row">
+
+      </header><script src="nullranges_files/htmlwidgets-1.6.4/htmlwidgets.js"></script><script src="nullranges_files/viz-1.8.2/viz.js"></script><link href="nullranges_files/DiagrammeR-styles-0.2/styles.css" rel="stylesheet">
+<script src="nullranges_files/grViz-binding-1.0.11/grViz.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Introduction to nullranges</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/HEAD/vignettes/nullranges.Rmd" class="external-link"><code>vignettes/nullranges.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/nullranges/nullranges/blob/devel/vignettes/nullranges.Rmd" class="external-link"><code>vignettes/nullranges.Rmd</code></a></small>
       <div class="hidden name"><code>nullranges.Rmd</code></div>
 
     </div>
@@ -175,8 +173,8 @@ methylation near gene start site? Or is there variable feature density
 that must be accounted for via genome segmentation?</li>
 </ul>
 <p>The following decision tree then informs what methods to choose:</p>
-<div id="htmlwidget-0c9283aac3cf19626630" style="width:528px;height:500px;" class="grViz html-widget "></div>
-<script type="application/json" data-for="htmlwidget-0c9283aac3cf19626630">{"x":{"diagram":"digraph {\n  graph [layout = dot, rankdir = TB]\n  \n  node [shape = rectangle]        \n  source [label = \"Features defined with respect to a pool\"]\n  poolyes [label = \"Yes\"]\n  poolno [label =  \"No\"]\n  cov [label = \"Potential confounding covariates\"]\n  covyes [label = \"Yes\"]\n  covno [label = \"No\"]\n  diffcov [label = \"Different covariate distribution\"]\n  diffcovyes [label = \"Yes\"]\n  diffcovno [label =  \"No\"]\n  match [label = \"matchRanges\"]\n  random [label = \"Random sample\"]\n  context [label = \"Local genomic context matters\"]\n  contextyes [label = \"Yes\"]\n  contextno [label = \"No\"]\n  cluster [label = \"Features cluster in genome\"]\n  random2 [label = \"Random sample\"]\n  clusteryes [label = \"Yes\"]\n  clusterno [label = \"No\"]\n  boot [label = \"bootRanges\"]\n  shuffle [label = \"Shuffle + exclusion\"]\n\n  source -> poolyes\n  source -> poolno\n  poolyes -> cov\n  cov -> covyes\n  cov -> covno\n  covyes -> diffcov\n  covno -> random\n  diffcov -> diffcovyes\n  diffcov -> diffcovno\n  diffcovyes -> match\n  diffcovno -> random\n  poolno -> context\n  context -> contextyes\n  context -> contextno\n  contextyes -> cluster\n  contextno -> random2\n  cluster -> clusteryes\n  cluster -> clusterno\n  clusteryes -> boot\n  clusterno -> shuffle\n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script><p>In summary, while <em>matchRanges</em> does not control for genomic
+<div id="htmlwidget-ac96cb3ee4656e2e9ec3" style="width:528px;height:500px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-ac96cb3ee4656e2e9ec3">{"x":{"diagram":"digraph {\n  graph [layout = dot, rankdir = TB]\n  \n  node [shape = rectangle]        \n  source [label = \"Features defined with respect to a pool\"]\n  poolyes [label = \"Yes\"]\n  poolno [label =  \"No\"]\n  cov [label = \"Potential confounding covariates\"]\n  covyes [label = \"Yes\"]\n  covno [label = \"No\"]\n  diffcov [label = \"Different covariate distribution\"]\n  diffcovyes [label = \"Yes\"]\n  diffcovno [label =  \"No\"]\n  match [label = \"matchRanges\"]\n  random [label = \"Random sample\"]\n  context [label = \"Local genomic context matters\"]\n  contextyes [label = \"Yes\"]\n  contextno [label = \"No\"]\n  cluster [label = \"Features cluster in genome\"]\n  random2 [label = \"Random sample\"]\n  clusteryes [label = \"Yes\"]\n  clusterno [label = \"No\"]\n  boot [label = \"bootRanges\"]\n  shuffle [label = \"Shuffle + exclusion\"]\n\n  source -> poolyes\n  source -> poolno\n  poolyes -> cov\n  cov -> covyes\n  cov -> covno\n  covyes -> diffcov\n  covno -> random\n  diffcov -> diffcovyes\n  diffcov -> diffcovno\n  diffcovyes -> match\n  diffcovno -> random\n  poolno -> context\n  context -> contextyes\n  context -> contextno\n  contextyes -> cluster\n  contextno -> random2\n  cluster -> clusteryes\n  cluster -> clusterno\n  clusteryes -> boot\n  clusterno -> shuffle\n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script><p>In summary, while <em>matchRanges</em> does not control for genomic
 distribution and clustering of features, <em>bootRanges</em> does not
 directly control for feature covariates independent of proximity and
 local context.</p>
@@ -218,27 +216,44 @@ group by, summarize, etc.) strung together with pipes
 <h3 id="further-description-of-matching-and-bootstrapping">Further description of matching and bootstrapping<a class="anchor" aria-label="anchor" href="#further-description-of-matching-and-bootstrapping"></a>
 </h3>
 <p>Suppose we want to examine the significance of overlaps of genomic
-sets of features <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span>. To test the significance of this
-overlap, we calculate the overlap expected under the null by generating
-a null feature set <span class="math inline">\(y'\)</span>
-(potentially many times). The null features in <span class="math inline">\(y'\)</span> may be characterized by:</p>
+sets of features
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>.
+To test the significance of this overlap, we calculate the overlap
+expected under the null by generating a null feature set
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mi>′</mi></mrow><annotation encoding="application/x-tex">y'</annotation></semantics></math>
+(potentially many times). The null features in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mi>′</mi></mrow><annotation encoding="application/x-tex">y'</annotation></semantics></math>
+may be characterized by:</p>
 <ol style="list-style-type: decimal">
-<li>Drawing from a larger pool <span class="math inline">\(z\)</span>
-(<span class="math inline">\(y' \subset z\)</span>), such that <span class="math inline">\(y\)</span> and <span class="math inline">\(y'\)</span> have a similar distribution over
-one or more covariates. This is the “matching” case. Note that the
-features in <span class="math inline">\(y'\)</span> are original
-features, just drawn from a different pool than y. The
+<li>Drawing from a larger pool
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>z</mi><annotation encoding="application/x-tex">z</annotation></semantics></math>
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mi>′</mi><mo>⊂</mo><mi>z</mi></mrow><annotation encoding="application/x-tex">y' \subset z</annotation></semantics></math>),
+such that
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mi>′</mi></mrow><annotation encoding="application/x-tex">y'</annotation></semantics></math>
+have a similar distribution over one or more covariates. This is the
+“matching” case. Note that the features in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mi>′</mi></mrow><annotation encoding="application/x-tex">y'</annotation></semantics></math>
+are original features, just drawn from a different pool than y. The
 <em>matchRanges</em> method is described in <span class="citation">Davis
 et al. (2023)</span> <a href="https://doi.org/10.1101/2022.08.05.502985" class="external-link">doi:
 10.1101/2022.08.05.502985</a>.</li>
-<li>Generating a new set of genomic features <span class="math inline">\(y'\)</span>, constructing them from the
-original set <span class="math inline">\(y\)</span> by selecting blocks
-of the genome with replacement, i.e. such that features can be sampled
-more than once. This is the “bootstrapping” case. Note that, in this
-case, <span class="math inline">\(y'\)</span> is an artificial
-feature set, although the re-sampled features can retain covariates such
-as score from the original feature set <span class="math inline">\(y\)</span>. The <em>bootRanges</em> method is
-described in <span class="citation">Mu et al. (2023)</span> <a href="https://doi.org/10.1101/2022.09.02.506382" class="external-link">doi:
+<li>Generating a new set of genomic features
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mi>′</mi></mrow><annotation encoding="application/x-tex">y'</annotation></semantics></math>,
+constructing them from the original set
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>
+by selecting blocks of the genome with replacement, i.e. such that
+features can be sampled more than once. This is the “bootstrapping”
+case. Note that, in this case,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mi>′</mi></mrow><annotation encoding="application/x-tex">y'</annotation></semantics></math>
+is an artificial feature set, although the re-sampled features can
+retain covariates such as score from the original feature set
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>.
+The <em>bootRanges</em> method is described in <span class="citation">Mu
+et al. (2023)</span> <a href="https://doi.org/10.1101/2022.09.02.506382" class="external-link">doi:
 10.1101/2022.09.02.506382</a>.</li>
 </ol>
 </div>
@@ -265,11 +280,16 @@ sampling based matching. In the bootstrapping case, we have implemented
 options for bootstrapping across or within chromosomes, and
 bootstrapping only within states of a segmented genome. We also provide
 a function to segment the genome by density of features. For example,
-supposing that <span class="math inline">\(x\)</span> is a subset of
-genes, we may want to generate <span class="math inline">\(y'\)</span> from <span class="math inline">\(y\)</span> such that features are re-sampled in
-blocks from segments across the genome with similar gene density. In
-both cases, we provide a number of functions for performing quality
-control via visual inspection of diagnostic plots.</p>
+supposing that
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>
+is a subset of genes, we may want to generate
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mi>′</mi></mrow><annotation encoding="application/x-tex">y'</annotation></semantics></math>
+from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>
+such that features are re-sampled in blocks from segments across the
+genome with similar gene density. In both cases, we provide a number of
+functions for performing quality control via visual inspection of
+diagnostic plots.</p>
 </div>
 <div class="section level3">
 <h3 id="consideration-of-excluded-regions">Consideration of excluded regions<a class="anchor" aria-label="anchor" href="#consideration-of-excluded-regions"></a>
@@ -284,7 +304,7 @@ demonstrated in the segmented block bootstrap vignette.</p>
 <div class="section level2">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
 <div id="ref-encode_exclude" class="csl-entry">
 Amemiya, Haley M, Anshul Kundaje, and Alan P Boyle. 2019. <span>“The
 <span>ENCODE</span> Blacklist: Identification of Problematic Regions of
@@ -414,9 +434,7 @@ e105–5. <a href="https://doi.org/10.1093/nar/gku463" class="external-link">htt
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
 
-        <nav id="toc" data-toggle="toc"><h2 data-toc-skip>Contents</h2>
-    </nav>
-</div>
+      </div>
 
 </div>
 
@@ -429,16 +447,16 @@ e105–5. <a href="https://doi.org/10.1093/nar/gku463" class="external-link">htt
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
       </footer>
 </div>
 
-  
 
 
-  
+
+
 
   </body>
 </html>

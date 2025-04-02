@@ -1,15 +1,14 @@
-pandoc: 2.19.2
-pkgdown: 2.0.7
+pandoc: '3.6'
+pkgdown: 2.1.1
 pkgdown_sha: ~
 articles:
   bootRanges: bootRanges.html
-  matchRanges: matchRanges.html
   matching_ginteractions: matching_ginteractions.html
   matching_granges: matching_granges.html
   matching_pool_set: matching_pool_set.html
+  matchRanges: matchRanges.html
   nullranges: nullranges.html
-last_built: 2023-08-21T19:40Z
+last_built: 2025-04-02T12:00Z
 urls:
   reference: https://nullranges.github.io/nullranges/reference
   article: https://nullranges.github.io/nullranges/articles
-
