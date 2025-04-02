@@ -3,6 +3,8 @@ library(MatchIt)
 
 test_that("Coerce MatchIt to Matched subclasses", {
   
+  skip_if_not_installed("MatchIt")
+  
   ## Matched and MatchedDataFrame ----------------------------------------------
   ## Create example data.frame dataset
   set.seed(123)

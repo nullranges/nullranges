@@ -470,17 +470,17 @@ matchRanges_MatchedDataFrame <- function(focal, pool, covar, method, replace) {
 #' 
 #' @section Matching methods:
 #' \itemize{
-#'   \item{`method = 'nearest'`: }{Nearest neighbor matching 
+#'   \item `method = 'nearest'`: Nearest neighbor matching 
 #'   with replacement. Finds the nearest neighbor by using a 
 #'   rolling join with `data.table`. Matching without replacement
-#'   is not currently supported.}
-#'   \item{`method = 'rejection'`: }{(Default) Rejection sampling
+#'   is not currently supported.
+#'   \item `method = 'rejection'`: (Default) Rejection sampling
 #'   with or without replacement. Uses a probability-based approach
-#'   to select options in the `pool` that match the `focal` distribition.}
-#'   \item{`method = 'stratified'`: }{Iterative stratified sampling
+#'   to select options in the `pool` that match the `focal` distribition.
+#'   \item `method = 'stratified'`: Iterative stratified sampling
 #'   with or without replacement. Bins `focal` and `pool` propensity
 #'   scores by value and selects matches within bins until all `focal`
-#'   items have a corresponding match in `pool`.}
+#'   items have a corresponding match in `pool`.
 #' }
 #'
 #' @param focal A DataFrame, GRanges, or GInteractions object containing
@@ -734,13 +734,19 @@ setMethod("unmatched", "MDF_OR_MGR_OR_MGI", function(x, ...) {
 #' Coerce `matchit` to `MatchedDataFrame`
 #' @inheritParams matchitToMatched
 #' @importFrom data.table data.table
-#' @importFrom MatchIt match.data
 #' @returns A `Matched` object.
 #' @noRd
 as_Matched <- function(x) {
   
+  ## Suppress R CMD CHECK NOTE
+  id <- NULL
+  
+  if (!requireNamespace("MatchIt", quietly = TRUE)) {
+    stop("The 'MatchIt' package is required for this function.")
+  }
+  
   ## Get matched indices from matchit object
-  mi <- match.data(object=x, group='control') |>
+  mi <- MatchIt::match.data(object=x, group='control') |>
     rownames() |>
     as.integer()
   
@@ -800,17 +806,20 @@ as_MatchedDataFrame <- function(x) {
 #' @param ranges `GRanges` or `GInteractions` object
 #' @param keep_mcols boolean, whether to keep metadata columns
 #' @param type either "GRanges" or "GInteractions"
-#' @importFrom mariner as_ginteractions
 #' @return A `GRanges` or `GInteractions` object depending on `type`
 #' @noRd
 coerceToRanges <- function(d, ranges, keep_mcols, type="GRanges") {
+  
+  if (!requireNamespace("mariner", quietly = TRUE)) {
+    stop("The 'mariner' package is required for this function.")
+  }
   
   ## Set coercion function
   if (type=="GRanges") {
     FUN <- \(d, mc) as_granges(d, keep_mcols=mc)
   }
   if (type=="GInteractions") {
-    FUN <- \(d, mc) as_ginteractions(d, keep.extra.columns=mc)
+    FUN <- \(d, mc) mariner::as_ginteractions(d, keep.extra.columns=mc)
   }
   
   ## Coerce to GRanges/GInteractions or add supplied
@@ -937,25 +946,31 @@ as_MatchedGInteractions <- function(x, interactions, keep_mcols) {
 #'  the function first attempts to coerce into the other
 #'  classes before coercing to `MatchedDataFrame`.
 #'  
-#' @examples 
-#' ## Create example data.frame dataset
-#' set.seed(123)
-#' x <- makeExampleMatchedDataSet(type="GRanges")
-#' 
-#' ## Convert GRanges to data.frame, pass to matchit,
-#' ## and convert to MatchedGRanges object
-#' set.seed(123)
-#' mgr <- 
-#'   as.data.frame(x) |>
-#'   matchit(formula=feature1 ~ feature2 + feature3,
-#'           data=_,
-#'           method='nearest',
-#'           replace=FALSE) |>
-#'   matchitToMatched()
-#' 
-#' ## Compatible with GRanges & Matched functions
-#' mgr
-#' plotCovariate(mgr)
+#' @examples
+#' \donttest{
+## Create example data.frame dataset
+#' if (!requireNamespace("MatchIt", quietly=TRUE)) {
+#'  set.seed(123)
+#'  x <- makeExampleMatchedDataSet(type="GRanges")
+#'  
+#'  ## Convert GRanges to data.frame, pass to matchit,
+#'  ## and convert to MatchedGRanges object
+#'  set.seed(123)
+#'  mgr <- 
+#'    as.data.frame(x) |>
+#'    matchit(formula=feature1 ~ feature2 + feature3,
+#'            data=_,
+#'            method='nearest',
+#'            replace=FALSE) |>
+#'    matchitToMatched()
+#'  
+#'  ## Compatible with GRanges & Matched functions
+#'  mgr
+#'  plotCovariate(mgr)
+#' } else {
+#'  message("The 'MatchIt' package is required to run this example.")
+#' }
+#' } 
 #' 
 #' @export
 setMethod("matchitToMatched",
