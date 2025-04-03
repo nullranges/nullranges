@@ -67,11 +67,11 @@ Functions that get data from Matched subclasses (\code{x})
 such as MatchedDataFrame, MatchedGRanges,
 and MatchedGInteractions are listed below:
 \itemize{
-\item{\code{matchedData(x)}: }{Get matched data from a Matched object}
-\item{\code{covariates(x)}: }{Get covariates from a Matched object}
-\item{\code{method(x)}: }{Get matching method used for Matched object}
-\item{\code{withReplacement(x)}: }{Get replace method}
-\item{\code{indices(x, set)}: }{Get indices of matched set}
+\item \code{matchedData(x)}: Get matched data from a Matched object
+\item \code{covariates(x)}: Get covariates from a Matched object
+\item \code{method(x)}: Get matching method used for Matched object
+\item \code{withReplacement(x)}: Get replace method
+\item \code{indices(x, set)}: Get indices of matched set
 }
 For more detail check the help pages for these functions.
 }
@@ -82,10 +82,10 @@ Additional functions that get data from Matched subclasses
 (\code{x}) such as MatchedDataFrame, MatchedGRanges,
 and MatchedGInteractions include:
 \itemize{
-\item{\code{focal(x)}: }{Get focal set from a Matched object}
-\item{\code{pool(x)}: }{Get pool set from a Matched object}
-\item{\code{matched(x)}: }{Get matched set from a Matched object}
-\item{\code{unmatched(x)}: }{Get unmatched set from a Matched object}
+\item \code{focal(x)}: Get focal set from a Matched object
+\item \code{pool(x)}: Get pool set from a Matched object
+\item \code{matched(x)}: Get matched set from a Matched object
+\item \code{unmatched(x)}: Get unmatched set from a Matched object
 }
 For more detail check the help pages for these functions.
 }

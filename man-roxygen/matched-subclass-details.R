@@ -3,10 +3,10 @@
 #' (`x`) such as MatchedDataFrame, MatchedGRanges,
 #' and MatchedGInteractions include:
 #' \itemize{
-#'   \item{`focal(x)`: }{Get focal set from a Matched object}
-#'   \item{`pool(x)`: }{Get pool set from a Matched object}
-#'   \item{`matched(x)`: }{Get matched set from a Matched object}
-#'   \item{`unmatched(x)`: }{Get unmatched set from a Matched object}
+#'   \item `focal(x)`: Get focal set from a Matched object
+#'   \item `pool(x)`: Get pool set from a Matched object
+#'   \item `matched(x)`: Get matched set from a Matched object
+#'   \item `unmatched(x)`: Get unmatched set from a Matched object
 #' }
 #' For more detail check the help pages for these functions.
 #' 

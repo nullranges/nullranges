@@ -45,7 +45,9 @@ Suggests:
     magrittr,
     tidyr,
     cobalt,
-    DiagrammeR
+    DiagrammeR,
+    MatchIt,
+    mariner
 Imports:
     stats,
     IRanges,
@@ -76,4 +78,4 @@ Encoding: UTF-8
 LazyData: true
 VignetteBuilder: knitr
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2

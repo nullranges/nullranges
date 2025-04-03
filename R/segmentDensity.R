@@ -16,8 +16,8 @@
 #' 
 #' @return a GRanges with metadata columns containing:
 #' \itemize{
-#'   \item{state} {segmentation state}
-#'   \item{counts} {average number of genes}
+#'   \item state segmentation state
+#'   \item counts average number of genes
 #' } 
 #'
 #' @importFrom plyranges filter join_overlap_intersect

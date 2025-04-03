@@ -64,17 +64,17 @@ covariates \code{covar}.
 \section{Matching methods}{
 
 \itemize{
-\item{\code{method = 'nearest'}: }{Nearest neighbor matching
+\item \code{method = 'nearest'}: Nearest neighbor matching
 with replacement. Finds the nearest neighbor by using a
 rolling join with \code{data.table}. Matching without replacement
-is not currently supported.}
-\item{\code{method = 'rejection'}: }{(Default) Rejection sampling
+is not currently supported.
+\item \code{method = 'rejection'}: (Default) Rejection sampling
 with or without replacement. Uses a probability-based approach
-to select options in the \code{pool} that match the \code{focal} distribition.}
-\item{\code{method = 'stratified'}: }{Iterative stratified sampling
+to select options in the \code{pool} that match the \code{focal} distribition.
+\item \code{method = 'stratified'}: Iterative stratified sampling
 with or without replacement. Bins \code{focal} and \code{pool} propensity
 scores by value and selects matches within bins until all \code{focal}
-items have a corresponding match in \code{pool}.}
+items have a corresponding match in \code{pool}.
 }
 }
 
