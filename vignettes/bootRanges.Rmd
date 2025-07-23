@@ -52,7 +52,7 @@ set.seed(5) # set seed for reproducibility
 blockLength <- 5e5 # size of blocks to bootstrap
 R <- 10 # number of iterations of the bootstrap
 
-# input `ranges` require seqlengths, if missing see `GenomeInfoDb::Seqinfo`
+# input `ranges` require seqlengths, if missing see `Seqinfo::Seqinfo`
 seqlengths(ranges)
 # next, we remove non-standard chromosomes ...
 ranges <- keepStandardChromosomes(ranges, pruning.mode="coarse")
@@ -247,7 +247,7 @@ with our excluded regions and our features of interest (DNase
 hypersensitive sites, or DHS, defined below).
 
 ```{r}
-library(GenomeInfoDb)
+library(Seqinfo)
 g <- keepStandardChromosomes(g, pruning.mode = "coarse")
 # MT is too small for bootstrapping, so must be removed
 seqlevels(g, pruning.mode="coarse") <- setdiff(seqlevels(g), "MT")

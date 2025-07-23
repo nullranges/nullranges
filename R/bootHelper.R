@@ -15,7 +15,6 @@
 #' @examples
 #'
 #' library(GenomicRanges)
-#' library(GenomeInfoDb)
 #' x <- GRanges("chr1", IRanges(10e6+1,width=1e6))
 #' genome(x) <- "hg19"
 #' seg <- oneRegionSegment(x)
@@ -27,7 +26,7 @@ oneRegionSegment <- function(x, seqlength) {
   g <- genome(x)[[chrom]]
   if (missing(seqlength)) {
     if (!is.na(g)) {
-      si <- GenomeInfoDb::Seqinfo(genome=g)
+      si <- Seqinfo::Seqinfo(genome=g)
       seqlength <- seqlengths(si[chrom])[[1]]
     } else {
       stop("function requires seqlength argument or Seqinfo-supported genome")

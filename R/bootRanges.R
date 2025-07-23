@@ -40,7 +40,7 @@
 #' @importFrom S4Vectors Rle
 #' @importFrom IRanges IRanges successiveIRanges mid
 #' @importFrom GenomicRanges tileGenome sort GRangesList
-#' @importFrom GenomeInfoDb seqlengths seqlengths<- seqlevels sortSeqlevels genome
+#' @importFrom Seqinfo seqlengths seqlengths<- seqlevels sortSeqlevels genome
 #'
 #' @references
 #'
