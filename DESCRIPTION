@@ -34,6 +34,7 @@ Suggests:
     RcppHMM,
     AnnotationHub,
     ExperimentHub,
+    GenomeInfoDb,
     nullrangesData,
     excluderanges,
     ensembldb,

@@ -55,6 +55,7 @@ R <- 10 # number of iterations of the bootstrap
 # input `ranges` require seqlengths, if missing see `Seqinfo::Seqinfo`
 seqlengths(ranges)
 # next, we remove non-standard chromosomes ...
+library(GenomeInfoDb)  # for keepStandardChromosomes()
 ranges <- keepStandardChromosomes(ranges, pruning.mode="coarse")
 # ... and mitochondrial genome, as these are too short
 seqlevels(ranges, pruning.mode="coarse") <- setdiff(seqlevels(ranges), "MT")
@@ -247,7 +248,7 @@ with our excluded regions and our features of interest (DNase
 hypersensitive sites, or DHS, defined below).
 
 ```{r}
-library(Seqinfo)
+library(GenomeInfoDb)  # for keepStandardChromosomes()
 g <- keepStandardChromosomes(g, pruning.mode = "coarse")
 # MT is too small for bootstrapping, so must be removed
 seqlevels(g, pruning.mode="coarse") <- setdiff(seqlevels(g), "MT")
@@ -544,7 +545,7 @@ code:
 
 ```{r}
 seg <- oneRegionSegment(region, seqlength=248956422)
-y <- keepSeqlevels(y, "chr1")
+seqlevels(y) <- "chr1"
 set.seed(1)
 boot <- bootRanges(y, blockLength=1e5, R=1, seg=seg,
                    proportionLength=FALSE)
