@@ -259,10 +259,10 @@ setMethod("show", "MatchedOverview", function(object) {
 #' 
 #' @inheritParams plotCovariate
 #' @return A list of arguments:
-#' * [`md`] - matched data
-#' * [`cols`] - named color vector
-#' * [`sets`] - parsed sets
-#' * [`lty`] = named linetype vector
+#' * `md` - matched data
+#' * `cols` - named color vector
+#' * `sets` - parsed sets
+#' * `lty` - named linetype vector
 #' @noRd
 parse_plot_args <- function(sets, x){
   
