@@ -14,7 +14,6 @@
 #' @return A `ggplot` set by `type` argument
 #'
 #' @importFrom IRanges findOverlaps
-#' @importFrom plyranges summarise group_by %>%
 #' @importFrom scales breaks_extended label_comma
 #' @importFrom grDevices palette.colors
 #'
@@ -99,8 +98,8 @@ plotSegment <- function(seg, exclude = NULL,
 
   if (identical(type, "barplot")) {
     dat_bar <- dat %>%
-      plyranges::group_by(.data$chr, .data$state) %>%
-      plyranges::summarise(distribution = sum(.data$width))
+      group_by(.data$chr, .data$state) %>%
+      summarise(distribution = sum(.data$width))
     ans <- ggplot(dat_bar, aes(fill = .data$state,
                                y = .data$distribution, x = .data$chr)) +
       geom_bar(position = "fill", stat = "identity") +
