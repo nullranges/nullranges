@@ -20,7 +20,7 @@
 #'   \item counts average number of genes
 #' } 
 #'
-#' @importFrom plyranges filter join_overlap_intersect
+#' @importFrom plyranges join_overlap_intersect
 #'
 #' @references
 #'
@@ -64,7 +64,7 @@ segmentDensity <- function(x, n, L_s = 1e6, exclude = NULL,
     ## TODO: need to keep the gaps with same exclude strand,
     ## here is special case that all strand(exclude) ="*"
     gap <- gaps(exclude, end = seqlengths(x))
-    gap <- plyranges::filter(gap, strand == "*")
+    gap <- filter(gap, strand == "*")
     
     ## the region remove exclude regions
     query_accept <- filter(plyranges::join_overlap_intersect(query, gap),
