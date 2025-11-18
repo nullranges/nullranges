@@ -1,6 +1,6 @@
 Package: nullranges
 Title: Generation of null ranges via bootstrapping or covariate matching
-Version: 1.13.3
+Version: 1.17.1
 Authors@R: c(
     person("Michael", "Love", role = c("aut", "cre"),
       email = "michaelisaiahlove@gmail.com",
@@ -34,6 +34,7 @@ Suggests:
     RcppHMM,
     AnnotationHub,
     ExperimentHub,
+    GenomeInfoDb,
     nullrangesData,
     ensembldb,
     EnsDb.Hsapiens.v86,
@@ -51,7 +52,7 @@ Imports:
     stats,
     IRanges,
     GenomicRanges,
-    GenomeInfoDb,
+    Seqinfo,
     methods,
     rlang,
     S4Vectors,
