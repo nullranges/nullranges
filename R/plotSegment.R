@@ -77,7 +77,7 @@ plotSegment <- function(seg, exclude = NULL,
         x = "start", y = "counts",
         xend = "end", yend = "counts", col = "state"
       ),
-      size = 2.5, data = dat, show.legend = TRUE
+      linewidth = 2.5, data = dat, show.legend = TRUE
       ) +
       scale_color_manual(values = cols) +
       facet_wrap(~chr, ncol = 6) +
@@ -97,9 +97,9 @@ plotSegment <- function(seg, exclude = NULL,
   }
 
   if (identical(type, "barplot")) {
-    dat_bar <- dat %>%
-      group_by(.data$chr, .data$state) %>%
-      summarise(distribution = sum(.data$width))
+    dat_bar <- dat |>
+      dplyr::group_by(.data$chr, .data$state) |>
+      dplyr::summarize(distribution = sum(.data$width))
     ans <- ggplot(dat_bar, aes(fill = .data$state,
                                y = .data$distribution, x = .data$chr)) +
       geom_bar(position = "fill", stat = "identity") +
@@ -110,7 +110,8 @@ plotSegment <- function(seg, exclude = NULL,
 
   if (identical(type, "boxplot")) {
     states <- data.frame(state = factor(seg$state), count = seq2)
-    ans <- ggplot2::ggplot(aes_string(x = "state", y = "count", fill = "state"),
+    ans <- ggplot2::ggplot(aes(x = .data$state, y = .data$count,
+                               fill = .data$state),
                            data = states) +
       geom_boxplot() +
       scale_fill_manual(values = cols) +

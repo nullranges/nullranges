@@ -16,8 +16,8 @@
 #' 
 #' @return a GRanges with metadata columns containing:
 #' \itemize{
-#'   \item state segmentation state
-#'   \item counts average number of genes
+#'   \item state - segmentation state
+#'   \item counts - average number of genes
 #' } 
 #'
 #' @importFrom plyranges join_overlap_intersect
@@ -62,13 +62,13 @@ segmentDensity <- function(x, n, L_s = 1e6, exclude = NULL,
   if (!is.null(exclude)) {
     ## gap will create whole chromosome length ranges
     ## TODO: need to keep the gaps with same exclude strand,
-    ## here is special case that all strand(exclude) ="*"
+    ## here is special case that all strand(exclude) == "*"
     gap <- gaps(exclude, end = seqlengths(x))
-    gap <- filter(gap, strand == "*")
+    gap <- gap[strand(gap) == "*"]
     
-    ## the region remove exclude regions
-    query_accept <- filter(plyranges::join_overlap_intersect(query, gap),
-                           width > L_s / 100)
+    ## the region removing excluded regions
+    query_intx <- plyranges::join_overlap_intersect(query, gap)
+    query_accept <- query_intx[width(query_intx) > L_s / 100]
   } else {
     query_accept <- query
   }

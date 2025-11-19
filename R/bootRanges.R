@@ -110,7 +110,7 @@ bootRanges <- function(y, blockLength, R = 1,
       } else if (excludeOption == "trim") {
         # TODO: place outside of this function, doing gaps once?
         gap <- gaps(exclude, end = seqlengths(y))
-        gap <- filter(gap, strand == "*")
+        gap <- gap[strand(gap) == "*"]
         y_prime <- plyranges::join_overlap_intersect(y_prime, gap)
       }
     }
