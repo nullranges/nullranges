@@ -6,12 +6,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Introduction to nullranges • nullranges</title>
-<!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
-<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png">
-<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png">
-<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png">
-<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png">
+<!-- favicons --><link rel="icon" type="image/png" sizes="48x48" href="../favicon-48x48.png">
+<link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" sizes="any" href="../favicon.ico">
+<link rel="manifest" href="../site.webmanifest">
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
@@ -38,7 +37,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">nullranges</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.13.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.17.2</span>
       </span>
     </div>
 
@@ -184,13 +183,10 @@ local context.</p>
 </h3>
 <p>For general considerations of generation of null feature sets or
 segmentation for enrichment or colocalization analysis, consider the
-papers of <span class="citation">De, Pedersen, and Kechris
-(2014)</span>, <span class="citation">Haiminen, Mannila, and Terzi
-(2007)</span>, <span class="citation">Huen and Russell (2010)</span>,
-<span class="citation">Ferkingstad, Holden, and Sandve (2015)</span>,
-<span class="citation">Dozmorov (2017)</span>, <span class="citation">Kanduri et al. (2019)</span> (with links in references
-below). Other Bioconductor packages that offer randomization techniques
-for enrichment analysis include <a href="https://bioconductor.org/packages/LOLA" class="external-link">LOLA</a> <span class="citation">(Sheffield and Bock 2016)</span> and <a href="https://bioconductor.org/packages/regioneR" class="external-link">regioneR</a> <span class="citation">(Gel et al. 2016)</span>. Methods implemented outside
+papers of <span class="citation">De et al. (2014)</span>, <span class="citation">Haiminen et al. (2007)</span>, <span class="citation">Huen and Russell (2010)</span>, <span class="citation">Ferkingstad et al. (2015)</span>, <span class="citation">Dozmorov (2017)</span>, <span class="citation">Kanduri
+et al. (2019)</span> (with links in references below). Other
+Bioconductor packages that offer randomization techniques for enrichment
+analysis include <a href="https://bioconductor.org/packages/LOLA" class="external-link">LOLA</a> <span class="citation">(Sheffield and Bock 2016)</span> and <a href="https://bioconductor.org/packages/regioneR" class="external-link">regioneR</a> <span class="citation">(Gel et al. 2016)</span>. Methods implemented outside
 of Bioconductor include <a href="https://github.com/AndreasHeger/gat" class="external-link">GAT</a> <span class="citation">(Heger et al. 2013)</span>, <a href="https://github.com/ParkerLab/encodegsc" class="external-link">GSC</a> <span class="citation">(Bickel et al. 2010)</span>, <a href="http://bejerano.stanford.edu/great/public/html/" class="external-link">GREAT</a> <span class="citation">(McLean et al. 2010)</span>, <a href="https://github.com/favorov/GenometriCorr" class="external-link">GenometriCorr</a> <span class="citation">(Favorov et al. 2012)</span>, <a href="http://chip-enrich.med.umich.edu/" class="external-link">ChIP-Enrich</a> <span class="citation">(Welch et al. 2014)</span>, and <a href="https://dputhier.github.io/pygtftk/ologram.html" class="external-link">OLOGRAM</a> <span class="citation">(Ferré et al. 2019)</span>.</p>
 <p>We note that our block bootstrapping approach closely follows that of
 <a href="https://github.com/ParkerLab/encodegsc" class="external-link">GSC</a>, while offering
@@ -204,13 +200,12 @@ distances.</p>
 <em>nullranges</em> is its modularity: it solely generates null or
 background feature sets as Bioconductor objects, such that these can be
 used in workflows that compute and perform inference on arbitrary
-statistics within the <em>plyranges</em> <span class="citation">(Stuart
-Lee, Cook, and Lawrence 2019)</span> framework. We have referred to such
-workflows as “fluent genomics” <span class="citation">(S. Lee, Lawrence,
-and Love 2020)</span>, or “tidy genomics”, as these workflows build up
-complex operations from commonly recognized verbs (filter, mutate, join,
-group by, summarize, etc.) strung together with pipes
-(<code>%&gt;%</code>).</p>
+statistics within the <em>plyranges</em> <span class="citation">(Lee et
+al. 2019)</span> framework. We have referred to such workflows as
+“fluent genomics” <span class="citation">(Lee et al. 2020)</span>, or
+“tidy genomics”, as these workflows build up complex operations from
+commonly recognized verbs (filter, mutate, join, group by, summarize,
+etc.) strung together with pipes (<code>%&gt;%</code>).</p>
 </div>
 <div class="section level3">
 <h3 id="further-description-of-matching-and-bootstrapping">Further description of matching and bootstrapping<a class="anchor" aria-label="anchor" href="#further-description-of-matching-and-bootstrapping"></a>
@@ -222,33 +217,33 @@ and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>.
 To test the significance of this overlap, we calculate the overlap
 expected under the null by generating a null feature set
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mi>′</mi></mrow><annotation encoding="application/x-tex">y'</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>y</mi><mo>′</mo></msup><annotation encoding="application/x-tex">y'</annotation></semantics></math>
 (potentially many times). The null features in
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mi>′</mi></mrow><annotation encoding="application/x-tex">y'</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>y</mi><mo>′</mo></msup><annotation encoding="application/x-tex">y'</annotation></semantics></math>
 may be characterized by:</p>
 <ol style="list-style-type: decimal">
 <li>Drawing from a larger pool
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>z</mi><annotation encoding="application/x-tex">z</annotation></semantics></math>
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mi>′</mi><mo>⊂</mo><mi>z</mi></mrow><annotation encoding="application/x-tex">y' \subset z</annotation></semantics></math>),
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>y</mi><mo>′</mo></msup><mo>⊂</mo><mi>z</mi></mrow><annotation encoding="application/x-tex">y' \subset z</annotation></semantics></math>),
 such that
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>
 and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mi>′</mi></mrow><annotation encoding="application/x-tex">y'</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>y</mi><mo>′</mo></msup><annotation encoding="application/x-tex">y'</annotation></semantics></math>
 have a similar distribution over one or more covariates. This is the
 “matching” case. Note that the features in
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mi>′</mi></mrow><annotation encoding="application/x-tex">y'</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>y</mi><mo>′</mo></msup><annotation encoding="application/x-tex">y'</annotation></semantics></math>
 are original features, just drawn from a different pool than y. The
 <em>matchRanges</em> method is described in <span class="citation">Davis
 et al. (2023)</span> <a href="https://doi.org/10.1101/2022.08.05.502985" class="external-link">doi:
 10.1101/2022.08.05.502985</a>.</li>
 <li>Generating a new set of genomic features
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mi>′</mi></mrow><annotation encoding="application/x-tex">y'</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>y</mi><mo>′</mo></msup><annotation encoding="application/x-tex">y'</annotation></semantics></math>,
 constructing them from the original set
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>
 by selecting blocks of the genome with replacement, i.e. such that
 features can be sampled more than once. This is the “bootstrapping”
 case. Note that, in this case,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mi>′</mi></mrow><annotation encoding="application/x-tex">y'</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>y</mi><mo>′</mo></msup><annotation encoding="application/x-tex">y'</annotation></semantics></math>
 is an artificial feature set, although the re-sampled features can
 retain covariates such as score from the original feature set
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>.
@@ -283,7 +278,7 @@ a function to segment the genome by density of features. For example,
 supposing that
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>
 is a subset of genes, we may want to generate
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mi>′</mi></mrow><annotation encoding="application/x-tex">y'</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>y</mi><mo>′</mo></msup><annotation encoding="application/x-tex">y'</annotation></semantics></math>
 from
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>
 such that features are re-sampled in blocks from segments across the
@@ -296,15 +291,15 @@ diagnostic plots.</p>
 </h3>
 <p>Finally, we recommend to incorporate list of regions where artificial
 features should <em>not</em> be placed, including the ENCODE Exclusion
-List <span class="citation">(Amemiya, Kundaje, and Boyle 2019)</span>.
-This and other excluded ranges are made available in the <a href="https://dozmorovlab.github.io/excluderanges/" class="external-link">excluderanges</a>
+List <span class="citation">(Amemiya et al. 2019)</span>. This and other
+excluded ranges are made available in the <a href="https://dozmorovlab.github.io/excluderanges/" class="external-link">excluderanges</a>
 Bioconductor package by Mikhail Dozmorov <em>et al.</em> <span class="citation">(Ogata et al. 2023)</span>. Use of excluded ranges is
 demonstrated in the segmented block bootstrap vignette.</p>
 </div>
 <div class="section level2">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="refs" class="references csl-bib-body hanging-indent">
 <div id="ref-encode_exclude" class="csl-entry">
 Amemiya, Haley M, Anshul Kundaje, and Alan P Boyle. 2019. <span>“The
 <span>ENCODE</span> Blacklist: Identification of Problematic Regions of
@@ -320,7 +315,7 @@ Inference.”</span> <em>The Annals of Applied Statistics</em> 4 (4):
 Davis, Eric S., Wancen Mu, Stuart Lee, Mikhail G. Dozmorov, Michael I.
 Love, and Douglas H. Phanstiel. 2023. <span>“matchRanges: Generating
 Null Hypothesis Genomic Ranges via Covariate-Matched Sampling.”</span>
-<em>Bioinformatics</em>. <a href="https://doi.org/10.1093/bioinformatics/btad197" class="external-link">https://doi.org/10.1093/bioinformatics/btad197</a>.
+<em>Bioinformatics</em>, ahead of print. <a href="https://doi.org/10.1093/bioinformatics/btad197" class="external-link">https://doi.org/10.1093/bioinformatics/btad197</a>.
 </div>
 <div id="ref-de_2014" class="csl-entry">
 De, Subhajyoti, Brent S Pedersen, and Katerina Kechris. 2014. <span>“The
@@ -335,8 +330,7 @@ analysis to machine learning</span>.”</span> <em>Bioinformatics</em> 33
 (20): 3323–30. <a href="https://doi.org/10.1093/bioinformatics/btx414" class="external-link">https://doi.org/10.1093/bioinformatics/btx414</a>.
 </div>
 <div id="ref-GenometriCorr" class="csl-entry">
-Favorov, Alexander, Loris Mularoni, Leslie M Cope, Yulia Medvedeva,
-Andrey A Mironov, Vsevolod J Makeev, and Sarah J Wheelan. 2012.
+Favorov, Alexander, Loris Mularoni, Leslie M Cope, et al. 2012.
 <span>“Exploring Massive, Genome Scale Datasets with the
 <span>GenometriCorr</span> Package.”</span> <em><span>PLoS</span>
 Computational Biology</em> 8 (5): e1002529. <a href="https://doi.org/10.1371/journal.pcbi.1002529" class="external-link">https://doi.org/10.1371/journal.pcbi.1002529</a>.
@@ -347,8 +341,7 @@ Ferkingstad, Egil, Lars Holden, and Geir Kjetil Sandve. 2015.
 Data</span>.”</span> <em>Statistical Science</em> 30 (1): 59–71. <a href="https://doi.org/10.1214/14-STS484" class="external-link">https://doi.org/10.1214/14-STS484</a>.
 </div>
 <div id="ref-ologram" class="csl-entry">
-Ferré, Q, G Charbonnier, N Sadouni, F Lopez, Y Kermezli, S Spicuglia, C
-Capponi, B Ghattas, and D Puthier. 2019. <span>“<span class="nocase">OLOGRAM: determining significance of total overlap length
+Ferré, Q, G Charbonnier, N Sadouni, et al. 2019. <span>“<span class="nocase">OLOGRAM: determining significance of total overlap length
 between genomic regions sets</span>.”</span> <em>Bioinformatics</em> 36
 (6): 1920–22. <a href="https://doi.org/10.1093/bioinformatics/btz810" class="external-link">https://doi.org/10.1093/bioinformatics/btz810</a>.
 </div>
@@ -398,23 +391,20 @@ A Grammar of Genomic Data Transformation.”</span> <em>Genome
 Biology</em> 20 (1): 4. <a href="https://doi.org/10.1186/s13059-018-1597-8" class="external-link">https://doi.org/10.1186/s13059-018-1597-8</a>.
 </div>
 <div id="ref-GREAT" class="csl-entry">
-McLean, Cory Y., Dave Bristor, Michael Hiller, Shoa L. Clarke, Bruce T.
-Schaar, Craig B. Lowe, Aaron M. Wenger, and Gill Bejerano. 2010.
-<span>“GREAT Improves Functional Interpretation of Cis-Regulatory
-Regions.”</span> <em>Nature Biotechnology</em> 28 (5): 495–501. <a href="https://doi.org/10.1038/nbt.1630" class="external-link">https://doi.org/10.1038/nbt.1630</a>.
+McLean, Cory Y., Dave Bristor, Michael Hiller, et al. 2010. <span>“GREAT
+Improves Functional Interpretation of Cis-Regulatory Regions.”</span>
+<em>Nature Biotechnology</em> 28 (5): 495–501. <a href="https://doi.org/10.1038/nbt.1630" class="external-link">https://doi.org/10.1038/nbt.1630</a>.
 </div>
 <div id="ref-bootRanges" class="csl-entry">
 Mu, Wancen, Eric S. Davis, Stuart Lee, Mikhail G. Dozmorov, Douglas H.
 Phanstiel, and Michael I. Love. 2023. <span>“bootRanges: Flexible
 Generation of Null Sets of Genomic Ranges for Hypothesis
-Testing.”</span> <em>Bioinformatics</em>. <a href="https://doi.org/10.1093/bioinformatics/btad190" class="external-link">https://doi.org/10.1093/bioinformatics/btad190</a>.
+Testing.”</span> <em>Bioinformatics</em>, ahead of print. <a href="https://doi.org/10.1093/bioinformatics/btad190" class="external-link">https://doi.org/10.1093/bioinformatics/btad190</a>.
 </div>
 <div id="ref-excluderanges" class="csl-entry">
-Ogata, Jonathan D., Wancen Mu, Eric S. Davis, Bingjie Xue, J. Chuck
-Harrell, Nathan C. Sheffield, Douglas H. Phanstiel, Michael I. Love, and
-Mikhail G. Dozmorov. 2023. <span>“Excluderanges: Exclusion Sets for
-T2T-CHM13, GRCm39, and Other Genome Assemblies.”</span>
-<em>Bioinformatics</em>. <a href="https://doi.org/10.1093/bioinformatics/btad198" class="external-link">https://doi.org/10.1093/bioinformatics/btad198</a>.
+Ogata, Jonathan D., Wancen Mu, Eric S. Davis, et al. 2023.
+<span>“Excluderanges: Exclusion Sets for T2T-CHM13, GRCm39, and Other
+Genome Assemblies.”</span> <em>Bioinformatics</em>, ahead of print. <a href="https://doi.org/10.1093/bioinformatics/btad198" class="external-link">https://doi.org/10.1093/bioinformatics/btad198</a>.
 </div>
 <div id="ref-LOLA" class="csl-entry">
 Sheffield, Nathan C, and Christoph Bock. 2016. <span>“<span>LOLA</span>:
@@ -422,11 +412,8 @@ Enrichment Analysis for Genomic Region Sets and Regulatory Elements in r
 and Bioconductor.”</span> <em>Bioinformatics</em> 32 (4): 587–89. <a href="https://doi.org/10.1093/bioinformatics/btv612" class="external-link">https://doi.org/10.1093/bioinformatics/btv612</a>.
 </div>
 <div id="ref-ChIP-Enrich" class="csl-entry">
-Welch, Ryan P., Chee Lee, Paul M. Imbriano, Snehal Patil, Terry E.
-Weymouth, R. Alex Smith, Laura J. Scott, and Maureen A. Sartor. 2014.
-<span>“<span class="nocase">ChIP-Enrich: gene set enrichment testing for
-ChIP-seq data</span>.”</span> <em>Nucleic Acids Research</em> 42 (13):
-e105–5. <a href="https://doi.org/10.1093/nar/gku463" class="external-link">https://doi.org/10.1093/nar/gku463</a>.
+Welch, Ryan P., Chee Lee, Paul M. Imbriano, et al. 2014. <span>“<span class="nocase">ChIP-Enrich: gene set enrichment testing for ChIP-seq
+data</span>.”</span> <em>Nucleic Acids Research</em> 42 (13): e105–5. <a href="https://doi.org/10.1093/nar/gku463" class="external-link">https://doi.org/10.1093/nar/gku463</a>.
 </div>
 </div>
 </div>
@@ -447,7 +434,7 @@ e105–5. <a href="https://doi.org/10.1093/nar/gku463" class="external-link">htt
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
       </footer>
