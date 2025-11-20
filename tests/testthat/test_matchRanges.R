@@ -4,6 +4,7 @@ library(MatchIt)
 test_that("Coerce MatchIt to Matched subclasses", {
   
   skip_if_not_installed("MatchIt")
+  skip_if_not_installed("mariner")
   
   ## Matched and MatchedDataFrame ----------------------------------------------
   ## Create example data.frame dataset
