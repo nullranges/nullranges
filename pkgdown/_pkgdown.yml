@@ -81,3 +81,4 @@ reference:
     contents:
       - combnCov
       - makeExampleMatchedDataSet
+      - matchitToMatched
