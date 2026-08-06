@@ -46,7 +46,7 @@ eh <- ExperimentHub()
 ah <- AnnotationHub()
 # some default resources:
 seg <- eh[["EH7307"]] # pre-built genome segmentation for hg38
-exclude <- ah[["AH107305"]] # Kundaje excluded regions for hg38, see below
+exclude <- plyranges::read_bed("exclude.bed") # see below
 
 set.seed(5) # set seed for reproducibility
 blockLength <- 5e5 # size of blocks to bootstrap
@@ -166,17 +166,21 @@ other excludable sets, are assembled in the
 ```{r excluderanges}
 suppressPackageStartupMessages(library(AnnotationHub))
 ah <- AnnotationHub()
-# hg38.Kundaje.GRCh38_unified_Excludable
-exclude_1 <- ah[["AH107305"]]
+
 # hg38.UCSC.centromere
-exclude_2 <- ah[["AH107354"]]
+exclude_centro <- query(ah, c("hg38", "UCSC", "centromere"))[[1]]
 # hg38.UCSC.telomere
-exclude_3 <- ah[["AH107355"]]
+exclude_telo <- query(ah, c("hg38", "UCSC", "telomere"))[[1]]
 # hg38.UCSC.short_arm
-exclude_4 <- ah[["AH107356"]]
+exclude_short <- query(ah, c("hg38", "UCSC", "short_arm"))[[1]]
+
 # combine them
 suppressWarnings({
-  exclude <- trim(c(exclude_1, exclude_2, exclude_3, exclude_4))
+  exclude <- trim(c(
+    exclude_centro,
+    exclude_telo,
+    exclude_short
+  ))
 })
 exclude <- sort(GenomicRanges::reduce(exclude))
 ```
