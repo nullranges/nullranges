@@ -1,3 +1,7 @@
+# nullranges 1.19.2
+
+* Trimming boot vignette 
+
 # nullranges 1.13.1
 
 * Removing unevaluated code in vignette
