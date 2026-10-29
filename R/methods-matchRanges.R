@@ -194,32 +194,38 @@ rsMatch <- function(fps, pps, replace) {
 #'   and their corresponding indices.
 #' @param n The number of bins used for stratifying
 #'   propensity scores.
-#' @return A `data.table` of strata with fps, pps, and
-#'   their respective indices for each bin.
+#' @return `NULL` when no bin can be sampled, otherwise a list
+#'   with `fpsIndices` and `ppsIndices`, the focal and pool
+#'   indices of each bin holding at least one focal and no fewer
+#'   pool than focal, in the order the bins first appear in `pm`.
 #' @noRd
 stratify <- function(fm, pm, n) {
-
-  fpsIndex <- NULL
-  ppsIndex <- NULL
-  bin <- NULL
 
   ## Define breaks using fps and pps
   mn <- min(c(fm$fps, pm$pps))
   mx <- max(c(fm$fps, pm$pps))
   br <- seq(from=mn, to=mx, by=(mx-mn)/n)
 
-  ## Assign fps and pps to bin
-  fm$bin <- .bincode(fm$fps, br, include.lowest = TRUE)
-  pm$bin <- .bincode(pm$pps, br, include.lowest = TRUE)
+  ## Assign fps and pps to bin; values outside the breaks (NA)
+  ## form one more bin, as NA matches NA in a data.table join
+  fbin <- .bincode(fm$fps, br, include.lowest = TRUE)
+  pbin <- .bincode(pm$pps, br, include.lowest = TRUE)
+  nb <- length(br)
+  fbin[is.na(fbin)] <- nb
+  pbin[is.na(pbin)] <- nb
 
-  ## Assign indices to bins
-  fpsBins <- fm[, .(fpsN = .N, fpsIndices = list(fpsIndex)), by = bin]
-  ppsBins <- pm[, .(ppsN = .N, ppsIndices = list(ppsIndex)), by = bin]
+  ## Bins that can be sampled
+  fpsN <- tabulate(fbin, nb)
+  ppsN <- tabulate(pbin, nb)
+  ok <- fpsN > 0L & fpsN <= ppsN
+  if (!any(ok)) return(NULL)
 
-  ## Define strata by joining fps and pps on bins
-  strata <- fpsBins[ppsBins, on = 'bin']
-
-  return(strata)
+  ## Gather indices of those bins only, keeping row order
+  pq <- which(ok[pbin])
+  fq <- which(ok[fbin])
+  bins <- unique(pbin[pq])
+  list(fpsIndices = split(fm$fpsIndex[fq], factor(fbin[fq], levels = bins)),
+       ppsIndices = split(pm$ppsIndex[pq], factor(pbin[pq], levels = bins)))
 
 }
 
@@ -228,11 +234,10 @@ stratify <- function(fm, pm, n) {
 #' @noRd
 ssMatch <- function(fps, pps, replace) {
   ## Suppress R CMD CHECK Note
-  fpsN <- ppsN <- bin <- NULL 
-  fpsIndices <- ppsIndices <- fpsIndex <- ppsIndex <- NULL
+  fpsIndex <- ppsIndex <- NULL
 
   ## Initialize results, fpsOptions and ppsOptions
-  results <- data.table(bin=integer(), fpsIndex=integer(), ppsIndex=integer())
+  results <- data.table(fpsIndex=integer(), ppsIndex=integer())
   fpsOptions <- data.table(fps, val = fps, fpsIndex = seq_along(fps))
   ppsOptions <- data.table(pps, val = pps, ppsIndex = seq_along(pps))
 
@@ -253,7 +258,7 @@ ssMatch <- function(fps, pps, replace) {
 
     ## Stratify ps by bins and match focal and pool
     strata <- stratify(fpsOptions, ppsOptions, n)
-    while (nrow(strata[!is.na(fpsN) & fpsN <= ppsN]) == 0) {
+    while (is.null(strata)) {
       ## Enter faster n searching
       skip <- TRUE
       n <- floor(n/2)
@@ -266,12 +271,12 @@ ssMatch <- function(fps, pps, replace) {
               ratio = nrow(results)/length(fps))
     i <- i + 1
 
-    ## Assign indices that can be sampled
-    result <-
-      strata[!is.na(fpsN) & fpsN <= ppsN,
-             .(fpsIndex = unlist(fpsIndices),
-               ppsIndex = sample.vec(unlist(ppsIndices), fpsN, replace = replace)),
-             by = bin]
+    ## Assign indices that can be sampled, bin by bin
+    ppsSampled <- lapply(seq_along(strata$ppsIndices), function(k)
+      sample.vec(strata$ppsIndices[[k]], length(strata$fpsIndices[[k]]),
+                 replace = replace))
+    result <- data.table(fpsIndex = unlist(strata$fpsIndices, use.names = FALSE),
+                         ppsIndex = unlist(ppsSampled, use.names = FALSE))
 
     ## Append to results
     results <- rbind(results, result)
