@@ -71,15 +71,17 @@ getIndices <- function(x, set) {
   ## Get set argument
   set <- match.arg(set, choices=c("focal","matched","pool","unmatched"))
 
-  ## Get the length of each focal and pool
-  n_focal <- nrow(x@matchedData[set == 'focal'])
-  n_pool  <- nrow(x@matchedData[set == 'pool'])
-
-  if (set == 'focal')
-    return(seq_len(n_focal))
-
   if (set == 'matched')
     return(x@matchedIndex)
+
+  ## Count rows of the focal or pool set without subsetting matchedData;
+  ## an NA in `set` counts as neither, as it does in a data.table subset
+  sets <- x@matchedData[["set"]]
+
+  if (set == 'focal')
+    return(seq_len(sum(sets == 'focal', na.rm = TRUE)))
+
+  n_pool <- sum(sets == 'pool', na.rm = TRUE)
 
   if (set == 'unmatched')
     return(which(!(seq_len(n_pool)) %in% x@matchedIndex))

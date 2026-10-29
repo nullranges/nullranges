@@ -309,10 +309,12 @@ ssMatch <- function(fps, pps, replace) {
 #'   Contains id column for designating whether covariates
 #'   belong in focal or pool (1 or 0, respectively), and
 #'   columns for the values of each covariate.
+#' @param nf The number of focal rows: rows 1..nf of `covarData` are
+#'   focal and the rest are pool.
 #' @inheritParams matchRanges
 #' @return A `Matched` object.
 #' @noRd
-propensityMatch <- function(covarData, covars, method, replace) {
+propensityMatch <- function(covarData, covars, method, replace, nf) {
 
   ## Assemble covariate formula
   f <- as.formula(paste("id ~", paste(covars, collapse = "+")))
@@ -330,11 +332,14 @@ propensityMatch <- function(covarData, covars, method, replace) {
   ps <- NULL
 
   psData <- data.table(ps = predict(model, type = "response"), id = covarData$id)
-  fps <- psData[id == 1, ps]
-  pps <- psData[id == 0, ps]
+  focalRows <- seq_len(nf)
+  poolRows <- nf + seq_len(nrow(covarData) - nf)
+  fps <- psData$ps[focalRows]
+  pps <- psData$ps[poolRows]
 
-  ## Add propensity scores to covarData
-  covarData$ps <- psData$ps
+  ## Add propensity scores to covarData (by reference: covarData is the
+  ## caller's temporary)
+  set(covarData, j = "ps", value = psData$ps)
 
   ## Implement matching method w or w/o replacement
   if (method == 'nearest' & isTRUE(replace))
@@ -357,11 +362,12 @@ propensityMatch <- function(covarData, covars, method, replace) {
 
 
   ## Assemble information by set
+  poolData <- covarData[poolRows]
   matchedData <- rbind(
-    covarData[id == 1, c(.SD, set = 'focal')],
-    covarData[id == 0][mdt$ppsIndex, c(.SD, set = 'matched')],
-    covarData[id == 0, c(.SD, set = 'pool')],
-    covarData[id == 0][!mdt$ppsIndex, c(.SD, set = 'unmatched')]
+    covarData[focalRows, c(.SD, set = 'focal')],
+    poolData[mdt$ppsIndex, c(.SD, set = 'matched')],
+    poolData[, c(.SD, set = 'pool')],
+    poolData[!mdt$ppsIndex, c(.SD, set = 'unmatched')]
   )
 
   ## Matched indicies
@@ -408,13 +414,23 @@ matchRanges_Core <- function(focal, pool, covar, method, replace) {
   if (method == 'stratified' & nrow(focal) >= nrow(pool))
     stop("focal must be <= pool for stratified sampling.")
 
+  ## id: focal "1", pool "0", equal to factor(c(rep(1, nf), rep(0, np))),
+  ## built directly because factor() converts a double vector to character
+  nf <- nrow(focal)
+  np <- nrow(pool)
+  if (nf >= 1L && np >= 1L) {
+    ids <- structure(c(rep(2L, nf), rep(1L, np)),
+                     levels = c("0", "1"), class = "factor")
+  } else {
+    ids <- factor(c(rep(1, nf), rep(0, np)))
+  }
+
   ## Create data table with covariate data
-  covarData <- as.data.table(cbind(id = factor(c(rep(1, nrow(focal)),
-                                                 rep(0, nrow(pool)))),
+  covarData <- as.data.table(cbind(id = ids,
                                    rbind(focal[covars], pool[covars])))
 
   ## Calculate propensity scores and match data
-  md <- propensityMatch(covarData, covars, method, replace)
+  md <- propensityMatch(covarData, covars, method, replace, nf = nrow(focal))
 
   return(md)
 }
@@ -434,16 +450,17 @@ matchRanges_MatchedDataFrame <- function(focal, pool, covar, method, replace) {
 
   ## Execute shared GRanges/GInteractions matching code
   md <- matchRanges_Core(f, p, covar, method, replace)
+  idx <- indices(md)
 
   ## Combine matched data into MatchedDataFrame class
   obj <- MatchedDataFrame(focal = f,
                           pool  = p,
                           matchedData = matchedData(md),
-                          matchedIndex = indices(md),
+                          matchedIndex = idx,
                           covar = covariates(md),
                           method = method(md),
                           replace = withReplacement(md),
-                          delegate = pool[indices(md),])
+                          delegate = pool[idx,])
 
   ## Return MatchedDataFrame object
   return(obj)
@@ -592,16 +609,17 @@ matchRanges_MatchedGRanges <- function(focal, pool, covar, method, replace) {
 
   ## Execute matching code to get a Matched object
   md <- matchRanges_Core(f, p, covar, method, replace)
+  idx <- indices(md)
 
   ## Combine matched data into MatchedGRanges class
   obj <- MatchedGRanges(focal = focal,
                         pool = pool,
                         matchedData = matchedData(md),
-                        matchedIndex = indices(md),
+                        matchedIndex = idx,
                         covar = covariates(md),
                         method = method(md),
                         replace = withReplacement(md),
-                        delegate = pool[indices(md)])
+                        delegate = pool[idx])
 
   ## Return MatchedGRanges object
   return(obj)
@@ -633,16 +651,17 @@ matchRanges_MatchedGInteractions <- function(focal, pool, covar, method, replace
 
   ## Execute matching code to get a Matched object
   md <- matchRanges_Core(f, p, covar, method, replace)
+  idx <- indices(md)
 
   ## Combine matched data into MatchedGInteractions class
   obj <- MatchedGInteractions(focal = focal,
                               pool = pool,
                               matchedData = matchedData(md),
-                              matchedIndex = indices(md),
+                              matchedIndex = idx,
                               covar = covariates(md),
                               method = method(md),
                               replace = withReplacement(md),
-                              delegate = pool[indices(md)])
+                              delegate = pool[idx])
 
   ## Return MatchedGInteractions object
   return(obj)
