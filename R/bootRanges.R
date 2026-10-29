@@ -87,6 +87,14 @@ bootRanges <- function(y, blockLength, R = 1,
     stopifnot("state" %in% names(mcols(seg)))
   }
 
+  # done once for all replicates; skipped, with its checks, when R < 1
+  if (is.null(seg) && R >= 1) {
+    unseg_setup <- unseg_bootstrap_setup(
+      y = y, L_b = blockLength, type = type,
+      within_chrom = withinChrom
+    )
+  }
+
   br <- replicate(R, {
     if (!is.null(seg)) {
       y_prime <- seg_bootstrap(
@@ -97,10 +105,7 @@ bootRanges <- function(y, blockLength, R = 1,
         proportion_length = proportionLength
       )
     } else {
-      y_prime <- unseg_bootstrap(
-        y = y, L_b = blockLength, type = type,
-        within_chrom = withinChrom
-      )
+      y_prime <- unseg_bootstrap(unseg_setup)
     }
 
     # deal with exclude regions:

@@ -1,6 +1,9 @@
-unseg_bootstrap <- function(y, L_b,
-                            type = c("bootstrap", "permute"),
-                            within_chrom = FALSE) {
+# The part of the un-segmented bootstrap that does not depend on the
+# random draws: checks, chromosome table and the tiling blocks.
+# bootRanges() calls it once and passes the result to every replicate.
+unseg_bootstrap_setup <- function(y, L_b,
+                                  type = c("bootstrap", "permute"),
+                                  within_chrom = FALSE) {
   type <- match.arg(type)
   chrom_lens <- seqlengths(y)
   # TODO: what kind of solution do we want for this?
@@ -8,12 +11,38 @@ unseg_bootstrap <- function(y, L_b,
   stopifnot(all(chrom_lens >= L_b))
   tab <- table(seqnames(y))
   chroms <- names(tab)
+  blocks <- NULL
+  if (!within_chrom) {
+    # TODO: code assumes sorted 'y'
+    stopifnot(all(y == GenomicRanges::sort(y)))
+    # TODO: what happens when no features occur on a chromosome?
+    blocks <- GenomicRanges::tileGenome(seqlengths=chrom_lens,
+                                        tilewidth=L_b,
+                                        cut.last.tile.in.chrom=TRUE)
+    if (type == "permute") {
+      # pass along the full seqlengths of 'y'
+      seqlengths(blocks) <- seqlengths(y)
+      mcols(y)$block <- GenomicRanges::findOverlaps(y, blocks, select = "first")
+    }
+  }
+  list(y = y, L_b = L_b, type = type, within_chrom = within_chrom,
+       chrom_lens = chrom_lens, chroms = chroms, blocks = blocks)
+}
+
+# One un-segmented bootstrap (or permutation) replicate
+#
+# @param setup the output of unseg_bootstrap_setup()
+unseg_bootstrap <- function(setup) {
+  y <- setup$y
+  L_b <- setup$L_b
+  type <- setup$type
+  chrom_lens <- setup$chrom_lens
   # first, simple case: sampling or permuting within chrom
 
   # TODO this loses the metadata columns right now...
 
-  if (within_chrom) {
-    r_primes <- lapply(chroms, function(chr) {
+  if (setup$within_chrom) {
+    r_primes <- lapply(setup$chroms, function(chr) {
       # the length of the chromosomes
       L_s <- chrom_lens[[chr]]
       # the ranges on this chromosome
@@ -27,15 +56,12 @@ unseg_bootstrap <- function(y, L_b,
     })
     y_prime <- do.call(c, r_primes)
   } else {
-    # TODO: code assumes sorted 'y'
-    stopifnot(all(y == GenomicRanges::sort(y)))
-    # TODO: what happens when no features occur on a chromosome?
     # L_s is now a vector of the chromosome lengths
     L_s <- chrom_lens
     y_prime <- if (type == "bootstrap") {
-      unseg_bootstrap_across_chrom(y, L_b, L_s)
+      unseg_bootstrap_across_chrom(y, L_b, L_s, setup$blocks)
     } else if (type == "permute") {
-      unseg_permute_across_chrom(y, L_b, L_s)
+      unseg_permute_across_chrom(y, setup$blocks)
     }
   }
   y_prime
@@ -113,7 +139,9 @@ unseg_permute_within_chrom <- function(y, L_b, L_s=NULL, chr=NULL) {
 # @param y the input GRanges
 # @param L_b the length of the blocks
 # @param L_s the lengths of the chromosomes
-unseg_bootstrap_across_chrom <- function(y, L_b, L_s) {
+# @param rearranged_blocks the blocks tiling the genome (tileGenome),
+# where the bait blocks will move to
+unseg_bootstrap_across_chrom <- function(y, L_b, L_s, rearranged_blocks) {
   # blocks allowed to go over L_s
   n_per_chrom  <- ceiling(L_s / L_b)
   # total number of tiling blocks
@@ -125,10 +153,6 @@ unseg_bootstrap_across_chrom <- function(y, L_b, L_s) {
   # these blocks are the 'bait' for capturing features in 'y'
   random_blocks <- GenomicRanges::GRanges(seqnames=random_chr,
                            ranges=IRanges::IRanges(start = random_start, width = L_b))
-  # where those blocks will move to
-  rearranged_blocks <- GenomicRanges::tileGenome(seqlengths=L_s,
-                                                 tilewidth=L_b,
-                                                 cut.last.tile.in.chrom=TRUE)
   # use the bait to sample features in 'y'
   fo <- GenomicRanges::findOverlaps(random_blocks, y)
   # y has been sampled multiple times
@@ -144,15 +168,10 @@ unseg_bootstrap_across_chrom <- function(y, L_b, L_s) {
 
 # Permute blocks of GRanges across chomosome
 #
-# @param y the input GRanges
-# @param L_b the length of the blocks
-# @param L_s the lengths of the chromosomes
-unseg_permute_across_chrom <- function(y, L_b, L_s) {
-  blocks <- GenomicRanges::tileGenome(seqlengths=L_s, tilewidth=L_b,
-                       cut.last.tile.in.chrom=TRUE)
-    # pass along the full seqlengths of 'y'
-  seqlengths(blocks) <- seqlengths(y)
-  mcols(y)$block <- GenomicRanges::findOverlaps(y, blocks, select = "first")
+# @param y the input GRanges, with the block each range falls into
+# in mcols(y)$block
+# @param blocks the blocks tiling the genome (tileGenome)
+unseg_permute_across_chrom <- function(y, blocks) {
   perm <- sample(length(blocks))
   rearranged_blocks <- blocks[perm]
   # this operation loses some ranges:
