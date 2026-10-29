@@ -3,6 +3,13 @@
 #include <limits.h>
 #include <stdint.h>
 #include <string.h>
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+
+/* at most this many threads, and only from this many bait blocks */
+#define MOVED_MAX_THREADS 4
+#define MOVED_PAR_MIN 16384
 
 /* R's integer + and - give NA outside [-INT_MAX, INT_MAX] */
 #define INT_OK(v) ((v) <= INT_MAX && (v) >= -(int64_t) INT_MAX)
@@ -143,6 +150,166 @@ static inline int ex_count(int mode, const int *xs, const int *xe, int lo,
 	while (j < hi && xs[j] <= ne)
 		j++;
 	return j - a;
+}
+
+/* What both passes read: the bait blocks, y sorted by seqlevel with its
+ * bucket tables, the targets and the exclude tables */
+typedef struct {
+	const int *bc, *bs, *bw, *shift, *tc, *seqlen, *bounded;
+	const int *ys, *ye, *yw, *em, *n_short, *seg, *o;
+	const int *t_start, *t_max;
+	const buckets *bk_start, *bk_max;
+	const int *xseg, *xs, *xe;
+	int mode, n_lev;
+	R_xlen_t n_t, n_t_rep, n_blocks;
+	int *first, *last;
+	unsigned char *plain;
+} moved_ctx;
+
+/* Pass 1 over blocks [b0, b1): each block's candidates, the checks R makes
+ * over the hits, and the numbers of hits and rows kept; 0 where R declines */
+static int moved_pass1(const moved_ctx *x, R_xlen_t b0, R_xlen_t b1,
+	R_xlen_t *hits, R_xlen_t *keeps)
+{
+	const int mode = x->mode, n_lev = x->n_lev;
+	const int *ys = x->ys, *ye = x->ye, *yw = x->yw, *em = x->em;
+	const int *xseg = x->xseg, *xs = x->xs, *xe = x->xe;
+	R_xlen_t n_hit = 0, n_keep = 0;
+	int ex_prev = 0, ex_k = 0;
+	for (R_xlen_t b = b0; b < b1; b++) {
+		int c = x->bc[b] - 1, cs = x->seg[c], ce = x->seg[c + 1];
+		int lo = count_le(em, cs, ce, x->bk_max + c, x->t_max,
+			(int64_t) x->bs[b] - 1);
+		int hi = count_le(ys, cs, ce, x->bk_start + c, x->t_start,
+			(int64_t) x->bs[b] + x->bw[b] - 1);
+		x->first[b] = lo;
+		x->last[b] = hi;
+		x->plain[b] = 0;
+		if (lo >= hi)
+			continue;
+		int sh = x->shift[b];
+		int code = b < x->n_t_rep ? x->tc[b % x->n_t] : NA_INTEGER;
+		int bstart = x->bs[b];
+		if (x->n_short[hi] == x->n_short[lo] && sh != NA_INTEGER &&
+			code != NA_INTEGER && code >= 1 && code <= n_lev) {
+			int64_t s0 = (int64_t) ys[lo] + sh, e1 = (int64_t) em[hi - 1] + sh;
+			if (x->bounded[code - 1] ? (s0 >= 1 && e1 <= x->seqlen[code - 1]) :
+				(INT_OK(s0) && INT_OK(e1))) {
+				int ok = 1;
+				if (mode != 0) {
+					int xlo = xseg[code - 1], xhi = xseg[code];
+					int a = first_end_ge(xe, xlo, xhi, ex_k,
+						code == ex_prev, (int) s0);
+					ex_prev = code;
+					ex_k = a;
+					ok = mode == 1 ? (a == xhi || xs[a] > e1) :
+						(a < xhi && xs[a] <= s0 && e1 <= xe[a]);
+				}
+				if (ok) {
+					x->plain[b] = 1;
+					n_hit += hi - lo;
+					n_keep += hi - lo;
+					continue;
+				}
+			}
+		}
+		for (int k = lo; k < hi; k++) {
+			if (ye[k] < bstart)
+				continue;
+			n_hit++;
+			int ns, nw;
+			if (sh == NA_INTEGER || code == NA_INTEGER || code < 1 ||
+				code > n_lev || !move_one(ys[k], yw[k], sh, code, x->seqlen,
+				x->bounded, &ns, &nw))
+				return 0;
+			if (nw <= 0)
+				continue;
+			if (mode == 0) {
+				n_keep++;
+				continue;
+			}
+			n_keep += ex_count(mode, xs, xe, xseg[code - 1], xseg[code], &ex_k,
+				code == ex_prev, ns, ns + (nw - 1));
+			ex_prev = code;
+		}
+	}
+	*hits = n_hit;
+	*keeps = n_keep;
+	return 1;
+}
+
+/* Pass 2 over blocks [b0, b1): their rows, written from row 'at' of out */
+static void moved_pass2(const moved_ctx *x, R_xlen_t b0, R_xlen_t b1,
+	R_xlen_t at, int *const *out)
+{
+	const int mode = x->mode;
+	const int *ys = x->ys, *ye = x->ye, *yw = x->yw, *o = x->o;
+	const int *xseg = x->xseg, *xs = x->xs, *xe = x->xe;
+	int ex_prev = 0, ex_k = 0;
+	for (R_xlen_t b = b0; b < b1; b++) {
+		int lo = x->first[b], hi = x->last[b];
+		if (lo >= hi)
+			continue;
+		int sh = x->shift[b];
+		int code = x->tc[b % x->n_t];
+		int bstart = x->bs[b];
+		int rep = (int) (b / x->n_blocks) + 1;
+		if (x->plain[b]) {
+			for (int k = lo; k < hi; k++, at++) {
+				out[0][at] = (o == NULL ? k : o[k]) + 1;
+				out[1][at] = code;
+				out[2][at] = ys[k] + sh;
+				out[3][at] = yw[k];
+				out[4][at] = rep;
+			}
+			continue;
+		}
+		int xlo = mode != 0 ? xseg[code - 1] : 0;
+		int xhi = mode != 0 ? xseg[code] : 0;
+		for (int k = lo; k < hi; k++) {
+			if (ye[k] < bstart)
+				continue;
+			/* pass 1 checked that move_one() succeeds here */
+			int ns = 0, nw = 0;
+			move_one(ys[k], yw[k], sh, code, x->seqlen, x->bounded, &ns, &nw);
+			if (nw <= 0)
+				continue;
+			int s_k = (o == NULL ? k : o[k]) + 1;
+			if (mode == 0) {
+				out[0][at] = s_k;
+				out[1][at] = code;
+				out[2][at] = ns;
+				out[3][at] = nw;
+				out[4][at] = rep;
+				at++;
+				continue;
+			}
+			int ne = ns + (nw - 1);
+			int a = first_end_ge(xe, xlo, xhi, ex_k, code == ex_prev, ns);
+			ex_prev = code;
+			ex_k = a;
+			if (mode == 1) {
+				if (a < xhi && xs[a] <= ne)
+					continue;
+				out[0][at] = s_k;
+				out[1][at] = code;
+				out[2][at] = ns;
+				out[3][at] = nw;
+				out[4][at] = rep;
+				at++;
+				continue;
+			}
+			for (int j = a; j < xhi && xs[j] <= ne; j++, at++) {
+				int ps = ns > xs[j] ? ns : xs[j];
+				int pe = ne < xe[j] ? ne : xe[j];
+				out[0][at] = s_k;
+				out[1][at] = code;
+				out[2][at] = ps;
+				out[3][at] = pe - ps + 1;
+				out[4][at] = rep;
+			}
+		}
+	}
 }
 
 /* The moved ranges of every bait block in one pass: per block, in order,
@@ -292,74 +459,54 @@ static SEXP moved_impl(SEXP b_code_, SEXP b_start_, SEXP b_width_,
 	fill_buckets(ys, seg, n_lev, bk_start, t_start);
 	fill_buckets(em, seg, n_lev, bk_max, t_max);
 
-	/* pass 1: each block's candidates, the checks R makes over the hits,
-	 * and the number of rows kept */
-	const int *shift = INTEGER(shift_), *tc = INTEGER(t_code_);
-	const int *seqlen = INTEGER(seqlen_), *bounded = LOGICAL(bounded_);
-	int *first = (int *) R_alloc(n, sizeof(int));
-	int *last = (int *) R_alloc(n, sizeof(int));
-	/* a block whose candidates are all hits, moved without overflow or
-	 * trimming, and, with an exclude step, overlapping no interval (drop)
-	 * or inside one gap (trim): every row kept as it is */
-	unsigned char *plain = (unsigned char *) R_alloc(n, 1);
-	R_xlen_t n_t_rep = n_t * (R_xlen_t) n_rep;
+	/* the blocks in chunks of consecutive blocks: pass 1 counts each
+	 * chunk's rows, and pass 2 writes them from the sum of the counts
+	 * before it, so the rows land as one pass in block order puts them.
+	 * The answer for an exclude interval does not depend on the previous
+	 * row's, which each chunk starts without. */
+	int n_thr = 1;
+#ifdef _OPENMP
+	if (n >= MOVED_PAR_MIN) {
+		n_thr = omp_get_max_threads();
+		if (n_thr > MOVED_MAX_THREADS)
+			n_thr = MOVED_MAX_THREADS;
+		if (n_thr < 1)
+			n_thr = 1;
+	}
+#endif
+	int n_chunk = n_thr == 1 ? 1 : 8 * n_thr;
+	R_xlen_t *c_hit = (R_xlen_t *) R_alloc(n_chunk, sizeof(R_xlen_t));
+	R_xlen_t *c_keep = (R_xlen_t *) R_alloc(n_chunk, sizeof(R_xlen_t));
+	int *c_ok = (int *) R_alloc(n_chunk, sizeof(int));
+	moved_ctx x = {
+		.bc = bc, .bs = bs, .bw = bw, .shift = INTEGER(shift_),
+		.tc = INTEGER(t_code_), .seqlen = INTEGER(seqlen_),
+		.bounded = LOGICAL(bounded_), .ys = ys, .ye = ye, .yw = yw, .em = em,
+		.n_short = n_short, .seg = seg, .o = o, .t_start = t_start,
+		.t_max = t_max, .bk_start = bk_start, .bk_max = bk_max, .xseg = xseg,
+		.xs = xs, .xe = xe, .mode = mode, .n_lev = n_lev, .n_t = n_t,
+		.n_t_rep = n_t * (R_xlen_t) n_rep, .n_blocks = n_blocks,
+		.first = (int *) R_alloc(n, sizeof(int)),
+		.last = (int *) R_alloc(n, sizeof(int)),
+		.plain = (unsigned char *) R_alloc(n, 1)
+	};
+
+	/* pass 1 */
+#ifdef _OPENMP
+#pragma omp parallel for num_threads(n_thr) schedule(dynamic, 1) if(n_thr > 1)
+#endif
+	for (int c = 0; c < n_chunk; c++)
+		c_ok[c] = moved_pass1(&x, n * c / n_chunk, n * (c + 1) / n_chunk,
+			c_hit + c, c_keep + c);
 	R_xlen_t n_hit = 0, n_keep = 0;
-	int ex_prev = 0, ex_k = 0;
-	for (R_xlen_t b = 0; b < n; b++) {
-		int c = bc[b] - 1, cs = seg[c], ce = seg[c + 1];
-		int lo = count_le(em, cs, ce, bk_max + c, t_max, (int64_t) bs[b] - 1);
-		int hi = count_le(ys, cs, ce, bk_start + c, t_start,
-			(int64_t) bs[b] + bw[b] - 1);
-		first[b] = lo;
-		last[b] = hi;
-		plain[b] = 0;
-		if (lo >= hi)
-			continue;
-		int sh = shift[b];
-		int code = b < n_t_rep ? tc[b % n_t] : NA_INTEGER;
-		int bstart = bs[b];
-		if (n_short[hi] == n_short[lo] && sh != NA_INTEGER &&
-			code != NA_INTEGER && code >= 1 && code <= n_lev) {
-			int64_t s0 = (int64_t) ys[lo] + sh, e1 = (int64_t) em[hi - 1] + sh;
-			if (bounded[code - 1] ? (s0 >= 1 && e1 <= seqlen[code - 1]) :
-				(INT_OK(s0) && INT_OK(e1))) {
-				int ok = 1;
-				if (mode != 0) {
-					int xlo = xseg[code - 1], xhi = xseg[code];
-					int a = first_end_ge(xe, xlo, xhi, ex_k,
-						code == ex_prev, (int) s0);
-					ex_prev = code;
-					ex_k = a;
-					ok = mode == 1 ? (a == xhi || xs[a] > e1) :
-						(a < xhi && xs[a] <= s0 && e1 <= xe[a]);
-				}
-				if (ok) {
-					plain[b] = 1;
-					n_hit += hi - lo;
-					n_keep += hi - lo;
-					continue;
-				}
-			}
-		}
-		for (int k = lo; k < hi; k++) {
-			if (ye[k] < bstart)
-				continue;
-			n_hit++;
-			int ns, nw;
-			if (sh == NA_INTEGER || code == NA_INTEGER || code < 1 ||
-				code > n_lev ||
-				!move_one(ys[k], yw[k], sh, code, seqlen, bounded, &ns, &nw))
-				return R_NilValue;
-			if (nw <= 0)
-				continue;
-			if (mode == 0) {
-				n_keep++;
-				continue;
-			}
-			n_keep += ex_count(mode, xs, xe, xseg[code - 1], xseg[code], &ex_k,
-				code == ex_prev, ns, ns + (nw - 1));
-			ex_prev = code;
-		}
+	for (int c = 0; c < n_chunk; c++)
+		if (!c_ok[c])
+			return R_NilValue;
+	for (int c = 0; c < n_chunk; c++) {
+		R_xlen_t k = c_keep[c];
+		n_hit += c_hit[c];
+		c_keep[c] = n_keep;
+		n_keep += k;
 	}
 	if (n_hit == 0 || n_hit > INT_MAX)
 		return R_NilValue;
@@ -377,72 +524,12 @@ static SEXP moved_impl(SEXP b_code_, SEXP b_start_, SEXP b_width_,
 		out[j] = INTEGER(VECTOR_ELT(ans, j));
 	}
 	setAttrib(ans, R_NamesSymbol, nms);
-	R_xlen_t at = 0;
-	ex_prev = 0;
-	ex_k = 0;
-	for (R_xlen_t b = 0; b < n; b++) {
-		int lo = first[b], hi = last[b];
-		if (lo >= hi)
-			continue;
-		int sh = shift[b];
-		int code = tc[b % n_t];
-		int bstart = bs[b];
-		int rep = (int) (b / n_blocks) + 1;
-		if (plain[b]) {
-			for (int k = lo; k < hi; k++, at++) {
-				out[0][at] = (o == NULL ? k : o[k]) + 1;
-				out[1][at] = code;
-				out[2][at] = ys[k] + sh;
-				out[3][at] = yw[k];
-				out[4][at] = rep;
-			}
-			continue;
-		}
-		int xlo = mode != 0 ? xseg[code - 1] : 0;
-		int xhi = mode != 0 ? xseg[code] : 0;
-		for (int k = lo; k < hi; k++) {
-			if (ye[k] < bstart)
-				continue;
-			int ns, nw;
-			move_one(ys[k], yw[k], sh, code, seqlen, bounded, &ns, &nw);
-			if (nw <= 0)
-				continue;
-			int s_k = (o == NULL ? k : o[k]) + 1;
-			if (mode == 0) {
-				out[0][at] = s_k;
-				out[1][at] = code;
-				out[2][at] = ns;
-				out[3][at] = nw;
-				out[4][at] = rep;
-				at++;
-				continue;
-			}
-			int ne = ns + (nw - 1);
-			int a = first_end_ge(xe, xlo, xhi, ex_k, code == ex_prev, ns);
-			ex_prev = code;
-			ex_k = a;
-			if (mode == 1) {
-				if (a < xhi && xs[a] <= ne)
-					continue;
-				out[0][at] = s_k;
-				out[1][at] = code;
-				out[2][at] = ns;
-				out[3][at] = nw;
-				out[4][at] = rep;
-				at++;
-				continue;
-			}
-			for (int j = a; j < xhi && xs[j] <= ne; j++, at++) {
-				int ps = ns > xs[j] ? ns : xs[j];
-				int pe = ne < xe[j] ? ne : xe[j];
-				out[0][at] = s_k;
-				out[1][at] = code;
-				out[2][at] = ps;
-				out[3][at] = pe - ps + 1;
-				out[4][at] = rep;
-			}
-		}
-	}
+#ifdef _OPENMP
+#pragma omp parallel for num_threads(n_thr) schedule(dynamic, 1) if(n_thr > 1)
+#endif
+	for (int c = 0; c < n_chunk; c++)
+		moved_pass2(&x, n * c / n_chunk, n * (c + 1) / n_chunk, c_keep[c],
+			out);
 	UNPROTECT(2);
 	return ans;
 }
