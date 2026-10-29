@@ -10,6 +10,8 @@ SEXP ss_range(SEXP st);
 SEXP ss_pass(SEXP st, SEXP br, SEXP mn, SEXP by, SEXP replace, SEXP count);
 SEXP outside_intervals(SEXP code, SEXP start, SEXP width, SEXP seg,
 	SEXP i_start, SEXP i_end);
+SEXP logit_irls(SEXP x, SEXP ycode, SEXP s_eps, SEXP s_maxit, SEXP s_tol);
+SEXP sample_groups(SEXP index, SEXP n_rows, SEXP size);
 
 static const R_CallMethodDef callMethods[] = {
 	{"moved_positions", (DL_FUNC) &moved_positions, 13},
@@ -17,6 +19,8 @@ static const R_CallMethodDef callMethods[] = {
 	{"ss_range", (DL_FUNC) &ss_range, 1},
 	{"ss_pass", (DL_FUNC) &ss_pass, 6},
 	{"outside_intervals", (DL_FUNC) &outside_intervals, 6},
+	{"logit_irls", (DL_FUNC) &logit_irls, 5},
+	{"sample_groups", (DL_FUNC) &sample_groups, 3},
 	{NULL, NULL, 0}
 };
 

@@ -60,17 +60,32 @@ nnMatch <- function(fps, pps, replace) {
   ## Find all nearest matches for each unique fps
   amdt <- dt[.(uniq.fps), roll = 'nearest', mult = 'all']
 
-  ## Randomly subsample with replacement among duplicates;
-  ## Check for categorical variables during sampling
-  mdt <-
-    amdt[, {
-      if (length(N) > 1) {
-        stopifnot(length(unique(N)) == 1)
-        .(ppsIndex = sample.vec(ppsIndex, N[1], replace = replace))
-      } else {
-        .(ppsIndex = sample.vec(ppsIndex, N, replace = replace))
-      }
-    }, by = fps]
+  ## Each row of uniq.fps gives one block of rows of amdt; when the blocks
+  ## are the fps groups, draw from every block in one compiled loop, which
+  ## makes the same draws as sample.vec on each group in turn (an empty
+  ## pool gives a malformed amdt, left to the grouped form's error)
+  grp <- if (isTRUE(replace) && nrow(amdt) > 0L &&
+             is.integer(amdt$ppsIndex) &&
+             length(amdt$ppsIndex) == nrow(amdt))
+    amdt[, .N, by = fps]
+  if (!is.null(grp) && nrow(grp) == nrow(uniq.fps)) {
+    size <- amdt$N[cumsum(c(1L, grp$N[-nrow(grp)]))]
+    mdt <- data.table(fps = rep(grp$fps, size),
+                      ppsIndex = .Call(C_sample_groups, amdt$ppsIndex,
+                                       grp$N, size))
+  } else {
+    ## Randomly subsample with replacement among duplicates;
+    ## Check for categorical variables during sampling
+    mdt <-
+      amdt[, {
+        if (length(N) > 1) {
+          stopifnot(length(unique(N)) == 1)
+          .(ppsIndex = sample.vec(ppsIndex, N[1], replace = replace))
+        } else {
+          .(ppsIndex = sample.vec(ppsIndex, N, replace = replace))
+        }
+      }, by = fps]
+  }
 
   ## Add fpsIndex to mdt
   stopifnot(mdt$fps == fpsMap$fps)
@@ -420,6 +435,55 @@ ssMatch <- function(fps, pps, replace) {
   return(mdt)
 }
 
+#' glm's fitting method for propensityMatch
+#'
+#' glm.fit for binomial("logit") with the IRLS loop in compiled code
+#' (src/logitIRLS.c), which computes glm.fit's fitted values bitwise. It
+#' covers the designs propensityMatch makes: a factor response, prior weights
+#' of 1, no offset or starting values and glm's default control. glm.fit
+#' itself runs for any other design and wherever the loop would stop, warn
+#' inside it, halve a step or leave the BLAS product.
+#' @param x,y,weights,start,etastart,mustart,offset,family,control,intercept,singular.ok
+#'   As glm passes them to its `method`.
+#' @return A list holding glm.fit's `fitted.values`, named by `y`'s names,
+#'   which is all that `predict(type = "response")` reads; glm.fit's own
+#'   value when glm.fit runs.
+#' @noRd
+logitGlmFit <- function(x, y, weights = NULL, start = NULL, etastart = NULL,
+                        mustart = NULL, offset = NULL, family = binomial(),
+                        control = list(), intercept = TRUE,
+                        singular.ok = TRUE) {
+  ## glm applies glm.control only when method is "glm.fit"
+  control <- do.call("glm.control", control)
+  fit <- NULL
+  if (is.null(weights) && is.null(start) && is.null(etastart) &&
+      is.null(mustart) && is.null(offset) && isTRUE(singular.ok) &&
+      identical(control, list(epsilon = 1e-08, maxit = 25, trace = FALSE)) &&
+      identical(family$family, "binomial") && identical(family$link, "logit") &&
+      is.matrix(x) && is.double(x) && is.factor(y) && is.null(dim(y)) &&
+      nrow(x) == length(y) && !anyNA(levels(y)) &&
+      identical(getOption("matprod"), "default") &&
+      isTRUE(capabilities("long.double")))
+    fit <- .Call(C_logit_irls, x, y, control$epsilon, control$maxit,
+                 min(1e-07, control$epsilon/1000))
+  if (is.null(fit))
+    return(eval(call("glm.fit", x = x, y = y, weights = weights,
+                     start = start, etastart = etastart, mustart = mustart,
+                     offset = offset, family = family, control = control,
+                     intercept = intercept, singular.ok = singular.ok)))
+
+  ## glm.fit's warnings after its loop, in its order and translation
+  if (!fit[[2L]])
+    warning(gettext("glm.fit: algorithm did not converge", domain = "R-stats"),
+            call. = FALSE, domain = NA)
+  if (fit[[3L]])
+    warning(gettext("glm.fit: fitted probabilities numerically 0 or 1 occurred",
+                    domain = "R-stats"), call. = FALSE, domain = NA)
+  mu <- fit[[1L]]
+  names(mu) <- if (is.matrix(y)) rownames(y) else names(y)
+  list(fitted.values = mu)
+}
+
 #' Calculate propensity scores, implement matching
 #' methods, and construct Matched object
 #' @param covarData A `data.table` with covariate data.
@@ -448,7 +512,8 @@ propensityMatch <- function(covarData, covars, method, replace, nf) {
   family$aic <- function(y, n, mu, wt, dev) NA_real_
   family$validmu <- function(mu)
     !anyNA(mu) && (length(mu) == 0L || (min(mu) > 0 && max(mu) < 1))
-  model <- glm(formula = f, data = covarData, family = family)
+  model <- glm(formula = f, data = covarData, family = family,
+               method = logitGlmFit)
   
   ## Get propensity scores of focal and pool sets as vectors
   id <- NULL
@@ -506,6 +571,45 @@ propensityMatch <- function(covarData, covars, method, replace, nf) {
   return(obj)
 }
 
+#' Covariate data.table: the id column, then each covariate's focal and pool
+#' values, equal to as.data.table(cbind(id = ids, rbind(focal[covars],
+#' pool[covars]))). Columns are concatenated directly when every covariate is
+#' an attribute-free logical, integer, double or character vector, or a plain
+#' factor, of one type (and levels) in both sets; otherwise the DataFrame route
+#' does the coercions (its rbind drops an NA factor level, for one).
+#' @param focal,pool `DataFrame` objects holding the covariates.
+#' @param covars Character vector of covariate column names.
+#' @param ids Factor of length nrow(focal) + nrow(pool).
+#' @return A `data.table`.
+#' @noRd
+covarTable <- function(focal, pool, covars, ids) {
+  direct <- identical(make.names(c("id", covars), unique = TRUE),
+                      c("id", covars))
+  cols <- vector("list", length(covars))
+  for (i in seq_along(covars)) {
+    if (!direct) break
+    x <- focal[[covars[i]]]
+    y <- pool[[covars[i]]]
+    ax <- attributes(x)
+    ay <- attributes(y)
+    if (is.null(ax) && is.null(ay)) {
+      direct <- typeof(x) == typeof(y) &&
+        typeof(x) %in% c("logical", "integer", "double", "character")
+    } else {
+      direct <- identical(class(x), "factor") &&
+        identical(class(y), "factor") &&
+        setequal(names(ax), c("levels", "class")) && length(ax) == 2L &&
+        setequal(names(ay), c("levels", "class")) && length(ay) == 2L &&
+        identical(ax$levels, ay$levels) && !anyNA(ax$levels)
+    }
+    if (direct) cols[[i]] <- c(x, y)
+  }
+  if (!direct)
+    return(as.data.table(cbind(id = ids, rbind(focal[covars], pool[covars]))))
+  names(cols) <- covars
+  setDT(c(list(id = ids), cols))
+}
+
 #' Core matching for DataFrames/GRanges/GInteractions
 #' @param focal A `DataFrame` object containing
 #'   the focal data to match.
@@ -549,8 +653,7 @@ matchRanges_Core <- function(focal, pool, covar, method, replace) {
   }
 
   ## Create data table with covariate data
-  covarData <- as.data.table(cbind(id = ids,
-                                   rbind(focal[covars], pool[covars])))
+  covarData <- covarTable(focal, pool, covars, ids)
 
   ## Calculate propensity scores and match data
   md <- propensityMatch(covarData, covars, method, replace, nf = nrow(focal))
@@ -704,7 +807,7 @@ matchRanges_MatchedDataFrame <- function(focal, pool, covar, method, replace) {
 #'
 #' @rawNamespace import(data.table, except = c(between, shift, first, second, indices))
 #' @importFrom rlang f_lhs f_rhs
-#' @importFrom stats glm
+#' @importFrom stats glm glm.control glm.fit
 #' @import S4Vectors
 #' 
 #' @export
