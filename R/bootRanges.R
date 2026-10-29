@@ -415,7 +415,8 @@ moved_ranges <- function(y, s, code, start, width, chr_attr, block = NULL,
   n <- length(s)
   ans_strand <- strand(y)
   one_strand <- nrun(ans_strand) == 1L
-  if (!one_strand || !is.null(block)) {
+  plain <- one_strand && !is.null(block) && plain_rows(y, start, width, n)
+  if (!one_strand || (!is.null(block) && !plain)) {
     # checked once for every slot subset, as y[s] does
     s <- normalizeSingleBracketSubscript(s, y, as.NSBS = TRUE)
   }
@@ -427,6 +428,18 @@ moved_ranges <- function(y, s, code, start, width, chr_attr, block = NULL,
   if (is.null(block)) {
     ans_ranges <- new2("IRanges", start = start, width = width, check = FALSE)
     ans_mcols <- new2("DFrame", nrows = n, check = FALSE)
+  } else if (plain) {
+    # what the branch below gives, without gathering starts and widths
+    # that update_ranges() replaces; 's' holds indices in 1..length(y)
+    ans_ranges <- BiocGenerics:::replaceSlots(
+      ranges(y), start = start, width = width, check = FALSE
+    )
+    ans_mcols <- mcols(y, use.names = FALSE)
+    ans_mcols <- BiocGenerics:::replaceSlots(
+      ans_mcols, listData = lapply(as.list(ans_mcols), `[`, s), nrows = n,
+      check = FALSE
+    )
+    ans_mcols$block <- block
   } else {
     ans_ranges <- update_ranges(
       extractROWS(ranges(y), s), start = start, width = width
@@ -441,6 +454,30 @@ moved_ranges <- function(y, s, code, start, width, chr_attr, block = NULL,
     ans <- update(ans, seqinfo = seqinfo, check = FALSE)
   }
   ans
+}
+
+# TRUE when y[s] with the given starts and widths is the ranges of 'y'
+# with those starts and widths and each metadata column subset by `[`:
+# plain IRanges without names or metadata columns, a DFrame without row
+# names or column metadata whose columns are atomic vectors without
+# attributes, and integer starts and widths of length 'n', which
+# update_ranges() would accept.
+#
+# @param y the input GRanges
+# @param start,width the start and width of each range
+# @param n the number of ranges
+plain_rows <- function(y, start, width, n) {
+  rng <- y@ranges
+  mc <- y@elementMetadata
+  is.integer(start) && length(start) == n &&
+    is.integer(width) && length(width) == n &&
+    identical(as.vector(class(rng)), "IRanges") &&
+    is.null(rng@NAMES) && is.null(rng@elementMetadata) &&
+    identical(as.vector(class(mc)), "DFrame") &&
+    is.null(mc@rownames) && is.null(mc@elementMetadata) &&
+    all(vapply(mc@listData, function(v) {
+      is.atomic(v) && is.null(attributes(v))
+    }, NA))
 }
 
 # plyranges::join_overlap_intersect(x, gap) for the moved ranges whose
