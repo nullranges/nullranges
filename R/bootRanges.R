@@ -141,12 +141,23 @@ bootRanges <- function(y, blockLength, R = 1,
     br <- do.call(c, br)
   }
 
-  mcols(br)$iter <- Rle(factor(rep(seq_len(R), lens), levels=seq_len(R)))
+  # from its runs, without a value per range
+  keep <- lens > 0L
+  mcols(br)$iter <- Rle(factor(seq_len(R), levels=seq_len(R))[keep], lens[keep])
   if (storeBlockLength) {
     mcols(br)$blockLength <- Rle(as.integer(blockLength))
   }
   mcols(br)$block <- NULL # this is not needed except for debugging perhaps
-  new("BootRanges", br)
+  # new("BootRanges", br) would run validObject over every range again; a
+  # plain GRanges here is already valid and within its seqlengths
+  if (!identical(as.vector(class(br)), "GRanges")) {
+    return(new("BootRanges", br))
+  }
+  out <- new("BootRanges")
+  for (s in slotNames("GRanges")) {
+    slot(out, s) <- slot(br, s)
+  }
+  out
 }
 
 # deal with exclude regions, for one replicate
@@ -459,15 +470,21 @@ bait_overlaps <- function(bait, bait_code, bait_rep, n_rep, y) {
   n_y <- tabulate(as.integer(seqnames(y)), n_lev)[bait_code]
   on_bait <- which(n_bait < n_y)
   on_y <- which(n_bait >= n_y)
-  # a GNCList query puts the NCList on the bait blocks; on_y's blocks
-  # outnumber y's ranges on each sequence, so IRanges puts it on 'y'
-  fo_bait <- if (length(on_y) == 0L) {
-    findOverlaps(GNCList(bait), y)
-  } else {
-    findOverlaps(GNCList(bait[on_bait]), y)
+  fo_bait <- sorted_overlaps(bait, bait_code, on_bait, y)
+  if (is.null(fo_bait)) {
+    # a GNCList query puts the NCList on the bait blocks; on_y's blocks
+    # outnumber y's ranges on each sequence, so IRanges puts it on 'y'
+    fo_bait <- if (length(on_y) == 0L) {
+      findOverlaps(GNCList(bait), y)
+    } else {
+      findOverlaps(GNCList(bait[on_bait]), y)
+    }
+    fo_bait <- list(
+      query = on_bait[queryHits(fo_bait)], subject = subjectHits(fo_bait)
+    )
   }
-  query <- on_bait[queryHits(fo_bait)]
-  subject <- subjectHits(fo_bait)
+  query <- fo_bait$query
+  subject <- fo_bait$subject
   if (length(on_y) != 0L) {
     fo_y <- findOverlaps(bait[on_y], y)
     query <- c(query, on_y[queryHits(fo_y)])
@@ -478,6 +495,122 @@ bait_overlaps <- function(bait, bait_code, bait_rep, n_rep, y) {
     subject <- subject[o]
   }
   list(query = query, subject = subject)
+}
+
+# What findOverlaps(GNCList(bait[on_bait]), y) returns, as the blocks'
+# indices in 'bait' ('query') and the hits' in 'y' ('subject'): by block,
+# and within a block by increasing index in 'y'. Within each sequence the
+# ranges of 'y' with start <= the block's end form a prefix in index
+# order, and those whose running maximum of ends is below the block's
+# start form a prefix of that; between the two, only a range ending
+# before an earlier one's end can miss the block. NULL where the call
+# could differ: no blocks, a class other than GRanges, a circular
+# sequence under a block, an empty range, starts of 'y' out of order
+# within a sequence, or too many seqlevels for exact keys.
+#
+# @param bait the bait blocks of all replicates
+# @param bait_code the index of each block's sequence in seqlevels(y)
+# @param on_bait the blocks to find the hits of
+# @param y the input GRanges
+sorted_overlaps <- function(bait, bait_code, on_bait, y) {
+  if (length(on_bait) == 0L || !identical(as.vector(class(y)), "GRanges") ||
+      length(seqlevels(y)) >= 2097152L) {
+    return(NULL)
+  }
+  b_code <- bait_code[on_bait]
+  if (any(unname(Seqinfo::isCircular(y))[b_code] %in% TRUE)) {
+    return(NULL)
+  }
+  b_start <- start(bait)[on_bait]
+  b_end <- end(bait)[on_bait]
+  y_code <- as.integer(seqnames(y))
+  y_start <- start(y)
+  y_end <- end(y)
+  if (any(b_end < b_start) || any(y_end < y_start)) {
+    return(NULL)
+  }
+  o <- NULL
+  if (is.unsorted(y_code)) {
+    o <- order(y_code, method = "radix")
+    y_code <- y_code[o]
+    y_start <- y_start[o]
+    y_end <- y_end[o]
+  }
+  # positions offset by 2^32 per sequence: one vector, sorted when each
+  # sequence's part is
+  y_off <- y_code * 4294967296
+  if (is.unsorted(y_off + y_start)) {
+    return(NULL)
+  }
+  end_max <- cummax(y_off + y_end) - y_off
+  last <- count_at_or_before(y_code, y_start, b_code, b_end)
+  first <- count_at_or_before(y_code, end_max, b_code, b_start - 1) + 1L
+  n_hit <- pmax.int(last - first + 1L, 0L)
+  subject <- sequence(n_hit, from = first)
+  short <- y_end < end_max
+  if (any(short)) {
+    n_short <- c(0L, cumsum(short))
+    flag <- which(n_hit > 0L & n_short[last + 1L] > n_short[first])
+    if (length(flag) != 0L) {
+      at <- sequence(n_hit[flag], from = (cumsum(n_hit) - n_hit)[flag] + 1L)
+      miss <- y_end[subject[at]] < rep.int(b_start[flag], n_hit[flag])
+      if (any(miss)) {
+        subject <- subject[-at[miss]]
+        n_hit <- n_hit - tabulate(
+          rep.int(flag, n_hit[flag])[miss], length(n_hit)
+        )
+      }
+    }
+  }
+  if (!is.null(o)) {
+    subject <- o[subject]
+  }
+  list(query = rep.int(on_bait, n_hit), subject = subject)
+}
+
+# For each query, the number of entries of a list sorted by sequence and
+# then position that come before it or at its position on its sequence:
+# findInterval() on keys code * 2^32 + position, from a table of
+# fixed-width buckets along each sequence (with an empty one before and
+# after each sequence's entries) and a step per entry in the query's
+# bucket; findInterval() itself for queries in crowded buckets.
+#
+# @param code,pos the entries' sequences and positions, sorted
+# @param x_code,x_pos the queries' sequences, each holding an entry, and
+#        positions
+count_at_or_before <- function(code, pos, x_code, x_pos) {
+  n <- length(code)
+  lev <- seq_len(code[n])
+  lo <- as.numeric(pos[match(lev, code)])
+  hi <- as.numeric(pos[n + 1L - match(lev, rev(code))])
+  width <- 2^max(0, ceiling(log2(sum(hi - lo + 1, na.rm = TRUE) / (8 * n))))
+  n_bucket <- floor((hi - lo) / width) + 3
+  n_bucket[is.na(n_bucket)] <- 0
+  base <- cumsum(n_bucket) - n_bucket
+  counts <- tabulate(
+    base[code] + floor((pos - lo[code]) / width) + 2, sum(n_bucket)
+  )
+  to <- cumsum(counts)
+  from <- to - counts
+  j <- base[x_code] +
+    pmax(pmin(floor((x_pos - lo[x_code]) / width) + 2, n_bucket[x_code]), 1)
+  cnt <- from[j]
+  to <- to[j]
+  i <- which(to > cnt)
+  for (step in 1:16) {
+    if (length(i) == 0L) {
+      break
+    }
+    i <- i[pos[cnt[i] + 1L] <= x_pos[i]]
+    cnt[i] <- cnt[i] + 1L
+    i <- i[cnt[i] < to[i]]
+  }
+  if (length(i) != 0L) {
+    cnt[i] <- findInterval(
+      x_code[i] * 4294967296 + x_pos[i], code * 4294967296 + pos
+    )
+  }
+  cnt
 }
 
 # Segmentation block bootstrap sub-function: the random bait blocks of
@@ -521,16 +654,32 @@ seg_bootstrap_draws <- function(n_rep, y, seg, state, L_b,
 # breaking up the seg_bootstrap_draws() code... proportional length case
 seg_bootstrap_prop <- function(seg, state, L_b, chr_names, chr_lens,
                                esses, n_rep) {
+  seg_width <- width(seg)
+  seg_start <- start(seg)
   # length of genome
   L_g <- sum(chr_lens)
   # segmentation state total length
   L_s <- unlist(lapply(esses, function(s) {
-    sum(width(seg)[state == s])
+    sum(seg_width[state == s])
   }), use.names = FALSE)
   # the block width for each segmentation state is scaled
   # down to the segmentation state size, e.g. if segmentation state
   # is half of the genome, then the block width is half of L_b
   L_b_per_state <- round(L_b * L_s / L_g)
+
+  # per state, the segmentation ranges, which no draw changes
+  per_state <- lapply(esses, function(s) {
+    in_s <- state == s
+    width_s <- seg_width[in_s]
+    # number of blocks within each range of the segmentation
+    nblocks_per_rng <- ceiling(width_s / L_b_per_state[s])
+    list(
+      width = width_s, start = seg_start[in_s],
+      chr = chr_names[in_s], nblocks = nblocks_per_rng,
+      # total number of tiling blocks
+      n = sum(nblocks_per_rng)
+    )
+  })
 
   draws <- vector("list", n_rep)
   for (r in seq_len(n_rep)) {
@@ -538,36 +687,32 @@ seg_bootstrap_prop <- function(seg, state, L_b, chr_names, chr_lens,
     obj <- lapply(esses, function(s) {
       # the length of the blocks for this state
       L_bs <- L_b_per_state[s]
-      # the segmentation ranges for this state
-      seg_s <- seg[state == s]
-      # number of blocks within each range of the segmentation
-      nblocks_per_rng <- ceiling(width(seg_s) / L_bs)
-      # total number of tiling blocks
-      n <- sum(nblocks_per_rng)
+      p <- per_state[[s]]
+      nblocks_per_rng <- p$nblocks
+      n <- p$n
       # sample ranges according to their length
-      random_rng <- sample(length(seg_s), n,
+      random_rng <- sample(length(p$width), n,
         replace = TRUE,
-        prob = width(seg_s)
+        prob = p$width
       )
       # random starts within the ranges, as spec by 'nblocks per rng'
-      rmin <- start(seg_s)[random_rng]
+      rmin <- p$start[random_rng]
       rmax <- (nblocks_per_rng[random_rng] - 1) * L_bs + rmin
       random_start_s <- round(runif(n, rmin, rmax))
       # names of chromosomes for random ranges of state 's'
-      random_chr_names_s <- chr_names[state == s][random_rng]
+      random_chr_names_s <- p$chr[random_rng]
       # the tiling blocks do not depend on the draws: computed once, at
       # the point of the first replicate where they were computed before
       if (r > 1L) {
         return(list(random_start_s, random_chr_names_s))
       }
       # start positions of blocks tiling ranges of state 's'
-      rearr_blocks_start_s <- unlist(lapply(seq_along(seg_s), function(j) {
-        seq(from = start(seg_s)[j], to = end(seg_s)[j], by = L_bs)
+      end_s <- p$start + p$width - 1L
+      rearr_blocks_start_s <- unlist(lapply(seq_along(p$width), function(j) {
+        seq(from = p$start[j], to = end_s[j], by = L_bs)
       }), use.names = FALSE)
       # names of chromosomes for blocks tiling ranges of state 's'
-      rearr_blocks_chr_names_s <- rep(
-        chr_names[state == s], nblocks_per_rng
-      )
+      rearr_blocks_chr_names_s <- rep(p$chr, nblocks_per_rng)
       return(list(
         random_start_s, random_chr_names_s,
         rearr_blocks_start_s, rearr_blocks_chr_names_s
@@ -600,24 +745,27 @@ seg_bootstrap_prop <- function(seg, state, L_b, chr_names, chr_lens,
 seg_bootstrap_noprop <- function(seg, state, L_b, chr_names, chr_lens,
                                  esses, n_rep) {
 
+  seg_width <- width(seg)
+  seg_start <- start(seg)
   # number of rearranged blocks within each range of the segmentation
-  nblocks_per_seg <- ceiling(width(seg) / L_b)
+  nblocks_per_seg <- ceiling(seg_width / L_b)
   # total number of tiling blocks
   n <- sum(nblocks_per_seg)
 
   draws <- vector("list", n_rep)
   for (r in seq_len(n_rep)) {
     # sample segments according to segmentation length
-    random_seg <- sample(length(seg), n, replace = TRUE, prob = width(seg))
+    random_seg <- sample(length(seg), n, replace = TRUE, prob = seg_width)
     # random starts within segments, as specified by 'nblocks_per_seg'
-    rmin <- start(seg)[random_seg]
+    rmin <- seg_start[random_seg]
     rmax <- (nblocks_per_seg[random_seg] - 1) * L_b + rmin
     random_start <- round(runif(n, rmin, rmax))
     if (r == 1L) {
       # start positions of rearranged blocks tiling the segments, which
       # do not depend on the draws
+      seg_end <- seg_start + seg_width - 1L
       rearr_blocks_start_list <- lapply(seq_along(seg), function(j) {
-        seq(from = start(seg)[j], to = end(seg)[j], by = L_b)
+        seq(from = seg_start[j], to = seg_end[j], by = L_b)
       })
       # start positions and chromosomes of blocks tiling segments of
       # state 's'
@@ -629,10 +777,11 @@ seg_bootstrap_noprop <- function(seg, state, L_b, chr_names, chr_lens,
       })
     }
 
+    random_state <- state[random_seg]
     # loop over states 's', splitting out the random segments for 's'
     obj <- lapply(esses, function(s) {
       # index of those random segments chosen that are state 's'
-      idx <- which(state[random_seg] == s)
+      idx <- which(random_state == s)
       # random starts for state s
       random_start_s <- random_start[idx]
       # names of chromosomes for random segments that are state 's'

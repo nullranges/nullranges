@@ -102,8 +102,9 @@ rejectSample <- function(fps, pps) {
   }
 
   ## Kernal density estimates for focal and pool
-  df <- ks::kde(fps)
-  dp <- ks::kde(pps)
+  ## (compute.cont = FALSE: the contour levels are never read)
+  df <- ks::kde(fps, compute.cont = FALSE)
+  dp <- ks::kde(pps, compute.cont = FALSE)
 
   ## Set scale by finding the highest point of density ratios (focal/pool)
   ## This ensures that pool covers focal at all points
@@ -212,29 +213,33 @@ binCode <- function(x, br, mn, by) {
 }
 
 #' Stratifies propensity scores by bins
-#' @param fm A `data.table` with `focal` propensity scores
-#'   and their corresponding indices.
-#' @param fm A `data.table` with `pool` propensity scores
-#'   and their corresponding indices.
+#' @param f A numeric vector of the remaining `focal` propensity scores.
+#' @param p A numeric vector of the remaining `pool` propensity scores.
 #' @param n The number of bins used for stratifying
 #'   propensity scores.
 #' @return `NULL` when no bin can be sampled, otherwise a list
-#'   with `fpsIndices` and `ppsIndices`, the focal and pool
-#'   indices of each bin holding at least one focal and no fewer
-#'   pool than focal, in the order the bins first appear in `pm`.
+#'   with `fpsIndices` and `ppsIndices`, the positions in `f` and
+#'   `p` of each bin holding at least one focal and no fewer
+#'   pool than focal, in the order the bins first appear in `p`.
 #' @noRd
-stratify <- function(fm, pm, n) {
+stratify <- function(f, p, n) {
 
-  ## Define breaks using fps and pps
-  mn <- min(c(fm$fps, pm$pps))
-  mx <- max(c(fm$fps, pm$pps))
+  ## Define breaks using fps and pps (min(c(f, p)) warns once
+  ## when only one of them is empty)
+  if (length(f) && length(p)) {
+    mn <- min(min(f), min(p))
+    mx <- max(max(f), max(p))
+  } else {
+    mn <- min(c(f, p))
+    mx <- max(c(f, p))
+  }
   by <- (mx-mn)/n
   br <- seq(from=mn, to=mx, by=by)
 
   ## Assign fps and pps to bin; values outside the breaks (NA)
   ## form one more bin, as NA matches NA in a data.table join
-  fbin <- binCode(fm$fps, br, mn, by)
-  pbin <- binCode(pm$pps, br, mn, by)
+  fbin <- binCode(f, br, mn, by)
+  pbin <- binCode(p, br, mn, by)
   nb <- length(br)
   fbin[is.na(fbin)] <- nb
   pbin[is.na(pbin)] <- nb
@@ -245,12 +250,12 @@ stratify <- function(fm, pm, n) {
   ok <- fpsN > 0L & fpsN <= ppsN
   if (!any(ok)) return(NULL)
 
-  ## Gather indices of those bins only, keeping row order
+  ## Gather positions of those bins only, keeping row order
   pq <- which(ok[pbin])
   fq <- which(ok[fbin])
   bins <- unique(pbin[pq])
-  list(fpsIndices = split(fm$fpsIndex[fq], factor(fbin[fq], levels = bins)),
-       ppsIndices = split(pm$ppsIndex[pq], factor(pbin[pq], levels = bins)))
+  list(fpsIndices = split(fq, factor(fbin[fq], levels = bins)),
+       ppsIndices = split(pq, factor(pbin[pq], levels = bins)))
 
 }
 
@@ -258,13 +263,25 @@ stratify <- function(fm, pm, n) {
 #' @inherit nnMatch params return
 #' @noRd
 ssMatch <- function(fps, pps, replace) {
-  ## Suppress R CMD CHECK Note
-  fpsIndex <- ppsIndex <- NULL
+  ## The remaining focal and pool: scores and indices
+  nf <- length(fps)
+  f <- fps
+  fIdx <- seq_along(fps)
+  p <- pps
+  pIdx <- seq_along(pps)
 
-  ## Initialize results, fpsOptions and ppsOptions
-  results <- data.table(fpsIndex=integer(), ppsIndex=integer())
-  fpsOptions <- data.table(fps, val = fps, fpsIndex = seq_along(fps))
-  ppsOptions <- data.table(pps, val = pps, ppsIndex = seq_along(pps))
+  ## The number of distinct scores remaining, kept as rows leave:
+  ## code[j] is the first position of row j's score in c(fps, pps)
+  ## (match() and unique() share one notion of equality)
+  x <- c(fps, pps)
+  code <- match(x, x)
+  cnt <- tabulate(code, length(x))
+  nLeft <- sum(cnt > 0L)
+  rm(x)
+
+  ## Matched indices, one element per pass
+  resF <- resP <- list(integer())
+  nDone <- 0L
 
   ## Set flags and iteration count
   skip <- FALSE
@@ -276,53 +293,66 @@ ssMatch <- function(fps, pps, replace) {
     clear = FALSE, total = length(fps) + 1)
   pb$tick(0)
 
-  while (nrow(results) != length(fps)) {
+  while (nDone != nf) {
     ## Update n
     if (skip)  n <- floor(n/2)
-    if (!skip) n <- length(unique(c(fpsOptions$fps, ppsOptions$pps)))
+    if (!skip) n <- nLeft
 
     ## Stratify ps by bins and match focal and pool
-    strata <- stratify(fpsOptions, ppsOptions, n)
+    strata <- stratify(f, p, n)
     while (is.null(strata)) {
       ## Enter faster n searching
       skip <- TRUE
       n <- floor(n/2)
 
       ## Stratify ps by bins and match focal and pool
-      strata <- stratify(fpsOptions, ppsOptions, n)
+      strata <- stratify(f, p, n)
     }
     ## Update progress
     pb$update(tokens=list(step=sprintf('Iteration %s, %s bin(s)', i, n)),
-              ratio = nrow(results)/length(fps))
+              ratio = nDone/nf)
     i <- i + 1
 
-    ## Assign indices that can be sampled, bin by bin
+    ## Assign positions that can be sampled, bin by bin
     ppsSampled <- lapply(seq_along(strata$ppsIndices), function(k)
       sample.vec(strata$ppsIndices[[k]], length(strata$fpsIndices[[k]]),
                  replace = replace))
-    result <- data.table(fpsIndex = unlist(strata$fpsIndices, use.names = FALSE),
-                         ppsIndex = unlist(ppsSampled, use.names = FALSE))
+    fq <- unlist(strata$fpsIndices, use.names = FALSE)
+    pq <- unique(unlist(ppsSampled, use.names = FALSE))
+    resF[[i]] <- fIdx[fq]
+    resP[[i]] <- pIdx[unlist(ppsSampled, use.names = FALSE)]
+    nDone <- nDone + length(fq)
 
-    ## Append to results
-    results <- rbind(results, result)
+    ## Count out the scores of the matched rows (n is only read
+    ## again while skip is FALSE)
+    if (!skip) {
+      rc <- code[c(resF[[i]], nf + pIdx[pq])]
+      ru <- unique(rc)
+      cnt[ru] <- cnt[ru] - tabulate(match(rc, ru), length(ru))
+      nLeft <- nLeft - sum(cnt[ru] == 0L)
+    }
 
-    ## Remove assigned indices from options
-    fpsOptions <- fpsOptions[!fpsIndex %in% result$fpsIndex]
-    ppsOptions <- ppsOptions[!ppsIndex %in% result$ppsIndex]
+    ## Remove matched rows from the remaining focal and pool
+    f <- f[-fq]
+    fIdx <- fIdx[-fq]
+    p <- p[-pq]
+    pIdx <- pIdx[-pq]
   }
 
   ## Close progress bar
   pb$update(tokens=list(step=sprintf('Iteration %s, %s bin(s), done!', i, n)),
-            ratio = nrow(results)/length(fps))
+            ratio = nDone/nf)
   if(pb$finished) pb$terminate()
 
   ## Reorder by fpsIndex
-  results <- results[order(results$fpsIndex)]
+  fpsIndex <- unlist(resF, use.names = FALSE)
+  ppsIndex <- unlist(resP, use.names = FALSE)
+  o <- order(fpsIndex)
 
   ## Assemble matched data table
-  mdt <- data.table(fps = fps[results$fpsIndex],
-                    ppsIndex = results$ppsIndex,
-                    fpsIndex = results$fpsIndex)
+  mdt <- data.table(fps = fps[fpsIndex[o]],
+                    ppsIndex = ppsIndex[o],
+                    fpsIndex = fpsIndex[o])
 
   ## Return matched data table
   return(mdt)
@@ -349,8 +379,14 @@ propensityMatch <- function(covarData, covars, method, replace, nf) {
   # April 2023 - speedglm is removed from CRAN so we cannot use it here...
   #model <- speedglm(formula = f, data = covarData,
   #                  family = binomial("logit"), fitted = TRUE, model = TRUE)
-  model <- glm(formula = f, data = covarData,
-               family = binomial("logit"))
+  ## binomial("logit") without the work nothing here reads: glm.fit calls
+  ## aic once, after the IRLS loop, only for model$aic; validmu gives the
+  ## same TRUE/FALSE as binomial's without its two logical vectors
+  family <- binomial("logit")
+  family$aic <- function(y, n, mu, wt, dev) NA_real_
+  family$validmu <- function(mu)
+    !anyNA(mu) && (length(mu) == 0L || (min(mu) > 0 && max(mu) < 1))
+  model <- glm(formula = f, data = covarData, family = family)
   
   ## Get propensity scores of focal and pool sets as vectors
   id <- NULL
