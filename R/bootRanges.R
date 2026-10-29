@@ -580,19 +580,30 @@ intersect_gaps <- function(y, gap, x_code, x_start, x_end) {
           gap_start[-1L] <= gap_end[-n_gap])) {
     return(NULL)
   }
-  # positions offset by 2^32 per sequence, so the gaps of all sequences
-  # form one sorted vector and no key crosses into another sequence
-  x_off <- x_code * 4294967296
-  gap_off <- gap_code * 4294967296
-  first <- findInterval(x_off + x_start, gap_off + gap_end,
-                        left.open = TRUE) + 1L
-  last <- findInterval(x_off + x_end, gap_off + gap_start)
-  n_hit <- pmax.int(last - first + 1L, 0L)
-  q <- rep.int(seq_along(x_start), n_hit)
-  g <- sequence(n_hit, from = first)
-  new_start <- pmax.int(x_start[q], gap_start[g])
-  new_end <- pmin.int(x_end[q], gap_end[g])
-  list(q = q, start = new_start, width = new_end - new_start + 1L,
+  clip <- NULL
+  if (is.null(attributes(x_code)) && is.null(attributes(x_start)) &&
+      is.null(attributes(x_end))) {
+    seg <- c(0L, cumsum(tabulate(gap_code, length(lev))))
+    clip <- .Call(
+      C_intersect_gaps, x_code, x_start, x_end, seg, gap_start, gap_end
+    )
+  }
+  if (is.null(clip)) {
+    # positions offset by 2^32 per sequence, so the gaps of all sequences
+    # form one sorted vector and no key crosses into another sequence
+    x_off <- x_code * 4294967296
+    gap_off <- gap_code * 4294967296
+    first <- findInterval(x_off + x_start, gap_off + gap_end,
+                          left.open = TRUE) + 1L
+    last <- findInterval(x_off + x_end, gap_off + gap_start)
+    n_hit <- pmax.int(last - first + 1L, 0L)
+    q <- rep.int(seq_along(x_start), n_hit)
+    g <- sequence(n_hit, from = first)
+    new_start <- pmax.int(x_start[q], gap_start[g])
+    new_end <- pmin.int(x_end[q], gap_end[g])
+    clip <- list(q, new_start, new_end - new_start + 1L)
+  }
+  list(q = clip[[1L]], start = clip[[2L]], width = clip[[3L]],
        seqinfo = seqinfo(x0))
 }
 

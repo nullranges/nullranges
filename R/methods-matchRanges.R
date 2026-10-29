@@ -517,9 +517,12 @@ propensityMatch <- function(covarData, covars, method, replace, nf) {
   
   ## Get propensity scores of focal and pool sets as vectors
   id <- NULL
-  ps <- NULL
 
-  psData <- data.table(ps = predict(model, type = "response"), id = covarData$id)
+  ## Unnamed first: data.table's copy would expand glm's deferred row-name
+  ## strings, one per row, only to drop them
+  ps <- predict(model, type = "response")
+  names(ps) <- NULL
+  psData <- data.table(ps = ps, id = covarData$id)
   focalRows <- seq_len(nf)
   poolRows <- nf + seq_len(nrow(covarData) - nf)
   fps <- psData$ps[focalRows]
@@ -549,14 +552,35 @@ propensityMatch <- function(covarData, covars, method, replace, nf) {
     mdt <- ssMatch(fps, pps, replace = FALSE)
 
 
-  ## Assemble information by set
-  poolData <- covarData[poolRows]
-  matchedData <- rbind(
-    covarData[focalRows, c(.SD, set = 'focal')],
-    poolData[mdt$ppsIndex, c(.SD, set = 'matched')],
-    poolData[, c(.SD, set = 'pool')],
-    poolData[!mdt$ppsIndex, c(.SD, set = 'unmatched')]
-  )
+  ## Assemble information by set: focal, matched (draw order, repeats
+  ## kept), pool, and unmatched (pool order, rows never drawn), as one
+  ## positional subset. The rbind stays for a covariate named "set" (it
+  ## appends a second "set" column) and a factor with an NA level (rbind
+  ## drops the level and turns its codes NA).
+  ppsIndex <- mdt$ppsIndex
+  np <- length(poolRows)
+  if (!("set" %in% names(covarData)) && is.integer(ppsIndex) &&
+      !anyNA(ppsIndex) && (length(ppsIndex) == 0L ||
+      (min(ppsIndex) >= 1L && max(ppsIndex) <= np)) &&
+      !any(vapply(covarData, function(x) is.factor(x) && anyNA(levels(x)),
+                  logical(1)))) {
+    drawn <- logical(np)
+    drawn[ppsIndex] <- TRUE
+    unmatchedRows <- which(!drawn)
+    matchedData <- covarData[c(focalRows, nf + ppsIndex, poolRows,
+                               nf + unmatchedRows)]
+    set(matchedData, j = "set",
+        value = rep(c("focal", "matched", "pool", "unmatched"),
+                    c(nf, length(ppsIndex), np, length(unmatchedRows))))
+  } else {
+    poolData <- covarData[poolRows]
+    matchedData <- rbind(
+      covarData[focalRows, c(.SD, set = 'focal')],
+      poolData[mdt$ppsIndex, c(.SD, set = 'matched')],
+      poolData[, c(.SD, set = 'pool')],
+      poolData[!mdt$ppsIndex, c(.SD, set = 'unmatched')]
+    )
+  }
 
   ## Matched indicies
   matchedIndex <- mdt$ppsIndex

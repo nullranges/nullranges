@@ -12,6 +12,8 @@ SEXP outside_intervals(SEXP code, SEXP start, SEXP width, SEXP seg,
 	SEXP i_start, SEXP i_end);
 SEXP logit_irls(SEXP x, SEXP ycode, SEXP s_eps, SEXP s_maxit, SEXP s_tol);
 SEXP sample_groups(SEXP index, SEXP n_rows, SEXP size);
+SEXP intersect_gaps(SEXP code, SEXP start, SEXP end, SEXP seg,
+	SEXP g_start, SEXP g_end);
 
 static const R_CallMethodDef callMethods[] = {
 	{"moved_positions", (DL_FUNC) &moved_positions, 13},
@@ -21,6 +23,7 @@ static const R_CallMethodDef callMethods[] = {
 	{"outside_intervals", (DL_FUNC) &outside_intervals, 6},
 	{"logit_irls", (DL_FUNC) &logit_irls, 5},
 	{"sample_groups", (DL_FUNC) &sample_groups, 3},
+	{"intersect_gaps", (DL_FUNC) &intersect_gaps, 6},
 	{NULL, NULL, 0}
 };
 
