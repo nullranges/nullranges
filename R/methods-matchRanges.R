@@ -259,6 +259,25 @@ stratify <- function(f, p, n) {
 
 }
 
+#' One stratify-and-match pass of ssMatch on its compiled state
+#' @param st The state from `C_ss_init`, updated in place.
+#' @param n The number of bins used for stratifying.
+#' @param replace Draw with replacement within a bin.
+#' @param count Count the matched rows out of nLeft.
+#' @return `c(matched, nLeft)`: matched is 0 when no bin qualifies (as
+#'   `stratify` returns `NULL`) and `NA` when the breaks fail `binCode`'s
+#'   guard, in which case the state is unchanged and the pass is to be
+#'   made in R.
+#' @noRd
+ssPass <- function(st, n, replace, count) {
+  rng <- .Call(C_ss_range, st)
+  mn <- rng[1L]
+  mx <- rng[2L]
+  by <- (mx-mn)/n
+  br <- seq(from=mn, to=mx, by=by)
+  .Call(C_ss_pass, st, br, mn, by, replace, count)
+}
+
 #' Perform iterative stratified sampling
 #' @inherit nnMatch params return
 #' @noRd
@@ -279,6 +298,13 @@ ssMatch <- function(fps, pps, replace) {
   nLeft <- sum(cnt > 0L)
   rm(x)
 
+  ## Double scores make each pass in C (st), drawing exactly as
+  ## sample() does below the 1e7 rows where sample.int would hash
+  st <- NULL
+  if (is.double(fps) && is.double(pps) && length(fps) <= 1e7 &&
+      length(pps) <= 1e7 && (isTRUE(replace) || isFALSE(replace)))
+    st <- .Call(C_ss_init, fps, pps, cnt, code, nLeft)
+
   ## Matched indices, one element per pass
   resF <- resP <- list(integer())
   nDone <- 0L
@@ -297,6 +323,37 @@ ssMatch <- function(fps, pps, replace) {
     ## Update n
     if (skip)  n <- floor(n/2)
     if (!skip) n <- nLeft
+
+    if (!is.null(st)) {
+      ## Stratify, match and remove the matched rows in C
+      r <- ssPass(st, n, replace, !skip)
+      while (identical(r[1L], 0L)) {
+        skip <- TRUE
+        n <- floor(n/2)
+        r <- ssPass(st, n, replace, FALSE)
+      }
+      if (!is.na(r[1L])) {
+        pb$update(tokens=list(step=sprintf('Iteration %s, %s bin(s)', i, n)),
+                  ratio = nDone/nf)
+        i <- i + 1
+        nDone <- nDone + r[1L]
+        nLeft <- r[2L]
+        next
+      }
+
+      ## The breaks fail binCode's guard: go on in R from this state
+      if (nDone > 0L) {
+        lens <- st[[7L]]
+        fIdx <- st[[2L]][seq_len(lens[1L])]
+        f <- fps[fIdx]
+        pIdx <- st[[4L]][seq_len(lens[2L])]
+        p <- pps[pIdx]
+        cnt <- st[[5L]]
+        resF <- list(st[[8L]][seq_len(nDone)])
+        resP <- list(st[[9L]][seq_len(nDone)])
+      }
+      st <- NULL
+    }
 
     ## Stratify ps by bins and match focal and pool
     strata <- stratify(f, p, n)
@@ -345,8 +402,13 @@ ssMatch <- function(fps, pps, replace) {
   if(pb$finished) pb$terminate()
 
   ## Reorder by fpsIndex
-  fpsIndex <- unlist(resF, use.names = FALSE)
-  ppsIndex <- unlist(resP, use.names = FALSE)
+  if (!is.null(st)) {
+    fpsIndex <- st[[8L]]
+    ppsIndex <- st[[9L]]
+  } else {
+    fpsIndex <- unlist(resF, use.names = FALSE)
+    ppsIndex <- unlist(resP, use.names = FALSE)
+  }
   o <- order(fpsIndex)
 
   ## Assemble matched data table

@@ -224,22 +224,23 @@ move_blocks_bulk <- function(y, blocks, exclude, excludeOption) {
       bait_start > unname(seqlengths(y))[bait_code]))) {
     return(NULL)
   }
-  random_blocks <- GRanges(
-    seqnames = bait_chr,
-    ranges = IRanges(
-      start = bait_start,
-      width = rep_len(blocks$width, length(bait_start))
-    )
+  bait_ranges <- IRanges(
+    start = bait_start,
+    width = rep_len(blocks$width, length(bait_start))
   )
-  block_shift <- rep(blocks$target_start, n_rep) - start(random_blocks)
+  block_shift <- rep(blocks$target_start, n_rep) - start(bait_ranges)
   target_chr <- blocks$target_chr
   if (is(target_chr, "Rle")) {
     target_chr <- decode(target_chr)
   }
   moved <- moved_positions(
-    y, random_blocks, bait_code, n_rep, block_shift, target_chr
+    y, bait_ranges, bait_code, n_rep, block_shift, target_chr
   )
   if (is.null(moved)) {
+    # moved_positions() reads only starts and widths; with no NA in
+    # bait_code this GRanges cannot fail, so building it here changes no
+    # fallback
+    random_blocks <- GRanges(seqnames = bait_chr, ranges = bait_ranges)
     bait_rep <- rep(seq_len(n_rep), each = n_blocks)
     fo <- bait_overlaps(random_blocks, bait_code, bait_rep, n_rep, y)
     hit_block <- fo$query
@@ -263,10 +264,13 @@ move_blocks_bulk <- function(y, blocks, exclude, excludeOption) {
   new_width <- moved$width
   block <- moved$block
   if (!is.null(exclude) && excludeOption == "drop") {
-    i <- which(!overlapsAny(
-      moved_ranges(y, s, code, new_start, new_width, moved$chr_attr),
-      exclude, type = "any"
-    ))
+    i <- outside_exclude(y, exclude, code, new_start, new_width)
+    if (is.null(i)) {
+      i <- which(!overlapsAny(
+        moved_ranges(y, s, code, new_start, new_width, moved$chr_attr),
+        exclude, type = "any"
+      ))
+    }
     y_prime <- moved_ranges(
       y, s[i], code[i], new_start[i], new_width[i], moved$chr_attr, block[i]
     )
@@ -305,7 +309,8 @@ move_blocks_bulk <- function(y, blocks, exclude, excludeOption) {
 # or there is no hit: the caller then runs them.
 #
 # @param y the input GRanges
-# @param bait the bait blocks of all replicates, in replicate order
+# @param bait the ranges (IRanges) of the bait blocks of all replicates,
+# in replicate order
 # @param bait_code the index of each block's sequence in seqlevels(y)
 # @param n_rep the number of replicates
 # @param block_shift the shift of each block
@@ -478,6 +483,56 @@ plain_rows <- function(y, start, width, n) {
     all(vapply(mc@listData, function(v) {
       is.atomic(v) && is.null(attributes(v))
     }, NA))
+}
+
+# which(!overlapsAny(x, exclude)) for the moved ranges 'x' of positive
+# width whose seqlevel codes, starts and widths are given, on y's seqinfo:
+# 'exclude' merged per sequence into sorted disjoint intervals, then, in
+# C, a range overlaps iff the first interval ending at or after its start
+# begins at or before its end. merge() of the seqinfo runs first, for the
+# warning or error findOverlaps() gives. NULL where overlapsAny() could
+# differ: an 'exclude' that is not a plain GRanges, a strand other than
+# "*", a zero-width range, a circular sequence, or too many seqlevels for
+# exact keys.
+#
+# @param y the input GRanges, whose seqinfo the moved ranges have
+# @param exclude the excluded regions
+# @param code the index of each range's sequence in seqlevels(y)
+# @param start,width the start and width of each range, width > 0
+outside_exclude <- function(y, exclude, code, start, width) {
+  if (!identical(as.vector(class(exclude)), "GRanges") ||
+      !is.integer(code) || !is.integer(start) || !is.integer(width)) {
+    return(NULL)
+  }
+  si <- merge(seqinfo(y), seqinfo(exclude))
+  lev <- seqlevels(y)
+  if (length(lev) >= 2097152L || any(Seqinfo::isCircular(si) %in% TRUE) ||
+      !all(strand(exclude) == "*") || any(width(exclude) == 0L)) {
+    return(NULL)
+  }
+  ex_code <- match(seqlevels(exclude), lev)[as.integer(seqnames(exclude))]
+  on_y <- which(!is.na(ex_code))
+  ex_code <- ex_code[on_y]
+  n_ex <- length(on_y)
+  if (n_ex == 0L) {
+    int_start <- int_end <- integer()
+    seg <- integer(length(lev) + 1L)
+  } else {
+    # positions offset by 2^32 per sequence, so the intervals of all
+    # sequences form one sorted vector and cummax() stays in a sequence
+    key <- ex_code * 4294967296
+    ex_start <- key + start(exclude)[on_y]
+    o <- order(ex_start, method = "radix")
+    ex_start <- ex_start[o]
+    ex_end <- cummax((key[o] + end(exclude)[on_y][o]))
+    first <- c(TRUE, ex_start[-1L] > ex_end[-n_ex])
+    last <- c(which(first)[-1L] - 1L, n_ex)
+    int_code <- ex_code[o][first]
+    int_start <- as.integer(ex_start[first] - int_code * 4294967296)
+    int_end <- as.integer(ex_end[last] - int_code * 4294967296)
+    seg <- c(0L, cumsum(tabulate(int_code, length(lev))))
+  }
+  .Call(C_outside_intervals, code, start, width, seg, int_start, int_end)
 }
 
 # plyranges::join_overlap_intersect(x, gap) for the moved ranges whose
