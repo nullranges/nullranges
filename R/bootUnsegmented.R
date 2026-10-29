@@ -198,13 +198,62 @@ shift_and_swap_chrom <- function(y, chr_names,
   block_shift <- rearranged_blocks_start - random_blocks_start
   idx <- mcols(y)$block
   chr_prime <- chr_names[idx]
-  # this temporarily creates out-of-bound ranges
-  # NOTE: we use suppress warnings, we will immediately perform a trim() operation  
-  suppressWarnings({
-    y_prime <- shift(y, block_shift[idx])
-    seqnames(y_prime) <- chr_prime
-  })
-  y_prime <- trim(y_prime)
+  y_prime <- shift_swap_trim(y, block_shift[idx], chr_prime)
+  if (is.null(y_prime)) {
+    # this temporarily creates out-of-bound ranges
+    # NOTE: we use suppress warnings, we will immediately perform a trim() operation
+    suppressWarnings({
+      y_prime <- shift(y, block_shift[idx])
+      seqnames(y_prime) <- chr_prime
+    })
+    y_prime <- trim(y_prime)
+  }
   y_prime <- y_prime[width(y_prime) > 0]
   y_prime
+}
+
+# shift(y, shift), then seqnames(y) <- chr_prime, then trim(), computed on
+# the start and width vectors and written in one update without validity
+# passes. Returns NULL for any input where one of those three calls could
+# warn, fail or treat the object differently (not a plain GRanges, NA or
+# overflowing positions, seqnames not a factor on seqlevels(y)); the caller
+# then takes the original path.
+shift_swap_trim <- function(y, shift, chr_prime) {
+  n <- length(y)
+  if (n == 0L || !identical(as.vector(class(y)), "GRanges") ||
+      !is.numeric(shift) || length(shift) != n) {
+    return(NULL)
+  }
+  shift <- suppressWarnings(as.integer(shift))
+  if (anyNA(shift)) {
+    return(NULL)
+  }
+  new_seqnames <- if (is(chr_prime, "Rle")) chr_prime else Rle(chr_prime)
+  if (length(new_seqnames) != n || !is.factor(runValue(new_seqnames)) ||
+      anyNA(runValue(new_seqnames)) ||
+      !identical(levels(new_seqnames), seqlevels(y))) {
+    return(NULL)
+  }
+  rng <- ranges(y)
+  new_width <- width(rng)
+  new_start <- suppressWarnings(start(rng) + shift)
+  new_end <- suppressWarnings(new_start + (new_width - 1L))
+  if (anyNA(new_start) || anyNA(new_end)) {
+    return(NULL)
+  }
+  # trim(): clip to [1, seqlength] unless the seqlevel is circular or has
+  # no length, as get_out_of_bound_index() and restrict() do
+  seqlen <- unname(seqlengths(y))
+  bounded <- !(unname(Seqinfo::isCircular(y)) %in% TRUE | is.na(seqlen))
+  code <- as.integer(new_seqnames)
+  chr_len <- seqlen[code]
+  oob <- which(bounded[code] & (new_start < 1L | new_end > chr_len))
+  if (length(oob) != 0L) {
+    oob_start <- pmax(new_start[oob], 1L)
+    oob_end <- pmin(new_end[oob], chr_len[oob])
+    new_start[oob] <- oob_start
+    new_width[oob] <- pmax(oob_end - oob_start + 1L, 0L)
+  }
+  new_ranges <- update_ranges(rng, start = new_start, width = new_width)
+  update(y, ranges = new_ranges, seqnames = new_seqnames, check = FALSE)
 }
