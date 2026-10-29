@@ -289,6 +289,10 @@ ssPass <- function(st, n, replace, count) {
   mn <- rng[1L]
   mx <- rng[2L]
   by <- (mx-mn)/n
+  ## C_ss_pass_by makes seq()'s breaks itself in seq's usual case and
+  ## returns NULL otherwise (seq's errors and one-break results)
+  r <- .Call(C_ss_pass_by, st, mn, mx, by, replace, count)
+  if (!is.null(r)) return(r)
   br <- seq(from=mn, to=mx, by=by)
   .Call(C_ss_pass, st, br, mn, by, replace, count)
 }

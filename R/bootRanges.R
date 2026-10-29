@@ -206,8 +206,8 @@ move_blocks <- function(y, blocks, d) {
 # could differ (a replicate with fewer bait blocks than targets, a bait
 # block on a sequence 'y' lacks or past the end of a circular one, an
 # input shift_swap_trim() declines). The moved positions are computed on
-# vectors, by moved_positions() where it can, and 'y' is subset once, for
-# the ranges kept.
+# vectors, by moved_positions() where it can, with the exclude step when
+# exclude_tables() prepares it, and 'y' is subset once, for the ranges kept.
 move_blocks_bulk <- function(y, blocks, exclude, excludeOption) {
   draws <- blocks$draws
   n_rep <- length(draws)
@@ -233,10 +233,26 @@ move_blocks_bulk <- function(y, blocks, exclude, excludeOption) {
   if (is(target_chr, "Rle")) {
     target_chr <- decode(target_chr)
   }
+  # a warning or error here is raised again by the steps below, where the
+  # exclude step runs without these tables
+  ex <- NULL
+  if (!is.null(exclude)) {
+    ex <- tryCatch(
+      exclude_tables(y, exclude, excludeOption),
+      warning = function(w) NULL, error = function(e) NULL
+    )
+  }
   moved <- moved_positions(
-    y, bait_ranges, bait_code, n_rep, block_shift, target_chr
+    y, bait_ranges, bait_code, n_rep, block_shift, target_chr, ex
   )
+  if (isFALSE(moved)) {
+    ex <- NULL
+    moved <- moved_positions(
+      y, bait_ranges, bait_code, n_rep, block_shift, target_chr
+    )
+  }
   if (is.null(moved)) {
+    ex <- NULL
     # moved_positions() reads only starts and widths; with no NA in
     # bait_code this GRanges cannot fail, so building it here changes no
     # fallback
@@ -263,7 +279,12 @@ move_blocks_bulk <- function(y, blocks, exclude, excludeOption) {
   new_start <- moved$start
   new_width <- moved$width
   block <- moved$block
-  if (!is.null(exclude) && excludeOption == "drop") {
+  if (!is.null(ex)) {
+    # the exclude step is applied: the rows kept, or the pieces
+    y_prime <- moved_ranges(
+      y, s, code, new_start, new_width, moved$chr_attr, block, ex$seqinfo
+    )
+  } else if (!is.null(exclude) && excludeOption == "drop") {
     i <- outside_exclude(y, exclude, code, new_start, new_width)
     if (is.null(i)) {
       i <- which(!overlapsAny(
@@ -306,7 +327,9 @@ move_blocks_bulk <- function(y, blocks, exclude, excludeOption) {
 # ranges of 'y' it overlaps by increasing index in 'y', found as
 # sorted_overlaps() finds them. NULL wherever bait_overlaps() would not
 # take sorted_overlaps() for every block, either function could decline,
-# or there is no hit: the caller then runs them.
+# or there is no hit: the caller then runs them. With 'ex', the rows
+# outside_exclude() keeps (drop) or the pieces intersect_gaps() cuts (trim),
+# in the same order; FALSE where that step declines.
 #
 # @param y the input GRanges
 # @param bait the ranges (IRanges) of the bait blocks of all replicates,
@@ -315,8 +338,9 @@ move_blocks_bulk <- function(y, blocks, exclude, excludeOption) {
 # @param n_rep the number of replicates
 # @param block_shift the shift of each block
 # @param target_chr the sequence each block moves to, a factor
+# @param ex the output of exclude_tables(), or NULL
 moved_positions <- function(y, bait, bait_code, n_rep, block_shift,
-                            target_chr) {
+                            target_chr, ex = NULL) {
   chr_attr <- attributes(target_chr)
   lev <- seqlevels(y)
   if (!identical(as.vector(class(y)), "GRanges") ||
@@ -328,14 +352,18 @@ moved_positions <- function(y, bait, bait_code, n_rep, block_shift,
   }
   circular <- unname(Seqinfo::isCircular(y)) %in% TRUE
   seqlen <- unname(seqlengths(y))
+  if (is.null(ex)) {
+    ex <- list(mode = 0L, seg = integer(), start = integer(), end = integer())
+  }
   moved <- .Call(
-    C_moved_positions, as.integer(bait_code), start(bait), width(bait),
+    C_moved_rows, as.integer(bait_code), start(bait), width(bait),
     as.integer(n_rep), as.integer(seqnames(y)), start(y), end(y), width(y),
     circular, as.integer(seqlen), !(circular | is.na(seqlen)),
-    suppressWarnings(as.integer(block_shift)), as.integer(target_chr)
+    suppressWarnings(as.integer(block_shift)), as.integer(target_chr),
+    ex$mode, ex$seg, ex$start, ex$end
   )
-  if (is.null(moved)) {
-    return(NULL)
+  if (!is.list(moved)) {
+    return(moved)
   }
   moved$chr_attr <- chr_attr
   moved
@@ -500,8 +528,25 @@ plain_rows <- function(y, start, width, n) {
 # @param code the index of each range's sequence in seqlevels(y)
 # @param start,width the start and width of each range, width > 0
 outside_exclude <- function(y, exclude, code, start, width) {
-  if (!identical(as.vector(class(exclude)), "GRanges") ||
-      !is.integer(code) || !is.integer(start) || !is.integer(width)) {
+  if (!is.integer(code) || !is.integer(start) || !is.integer(width)) {
+    return(NULL)
+  }
+  iv <- exclude_intervals(y, exclude)
+  if (is.null(iv)) {
+    return(NULL)
+  }
+  .Call(C_outside_intervals, code, start, width, iv$seg, iv$start, iv$end)
+}
+
+# The intervals outside_exclude() searches: 'exclude' merged per seqlevel
+# of 'y' into sorted disjoint intervals, sequence c holding seg[c] + 1 to
+# seg[c + 1] of 'start' and 'end'. NULL where outside_exclude() declines
+# for any moved ranges.
+#
+# @param y the input GRanges
+# @param exclude the excluded regions
+exclude_intervals <- function(y, exclude) {
+  if (!identical(as.vector(class(exclude)), "GRanges")) {
     return(NULL)
   }
   si <- merge(seqinfo(y), seqinfo(exclude))
@@ -532,7 +577,38 @@ outside_exclude <- function(y, exclude, code, start, width) {
     int_end <- as.integer(ex_end[last] - int_code * 4294967296)
     seg <- c(0L, cumsum(tabulate(int_code, length(lev))))
   }
-  .Call(C_outside_intervals, code, start, width, seg, int_start, int_end)
+  list(seg = seg, start = int_start, end = int_end)
+}
+
+# What moved_positions() needs to apply the exclude step itself: for
+# "drop", exclude_intervals(); for "trim", the gaps of 'exclude' as
+# gap_tables() orders them, and the seqinfo of the result. The mode is 1
+# for drop and 2 for trim. NULL where outside_exclude() or intersect_gaps()
+# declines for any moved ranges of positive width, or for another option.
+#
+# @param y the input GRanges
+# @param exclude the excluded regions
+# @param excludeOption "drop" or "trim"
+exclude_tables <- function(y, exclude, excludeOption) {
+  if (excludeOption == "drop") {
+    iv <- exclude_intervals(y, exclude)
+    if (is.null(iv)) {
+      return(NULL)
+    }
+    return(list(mode = 1L, seg = iv$seg, start = iv$start, end = iv$end,
+                seqinfo = NULL))
+  }
+  if (excludeOption == "trim") {
+    gap <- gaps(exclude, end = seqlengths(y))
+    gap <- gap[strand(gap) == "*"]
+    tb <- gap_tables(y, gap)
+    if (is.null(tb) || !tb$ordered) {
+      return(NULL)
+    }
+    return(list(mode = 2L, seg = tb$seg, start = tb$start, end = tb$end,
+                seqinfo = tb$seqinfo))
+  }
+  NULL
 }
 
 # plyranges::join_overlap_intersect(x, gap) for the moved ranges whose
@@ -551,6 +627,48 @@ outside_exclude <- function(y, exclude, code, start, width) {
 # @param x_code the index of each range's sequence in seqlevels(y)
 # @param x_start,x_end the start and end of each range
 intersect_gaps <- function(y, gap, x_code, x_start, x_end) {
+  tb <- gap_tables(y, gap)
+  if (is.null(tb) || any(x_end < x_start) || !tb$ordered) {
+    return(NULL)
+  }
+  gap_code <- tb$code
+  gap_start <- tb$start
+  gap_end <- tb$end
+  clip <- NULL
+  if (is.null(attributes(x_code)) && is.null(attributes(x_start)) &&
+      is.null(attributes(x_end))) {
+    clip <- .Call(
+      C_intersect_gaps, x_code, x_start, x_end, tb$seg, gap_start, gap_end
+    )
+  }
+  if (is.null(clip)) {
+    # positions offset by 2^32 per sequence, so the gaps of all sequences
+    # form one sorted vector and no key crosses into another sequence
+    x_off <- x_code * 4294967296
+    gap_off <- gap_code * 4294967296
+    first <- findInterval(x_off + x_start, gap_off + gap_end,
+                          left.open = TRUE) + 1L
+    last <- findInterval(x_off + x_end, gap_off + gap_start)
+    n_hit <- pmax.int(last - first + 1L, 0L)
+    q <- rep.int(seq_along(x_start), n_hit)
+    g <- sequence(n_hit, from = first)
+    new_start <- pmax.int(x_start[q], gap_start[g])
+    new_end <- pmin.int(x_end[q], gap_end[g])
+    clip <- list(q, new_start, new_end - new_start + 1L)
+  }
+  list(q = clip[[1L]], start = clip[[2L]], width = clip[[3L]],
+       seqinfo = tb$seqinfo)
+}
+
+# The gaps intersect_gaps() clips to, on y's seqlevels: their codes,
+# starts and ends ordered by sequence and then index, 'seg' (sequence c
+# holds gaps seg[c] + 1 to seg[c + 1]), whether they are disjoint and in
+# order along each sequence ('ordered'), and the seqinfo of the result.
+# NULL where intersect_gaps() declines whatever the ranges.
+#
+# @param y the input GRanges, whose class and seqinfo the moved ranges have
+# @param gap the gaps of the excluded regions, on strand "*"
+gap_tables <- function(y, gap) {
   si <- merge(seqinfo(y), seqinfo(gap))
   lev <- seqlevels(y)
   if (!identical(as.vector(class(y)), "GRanges") ||
@@ -575,36 +693,14 @@ intersect_gaps <- function(y, gap, x_code, x_start, x_end) {
   gap_start <- start(gap)[on_x][o]
   gap_end <- end(gap)[on_x][o]
   n_gap <- length(gap_code)
-  if (any(x_end < x_start) || any(gap_end < gap_start) ||
+  list(
+    code = gap_code, start = gap_start, end = gap_end,
+    seg = c(0L, cumsum(tabulate(gap_code, length(lev)))),
+    ordered = !(any(gap_end < gap_start) ||
       any(gap_code[-1L] == gap_code[-n_gap] &
-          gap_start[-1L] <= gap_end[-n_gap])) {
-    return(NULL)
-  }
-  clip <- NULL
-  if (is.null(attributes(x_code)) && is.null(attributes(x_start)) &&
-      is.null(attributes(x_end))) {
-    seg <- c(0L, cumsum(tabulate(gap_code, length(lev))))
-    clip <- .Call(
-      C_intersect_gaps, x_code, x_start, x_end, seg, gap_start, gap_end
-    )
-  }
-  if (is.null(clip)) {
-    # positions offset by 2^32 per sequence, so the gaps of all sequences
-    # form one sorted vector and no key crosses into another sequence
-    x_off <- x_code * 4294967296
-    gap_off <- gap_code * 4294967296
-    first <- findInterval(x_off + x_start, gap_off + gap_end,
-                          left.open = TRUE) + 1L
-    last <- findInterval(x_off + x_end, gap_off + gap_start)
-    n_hit <- pmax.int(last - first + 1L, 0L)
-    q <- rep.int(seq_along(x_start), n_hit)
-    g <- sequence(n_hit, from = first)
-    new_start <- pmax.int(x_start[q], gap_start[g])
-    new_end <- pmin.int(x_end[q], gap_end[g])
-    clip <- list(q, new_start, new_end - new_start + 1L)
-  }
-  list(q = clip[[1L]], start = clip[[2L]], width = clip[[3L]],
-       seqinfo = seqinfo(x0))
+          gap_start[-1L] <= gap_end[-n_gap])),
+    seqinfo = seqinfo(x0)
+  )
 }
 
 # The hits of findOverlaps(bait blocks of replicate r, y), for every r in

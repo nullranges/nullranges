@@ -2,6 +2,8 @@
 #include <Rinternals.h>
 #include <R_ext/Random.h>
 #include <math.h>
+#include <float.h>
+#include <limits.h>
 #include <string.h>
 
 /* ssMatch's remaining focal and pool, kept in one list that only ssMatch
@@ -9,7 +11,7 @@
 enum {
 	S_F, S_FIDX, S_P, S_PIDX, S_CNT, S_CODE, S_LENS, S_OUTF, S_OUTP,
 	S_FBIN, S_PBIN, S_FN, S_PN, S_RANK, S_BINOF, S_POFF, S_FOFF, S_PGRP,
-	S_FGRP, S_N
+	S_FGRP, S_BR, S_N
 };
 /* S_LENS: remaining focal, remaining pool, nLeft, matched so far */
 
@@ -44,6 +46,7 @@ SEXP ss_init(SEXP fps, SEXP pps, SEXP cnt, SEXP code, SEXP nLeft)
 	SET_VECTOR_ELT(st, S_FOFF, allocVector(INTSXP, capr));
 	SET_VECTOR_ELT(st, S_PGRP, allocVector(INTSXP, np));
 	SET_VECTOR_ELT(st, S_FGRP, allocVector(INTSXP, nf));
+	SET_VECTOR_ELT(st, S_BR, allocVector(REALSXP, cap));
 
 	if (nf)
 		memcpy(REAL(VECTOR_ELT(st, S_F)), REAL(fps), nf * sizeof(double));
@@ -138,6 +141,9 @@ static inline void count_out(int *cnt, const int *code, int row, int *nLeft)
 		(*nLeft)--;
 }
 
+static SEXP run_pass(SEXP st, const double *br, int nb, double mn,
+	double by, SEXP replace_, SEXP count_);
+
 /* One pass of ssMatch after seq() made the breaks: bin the remaining
  * focal and pool as stratify does, draw each qualifying bin's pool rows
  * (bins in order of first appearance in the pool) exactly as
@@ -149,26 +155,72 @@ static inline void count_out(int *cnt, const int *code, int row, int *nLeft)
 SEXP ss_pass(SEXP st, SEXP br_, SEXP mn_, SEXP by_, SEXP replace_,
 	SEXP count_)
 {
+	/* binCode's guard, after which .bincode runs on the whole vector */
+	double mn = asReal(mn_), by = asReal(by_);
+	int ok = isReal(br_) && XLENGTH(br_) >= 2 &&
+		XLENGTH(br_) <= INT_MAX - 2 && R_FINITE(mn) && R_FINITE(by) &&
+		by > 0;
+	const double *br = ok ? REAL(br_) : NULL;
+	int nb = ok ? (int) XLENGTH(br_) : 0;
+	for (int b = 0; ok && b < nb; b++)
+		if (ISNAN(br[b]) || (b && br[b - 1] > br[b]))
+			ok = 0;
+	if (!ok) {
+		SEXP out = PROTECT(allocVector(INTSXP, 2));
+		INTEGER(out)[0] = NA_INTEGER;
+		INTEGER(out)[1] = INTEGER(VECTOR_ELT(st, S_LENS))[2];
+		UNPROTECT(1);
+		return out;
+	}
+	return run_pass(st, br, nb, mn, by, replace_, count_);
+}
+
+/* ss_pass with the breaks seq(from = mn, to = mx, by = by) made here, in
+ * the case where seq.default computes pmin(from + (0L:n) * by, to) with
+ * n = as.integer((to - from)/by + 1e-10) and returns at least two
+ * breaks; those are sorted and finite, so binCode's guard holds. In any
+ * other case it returns NULL, changes nothing, and the caller runs seq()
+ * and ss_pass. */
+SEXP ss_pass_by(SEXP st, SEXP mn_, SEXP mx_, SEXP by_, SEXP replace_,
+	SEXP count_)
+{
+	if (!isReal(mn_) || !isReal(mx_) || !isReal(by_) || XLENGTH(mn_) != 1 ||
+	    XLENGTH(mx_) != 1 || XLENGTH(by_) != 1)
+		return R_NilValue;
+	double from = REAL(mn_)[0], to = REAL(mx_)[0], by = REAL(by_)[0];
+	if (!R_FINITE(from) || !R_FINITE(to) || !R_FINITE(by) || !(by > 0))
+		return R_NilValue;
+	double del = to - from;
+	if (!R_FINITE(del) || !(del > 0))
+		return R_NilValue;
+	double n = del / by;
+	if (!R_FINITE(n) || n > INT_MAX)
+		return R_NilValue;
+	if (fabs(del) / fmax(fabs(to), fabs(from)) < 100 * DBL_EPSILON)
+		return R_NilValue;
+	SEXP buf = VECTOR_ELT(st, S_BR);
+	double t = n + 1e-10;
+	if (!(t >= 1) || !(t < (double) XLENGTH(buf) - 1))
+		return R_NilValue;
+	int ni = (int) t;
+	double *br = REAL(buf);
+	for (int k = 0; k <= ni; k++) {
+		/* R rounds (0L:n) * by and from + that separately */
+		volatile double kb = (double) k * by;
+		double v = from + kb;
+		br[k] = to < v ? to : v;
+	}
+	return run_pass(st, br, ni + 1, from, by, replace_, count_);
+}
+
+static SEXP run_pass(SEXP st, const double *br, int nb, double mn,
+	double by, SEXP replace_, SEXP count_)
+{
 	int *lens = INTEGER(VECTOR_ELT(st, S_LENS));
 	int lf = lens[0], lp = lens[1], nLeft = lens[2], nDone = lens[3];
 	SEXP out = PROTECT(allocVector(INTSXP, 2));
 	INTEGER(out)[0] = NA_INTEGER;
 	INTEGER(out)[1] = nLeft;
-
-	/* binCode's guard, after which .bincode runs on the whole vector */
-	double mn = asReal(mn_), by = asReal(by_);
-	if (!isReal(br_) || XLENGTH(br_) < 2 || XLENGTH(br_) > INT_MAX - 2 ||
-	    !R_FINITE(mn) || !R_FINITE(by) || by <= 0) {
-		UNPROTECT(1);
-		return out;
-	}
-	const double *br = REAL(br_);
-	int nb = (int) XLENGTH(br_);
-	for (int b = 0; b < nb; b++)
-		if (ISNAN(br[b]) || (b && br[b - 1] > br[b])) {
-			UNPROTECT(1);
-			return out;
-		}
 
 	const double *f = REAL(VECTOR_ELT(st, S_F));
 	const double *p = REAL(VECTOR_ELT(st, S_P));

@@ -108,15 +108,60 @@ static inline int move_one(int start, int width, int shift, int code,
 	return 1;
 }
 
+/* The first of the intervals [lo, hi) of a sequence, sorted and disjoint,
+ * whose end is at or after x; k, the answer for the previous row when it
+ * was on the same sequence (same != 0), is kept when it still is. */
+static inline int first_end_ge(const int *ie, int lo, int hi, int k,
+	int same, int x)
+{
+	if (same && (k == lo || ie[k - 1] < x) && (k == hi || ie[k] >= x))
+		return k;
+	int a = lo, b = hi;
+	while (a < b) {
+		int m = a + (b - a) / 2;
+		if (ie[m] < x)
+			a = m + 1;
+		else
+			b = m;
+	}
+	return a;
+}
+
+/* The exclude step for one moved row (code, ns, ne = ns + width - 1) in
+ * sequence c's intervals [lo, hi): for mode 1 (drop) 1 when it overlaps
+ * none, else 0, as outside_intervals(); for mode 2 (trim) the number of
+ * gaps it overlaps, its pieces, as intersect_gaps(). *k is the first
+ * interval ending at or after ns. */
+static inline int ex_count(int mode, const int *xs, const int *xe, int lo,
+	int hi, int *k, int same, int ns, int ne)
+{
+	int a = first_end_ge(xe, lo, hi, *k, same, ns);
+	*k = a;
+	if (mode == 1)
+		return !(a < hi && xs[a] <= ne);
+	int j = a;
+	while (j < hi && xs[j] <= ne)
+		j++;
+	return j - a;
+}
+
 /* The moved ranges of every bait block in one pass: per block, in order,
  * the ranges of y it overlaps, by increasing index in y, with their index
  * in y ('s'), target seqlevel code, shifted and trimmed start and width,
  * and replicate ('block'), keeping width > 0. R_NilValue wherever the R
  * route (bait_overlaps(), shift_swap_trim_positions()) would not take
- * sorted_overlaps() for every block or could decline, or has no hit. */
-SEXP moved_positions(SEXP b_code_, SEXP b_start_, SEXP b_width_, SEXP n_rep_,
-	SEXP y_code_, SEXP y_start_, SEXP y_end_, SEXP y_width_, SEXP circular_,
-	SEXP seqlen_, SEXP bounded_, SEXP shift_, SEXP t_code_)
+ * sorted_overlaps() for every block or could decline, or has no hit.
+ *
+ * With mode 1 or 2 the exclude step is applied to those rows: sequence c
+ * holds the sorted, disjoint intervals xseg[c - 1] to xseg[c] - 1 of xs and
+ * xe; mode 1 (drop) keeps the rows overlapping none of them, mode 2 (trim)
+ * puts in each row's place its pieces clipped to each interval (gap) it
+ * overlaps, by gap. FALSE where the exclude tables are malformed or the
+ * pieces outnumber an integer index. */
+static SEXP moved_impl(SEXP b_code_, SEXP b_start_, SEXP b_width_,
+	SEXP n_rep_, SEXP y_code_, SEXP y_start_, SEXP y_end_, SEXP y_width_,
+	SEXP circular_, SEXP seqlen_, SEXP bounded_, SEXP shift_, SEXP t_code_,
+	int mode, SEXP xseg_, SEXP xs_, SEXP xe_)
 {
 	if (TYPEOF(b_code_) != INTSXP || TYPEOF(b_start_) != INTSXP ||
 		TYPEOF(b_width_) != INTSXP || TYPEOF(n_rep_) != INTSXP ||
@@ -138,6 +183,29 @@ SEXP moved_positions(SEXP b_code_, SEXP b_start_, SEXP b_width_, SEXP n_rep_,
 		XLENGTH(y_width_) != n_y || XLENGTH(seqlen_) != n_lev ||
 		XLENGTH(bounded_) != n_lev || (int64_t) n_rep * n_lev > INT_MAX)
 		return R_NilValue;
+
+	/* the exclude tables: one run of intervals per seqlevel of y, each
+	 * sorted and disjoint, as exclude_intervals() and gap_tables() give */
+	const int *xseg = NULL, *xs = NULL, *xe = NULL;
+	if (mode != 0) {
+		if (TYPEOF(xseg_) != INTSXP || TYPEOF(xs_) != INTSXP ||
+			TYPEOF(xe_) != INTSXP || XLENGTH(xseg_) != (R_xlen_t) n_lev + 1 ||
+			XLENGTH(xe_) != XLENGTH(xs_) || XLENGTH(xs_) > INT_MAX)
+			return ScalarLogical(FALSE);
+		xseg = INTEGER(xseg_);
+		xs = INTEGER(xs_);
+		xe = INTEGER(xe_);
+		if (xseg[0] != 0 || xseg[n_lev] != XLENGTH(xs_))
+			return ScalarLogical(FALSE);
+		for (int c = 0; c < n_lev; c++) {
+			if (xseg[c + 1] < xseg[c])
+				return ScalarLogical(FALSE);
+			for (int j = xseg[c]; j < xseg[c + 1]; j++)
+				if (xs[j] == NA_INTEGER || xe[j] == NA_INTEGER ||
+					xe[j] < xs[j] || (j > xseg[c] && xs[j] <= xe[j - 1]))
+					return ScalarLogical(FALSE);
+		}
+	}
 	R_xlen_t n_blocks = n / n_rep;
 	const int *yc = INTEGER(y_code_);
 
@@ -231,10 +299,12 @@ SEXP moved_positions(SEXP b_code_, SEXP b_start_, SEXP b_width_, SEXP n_rep_,
 	int *first = (int *) R_alloc(n, sizeof(int));
 	int *last = (int *) R_alloc(n, sizeof(int));
 	/* a block whose candidates are all hits, moved without overflow or
-	 * trimming: every row kept as it is */
+	 * trimming, and, with an exclude step, overlapping no interval (drop)
+	 * or inside one gap (trim): every row kept as it is */
 	unsigned char *plain = (unsigned char *) R_alloc(n, 1);
 	R_xlen_t n_t_rep = n_t * (R_xlen_t) n_rep;
 	R_xlen_t n_hit = 0, n_keep = 0;
+	int ex_prev = 0, ex_k = 0;
 	for (R_xlen_t b = 0; b < n; b++) {
 		int c = bc[b] - 1, cs = seg[c], ce = seg[c + 1];
 		int lo = count_le(em, cs, ce, bk_max + c, t_max, (int64_t) bs[b] - 1);
@@ -253,10 +323,22 @@ SEXP moved_positions(SEXP b_code_, SEXP b_start_, SEXP b_width_, SEXP n_rep_,
 			int64_t s0 = (int64_t) ys[lo] + sh, e1 = (int64_t) em[hi - 1] + sh;
 			if (bounded[code - 1] ? (s0 >= 1 && e1 <= seqlen[code - 1]) :
 				(INT_OK(s0) && INT_OK(e1))) {
-				plain[b] = 1;
-				n_hit += hi - lo;
-				n_keep += hi - lo;
-				continue;
+				int ok = 1;
+				if (mode != 0) {
+					int xlo = xseg[code - 1], xhi = xseg[code];
+					int a = first_end_ge(xe, xlo, xhi, ex_k,
+						code == ex_prev, (int) s0);
+					ex_prev = code;
+					ex_k = a;
+					ok = mode == 1 ? (a == xhi || xs[a] > e1) :
+						(a < xhi && xs[a] <= s0 && e1 <= xe[a]);
+				}
+				if (ok) {
+					plain[b] = 1;
+					n_hit += hi - lo;
+					n_keep += hi - lo;
+					continue;
+				}
 			}
 		}
 		for (int k = lo; k < hi; k++) {
@@ -268,11 +350,21 @@ SEXP moved_positions(SEXP b_code_, SEXP b_start_, SEXP b_width_, SEXP n_rep_,
 				code > n_lev ||
 				!move_one(ys[k], yw[k], sh, code, seqlen, bounded, &ns, &nw))
 				return R_NilValue;
-			n_keep += nw > 0;
+			if (nw <= 0)
+				continue;
+			if (mode == 0) {
+				n_keep++;
+				continue;
+			}
+			n_keep += ex_count(mode, xs, xe, xseg[code - 1], xseg[code], &ex_k,
+				code == ex_prev, ns, ns + (nw - 1));
+			ex_prev = code;
 		}
 	}
 	if (n_hit == 0 || n_hit > INT_MAX)
 		return R_NilValue;
+	if (n_keep > INT_MAX)
+		return ScalarLogical(FALSE);
 
 	/* pass 2: the rows */
 	SEXP ans = PROTECT(allocVector(VECSXP, 5));
@@ -286,6 +378,8 @@ SEXP moved_positions(SEXP b_code_, SEXP b_start_, SEXP b_width_, SEXP n_rep_,
 	}
 	setAttrib(ans, R_NamesSymbol, nms);
 	R_xlen_t at = 0;
+	ex_prev = 0;
+	ex_k = 0;
 	for (R_xlen_t b = 0; b < n; b++) {
 		int lo = first[b], hi = last[b];
 		if (lo >= hi)
@@ -304,6 +398,8 @@ SEXP moved_positions(SEXP b_code_, SEXP b_start_, SEXP b_width_, SEXP n_rep_,
 			}
 			continue;
 		}
+		int xlo = mode != 0 ? xseg[code - 1] : 0;
+		int xhi = mode != 0 ? xseg[code] : 0;
 		for (int k = lo; k < hi; k++) {
 			if (ye[k] < bstart)
 				continue;
@@ -311,14 +407,68 @@ SEXP moved_positions(SEXP b_code_, SEXP b_start_, SEXP b_width_, SEXP n_rep_,
 			move_one(ys[k], yw[k], sh, code, seqlen, bounded, &ns, &nw);
 			if (nw <= 0)
 				continue;
-			out[0][at] = (o == NULL ? k : o[k]) + 1;
-			out[1][at] = code;
-			out[2][at] = ns;
-			out[3][at] = nw;
-			out[4][at] = rep;
-			at++;
+			int s_k = (o == NULL ? k : o[k]) + 1;
+			if (mode == 0) {
+				out[0][at] = s_k;
+				out[1][at] = code;
+				out[2][at] = ns;
+				out[3][at] = nw;
+				out[4][at] = rep;
+				at++;
+				continue;
+			}
+			int ne = ns + (nw - 1);
+			int a = first_end_ge(xe, xlo, xhi, ex_k, code == ex_prev, ns);
+			ex_prev = code;
+			ex_k = a;
+			if (mode == 1) {
+				if (a < xhi && xs[a] <= ne)
+					continue;
+				out[0][at] = s_k;
+				out[1][at] = code;
+				out[2][at] = ns;
+				out[3][at] = nw;
+				out[4][at] = rep;
+				at++;
+				continue;
+			}
+			for (int j = a; j < xhi && xs[j] <= ne; j++, at++) {
+				int ps = ns > xs[j] ? ns : xs[j];
+				int pe = ne < xe[j] ? ne : xe[j];
+				out[0][at] = s_k;
+				out[1][at] = code;
+				out[2][at] = ps;
+				out[3][at] = pe - ps + 1;
+				out[4][at] = rep;
+			}
 		}
 	}
 	UNPROTECT(2);
 	return ans;
+}
+
+/* moved_impl() without an exclude step */
+SEXP moved_positions(SEXP b_code_, SEXP b_start_, SEXP b_width_, SEXP n_rep_,
+	SEXP y_code_, SEXP y_start_, SEXP y_end_, SEXP y_width_, SEXP circular_,
+	SEXP seqlen_, SEXP bounded_, SEXP shift_, SEXP t_code_)
+{
+	return moved_impl(b_code_, b_start_, b_width_, n_rep_, y_code_, y_start_,
+		y_end_, y_width_, circular_, seqlen_, bounded_, shift_, t_code_, 0,
+		R_NilValue, R_NilValue, R_NilValue);
+}
+
+/* moved_impl() with the exclude step of mode_ (0 none, 1 drop, 2 trim) */
+SEXP moved_rows(SEXP b_code_, SEXP b_start_, SEXP b_width_, SEXP n_rep_,
+	SEXP y_code_, SEXP y_start_, SEXP y_end_, SEXP y_width_, SEXP circular_,
+	SEXP seqlen_, SEXP bounded_, SEXP shift_, SEXP t_code_, SEXP mode_,
+	SEXP xseg_, SEXP xs_, SEXP xe_)
+{
+	if (TYPEOF(mode_) != INTSXP || XLENGTH(mode_) != 1)
+		return ScalarLogical(FALSE);
+	int mode = INTEGER(mode_)[0];
+	if (mode != 0 && mode != 1 && mode != 2)
+		return ScalarLogical(FALSE);
+	return moved_impl(b_code_, b_start_, b_width_, n_rep_, y_code_, y_start_,
+		y_end_, y_width_, circular_, seqlen_, bounded_, shift_, t_code_, mode,
+		xseg_, xs_, xe_);
 }

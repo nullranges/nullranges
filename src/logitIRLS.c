@@ -152,13 +152,15 @@ SEXP logit_irls(SEXP x, SEXP ycode, SEXP s_eps, SEXP s_maxit, SEXP s_tol)
 				goto fallback;
 			zw[i] = zwi;
 		}
-		/* x[good, , drop = FALSE] * w; Cdqrls stops on a non-finite value */
+		/* x[good, , drop = FALSE] * w; Cdqrls stops on a non-finite value.
+		 * In package code R_FINITE is a call into libR's R_finite, so the
+		 * per-element test uses C99 isfinite, which agrees on every double */
 		for (int j = 0; j < p; j++) {
 			const double *xj = X + (R_xlen_t) j * N;
 			double *qj = qr + (R_xlen_t) j * N;
 			for (R_xlen_t i = 0; i < N; i++) {
 				double v = xj[i] * w[i];
-				if (!R_FINITE(v))
+				if (!isfinite(v))
 					goto fallback;
 				qj[i] = v;
 			}
