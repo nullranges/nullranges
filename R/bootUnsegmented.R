@@ -142,28 +142,34 @@ unseg_permute_within_chrom <- function(y, L_b, L_s=NULL, chr=NULL) {
 # @param rearranged_blocks the blocks tiling the genome (tileGenome),
 # where the bait blocks will move to
 unseg_bootstrap_across_chrom <- function(y, L_b, L_s, rearranged_blocks) {
+  blocks <- unseg_across_draws(1L, L_b, L_s, rearranged_blocks)
+  move_blocks(y, blocks, blocks$draws[[1L]])
+}
+
+# The random bait blocks of 'n_rep' replicates of the bootstrap across
+# chromosomes, in replicate order, and the blocks they move to; the
+# value is laid out as seg_bootstrap_draws()'s
+#
+# @param n_rep the number of replicates
+# @param L_b the length of the blocks
+# @param L_s the lengths of the chromosomes
+# @param rearranged_blocks the blocks tiling the genome (tileGenome),
+# where the bait blocks will move to
+unseg_across_draws <- function(n_rep, L_b, L_s, rearranged_blocks) {
   # blocks allowed to go over L_s
   n_per_chrom  <- ceiling(L_s / L_b)
   # total number of tiling blocks
   n <- sum(n_per_chrom)
-  # sample according to chromosome length
-  random_chr <- sample(names(L_s), n, replace=TRUE, prob=L_s)
-  # random starts within the tiled regions
-  random_start <- round(runif(n, 1, (n_per_chrom[random_chr] - 1) * L_b + 1))
-  # these blocks are the 'bait' for capturing features in 'y'
-  random_blocks <- GenomicRanges::GRanges(seqnames=random_chr,
-                           ranges=IRanges::IRanges(start = random_start, width = L_b))
-  # use the bait to sample features in 'y'
-  fo <- GenomicRanges::findOverlaps(random_blocks, y)
-  # y has been sampled multiple times
-  y_mult_hits <- y[subjectHits(fo)]
-  # label which 'bait' block each feature hit in the re-sampling
-  mcols(y_mult_hits)$block <- queryHits(fo)
-  # shift the ranges in those bait blocks
-  shift_and_swap_chrom(
-    y_mult_hits, seqnames(rearranged_blocks),
-    start(random_blocks), start(rearranged_blocks)
-  )
+  draws <- lapply(seq_len(n_rep), function(r) {
+    # sample according to chromosome length
+    random_chr <- sample(names(L_s), n, replace=TRUE, prob=L_s)
+    # random starts within the tiled regions
+    random_start <- round(runif(n, 1, (n_per_chrom[random_chr] - 1) * L_b + 1))
+    list(start = random_start, chr = random_chr)
+  })
+  list(draws = draws, width = L_b,
+       target_start = start(rearranged_blocks),
+       target_chr = seqnames(rearranged_blocks))
 }
 
 # Permute blocks of GRanges across chomosome
