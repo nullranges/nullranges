@@ -187,6 +187,30 @@ rsMatch <- function(fps, pps, replace) {
 
 }
 
+#' `.bincode(x, br, include.lowest = TRUE)` for breaks spaced `by`
+#' apart from `mn`
+#' @param x A numeric vector.
+#' @param br The breaks, `seq(from = mn, to = mx, by = by)`.
+#' @param mn,by The first break and the spacing of `br`.
+#' @return The integer bin codes `.bincode` returns.
+#' @noRd
+binCode <- function(x, br, mn, by) {
+  nb <- length(br)
+  if (nb < 2L || anyNA(br) || !is.finite(mn) || !is.finite(by) || by <= 0 ||
+      is.unsorted(br))
+    return(.bincode(x, br, include.lowest = TRUE))
+
+  ## For sorted breaks the one g with br[g] < x <= br[g + 1] is the
+  ## code .bincode returns; a guess from the spacing finds it without a
+  ## binary search, and the misses (x == br[1], outside the breaks,
+  ## rounding) go to .bincode. NA stays NA.
+  g <- as.integer(pmin(pmax(ceiling((x - mn) / by), 1), nb - 1L))
+  bad <- which(!(br[g] < x & x <= br[g + 1L]))
+  if (length(bad))
+    g[bad] <- .bincode(x[bad], br, include.lowest = TRUE)
+  g
+}
+
 #' Stratifies propensity scores by bins
 #' @param fm A `data.table` with `focal` propensity scores
 #'   and their corresponding indices.
@@ -204,12 +228,13 @@ stratify <- function(fm, pm, n) {
   ## Define breaks using fps and pps
   mn <- min(c(fm$fps, pm$pps))
   mx <- max(c(fm$fps, pm$pps))
-  br <- seq(from=mn, to=mx, by=(mx-mn)/n)
+  by <- (mx-mn)/n
+  br <- seq(from=mn, to=mx, by=by)
 
   ## Assign fps and pps to bin; values outside the breaks (NA)
   ## form one more bin, as NA matches NA in a data.table join
-  fbin <- .bincode(fm$fps, br, include.lowest = TRUE)
-  pbin <- .bincode(pm$pps, br, include.lowest = TRUE)
+  fbin <- binCode(fm$fps, br, mn, by)
+  pbin <- binCode(pm$pps, br, mn, by)
   nb <- length(br)
   fbin[is.na(fbin)] <- nb
   pbin[is.na(pbin)] <- nb
