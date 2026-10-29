@@ -68,6 +68,7 @@
 #'               seqlengths=c(chr1=50))
 #' br <- bootRanges(gr, blockLength=10)
 #' 
+#' @useDynLib nullranges, .registration = TRUE, .fixes = "C_"
 #' @export
 bootRanges <- function(y, blockLength, R = 1,
                        seg = NULL,
@@ -205,7 +206,8 @@ move_blocks <- function(y, blocks, d) {
 # could differ (a replicate with fewer bait blocks than targets, a bait
 # block on a sequence 'y' lacks or past the end of a circular one, an
 # input shift_swap_trim() declines). The moved positions are computed on
-# vectors and 'y' is subset once, for the ranges kept.
+# vectors, by moved_positions() where it can, and 'y' is subset once, for
+# the ranges kept.
 move_blocks_bulk <- function(y, blocks, exclude, excludeOption) {
   draws <- blocks$draws
   n_rep <- length(draws)
@@ -229,59 +231,109 @@ move_blocks_bulk <- function(y, blocks, exclude, excludeOption) {
       width = rep_len(blocks$width, length(bait_start))
     )
   )
-  bait_rep <- rep(seq_len(n_rep), each = n_blocks)
-  fo <- bait_overlaps(random_blocks, bait_code, bait_rep, n_rep, y)
-  hit_block <- fo$query
   block_shift <- rep(blocks$target_start, n_rep) - start(random_blocks)
   target_chr <- blocks$target_chr
   if (is(target_chr, "Rle")) {
     target_chr <- decode(target_chr)
   }
-  moved <- shift_swap_trim_positions(
-    y, fo$subject, block_shift[hit_block], target_chr, n_rep, hit_block
+  moved <- moved_positions(
+    y, random_blocks, bait_code, n_rep, block_shift, target_chr
+  )
+  if (is.null(moved)) {
+    bait_rep <- rep(seq_len(n_rep), each = n_blocks)
+    fo <- bait_overlaps(random_blocks, bait_code, bait_rep, n_rep, y)
+    hit_block <- fo$query
+    moved <- shift_swap_trim_positions(
+      y, fo$subject, block_shift[hit_block], target_chr, n_rep, hit_block
+    )
+    if (is.null(moved)) {
+      return(NULL)
+    }
+    i <- which(moved$width > 0L)
+    moved <- list(
+      s = moved$s[i], code = moved$code[i], start = moved$start[i],
+      width = moved$width[i], block = bait_rep[hit_block[i]],
+      chr_attr = moved$chr_attr
+    )
+  }
+  # only rows of positive width from here: overlapsAny() is per range
+  s <- moved$s
+  code <- moved$code
+  new_start <- moved$start
+  new_width <- moved$width
+  block <- moved$block
+  if (!is.null(exclude) && excludeOption == "drop") {
+    i <- which(!overlapsAny(
+      moved_ranges(y, s, code, new_start, new_width, moved$chr_attr),
+      exclude, type = "any"
+    ))
+    y_prime <- moved_ranges(
+      y, s[i], code[i], new_start[i], new_width[i], moved$chr_attr, block[i]
+    )
+  } else if (!is.null(exclude) && excludeOption == "trim") {
+    gap <- gaps(exclude, end = seqlengths(y))
+    gap <- gap[strand(gap) == "*"]
+    clip <- intersect_gaps(
+      y, gap, code, new_start, new_start + (new_width - 1L)
+    )
+    if (is.null(clip)) {
+      y_prime <- moved_ranges(
+        y, s, code, new_start, new_width, moved$chr_attr, block
+      )
+      y_prime <- plyranges::join_overlap_intersect(y_prime, gap)
+    } else {
+      i <- clip$q
+      y_prime <- moved_ranges(
+        y, s[i], code[i], clip$start, clip$width, moved$chr_attr, block[i],
+        clip$seqinfo
+      )
+    }
+  } else {
+    y_prime <- moved_ranges(
+      y, s, code, new_start, new_width, moved$chr_attr, block
+    )
+  }
+  list(ranges = y_prime, lens = tabulate(mcols(y_prime)$block, n_rep))
+}
+
+# What shift_swap_trim_positions() gives for the hits of bait_overlaps(),
+# in one compiled pass, restricted to the rows of positive width, with
+# each row's replicate as 'block': for each bait block in order, the
+# ranges of 'y' it overlaps by increasing index in 'y', found as
+# sorted_overlaps() finds them. NULL wherever bait_overlaps() would not
+# take sorted_overlaps() for every block, either function could decline,
+# or there is no hit: the caller then runs them.
+#
+# @param y the input GRanges
+# @param bait the bait blocks of all replicates, in replicate order
+# @param bait_code the index of each block's sequence in seqlevels(y)
+# @param n_rep the number of replicates
+# @param block_shift the shift of each block
+# @param target_chr the sequence each block moves to, a factor
+moved_positions <- function(y, bait, bait_code, n_rep, block_shift,
+                            target_chr) {
+  chr_attr <- attributes(target_chr)
+  lev <- seqlevels(y)
+  if (!identical(as.vector(class(y)), "GRanges") ||
+      !is.numeric(block_shift) || length(lev) >= 2097152L ||
+      !is.factor(target_chr) ||
+      !setequal(names(chr_attr), c("levels", "class")) ||
+      !identical(levels(target_chr), lev)) {
+    return(NULL)
+  }
+  circular <- unname(Seqinfo::isCircular(y)) %in% TRUE
+  seqlen <- unname(seqlengths(y))
+  moved <- .Call(
+    C_moved_positions, as.integer(bait_code), start(bait), width(bait),
+    as.integer(n_rep), as.integer(seqnames(y)), start(y), end(y), width(y),
+    circular, as.integer(seqlen), !(circular | is.na(seqlen)),
+    suppressWarnings(as.integer(block_shift)), as.integer(target_chr)
   )
   if (is.null(moved)) {
     return(NULL)
   }
-  block <- bait_rep[hit_block]
-  keep <- moved$width > 0L
-  if (!is.null(exclude) && excludeOption == "drop") {
-    keep <- keep & !overlapsAny(
-      moved_ranges(y, moved$s, moved$code, moved$start, moved$width,
-                   moved$chr_attr),
-      exclude, type = "any"
-    )
-  }
-  if (!is.null(exclude) && excludeOption == "trim") {
-    gap <- gaps(exclude, end = seqlengths(y))
-    gap <- gap[strand(gap) == "*"]
-    i <- which(keep)
-    start_i <- moved$start[i]
-    width_i <- moved$width[i]
-    clip <- intersect_gaps(
-      y, gap, moved$code[i], start_i, start_i + (width_i - 1L)
-    )
-    if (is.null(clip)) {
-      y_prime <- moved_ranges(
-        y, moved$s[i], moved$code[i], start_i, width_i,
-        moved$chr_attr, block[i]
-      )
-      y_prime <- plyranges::join_overlap_intersect(y_prime, gap)
-    } else {
-      i <- i[clip$q]
-      y_prime <- moved_ranges(
-        y, moved$s[i], moved$code[i], clip$start, clip$width,
-        moved$chr_attr, block[i], clip$seqinfo
-      )
-    }
-  } else {
-    i <- which(keep)
-    y_prime <- moved_ranges(
-      y, moved$s[i], moved$code[i], moved$start[i], moved$width[i],
-      moved$chr_attr, block[i]
-    )
-  }
-  list(ranges = y_prime, lens = tabulate(mcols(y_prime)$block, n_rep))
+  moved$chr_attr <- chr_attr
+  moved
 }
 
 # What shift_swap_trim(y[s], shift, Rle(rep(target_chr, n_rep)[hit_block]))
