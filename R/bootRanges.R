@@ -127,7 +127,7 @@ bootRanges <- function(y, blockLength, R = 1,
       lens <- bulk$lens
       br <- bulk$ranges
     } else {
-      br <- lapply(blocks$draws, function(d) {
+      br <- lapply(bait_draws(blocks), function(d) {
         exclude_ranges(move_blocks(y, blocks, d), y, exclude, excludeOption)
       })
       lens <- lengths(br)
@@ -209,16 +209,26 @@ move_blocks <- function(y, blocks, d) {
 # vectors, by moved_positions() where it can, with the exclude step when
 # exclude_tables() prepares it, and 'y' is subset once, for the ranges kept.
 move_blocks_bulk <- function(y, blocks, exclude, excludeOption) {
-  draws <- blocks$draws
-  n_rep <- length(draws)
   n_blocks <- length(blocks$target_start)
-  bait_start <- lapply(draws, `[[`, "start")
-  if (any(lengths(bait_start) != n_blocks)) {
-    return(NULL)
+  if (is.null(blocks$bait_start)) {
+    draws <- blocks$draws
+    n_rep <- length(draws)
+    bait_start <- lapply(draws, `[[`, "start")
+    if (any(lengths(bait_start) != n_blocks)) {
+      return(NULL)
+    }
+    bait_start <- unlist(bait_start, use.names = FALSE)
+    bait_chr <- unlist(lapply(draws, `[[`, "chr"), use.names = FALSE)
+    bait_code <- match(bait_chr, seqlevels(y))
+  } else {
+    n_rep <- length(blocks$bait_len)
+    if (any(blocks$bait_len != n_blocks)) {
+      return(NULL)
+    }
+    bait_start <- blocks$bait_start
+    bait_chr <- NULL
+    bait_code <- match(blocks$chr_names, seqlevels(y))[blocks$bait_seg]
   }
-  bait_start <- unlist(bait_start, use.names = FALSE)
-  bait_chr <- unlist(lapply(draws, `[[`, "chr"), use.names = FALSE)
-  bait_code <- match(bait_chr, seqlevels(y))
   circular <- unname(Seqinfo::isCircular(y)) %in% TRUE
   if (anyNA(bait_code) || any(circular[bait_code] & (bait_start < 1 |
       bait_start > unname(seqlengths(y))[bait_code]))) {
@@ -256,6 +266,9 @@ move_blocks_bulk <- function(y, blocks, exclude, excludeOption) {
     # moved_positions() reads only starts and widths; with no NA in
     # bait_code this GRanges cannot fail, so building it here changes no
     # fallback
+    if (is.null(bait_chr)) {
+      bait_chr <- blocks$chr_names[blocks$bait_seg]
+    }
     random_blocks <- GRanges(seqnames = bait_chr, ranges = bait_ranges)
     bait_rep <- rep(seq_len(n_rep), each = n_blocks)
     fo <- bait_overlaps(random_blocks, bait_code, bait_rep, n_rep, y)
@@ -893,7 +906,10 @@ count_at_or_before <- function(code, pos, x_code, x_pos) {
 #
 # @return a list: 'draws', per replicate the bait block starts ('start')
 # and chromosomes ('chr'); 'width', the bait block widths; 'target_start'
-# and 'target_chr', the blocks the bait blocks move to
+# and 'target_chr', the blocks the bait blocks move to. When
+# seg_draws_compiled() made the draws, 'draws' is NULL and 'bait_start',
+# 'bait_seg' (the index in seg) and 'bait_len' (the number per replicate)
+# hold them, with 'chr_names'; bait_draws() gives the list
 seg_bootstrap_draws <- function(n_rep, y, seg, state, L_b,
                                 chr_names, chr_lens,
                                 proportion_length = TRUE) {
@@ -911,7 +927,76 @@ seg_bootstrap_draws <- function(n_rep, y, seg, state, L_b,
                                 esses, n_rep)
   }
   out$target_chr <- factor(out$target_chr, levels = seqlevels(y))
+  if (!is.null(out$bait_start)) {
+    out$chr_names <- chr_names
+  }
   out
+}
+
+# blocks$draws, built from the vectors of seg_draws_compiled() if need be
+bait_draws <- function(blocks) {
+  if (is.null(blocks$bait_start)) {
+    return(blocks$draws)
+  }
+  len <- blocks$bait_len
+  first <- cumsum(len) - len
+  lapply(seq_along(len), function(r) {
+    i <- first[r] + seq_len(len[r])
+    list(start = as.double(blocks$bait_start[i]),
+         chr = blocks$chr_names[blocks$bait_seg[i]])
+  })
+}
+
+# The draws of seg_bootstrap_prop() (no 'st') or seg_bootstrap_noprop()
+# for all replicates by one call of C_seg_draws, which makes every draw as
+# sample() and round(runif()) make it, in the same order. Each table holds
+# segments 'index' with their widths as probabilities, 'n' draws per
+# replicate, and runif() bounds rmin = start, rmax = (nblocks - 1) * L + start
+# per segment, the values the R loop computes per draw. NULL, before any
+# draw, wherever a draw could fail, warn or give a start past the integer
+# range, so the R loop runs and fails or warns as before.
+#
+# @param tabs per table, list(index, width, start, nblocks, L, n)
+# @param n_rep the number of replicates
+# @param st the state of each segment (0 for none), noprop only
+# @param rearr the number of tiling blocks per state, noprop only
+seg_draws_compiled <- function(tabs, n_rep, st = NULL, rearr = NULL) {
+  if (length(tabs) < 1L || !is.integer(n_rep) || length(n_rep) != 1L ||
+      is.na(n_rep) || n_rep < 1L) {
+    return(NULL)
+  }
+  n_draw <- integer(length(tabs))
+  rmax <- vector("list", length(tabs))
+  for (k in seq_along(tabs)) {
+    tb <- tabs[[k]]
+    n <- tb$n
+    L <- tb$L
+    if (length(tb$width) < 1L || !is.integer(tb$width) ||
+        !is.integer(tb$start) || !is.numeric(tb$nblocks) ||
+        !is.numeric(n) || length(n) != 1L || !is.finite(n) || n < 1 ||
+        n > .Machine$integer.max || n != trunc(n) ||
+        !is.numeric(L) || length(L) != 1L ||
+        anyNA(tb$width) || any(tb$width < 0L) || !any(tb$width > 0L)) {
+      return(NULL)
+    }
+    hi <- (tb$nblocks - 1) * L + tb$start
+    if (length(hi) != length(tb$start) || !all(is.finite(hi)) ||
+        any(hi < tb$start) || any(tb$start < -2147483645L) ||
+        any(hi > 2147483645)) {
+      return(NULL)
+    }
+    n_draw[k] <- as.integer(n)
+    rmax[[k]] <- as.double(hi)
+  }
+  m <- lengths(lapply(tabs, `[[`, "width"))
+  .Call(
+    C_seg_draws, n_rep,
+    as.double(unlist(lapply(tabs, `[[`, "width"), use.names = FALSE)),
+    as.double(unlist(lapply(tabs, `[[`, "start"), use.names = FALSE)),
+    unlist(rmax, use.names = FALSE),
+    as.integer(unlist(lapply(tabs, `[[`, "index"), use.names = FALSE)),
+    c(0L, cumsum(m)), n_draw, st, rearr
+  )
 }
 
 # breaking up the seg_bootstrap_draws() code... proportional length case
@@ -940,9 +1025,14 @@ seg_bootstrap_prop <- function(seg, state, L_b, chr_names, chr_lens,
       width = width_s, start = seg_start[in_s],
       chr = chr_names[in_s], nblocks = nblocks_per_rng,
       # total number of tiling blocks
-      n = sum(nblocks_per_rng)
+      n = sum(nblocks_per_rng), index = which(in_s)
     )
   })
+
+  out <- seg_prop_compiled(per_state, L_b, L_b_per_state, n_rep)
+  if (!is.null(out)) {
+    return(out)
+  }
 
   draws <- vector("list", n_rep)
   for (r in seq_len(n_rep)) {
@@ -1004,6 +1094,45 @@ seg_bootstrap_prop <- function(seg, state, L_b, chr_names, chr_lens,
   )
 }
 
+# seg_bootstrap_prop()'s value by seg_draws_compiled(), the tiling blocks
+# computed first; NULL where the R loop must run
+seg_prop_compiled <- function(per_state, L_b, L_b_per_state, n_rep) {
+  if (length(L_b) != 1L) {
+    return(NULL)
+  }
+  tiles <- tryCatch(lapply(seq_along(per_state), function(s) {
+    L_bs <- L_b_per_state[s]
+    p <- per_state[[s]]
+    end_s <- p$start + p$width - 1L
+    list(
+      unlist(lapply(seq_along(p$width), function(j) {
+        seq(from = p$start[j], to = end_s[j], by = L_bs)
+      }), use.names = FALSE),
+      rep(p$chr, p$nblocks)
+    )
+  }), warning = function(w) NULL, error = function(e) NULL)
+  if (is.null(tiles)) {
+    return(NULL)
+  }
+  tabs <- lapply(seq_along(per_state), function(s) {
+    p <- per_state[[s]]
+    list(index = p$index, width = p$width, start = p$start,
+         nblocks = p$nblocks, L = L_b_per_state[s], n = p$n)
+  })
+  d <- seg_draws_compiled(tabs, n_rep)
+  if (is.null(d)) {
+    return(NULL)
+  }
+  nblocks_per_state <- vapply(tabs, function(tb) as.integer(tb$n), 1L)
+  list(
+    draws = NULL,
+    width = rep(L_b_per_state, nblocks_per_state),
+    target_start = unlist(lapply(tiles, `[[`, 1)),
+    target_chr = do.call(c, lapply(tiles, `[[`, 2)),
+    bait_start = d[[1L]], bait_seg = d[[2L]], bait_len = d[[3L]]
+  )
+}
+
 # breaking up the seg_bootstrap_draws() code... non-proportional length case
 seg_bootstrap_noprop <- function(seg, state, L_b, chr_names, chr_lens,
                                  esses, n_rep) {
@@ -1014,6 +1143,12 @@ seg_bootstrap_noprop <- function(seg, state, L_b, chr_names, chr_lens,
   nblocks_per_seg <- ceiling(seg_width / L_b)
   # total number of tiling blocks
   n <- sum(nblocks_per_seg)
+
+  out <- seg_noprop_compiled(seg_width, seg_start, nblocks_per_seg, n,
+                             L_b, state, chr_names, esses, n_rep)
+  if (!is.null(out)) {
+    return(out)
+  }
 
   draws <- vector("list", n_rep)
   for (r in seq_len(n_rep)) {
@@ -1078,5 +1213,48 @@ seg_bootstrap_noprop <- function(seg, state, L_b, chr_names, chr_lens,
     width = L_b,
     target_start = unlist(rearr_blocks_start),
     target_chr = do.call(c, rearr_blocks_chr_names)
+  )
+}
+
+# seg_bootstrap_noprop()'s value by seg_draws_compiled(), the tiling blocks
+# computed first; NULL where the R loop must run
+seg_noprop_compiled <- function(seg_width, seg_start, nblocks_per_seg, n,
+                                L_b, state, chr_names, esses, n_rep) {
+  if (length(L_b) != 1L || !is.numeric(state) ||
+      length(state) != length(seg_width) || length(esses) < 1L) {
+    return(NULL)
+  }
+  tiles <- tryCatch({
+    seg_end <- seg_start + seg_width - 1L
+    rearr_blocks_start_list <- lapply(seq_along(seg_width), function(j) {
+      seq(from = seg_start[j], to = seg_end[j], by = L_b)
+    })
+    list(
+      lapply(esses, function(s) {
+        unlist(rearr_blocks_start_list[state == s], use.names = FALSE)
+      }),
+      lapply(esses, function(s) {
+        rep(chr_names[state == s], nblocks_per_seg[state == s])
+      })
+    )
+  }, warning = function(w) NULL, error = function(e) NULL)
+  if (is.null(tiles)) {
+    return(NULL)
+  }
+  tabs <- list(list(index = seq_along(seg_width), width = seg_width,
+                    start = seg_start, nblocks = nblocks_per_seg, L = L_b,
+                    n = n))
+  d <- seg_draws_compiled(tabs, n_rep,
+                          st = match(state, esses, nomatch = 0L),
+                          rearr = lengths(tiles[[1L]]))
+  if (is.null(d)) {
+    return(NULL)
+  }
+  list(
+    draws = NULL,
+    width = L_b,
+    target_start = unlist(tiles[[1L]]),
+    target_chr = do.call(c, tiles[[2L]]),
+    bait_start = d[[1L]], bait_seg = d[[2L]], bait_len = d[[3L]]
   )
 }
