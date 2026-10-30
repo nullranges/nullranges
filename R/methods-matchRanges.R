@@ -442,7 +442,8 @@ ssMatch <- function(fps, pps, replace) {
 #' glm's fitting method for propensityMatch
 #'
 #' glm.fit for binomial("logit") with the IRLS loop in compiled code
-#' (src/logitIRLS.c), which computes glm.fit's fitted values bitwise. It
+#' (src/logitIRLS.c, on up to `getDTthreads()` threads, at most 4), which
+#' computes glm.fit's fitted values bitwise at any thread count. It
 #' covers the designs propensityMatch makes: a factor response, prior weights
 #' of 1, no offset or starting values and glm's default control. glm.fit
 #' itself runs for any other design and wherever the loop would stop, warn
@@ -468,8 +469,10 @@ logitGlmFit <- function(x, y, weights = NULL, start = NULL, etastart = NULL,
       nrow(x) == length(y) && !anyNA(levels(y)) &&
       identical(getOption("matprod"), "default") &&
       isTRUE(capabilities("long.double")))
-    fit <- .Call(C_logit_irls, x, y, control$epsilon, control$maxit,
-                 min(1e-07, control$epsilon/1000))
+    ## data.table's thread count is 1 in a forked child, where a parallel
+    ## region would wait for the parent's OpenMP threads
+    fit <- .Call(C_logit_irls_par, x, y, control$epsilon, control$maxit,
+                 min(1e-07, control$epsilon/1000), getDTthreads())
   if (is.null(fit))
     return(eval(call("glm.fit", x = x, y = y, weights = weights,
                      start = start, etastart = etastart, mustart = mustart,

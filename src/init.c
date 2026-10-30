@@ -17,6 +17,8 @@ SEXP ss_pass_by(SEXP st, SEXP mn, SEXP mx, SEXP by, SEXP replace,
 SEXP outside_intervals(SEXP code, SEXP start, SEXP width, SEXP seg,
 	SEXP i_start, SEXP i_end);
 SEXP logit_irls(SEXP x, SEXP ycode, SEXP s_eps, SEXP s_maxit, SEXP s_tol);
+SEXP logit_irls_par(SEXP x, SEXP ycode, SEXP s_eps, SEXP s_maxit, SEXP s_tol,
+	SEXP n_threads);
 SEXP sample_groups(SEXP index, SEXP n_rows, SEXP size);
 SEXP intersect_gaps(SEXP code, SEXP start, SEXP end, SEXP seg,
 	SEXP g_start, SEXP g_end);
@@ -30,6 +32,7 @@ static const R_CallMethodDef callMethods[] = {
 	{"ss_pass_by", (DL_FUNC) &ss_pass_by, 6},
 	{"outside_intervals", (DL_FUNC) &outside_intervals, 6},
 	{"logit_irls", (DL_FUNC) &logit_irls, 5},
+	{"logit_irls_par", (DL_FUNC) &logit_irls_par, 6},
 	{"sample_groups", (DL_FUNC) &sample_groups, 3},
 	{"intersect_gaps", (DL_FUNC) &intersect_gaps, 6},
 	{NULL, NULL, 0}
