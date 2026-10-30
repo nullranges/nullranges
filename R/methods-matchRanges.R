@@ -488,6 +488,41 @@ logitGlmFit <- function(x, y, weights = NULL, start = NULL, etastart = NULL,
   list(fitted.values = mu)
 }
 
+#' Whether glm's model frame can skip the na.action
+#'
+#' TRUE when glm(f, data = covarData) would apply stats' na.omit, na.exclude,
+#' na.fail or na.pass (getOption("na.action"); the data has no "na.action"
+#' attribute) to a frame without an NA, where each of the four returns the
+#' same rows and values. Every variable of `f` is then a column of
+#' `covarData`, and every column a logical, integer, double or character
+#' vector without dim, unclassed or a factor. Column 1 is matchRanges_Core's
+#' id factor, which holds no NA; the others are checked with anyNA.
+#' @inheritParams propensityMatch
+#' @return TRUE or FALSE.
+#' @noRd
+naActionNoop <- function(covarData, covars) {
+  naa <- getOption("na.action")
+  std <- (is.character(naa) && length(naa) == 1L &&
+          is.null(attributes(naa)) &&
+          naa %in% c("na.omit", "na.exclude", "na.fail", "na.pass")) ||
+    identical(naa, stats::na.omit) || identical(naa, stats::na.exclude) ||
+    identical(naa, stats::na.fail) || identical(naa, stats::na.pass)
+  if (!std || !is.null(attr(covarData, "na.action")) ||
+      !identical(make.names(covars), covars) ||
+      !identical(names(covarData)[1L], "id") ||
+      !all(covars %in% names(covarData)))
+    return(FALSE)
+  for (j in seq_along(covarData)) {
+    x <- .subset2(covarData, j)
+    if (!(typeof(x) %in% c("logical", "integer", "double", "character")) ||
+        !is.null(dim(x)) ||
+        !(is.null(oldClass(x)) || identical(oldClass(x), "factor")) ||
+        (j > 1L && anyNA(x)))
+      return(FALSE)
+  }
+  TRUE
+}
+
 #' Calculate propensity scores, implement matching
 #' methods, and construct Matched object
 #' @param covarData A `data.table` with covariate data.
@@ -516,8 +551,13 @@ propensityMatch <- function(covarData, covars, method, replace, nf) {
   family$aic <- function(y, n, mu, wt, dev) NA_real_
   family$validmu <- function(mu)
     !anyNA(mu) && (length(mu) == 0L || (min(mu) > 0 && max(mu) < 1))
-  model <- glm(formula = f, data = covarData, family = family,
-               method = logitGlmFit)
+  if (naActionNoop(covarData, covars)) {
+    model <- glm(formula = f, data = covarData, family = family,
+                 method = logitGlmFit, na.action = stats::na.pass)
+  } else {
+    model <- glm(formula = f, data = covarData, family = family,
+                 method = logitGlmFit)
+  }
   
   ## Get propensity scores of focal and pool sets as vectors
   id <- NULL
