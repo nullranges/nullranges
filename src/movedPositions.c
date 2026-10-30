@@ -164,7 +164,48 @@ typedef struct {
 	R_xlen_t n_t, n_t_rep, n_blocks;
 	int *first, *last;
 	unsigned char *plain;
+	/* columns of y gathered at each row's index in y: 8-byte (double) or
+	 * 4-byte (integer, logical) elements, copied bit for bit */
+	int ncol;
+	const unsigned char *col8;
+	const void *const *col_in;
+	void *const *col_out;
 } moved_ctx;
+
+/* Row 'at' of each gathered column, from row 'src' of y */
+static inline void put_cols(const moved_ctx *x, R_xlen_t at, int src)
+{
+	for (int j = 0; j < x->ncol; j++) {
+		if (x->col8[j])
+			memcpy((double *) x->col_out[j] + at,
+				(const double *) x->col_in[j] + src, sizeof(double));
+		else
+			memcpy((int *) x->col_out[j] + at,
+				(const int *) x->col_in[j] + src, sizeof(int));
+	}
+}
+
+/* Rows at.. of each gathered column for the entries lo..hi - 1 of y
+ * sorted by seqlevel */
+static inline void put_cols_run(const moved_ctx *x, R_xlen_t at, int lo,
+	int hi)
+{
+	const int *o = x->o;
+	for (int j = 0; j < x->ncol; j++) {
+		R_xlen_t a = at;
+		if (x->col8[j]) {
+			double *d = (double *) x->col_out[j];
+			const double *s = (const double *) x->col_in[j];
+			for (int k = lo; k < hi; k++, a++)
+				memcpy(d + a, s + (o == NULL ? k : o[k]), sizeof(double));
+		} else {
+			int *d = (int *) x->col_out[j];
+			const int *s = (const int *) x->col_in[j];
+			for (int k = lo; k < hi; k++, a++)
+				memcpy(d + a, s + (o == NULL ? k : o[k]), sizeof(int));
+		}
+	}
+}
 
 /* Pass 1 over blocks [b0, b1): each block's candidates, the checks R makes
  * over the hits, and the numbers of hits and rows kept; 0 where R declines */
@@ -238,14 +279,16 @@ static int moved_pass1(const moved_ctx *x, R_xlen_t b0, R_xlen_t b1,
 	return 1;
 }
 
-/* Pass 2 over blocks [b0, b1): their rows, written from row 'at' of out;
- * last[b] then holds the number of rows block b wrote */
+/* Pass 2 over blocks [b0, b1): their rows, written from row 'at' of out
+ * (out[0], 's', and out[4], the replicate, left out when NULL) and of the
+ * gathered columns; last[b] then holds the number of rows block b wrote */
 static void moved_pass2(const moved_ctx *x, R_xlen_t b0, R_xlen_t b1,
 	R_xlen_t at, int *const *out)
 {
 	const int mode = x->mode;
 	const int *ys = x->ys, *ye = x->ye, *yw = x->yw, *o = x->o;
 	const int *xseg = x->xseg, *xs = x->xs, *xe = x->xe;
+	int *blk = out[4];
 	int ex_prev = 0, ex_k = 0;
 	for (R_xlen_t b = b0; b < b1; b++) {
 		int lo = x->first[b], hi = x->last[b];
@@ -259,13 +302,24 @@ static void moved_pass2(const moved_ctx *x, R_xlen_t b0, R_xlen_t b1,
 		int bstart = x->bs[b];
 		int rep = (int) (b / x->n_blocks) + 1;
 		if (x->plain[b]) {
-			for (int k = lo; k < hi; k++, at++) {
-				out[0][at] = (o == NULL ? k : o[k]) + 1;
-				out[1][at] = code;
-				out[2][at] = ys[k] + sh;
-				out[3][at] = yw[k];
-				out[4][at] = rep;
+			if (out[0] != NULL) {
+				for (int k = lo; k < hi; k++, at++) {
+					out[0][at] = (o == NULL ? k : o[k]) + 1;
+					out[1][at] = code;
+					out[2][at] = ys[k] + sh;
+					out[3][at] = yw[k];
+				}
+			} else {
+				for (int k = lo; k < hi; k++, at++) {
+					out[1][at] = code;
+					out[2][at] = ys[k] + sh;
+					out[3][at] = yw[k];
+				}
+				put_cols_run(x, at0, lo, hi);
 			}
+			if (blk != NULL)
+				for (R_xlen_t i = at0; i < at; i++)
+					blk[i] = rep;
 			x->last[b] = hi - lo;
 			continue;
 		}
@@ -281,11 +335,12 @@ static void moved_pass2(const moved_ctx *x, R_xlen_t b0, R_xlen_t b1,
 				continue;
 			int s_k = (o == NULL ? k : o[k]) + 1;
 			if (mode == 0) {
-				out[0][at] = s_k;
+				if (out[0] != NULL)
+					out[0][at] = s_k;
+				put_cols(x, at, s_k - 1);
 				out[1][at] = code;
 				out[2][at] = ns;
 				out[3][at] = nw;
-				out[4][at] = rep;
 				at++;
 				continue;
 			}
@@ -296,24 +351,29 @@ static void moved_pass2(const moved_ctx *x, R_xlen_t b0, R_xlen_t b1,
 			if (mode == 1) {
 				if (a < xhi && xs[a] <= ne)
 					continue;
-				out[0][at] = s_k;
+				if (out[0] != NULL)
+					out[0][at] = s_k;
+				put_cols(x, at, s_k - 1);
 				out[1][at] = code;
 				out[2][at] = ns;
 				out[3][at] = nw;
-				out[4][at] = rep;
 				at++;
 				continue;
 			}
 			for (int j = a; j < xhi && xs[j] <= ne; j++, at++) {
 				int ps = ns > xs[j] ? ns : xs[j];
 				int pe = ne < xe[j] ? ne : xe[j];
-				out[0][at] = s_k;
+				if (out[0] != NULL)
+					out[0][at] = s_k;
+				put_cols(x, at, s_k - 1);
 				out[1][at] = code;
 				out[2][at] = ps;
 				out[3][at] = pe - ps + 1;
-				out[4][at] = rep;
 			}
 		}
+		if (blk != NULL)
+			for (R_xlen_t i = at0; i < at; i++)
+				blk[i] = rep;
 		x->last[b] = (int) (at - at0);
 	}
 }
@@ -321,8 +381,10 @@ static void moved_pass2(const moved_ctx *x, R_xlen_t b0, R_xlen_t b1,
 /* The moved ranges of every bait block in one pass: per block, in order,
  * the ranges of y it overlaps, by increasing index in y, with their index
  * in y ('s'), target seqlevel code, shifted and trimmed start and width,
- * and replicate ('block'), keeping width > 0, and the runs of the code
- * column ('run_code', 'run_length'). R_NilValue wherever the R
+ * and, with with_block, replicate ('block'), keeping width > 0, and the
+ * runs of the code column ('run_code', 'run_length'); without with_block,
+ * the number of rows of each replicate ('lens') in place of 'block', as
+ * tabulate(block, n_rep) counts them. R_NilValue wherever the R
  * route (bait_overlaps(), shift_swap_trim_positions()) would not take
  * sorted_overlaps() for every block or could decline, or has no hit.
  *
@@ -331,11 +393,18 @@ static void moved_pass2(const moved_ctx *x, R_xlen_t b0, R_xlen_t b1,
  * xe; mode 1 (drop) keeps the rows overlapping none of them, mode 2 (trim)
  * puts in each row's place its pieces clipped to each interval (gap) it
  * overlaps, by gap. FALSE where the exclude tables are malformed or the
- * pieces outnumber an integer index. */
+ * pieces outnumber an integer index.
+ *
+ * With 'with_cols', the result has an eighth element, 'cols': when cols_ is
+ * a list of double, integer or logical vectors, each of y's length, the
+ * rows' values of each, y's at the row's index, in a list named as cols_,
+ * and 's' is then NULL; otherwise 'cols' is NULL and 's' is written. The
+ * caller passes only vectors without attributes (gather_columns()). */
 static SEXP moved_impl(SEXP b_code_, SEXP b_start_, SEXP b_width_,
 	SEXP n_rep_, SEXP y_code_, SEXP y_start_, SEXP y_end_, SEXP y_width_,
 	SEXP circular_, SEXP seqlen_, SEXP bounded_, SEXP shift_, SEXP t_code_,
-	int mode, SEXP xseg_, SEXP xs_, SEXP xe_)
+	int mode, SEXP xseg_, SEXP xs_, SEXP xe_, int with_block, int with_cols,
+	SEXP cols_)
 {
 	if (TYPEOF(b_code_) != INTSXP || TYPEOF(b_start_) != INTSXP ||
 		TYPEOF(b_width_) != INTSXP || TYPEOF(n_rep_) != INTSXP ||
@@ -495,8 +564,22 @@ static SEXP moved_impl(SEXP b_code_, SEXP b_start_, SEXP b_width_,
 		.n_t_rep = n_t * (R_xlen_t) n_rep, .n_blocks = n_blocks,
 		.first = (int *) R_alloc(n, sizeof(int)),
 		.last = (int *) R_alloc(n, sizeof(int)),
-		.plain = (unsigned char *) R_alloc(n, 1)
+		.plain = (unsigned char *) R_alloc(n, 1),
+		.ncol = 0, .col8 = NULL, .col_in = NULL, .col_out = NULL
 	};
+
+	/* the columns to gather, when every one can be */
+	int gather = with_cols && TYPEOF(cols_) == VECSXP;
+	R_xlen_t ncol = gather ? XLENGTH(cols_) : 0;
+	for (R_xlen_t j = 0; gather && j < ncol; j++) {
+		SEXP v = VECTOR_ELT(cols_, j);
+		int ty = TYPEOF(v);
+		if ((ty != REALSXP && ty != INTSXP && ty != LGLSXP) ||
+			XLENGTH(v) != n_y)
+			gather = 0;
+	}
+	if (!gather)
+		ncol = 0;
 
 	/* pass 1 */
 #ifdef _OPENMP
@@ -521,18 +604,56 @@ static SEXP moved_impl(SEXP b_code_, SEXP b_start_, SEXP b_width_,
 		return ScalarLogical(FALSE);
 
 	/* pass 2: the rows */
-	SEXP ans = PROTECT(allocVector(VECSXP, 7));
-	SEXP nms = PROTECT(allocVector(STRSXP, 7));
-	const char *names[7] = {"s", "code", "start", "width", "block",
-		"run_code", "run_length"};
+	/* element 4 is 'block' (n_keep rows) or 'lens' (n_rep counts) */
+	int n_el = with_cols ? 8 : 7;
+	SEXP ans = PROTECT(allocVector(VECSXP, n_el));
+	SEXP nms = PROTECT(allocVector(STRSXP, n_el));
+	const char *names[8] = {"s", "code", "start", "width",
+		with_block ? "block" : "lens", "run_code", "run_length", "cols"};
 	int *out[5];
-	for (int j = 0; j < 5; j++) {
-		SET_VECTOR_ELT(ans, j, allocVector(INTSXP, n_keep));
+	out[0] = NULL;
+	for (int j = gather ? 1 : 0; j < 5; j++) {
+		SET_VECTOR_ELT(ans, j, allocVector(INTSXP,
+			j < 4 || with_block ? n_keep : (R_xlen_t) n_rep));
 		out[j] = INTEGER(VECTOR_ELT(ans, j));
 	}
-	for (int j = 0; j < 7; j++)
+	for (int j = 0; j < n_el; j++)
 		SET_STRING_ELT(nms, j, mkChar(names[j]));
 	setAttrib(ans, R_NamesSymbol, nms);
+	int *lens = NULL;
+	if (!with_block) {
+		lens = out[4];
+		out[4] = NULL;
+	}
+	if (gather) {
+		SEXP cols = allocVector(VECSXP, ncol);
+		SET_VECTOR_ELT(ans, 7, cols);
+		setAttrib(cols, R_NamesSymbol, getAttrib(cols_, R_NamesSymbol));
+		const void **cin = (const void **) R_alloc(ncol > 0 ? ncol : 1,
+			sizeof(void *));
+		void **cout = (void **) R_alloc(ncol > 0 ? ncol : 1, sizeof(void *));
+		unsigned char *c8 = (unsigned char *) R_alloc(ncol > 0 ? ncol : 1, 1);
+		for (R_xlen_t j = 0; j < ncol; j++) {
+			SEXP v = VECTOR_ELT(cols_, j);
+			SEXP w = allocVector(TYPEOF(v), n_keep);
+			SET_VECTOR_ELT(cols, j, w);
+			c8[j] = TYPEOF(v) == REALSXP;
+			if (TYPEOF(v) == REALSXP) {
+				cin[j] = REAL_RO(v);
+				cout[j] = REAL(w);
+			} else if (TYPEOF(v) == INTSXP) {
+				cin[j] = INTEGER_RO(v);
+				cout[j] = INTEGER(w);
+			} else {
+				cin[j] = LOGICAL_RO(v);
+				cout[j] = LOGICAL(w);
+			}
+		}
+		x.ncol = (int) ncol;
+		x.col8 = c8;
+		x.col_in = (const void *const *) cin;
+		x.col_out = (void *const *) cout;
+	}
 #ifdef _OPENMP
 #pragma omp parallel for num_threads(n_thr) schedule(dynamic, 1) if(n_thr > 1)
 #endif
@@ -566,6 +687,16 @@ static SEXP moved_impl(SEXP b_code_, SEXP b_start_, SEXP b_width_,
 		}
 		rl[r] += x.last[b];
 	}
+	/* each replicate's rows; their sum, n_keep, fits an int */
+	if (lens != NULL) {
+		for (int rr = 0; rr < n_rep; rr++) {
+			R_xlen_t sum = 0;
+			const int *nb = x.last + rr * n_blocks;
+			for (R_xlen_t b = 0; b < n_blocks; b++)
+				sum += nb[b];
+			lens[rr] = (int) sum;
+		}
+	}
 	UNPROTECT(2);
 	return ans;
 }
@@ -577,14 +708,14 @@ SEXP moved_positions(SEXP b_code_, SEXP b_start_, SEXP b_width_, SEXP n_rep_,
 {
 	return moved_impl(b_code_, b_start_, b_width_, n_rep_, y_code_, y_start_,
 		y_end_, y_width_, circular_, seqlen_, bounded_, shift_, t_code_, 0,
-		R_NilValue, R_NilValue, R_NilValue);
+		R_NilValue, R_NilValue, R_NilValue, 1, 0, R_NilValue);
 }
 
-/* moved_impl() with the exclude step of mode_ (0 none, 1 drop, 2 trim) */
-SEXP moved_rows(SEXP b_code_, SEXP b_start_, SEXP b_width_, SEXP n_rep_,
-	SEXP y_code_, SEXP y_start_, SEXP y_end_, SEXP y_width_, SEXP circular_,
-	SEXP seqlen_, SEXP bounded_, SEXP shift_, SEXP t_code_, SEXP mode_,
-	SEXP xseg_, SEXP xs_, SEXP xe_)
+static SEXP moved_rows_impl(SEXP b_code_, SEXP b_start_, SEXP b_width_,
+	SEXP n_rep_, SEXP y_code_, SEXP y_start_, SEXP y_end_, SEXP y_width_,
+	SEXP circular_, SEXP seqlen_, SEXP bounded_, SEXP shift_, SEXP t_code_,
+	SEXP mode_, SEXP xseg_, SEXP xs_, SEXP xe_, int with_block, int with_cols,
+	SEXP cols_)
 {
 	if (TYPEOF(mode_) != INTSXP || XLENGTH(mode_) != 1)
 		return ScalarLogical(FALSE);
@@ -593,5 +724,28 @@ SEXP moved_rows(SEXP b_code_, SEXP b_start_, SEXP b_width_, SEXP n_rep_,
 		return ScalarLogical(FALSE);
 	return moved_impl(b_code_, b_start_, b_width_, n_rep_, y_code_, y_start_,
 		y_end_, y_width_, circular_, seqlen_, bounded_, shift_, t_code_, mode,
-		xseg_, xs_, xe_);
+		xseg_, xs_, xe_, with_block, with_cols, cols_);
+}
+
+/* moved_impl() with the exclude step of mode_ (0 none, 1 drop, 2 trim) */
+SEXP moved_rows(SEXP b_code_, SEXP b_start_, SEXP b_width_, SEXP n_rep_,
+	SEXP y_code_, SEXP y_start_, SEXP y_end_, SEXP y_width_, SEXP circular_,
+	SEXP seqlen_, SEXP bounded_, SEXP shift_, SEXP t_code_, SEXP mode_,
+	SEXP xseg_, SEXP xs_, SEXP xe_)
+{
+	return moved_rows_impl(b_code_, b_start_, b_width_, n_rep_, y_code_,
+		y_start_, y_end_, y_width_, circular_, seqlen_, bounded_, shift_,
+		t_code_, mode_, xseg_, xs_, xe_, 1, 0, R_NilValue);
+}
+
+/* moved_rows() with the rows per replicate ('lens') in place of 'block',
+ * gathering the columns 'cols' (see moved_impl()) */
+SEXP moved_rows_lens(SEXP b_code_, SEXP b_start_, SEXP b_width_,
+	SEXP n_rep_, SEXP y_code_, SEXP y_start_, SEXP y_end_, SEXP y_width_,
+	SEXP circular_, SEXP seqlen_, SEXP bounded_, SEXP shift_, SEXP t_code_,
+	SEXP mode_, SEXP xseg_, SEXP xs_, SEXP xe_, SEXP cols_)
+{
+	return moved_rows_impl(b_code_, b_start_, b_width_, n_rep_, y_code_,
+		y_start_, y_end_, y_width_, circular_, seqlen_, bounded_, shift_,
+		t_code_, mode_, xseg_, xs_, xe_, 0, 1, cols_);
 }

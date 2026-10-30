@@ -201,11 +201,12 @@ move_blocks <- function(y, blocks, d) {
 
 # move_blocks() and exclude_ranges() for every replicate in one pass: the
 # bait blocks of all replicates in one GRanges, the moved features in one
-# GRanges, whose 'block' column holds the replicate. Returns the ranges
-# and the number per replicate, or NULL where one replicate at a time
-# could differ (a replicate with fewer bait blocks than targets, a bait
-# block on a sequence 'y' lacks or past the end of a circular one, an
-# input shift_swap_trim() declines). The moved positions are computed on
+# GRanges, whose 'block' column holds the replicate where the R steps
+# below count the rows per replicate from it (bootRanges() drops the
+# column). Returns the ranges and the number per replicate, or NULL where
+# one replicate at a time could differ (a replicate with fewer bait
+# blocks than targets, a bait block on a sequence 'y' lacks or past the
+# end of a circular one, an input shift_swap_trim() declines). The moved positions are computed on
 # vectors, by moved_positions() where it can, with the exclude step when
 # exclude_tables() prepares it, and 'y' is subset once, for the ranges kept.
 move_blocks_bulk <- function(y, blocks, exclude, excludeOption) {
@@ -244,13 +245,18 @@ move_blocks_bulk <- function(y, blocks, exclude, excludeOption) {
     target_chr <- decode(target_chr)
   }
   # a warning or error here is raised again by the steps below, where the
-  # exclude step runs without these tables
+  # exclude step runs without these tables. Without 'exclude', the tables
+  # of no exclude step, so that the rows go to moved_ranges() as
+  # moved_positions() gives them, with the metadata columns it gathers.
   ex <- NULL
   if (!is.null(exclude)) {
     ex <- tryCatch(
       exclude_tables(y, exclude, excludeOption),
       warning = function(w) NULL, error = function(e) NULL
     )
+  } else {
+    ex <- list(mode = 0L, seg = integer(), start = integer(),
+               end = integer(), seqinfo = NULL)
   }
   moved <- moved_positions(
     y, bait_ranges, bait_code, n_rep, block_shift, target_chr, ex
@@ -291,12 +297,20 @@ move_blocks_bulk <- function(y, blocks, exclude, excludeOption) {
   code <- moved$code
   new_start <- moved$start
   new_width <- moved$width
+  # moved_positions() gives the rows per replicate ('lens') in place of
+  # each row's replicate ('block'), which the R exclude steps below label
+  # their rows with
   block <- moved$block
+  lens <- moved$lens
+  if (is.null(ex) && !is.null(exclude) && !is.null(lens)) {
+    block <- rep.int(seq_len(n_rep), lens)
+    lens <- NULL
+  }
   if (!is.null(ex)) {
-    # the exclude step is applied: the rows kept, or the pieces
+    # the exclude step, if any, is applied: the rows kept, or the pieces
     y_prime <- moved_ranges(
-      y, s, code, new_start, new_width, moved$chr_attr, block, ex$seqinfo,
-      moved$run_code, moved$run_length
+      y, s, code, new_start, new_width, moved$chr_attr, NULL, ex$seqinfo,
+      moved$run_code, moved$run_length, moved$cols, with_mcols = TRUE
     )
   } else if (!is.null(exclude) && excludeOption == "drop") {
     i <- outside_exclude(y, exclude, code, new_start, new_width)
@@ -330,22 +344,28 @@ move_blocks_bulk <- function(y, blocks, exclude, excludeOption) {
   } else {
     y_prime <- moved_ranges(
       y, s, code, new_start, new_width, moved$chr_attr, block, NULL,
-      moved$run_code, moved$run_length
+      moved$run_code, moved$run_length, with_mcols = TRUE
     )
   }
-  list(ranges = y_prime, lens = tabulate(mcols(y_prime)$block, n_rep))
+  if (is.null(lens)) {
+    lens <- tabulate(mcols(y_prime)$block, n_rep)
+  }
+  list(ranges = y_prime, lens = lens)
 }
 
 # What shift_swap_trim_positions() gives for the hits of bait_overlaps(),
 # in one compiled pass, restricted to the rows of positive width, with
-# each row's replicate as 'block': for each bait block in order, the
-# ranges of 'y' it overlaps by increasing index in 'y', found as
-# sorted_overlaps() finds them, and the runs of the code column
+# the number of rows of each replicate as 'lens' (the rows are in
+# replicate order): for each bait block in order, the ranges of 'y' it
+# overlaps by increasing index in 'y', found as sorted_overlaps() finds
+# them, and the runs of the code column
 # ('run_code', 'run_length'). NULL wherever bait_overlaps() would not
 # take sorted_overlaps() for every block, either function could decline,
 # or there is no hit: the caller then runs them. With 'ex', the rows
 # outside_exclude() keeps (drop) or the pieces intersect_gaps() cuts (trim),
-# in the same order; FALSE where that step declines.
+# in the same order; FALSE where that step declines. Given 'ex', also the
+# metadata columns of 'y' at the rows' indices in 'y', as 'cols', in place
+# of 's', when gather_columns() gives them.
 #
 # @param y the input GRanges
 # @param bait the ranges (IRanges) of the bait blocks of all replicates,
@@ -354,7 +374,8 @@ move_blocks_bulk <- function(y, blocks, exclude, excludeOption) {
 # @param n_rep the number of replicates
 # @param block_shift the shift of each block
 # @param target_chr the sequence each block moves to, a factor
-# @param ex the output of exclude_tables(), or NULL
+# @param ex the output of exclude_tables(), the tables of no exclude step
+# (mode 0), or NULL
 moved_positions <- function(y, bait, bait_code, n_rep, block_shift,
                             target_chr, ex = NULL) {
   chr_attr <- attributes(target_chr)
@@ -368,15 +389,18 @@ moved_positions <- function(y, bait, bait_code, n_rep, block_shift,
   }
   circular <- unname(Seqinfo::isCircular(y)) %in% TRUE
   seqlen <- unname(seqlengths(y))
+  cols <- NULL
   if (is.null(ex)) {
     ex <- list(mode = 0L, seg = integer(), start = integer(), end = integer())
+  } else {
+    cols <- gather_columns(y)
   }
   moved <- .Call(
-    C_moved_rows, as.integer(bait_code), start(bait), width(bait),
+    C_moved_rows_lens, as.integer(bait_code), start(bait), width(bait),
     as.integer(n_rep), as.integer(seqnames(y)), start(y), end(y), width(y),
     circular, as.integer(seqlen), !(circular | is.na(seqlen)),
     suppressWarnings(as.integer(block_shift)), as.integer(target_chr),
-    ex$mode, ex$seg, ex$start, ex$end
+    ex$mode, ex$seg, ex$start, ex$end, cols
   )
   if (!is.list(moved)) {
     return(moved)
@@ -446,10 +470,10 @@ shift_swap_trim_positions <- function(y, s, shift, target_chr, n_rep,
 }
 
 # Moved ranges as one subset of 'y': y's ranges, names, strand and
-# metadata columns at 's', with the replicate added as column 'block' (no
-# metadata columns and no names when 'block' is NULL), the given starts,
-# widths and seqlevel codes, and 'seqinfo' (y's when NULL). A strand of
-# one run is not subset. Given the runs of 'code', maximal, the seqnames
+# metadata columns at 's' (none and no names unless 'with_mcols'), with
+# 'block' added as a column when given, the given starts, widths and
+# seqlevel codes, and 'seqinfo' (y's when NULL). A strand of one run is
+# not subset. Given the runs of 'code', maximal, the seqnames
 # are built from them.
 #
 # @param y the input GRanges
@@ -460,9 +484,13 @@ shift_swap_trim_positions <- function(y, s, shift, target_chr, n_rep,
 # @param block the replicate of each range, or NULL
 # @param seqinfo the seqinfo of the result, or NULL
 # @param run_code,run_length the runs of 'code', or NULL
+# @param cols the metadata columns of 'y' at 's', from moved_positions(),
+# or NULL; given them, 's' is not read
+# @param with_mcols whether to keep y's names and metadata columns
 moved_ranges <- function(y, s, code, start, width, chr_attr, block = NULL,
                          seqinfo = NULL, run_code = NULL,
-                         run_length = NULL) {
+                         run_length = NULL, cols = NULL,
+                         with_mcols = !is.null(block)) {
   if (is.null(run_length)) {
     attributes(code) <- chr_attr
     ans_seqnames <- Rle(code)
@@ -470,11 +498,14 @@ moved_ranges <- function(y, s, code, start, width, chr_attr, block = NULL,
     attributes(run_code) <- chr_attr
     ans_seqnames <- Rle(run_code, run_length)
   }
-  n <- length(s)
+  n <- length(if (is.null(cols)) s else start)
   ans_strand <- strand(y)
   one_strand <- nrun(ans_strand) == 1L
-  plain <- one_strand && !is.null(block) && plain_rows(y, start, width, n)
-  if (!one_strand || (!is.null(block) && !plain)) {
+  plain <- one_strand && with_mcols && plain_rows(y, start, width, n)
+  if (!is.null(cols) && !plain) {
+    stop("internal error: gathered metadata columns off the plain path")
+  }
+  if (!one_strand || (with_mcols && !plain)) {
     # checked once for every slot subset, as y[s] does
     s <- normalizeSingleBracketSubscript(s, y, as.NSBS = TRUE)
   }
@@ -483,7 +514,7 @@ moved_ranges <- function(y, s, code, start, width, chr_attr, block = NULL,
   } else {
     extractROWS(ans_strand, s)
   }
-  if (is.null(block)) {
+  if (!with_mcols) {
     ans_ranges <- new2("IRanges", start = start, width = width, check = FALSE)
     ans_mcols <- new2("DFrame", nrows = n, check = FALSE)
   } else if (plain) {
@@ -493,16 +524,19 @@ moved_ranges <- function(y, s, code, start, width, chr_attr, block = NULL,
       ranges(y), start = start, width = width, check = FALSE
     )
     ans_mcols <- mcols(y, use.names = FALSE)
+    if (is.null(cols)) {
+      cols <- lapply(as.list(ans_mcols), `[`, s)
+    }
     ans_mcols <- BiocGenerics:::replaceSlots(
-      ans_mcols, listData = lapply(as.list(ans_mcols), `[`, s), nrows = n,
-      check = FALSE
+      ans_mcols, listData = cols, nrows = n, check = FALSE
     )
-    ans_mcols$block <- block
   } else {
     ans_ranges <- update_ranges(
       extractROWS(ranges(y), s), start = start, width = width
     )
     ans_mcols <- extractROWS(mcols(y, use.names = FALSE), s)
+  }
+  if (!is.null(block)) {
     ans_mcols$block <- block
   }
   ans <- update(y, seqnames = ans_seqnames, ranges = ans_ranges,
@@ -525,17 +559,45 @@ moved_ranges <- function(y, s, code, start, width, chr_attr, block = NULL,
 # @param start,width the start and width of each range
 # @param n the number of ranges
 plain_rows <- function(y, start, width, n) {
-  rng <- y@ranges
-  mc <- y@elementMetadata
   is.integer(start) && length(start) == n &&
     is.integer(width) && length(width) == n &&
-    identical(as.vector(class(rng)), "IRanges") &&
+    plain_ranges_mcols(y)
+}
+
+# The ranges and metadata columns part of plain_rows()
+#
+# @param y the input GRanges
+plain_ranges_mcols <- function(y) {
+  rng <- y@ranges
+  mc <- y@elementMetadata
+  identical(as.vector(class(rng)), "IRanges") &&
     is.null(rng@NAMES) && is.null(rng@elementMetadata) &&
     identical(as.vector(class(mc)), "DFrame") &&
     is.null(mc@rownames) && is.null(mc@elementMetadata) &&
     all(vapply(mc@listData, function(v) {
       is.atomic(v) && is.null(attributes(v))
     }, NA))
+}
+
+# The metadata columns of 'y' (its DFrame's listData) when moved_ranges()
+# takes its plain branch for them and each is a double, integer or logical
+# vector of y's length without attributes, which the compiled pass gathers
+# bit for bit as `[` does; NULL otherwise.
+#
+# @param y the input GRanges
+gather_columns <- function(y) {
+  if (!identical(as.vector(class(y)), "GRanges") ||
+      nrun(y@strand) != 1L || !plain_ranges_mcols(y)) {
+    return(NULL)
+  }
+  cols <- y@elementMetadata@listData
+  n <- length(y)
+  if (!all(vapply(cols, function(v) {
+    typeof(v) %in% c("double", "integer", "logical") && length(v) == n
+  }, NA))) {
+    return(NULL)
+  }
+  cols
 }
 
 # which(!overlapsAny(x, exclude)) for the moved ranges 'x' of positive
@@ -1094,6 +1156,33 @@ seg_bootstrap_prop <- function(seg, state, L_b, chr_names, chr_lens,
   )
 }
 
+# unlist(lapply(seq_along(from), function(j) seq(from[j], to[j], by = by)),
+# use.names = FALSE) in one pass. With integer from and to and a double by,
+# seq.default computes from + (0:n) * by, n = as.integer((to - from)/by +
+# 1e-10), capped at to, and returns the integer from when to == from; the
+# seq() loop runs wherever it could fail or take another branch, and where
+# every segment is one base wide (its value is then integer).
+tile_starts <- function(from, to, by) {
+  if (is.integer(from) && is.integer(to) && !is.object(from) &&
+      !is.object(to) && length(from) > 0L && length(to) == length(from) &&
+      is.double(by) && length(by) == 1L && is.null(attributes(by)) &&
+      is.finite(by) && by > 0 && !anyNA(from) && !anyNA(to)) {
+    del <- as.double(to) - as.double(from)
+    n <- del / by
+    if (all(del >= 0) && any(del > 0) && all(n <= .Machine$integer.max)) {
+      k <- as.integer(n + 1e-10)
+      if (sum(as.double(k)) + length(k) <= .Machine$integer.max) {
+        cnt <- k + 1L
+        return(pmin(rep.int(from, cnt) + (sequence(cnt) - 1L) * by,
+                    rep.int(to, cnt)))
+      }
+    }
+  }
+  unlist(lapply(seq_along(from), function(j) {
+    seq(from = from[j], to = to[j], by = by)
+  }), use.names = FALSE)
+}
+
 # seg_bootstrap_prop()'s value by seg_draws_compiled(), the tiling blocks
 # computed first; NULL where the R loop must run
 seg_prop_compiled <- function(per_state, L_b, L_b_per_state, n_rep) {
@@ -1101,13 +1190,10 @@ seg_prop_compiled <- function(per_state, L_b, L_b_per_state, n_rep) {
     return(NULL)
   }
   tiles <- tryCatch(lapply(seq_along(per_state), function(s) {
-    L_bs <- L_b_per_state[s]
     p <- per_state[[s]]
     end_s <- p$start + p$width - 1L
     list(
-      unlist(lapply(seq_along(p$width), function(j) {
-        seq(from = p$start[j], to = end_s[j], by = L_bs)
-      }), use.names = FALSE),
+      tile_starts(p$start, end_s, L_b_per_state[s]),
       rep(p$chr, p$nblocks)
     )
   }), warning = function(w) NULL, error = function(e) NULL)
@@ -1226,12 +1312,16 @@ seg_noprop_compiled <- function(seg_width, seg_start, nblocks_per_seg, n,
   }
   tiles <- tryCatch({
     seg_end <- seg_start + seg_width - 1L
-    rearr_blocks_start_list <- lapply(seq_along(seg_width), function(j) {
-      seq(from = seg_start[j], to = seg_end[j], by = L_b)
-    })
+    in_state <- lapply(esses, function(s) which(state == s))
+    # segments in no state are tiled too, for seq()'s errors
+    none <- rep.int(TRUE, length(seg_width))
+    none[unlist(in_state)] <- FALSE
+    if (any(none)) {
+      tile_starts(seg_start[none], seg_end[none], L_b)
+    }
     list(
-      lapply(esses, function(s) {
-        unlist(rearr_blocks_start_list[state == s], use.names = FALSE)
+      lapply(in_state, function(i) {
+        tile_starts(seg_start[i], seg_end[i], L_b)
       }),
       lapply(esses, function(s) {
         rep(chr_names[state == s], nblocks_per_seg[state == s])
