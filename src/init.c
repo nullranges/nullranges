@@ -15,6 +15,8 @@ SEXP moved_rows_lens(SEXP b_code, SEXP b_start, SEXP b_width, SEXP n_rep,
 	SEXP xseg, SEXP xs, SEXP xe, SEXP cols);
 SEXP ss_init(SEXP fps, SEXP pps, SEXP cnt, SEXP code, SEXP nLeft);
 SEXP ss_range(SEXP st);
+SEXP ss_sort(SEXP st);
+SEXP ss_compact(SEXP st);
 SEXP ss_pass(SEXP st, SEXP br, SEXP mn, SEXP by, SEXP replace, SEXP count);
 SEXP ss_pass_by(SEXP st, SEXP mn, SEXP mx, SEXP by, SEXP replace,
 	SEXP count);
@@ -35,6 +37,8 @@ static const R_CallMethodDef callMethods[] = {
 	{"moved_rows_lens", (DL_FUNC) &moved_rows_lens, 18},
 	{"ss_init", (DL_FUNC) &ss_init, 5},
 	{"ss_range", (DL_FUNC) &ss_range, 1},
+	{"ss_sort", (DL_FUNC) &ss_sort, 1},
+	{"ss_compact", (DL_FUNC) &ss_compact, 1},
 	{"ss_pass", (DL_FUNC) &ss_pass, 6},
 	{"ss_pass_by", (DL_FUNC) &ss_pass_by, 6},
 	{"outside_intervals", (DL_FUNC) &outside_intervals, 6},

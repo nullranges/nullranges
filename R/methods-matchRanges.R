@@ -321,8 +321,11 @@ ssMatch <- function(fps, pps, replace) {
   ## sample() does below the 1e7 rows where sample.int would hash
   st <- NULL
   if (is.double(fps) && is.double(pps) && length(fps) <= 1e7 &&
-      length(pps) <= 1e7 && (isTRUE(replace) || isFALSE(replace)))
+      length(pps) <= 1e7 && (isTRUE(replace) || isFALSE(replace))) {
     st <- .Call(C_ss_init, fps, pps, cnt, code, nLeft)
+    ## Passes find each focal bin's pool rows in the pool sorted by score
+    .Call(C_ss_sort, st)
+  }
 
   ## Matched indices, one element per pass
   resF <- resP <- list(integer())
@@ -362,6 +365,7 @@ ssMatch <- function(fps, pps, replace) {
 
       ## The breaks fail binCode's guard: go on in R from this state
       if (nDone > 0L) {
+        .Call(C_ss_compact, st)
         lens <- st[[7L]]
         fIdx <- st[[2L]][seq_len(lens[1L])]
         f <- fps[fIdx]
