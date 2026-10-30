@@ -109,11 +109,12 @@ nnMatch <- function(fps, pps, replace) {
 #' @param x numeric vector of scores.
 #' @param q x's quartiles, quantile(x, c(1/4, 3/4), names = FALSE), when the
 #'   caller has them; NULL to compute them here.
+#' @param range.x range(x), when the caller has it; NULL to compute it here.
 #' @return the bandwidth, or NULL where ks::kde(x) is to compute it itself:
 #'   other versions, x not a plain double vector of finite values with
 #'   length > 1, or a scale estimate that is 0 or not finite.
 #' @noRd
-poolBandwidth <- function(x, q = NULL) {
+poolBandwidth <- function(x, q = NULL, range.x = NULL) {
   n <- length(x)
   if (n < 2L || n > .Machine$integer.max || !is.double(x) || !is.vector(x))
     return(NULL)
@@ -122,7 +123,7 @@ poolBandwidth <- function(x, q = NULL) {
       !identical(unname(getNamespaceVersion("KernSmooth")), "2.23-27"))
     return(NULL)
   ## range() is NA, NaN or infinite at an end when any element is not finite
-  range.x <- range(x)
+  if (is.null(range.x)) range.x <- range(x)
   a <- range.x[1L]
   b <- range.x[2L]
   if (!is.finite(a) || !is.finite(b)) return(NULL)
@@ -155,11 +156,13 @@ poolBandwidth <- function(x, q = NULL) {
 #' x per quantile() call.
 #' @param x numeric vector.
 #' @param probs probabilities in [0, 1], none NA.
+#' @param range TRUE to also return range(x), as the attribute "range", from
+#'   the same pass over x.
 #' @return the quantiles, or NULL where quantile() is to compute them: x not
 #'   an unclassed double vector, of length 0 or above .Machine$integer.max,
 #'   or holding NA or NaN.
 #' @noRd
-poolQuantiles <- function(x, probs) {
+poolQuantiles <- function(x, probs, range = FALSE) {
   n <- length(x)
   if (n < 1L || n > .Machine$integer.max || !is.double(x) || is.object(x))
     return(NULL)
@@ -167,13 +170,21 @@ poolQuantiles <- function(x, probs) {
   lo <- floor(index)
   hi <- ceiling(index)
   r <- sort(unique(c(lo, hi)))
-  v <- .Call(C_order_stats, x, as.integer(r))
-  if (is.null(v)) return(NULL)
+  if (range) {
+    v <- .Call(C_order_stats_range, x, as.integer(r))
+    if (is.null(v)) return(NULL)
+    rng <- v[length(r) + 1:2]
+    v <- v[seq_along(r)]
+  } else {
+    v <- .Call(C_order_stats, x, as.integer(r))
+    if (is.null(v)) return(NULL)
+  }
   qs <- v[match(lo, r)]
   xhi <- v[match(hi, r)]
   i <- which(index > lo & xhi != qs)
   h <- (index - lo)[i]
   qs[i] <- (1 - h) * qs[i] + h * xhi[i]
+  if (range) attr(qs, "range") <- rng
   qs
 }
 
@@ -198,8 +209,8 @@ rejectSample <- function(fps, pps) {
   ## (compute.cont = FALSE: the contour levels are never read)
   df <- ks::kde(fps, compute.cont = FALSE)
   ## the pool's 0.1%, 25%, 75% and 99.9% quantiles, or NULL
-  pq <- poolQuantiles(pps, c(.001, 1/4, 3/4, .999))
-  h <- poolBandwidth(pps, pq[2:3])
+  pq <- poolQuantiles(pps, c(.001, 1/4, 3/4, .999), range = TRUE)
+  h <- poolBandwidth(pps, pq[2:3], attr(pq, "range"))
   dp <- if (is.null(h)) ks::kde(pps, compute.cont = FALSE) else
     ks::kde(pps, h = h, compute.cont = FALSE)
 
@@ -218,12 +229,21 @@ rejectSample <- function(fps, pps) {
     stop("scaling factor for density of the PS for pool is > 1e3, could lead to instability")
   }
 
-  ## Calculate the probability of accepting each pool
-  thresh <- function(x) ifelse(x > 1e-3, x, 0)
-  accept_prob <- pmin(thresh(predict(df, x=pps))/(scale * predict(dp, x=pps)), 1)
+  ## Calculate the probability of accepting each pool and draw from it:
+  ## in one C pass where the densities are plain doubles without NaN
+  ## (src/rejectDraws.c), else as below
+  fx <- predict(df, x=pps)
+  px <- predict(dp, x=pps)
+  accept <- if (is.null(attributes(fx)) && is.null(attributes(px)) &&
+                length(fx) == length(pps))
+    .Call(C_reject_draws, fx, px, scale)
+  if (is.null(accept)) {
+    thresh <- function(x) ifelse(x > 1e-3, x, 0)
+    accept_prob <- pmin(thresh(fx)/(scale * px), 1)
 
-  ## Randomly select pps according to accept probability
-  accept <- rbinom(length(pps), size=1, prob=accept_prob)
+    ## Randomly select pps according to accept probability
+    accept <- rbinom(length(pps), size=1, prob=accept_prob)
+  }
 
   ## Return random selection equal to the length of pps
   return(accept)
@@ -596,7 +616,7 @@ logitGlmFit <- function(x, y, weights = NULL, start = NULL, etastart = NULL,
 #' same rows and values. Every variable of `f` is then a column of
 #' `covarData`, and every column a logical, integer, double or character
 #' vector without dim, unclassed or a factor. Column 1 is matchRanges_Core's
-#' id factor, which holds no NA; the others are checked with anyNA.
+#' id factor, which holds no NA; the others are checked with colAnyNA.
 #' @inheritParams propensityMatch
 #' @return TRUE or FALSE.
 #' @noRd
@@ -617,10 +637,16 @@ naActionNoop <- function(covarData, covars) {
     if (!(typeof(x) %in% c("logical", "integer", "double", "character")) ||
         !is.null(dim(x)) ||
         !(is.null(oldClass(x)) || identical(oldClass(x), "factor")) ||
-        (j > 1L && anyNA(x)))
+        (j > 1L && colAnyNA(x)))
       return(FALSE)
   }
   TRUE
+}
+
+## anyNA(x): one compiled scan for a double vector with a data pointer
+colAnyNA <- function(x) {
+  r <- .Call(C_any_nan, x)
+  if (is.null(r)) anyNA(x) else r
 }
 
 #' Calculate propensity scores, implement matching
@@ -666,15 +692,19 @@ propensityMatch <- function(covarData, covars, method, replace, nf) {
   ## strings, one per row, only to drop them
   ps <- predict(model, type = "response")
   names(ps) <- NULL
-  psData <- data.table(ps = ps, id = covarData$id)
+  if (!(length(ps) == nrow(covarData) && is.double(ps) &&
+        is.null(attributes(ps)))) {
+    ## data.table() recycles a short ps, with a warning (rows glm dropped)
+    ps <- data.table(ps = ps, id = covarData$id)$ps
+  }
   focalRows <- seq_len(nf)
   poolRows <- nf + seq_len(nrow(covarData) - nf)
-  fps <- psData$ps[focalRows]
-  pps <- psData$ps[poolRows]
+  fps <- ps[focalRows]
+  pps <- ps[poolRows]
 
   ## Add propensity scores to covarData (by reference: covarData is the
   ## caller's temporary)
-  set(covarData, j = "ps", value = psData$ps)
+  set(covarData, j = "ps", value = ps)
 
   ## Implement matching method w or w/o replacement
   if (method == 'nearest' & isTRUE(replace))
@@ -708,14 +738,17 @@ propensityMatch <- function(covarData, covars, method, replace, nf) {
       (min(ppsIndex) >= 1L && max(ppsIndex) <= np)) &&
       !any(vapply(covarData, function(x) is.factor(x) && anyNA(levels(x)),
                   logical(1)))) {
-    drawn <- logical(np)
-    drawn[ppsIndex] <- TRUE
-    unmatchedRows <- which(!drawn)
-    matchedData <- covarData[c(focalRows, nf + ppsIndex, poolRows,
-                               nf + unmatchedRows)]
+    rows <- .Call(C_matched_rows, nf, ppsIndex, np)
+    if (is.null(rows)) {
+      drawn <- logical(np)
+      drawn[ppsIndex] <- TRUE
+      rows <- c(focalRows, nf + ppsIndex, poolRows, nf + which(!drawn))
+    }
+    matchedData <- covarData[rows]
+    nu <- length(rows) - nf - length(ppsIndex) - np
     set(matchedData, j = "set",
         value = rep(c("focal", "matched", "pool", "unmatched"),
-                    c(nf, length(ppsIndex), np, length(unmatchedRows))))
+                    c(nf, length(ppsIndex), np, nu)))
   } else {
     poolData <- covarData[poolRows]
     matchedData <- rbind(

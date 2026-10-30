@@ -18,6 +18,10 @@ SEXP moved_rows_opt(SEXP b_code, SEXP b_start, SEXP b_width, SEXP n_rep,
 	SEXP seqlen, SEXP bounded, SEXP shift, SEXP t_code, SEXP mode,
 	SEXP xseg, SEXP xs, SEXP xe, SEXP cols, SEXP with_code);
 SEXP bait_blocks(SEXP start, SEXP width, SEXP target, SEXP n_rep);
+SEXP moved_rows_bait(SEXP b_seg, SEXP seg_code, SEXP b_start, SEXP b_width,
+	SEXP n_rep, SEXP y_code, SEXP y_start, SEXP y_end, SEXP y_width,
+	SEXP circular, SEXP seqlen, SEXP bounded, SEXP t_start, SEXP t_code,
+	SEXP mode, SEXP xseg, SEXP xs, SEXP xe, SEXP cols, SEXP with_code);
 SEXP ss_init(SEXP fps, SEXP pps, SEXP cnt, SEXP code, SEXP nLeft);
 SEXP ss_range(SEXP st);
 SEXP ss_sort(SEXP st);
@@ -38,6 +42,10 @@ SEXP seg_draws(SEXP s_n_rep, SEXP prob, SEXP rmin, SEXP rmax, SEXP gidx,
 	SEXP off, SEXP n_draw, SEXP st, SEXP rearr);
 SEXP scaled_linbin(SEXP x, SEXP s_m, SEXP s_s, SEXP s_a, SEXP s_b, SEXP s_M);
 SEXP order_stats(SEXP x, SEXP ranks);
+SEXP order_stats_range(SEXP x, SEXP ranks);
+SEXP reject_draws(SEXP fx, SEXP px, SEXP s_scale);
+SEXP matched_rows(SEXP s_nf, SEXP index, SEXP s_np);
+SEXP any_nan(SEXP x);
 
 static const R_CallMethodDef callMethods[] = {
 	{"moved_positions", (DL_FUNC) &moved_positions, 13},
@@ -45,6 +53,7 @@ static const R_CallMethodDef callMethods[] = {
 	{"moved_rows_lens", (DL_FUNC) &moved_rows_lens, 18},
 	{"moved_rows_opt", (DL_FUNC) &moved_rows_opt, 19},
 	{"bait_blocks", (DL_FUNC) &bait_blocks, 4},
+	{"moved_rows_bait", (DL_FUNC) &moved_rows_bait, 20},
 	{"ss_init", (DL_FUNC) &ss_init, 5},
 	{"ss_range", (DL_FUNC) &ss_range, 1},
 	{"ss_sort", (DL_FUNC) &ss_sort, 1},
@@ -60,6 +69,10 @@ static const R_CallMethodDef callMethods[] = {
 	{"seg_draws", (DL_FUNC) &seg_draws, 9},
 	{"scaled_linbin", (DL_FUNC) &scaled_linbin, 6},
 	{"order_stats", (DL_FUNC) &order_stats, 2},
+	{"order_stats_range", (DL_FUNC) &order_stats_range, 2},
+	{"reject_draws", (DL_FUNC) &reject_draws, 3},
+	{"matched_rows", (DL_FUNC) &matched_rows, 3},
+	{"any_nan", (DL_FUNC) &any_nan, 1},
 	{NULL, NULL, 0}
 };
 

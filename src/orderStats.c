@@ -79,9 +79,25 @@ static int os_depth(R_xlen_t n)
 	return 2 * d + 4;
 }
 
-/* the exact path: a copy of x, selected; 0 when x holds a NaN */
+/* min(x) and max(x) as R's rmin and rmax take them from a vector without
+ * NaN: from x[0], replaced only on a strict compare, so of tied values (-0
+ * and 0) the first in row order */
+static void os_minmax(const double *x, R_xlen_t n, double *mm)
+{
+	double mn = x[0], mx = x[0];
+	for (R_xlen_t i = 1; i < n; i++) {
+		double v = x[i];
+		if (v < mn) mn = v;
+		if (v > mx) mx = v;
+	}
+	mm[0] = mn;
+	mm[1] = mx;
+}
+
+/* the exact path: a copy of x, selected; 0 when x holds a NaN. With mm,
+ * also x's min and max into mm[0] and mm[1]. */
 static int os_full(const double *x, R_xlen_t n, const int *r, int nr,
-	double *out)
+	double *out, double *mm)
 {
 	double *a = (double *) R_alloc((size_t) n, sizeof(double));
 	R_xlen_t *ks = (R_xlen_t *) R_alloc((size_t) nr, sizeof(R_xlen_t));
@@ -89,6 +105,7 @@ static int os_full(const double *x, R_xlen_t n, const int *r, int nr,
 		if (ISNAN(x[i])) return 0;
 		a[i] = x[i];
 	}
+	if (mm) os_minmax(x, n, mm);
 	for (int k = 0; k < nr; k++)
 		ks[k] = (R_xlen_t) r[k] - 1;
 	os_select(a, 0, n - 1, ks, nr, os_depth(n));
@@ -97,20 +114,33 @@ static int os_full(const double *x, R_xlen_t n, const int *r, int nr,
 	return 1;
 }
 
-SEXP order_stats(SEXP x, SEXP ranks)
+/* with_range: the result also holds min(x) and max(x) after the order
+ * statistics, from the pass that reads x first (x of length >= 1) */
+static SEXP os_impl(SEXP x, SEXP ranks, int with_range)
 {
 	R_xlen_t n = XLENGTH(x);
 	int nr = LENGTH(ranks);
 	const double *px = REAL(x);
 	const int *r = INTEGER(ranks);
-	SEXP out = PROTECT(allocVector(REALSXP, nr));
+	if (with_range && n < 1)
+		return R_NilValue;
+	SEXP out = PROTECT(allocVector(REALSXP, nr + (with_range ? 2 : 0)));
 	double *po = REAL(out);
+	double *mm = with_range ? po + nr : NULL;
 	if (nr == 0) {
+		if (mm) {
+			for (R_xlen_t i = 0; i < n; i++)
+				if (ISNAN(px[i])) {
+					UNPROTECT(1);
+					return R_NilValue;
+				}
+			os_minmax(px, n, mm);
+		}
 		UNPROTECT(1);
 		return out;
 	}
 	if (n < OS_SMALL) {
-		int ok = os_full(px, n, r, nr, po);
+		int ok = os_full(px, n, r, nr, po, mm);
 		UNPROTECT(1);
 		return ok ? out : R_NilValue;
 	}
@@ -171,7 +201,7 @@ SEXP order_stats(SEXP x, SEXP ranks)
 		cnt[b] = 0;
 	}
 	if (total > n / 2) {
-		int ok = os_full(px, n, r, nr, po);
+		int ok = os_full(px, n, r, nr, po, mm);
 		UNPROTECT(1);
 		return ok ? out : R_NilValue;
 	}
@@ -187,12 +217,27 @@ SEXP order_stats(SEXP x, SEXP ranks)
 		double *bb = buf[b];
 		R_xlen_t lt = 0, c = 0, cp = cap[b];
 		int nn = 0;
-		for (R_xlen_t i = 0; i < n; i++) {
-			double v = px[i];
-			nn |= (v != v);
-			lt += (v < Lb);
-			bb[c < cp ? c : cp] = v;
-			c += (v >= Lb) & (v <= Ub);
+		if (b == 0 && mm) {
+			double mn = px[0], mx = px[0];
+			for (R_xlen_t i = 0; i < n; i++) {
+				double v = px[i];
+				nn |= (v != v);
+				lt += (v < Lb);
+				bb[c < cp ? c : cp] = v;
+				c += (v >= Lb) & (v <= Ub);
+				mn = (v < mn) ? v : mn;
+				mx = (v > mx) ? v : mx;
+			}
+			mm[0] = mn;
+			mm[1] = mx;
+		} else {
+			for (R_xlen_t i = 0; i < n; i++) {
+				double v = px[i];
+				nn |= (v != v);
+				lt += (v < Lb);
+				bb[c < cp ? c : cp] = v;
+				c += (v >= Lb) & (v <= Ub);
+			}
 		}
 		less[b] = lt;
 		cnt[b] = c;
@@ -210,7 +255,7 @@ SEXP order_stats(SEXP x, SEXP ranks)
 			if (!(less[b] < r[k] && r[k] <= less[b] + cnt[b])) hit = 0;
 	}
 	if (!hit) {
-		int ok = os_full(px, n, r, nr, po);
+		int ok = os_full(px, n, r, nr, po, mm);
 		UNPROTECT(1);
 		return ok ? out : R_NilValue;
 	}
@@ -226,4 +271,15 @@ SEXP order_stats(SEXP x, SEXP ranks)
 	}
 	UNPROTECT(1);
 	return out;
+}
+
+SEXP order_stats(SEXP x, SEXP ranks)
+{
+	return os_impl(x, ranks, 0);
+}
+
+/* order_stats(x, ranks) followed by min(x) and max(x) */
+SEXP order_stats_range(SEXP x, SEXP ranks)
+{
+	return os_impl(x, ranks, 1);
 }

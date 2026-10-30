@@ -14,6 +14,89 @@
 /* R's integer + and - give NA outside [-INT_MAX, INT_MAX] */
 #define INT_OK(v) ((v) <= INT_MAX && (v) >= -(int64_t) INT_MAX)
 
+/* as.integer() of one double: NA for NaN and outside the integer range */
+static inline int int_of_real(double v)
+{
+	if (ISNAN(v) || v >= 2147483648.0 || v <= -2147483648.0)
+		return NA_INTEGER;
+	return (int) v;
+}
+
+/* bait_blocks()' inputs and each block's segment, from which each block's
+ * start, width and shift are derived as bait_blocks() computes them and its
+ * seqlevel code as match(chr_names, seqlevels(y))[bait_seg] gives it: start
+ * (si or sd) per block, width (wi or wd) recycled over n_w, target start (ti
+ * or td) per block of a replicate, n_ts of them, and seg_code per segment */
+typedef struct {
+	R_xlen_t n, n_w, n_ts;
+	int n_seg;
+	const int *seg, *seg_code, *si, *wi, *ti;
+	const double *sd, *wd, *td;
+} bait_raw;
+
+/* block b's code: NA for a segment index outside [1, n_seg], where R's
+ * subset gives NA or drops the element */
+static inline int raw_code(const bait_raw *r, R_xlen_t b)
+{
+	int s = r->seg[b];
+	return s >= 1 && s <= r->n_seg ? r->seg_code[s - 1] : NA_INTEGER;
+}
+
+/* block b's start, width (index j) and shift (target index t), once
+ * raw_block() has accepted them */
+static inline int raw_start(const bait_raw *r, R_xlen_t b)
+{
+	return r->si != NULL ? r->si[b] : (int) r->sd[b];
+}
+
+static inline int raw_width(const bait_raw *r, R_xlen_t j)
+{
+	return r->wi != NULL ? r->wi[j] : (int) r->wd[j];
+}
+
+static inline int raw_shift(const bait_raw *r, R_xlen_t t, int sb)
+{
+	if (r->ti != NULL)
+		return r->ti[t] == NA_INTEGER ? NA_INTEGER :
+			(int) ((int64_t) r->ti[t] - sb);
+	return int_of_real(r->td[t] - (double) sb);
+}
+
+/* bait_blocks()' checks of block b: 0 where it declines */
+static inline int raw_block(const bait_raw *r, R_xlen_t b, R_xlen_t j,
+	R_xlen_t t)
+{
+	int sb;
+	if (r->si != NULL) {
+		sb = r->si[b];
+		if (sb == NA_INTEGER)
+			return 0;
+	} else {
+		double v = r->sd[b];
+		if (ISNAN(v) || v >= 2147483648.0 || v <= -2147483648.0)
+			return 0;
+		sb = (int) v;
+	}
+	int wb;
+	if (r->wi != NULL) {
+		wb = r->wi[j];
+		if (wb == NA_INTEGER || wb < 0)
+			return 0;
+	} else {
+		double v = r->wd[j];
+		if (ISNAN(v) || v < 0 || v >= 2147483648.0)
+			return 0;
+		wb = (int) v;
+	}
+	int64_t e = (int64_t) sb + wb - 1;
+	if (!INT_OK(e))
+		return 0;
+	if (r->ti != NULL && r->ti[t] != NA_INTEGER &&
+		!INT_OK((int64_t) r->ti[t] - sb))
+		return 0;
+	return 1;
+}
+
 /* Fixed-width buckets along one sequence's sorted positions: t[k] is the
  * first entry whose bucket is k or later, t[nb] the sequence's end. */
 typedef struct {
@@ -155,7 +238,9 @@ static inline int ex_count(int mode, const int *xs, const int *xe, int lo,
 /* What both passes read: the bait blocks, y sorted by seqlevel with its
  * bucket tables, the targets and the exclude tables */
 typedef struct {
+	/* the blocks' codes, starts, widths and shifts, or NULL with 'raw' */
 	const int *bc, *bs, *bw, *shift, *tc, *seqlen, *bounded;
+	const bait_raw *raw;
 	const int *ys, *ye, *yw, *em, *n_short, *seg, *o;
 	const int *t_start, *t_max;
 	const buckets *bk_start, *bk_max;
@@ -217,20 +302,38 @@ static int moved_pass1(const moved_ctx *x, R_xlen_t b0, R_xlen_t b1,
 	const int *xseg = x->xseg, *xs = x->xs, *xe = x->xe;
 	R_xlen_t n_hit = 0, n_keep = 0;
 	int ex_prev = 0, ex_k = 0;
+	const bait_raw *rw = x->raw;
+	/* with 'raw', the indices of block b's width and target start */
+	R_xlen_t j = rw != NULL ? b0 % rw->n_w : 0;
+	R_xlen_t t = rw != NULL ? b0 % rw->n_ts : 0;
 	for (R_xlen_t b = b0; b < b1; b++) {
-		int c = x->bc[b] - 1, cs = x->seg[c], ce = x->seg[c + 1];
+		int bc, bstart, bw;
+		R_xlen_t tb = t;
+		if (rw != NULL) {
+			bc = raw_code(rw, b);
+			bstart = raw_start(rw, b);
+			bw = raw_width(rw, j);
+			if (++j == rw->n_w)
+				j = 0;
+			if (++t == rw->n_ts)
+				t = 0;
+		} else {
+			bc = x->bc[b];
+			bstart = x->bs[b];
+			bw = x->bw[b];
+		}
+		int c = bc - 1, cs = x->seg[c], ce = x->seg[c + 1];
 		int lo = count_le(em, cs, ce, x->bk_max + c, x->t_max,
-			(int64_t) x->bs[b] - 1);
+			(int64_t) bstart - 1);
 		int hi = count_le(ys, cs, ce, x->bk_start + c, x->t_start,
-			(int64_t) x->bs[b] + x->bw[b] - 1);
+			(int64_t) bstart + bw - 1);
 		x->first[b] = lo;
 		x->last[b] = hi;
 		x->plain[b] = 0;
 		if (lo >= hi)
 			continue;
-		int sh = x->shift[b];
+		int sh = rw != NULL ? raw_shift(rw, tb, bstart) : x->shift[b];
 		int code = b < x->n_t_rep ? x->tc[b % x->n_t] : NA_INTEGER;
-		int bstart = x->bs[b];
 		if (x->n_short[hi] == x->n_short[lo] && sh != NA_INTEGER &&
 			code != NA_INTEGER && code >= 1 && code <= n_lev) {
 			int64_t s0 = (int64_t) ys[lo] + sh, e1 = (int64_t) em[hi - 1] + sh;
@@ -291,16 +394,21 @@ static void moved_pass2(const moved_ctx *x, R_xlen_t b0, R_xlen_t b1,
 	const int *xseg = x->xseg, *xs = x->xs, *xe = x->xe;
 	int *sv = out[0], *cv = out[1], *blk = out[4];
 	int ex_prev = 0, ex_k = 0;
+	const bait_raw *rw = x->raw;
+	R_xlen_t t = rw != NULL ? b0 % rw->n_ts : 0;
 	for (R_xlen_t b = b0; b < b1; b++) {
 		int lo = x->first[b], hi = x->last[b];
+		R_xlen_t tb = t;
+		if (rw != NULL && ++t == rw->n_ts)
+			t = 0;
 		if (lo >= hi) {
 			x->last[b] = 0;
 			continue;
 		}
 		R_xlen_t at0 = at;
-		int sh = x->shift[b];
+		int bstart = rw != NULL ? raw_start(rw, b) : x->bs[b];
+		int sh = rw != NULL ? raw_shift(rw, tb, bstart) : x->shift[b];
 		int code = x->tc[b % x->n_t];
-		int bstart = x->bs[b];
 		int rep = (int) (b / x->n_blocks) + 1;
 		if (x->plain[b]) {
 			if (sv != NULL && cv != NULL) {
@@ -417,29 +525,35 @@ static void moved_pass2(const moved_ctx *x, R_xlen_t b0, R_xlen_t b1,
  * and 's' is then NULL; otherwise 'cols' is NULL and 's' is written. The
  * caller passes only vectors without attributes (gather_columns()).
  *
- * Without 'with_code', 'code' is NULL: only its runs are returned. */
+ * Without 'with_code', 'code' is NULL: only its runs are returned.
+ *
+ * With 'raw' (b_code_, b_start_, b_width_ and shift_ unread), each block's
+ * code, start, width and shift are derived from it, and R_NilValue is also
+ * returned wherever bait_blocks() declines. */
 static SEXP moved_impl(SEXP b_code_, SEXP b_start_, SEXP b_width_,
 	SEXP n_rep_, SEXP y_code_, SEXP y_start_, SEXP y_end_, SEXP y_width_,
 	SEXP circular_, SEXP seqlen_, SEXP bounded_, SEXP shift_, SEXP t_code_,
 	int mode, SEXP xseg_, SEXP xs_, SEXP xe_, int with_block, int with_cols,
-	SEXP cols_, int with_code)
+	SEXP cols_, int with_code, const bait_raw *raw)
 {
-	if (TYPEOF(b_code_) != INTSXP || TYPEOF(b_start_) != INTSXP ||
-		TYPEOF(b_width_) != INTSXP || TYPEOF(n_rep_) != INTSXP ||
+	if ((raw == NULL && (TYPEOF(b_code_) != INTSXP ||
+		TYPEOF(b_start_) != INTSXP || TYPEOF(b_width_) != INTSXP ||
+		TYPEOF(shift_) != INTSXP)) || TYPEOF(n_rep_) != INTSXP ||
 		TYPEOF(y_code_) != INTSXP || TYPEOF(y_start_) != INTSXP ||
 		TYPEOF(y_end_) != INTSXP || TYPEOF(y_width_) != INTSXP ||
 		TYPEOF(circular_) != LGLSXP || TYPEOF(seqlen_) != INTSXP ||
-		TYPEOF(bounded_) != LGLSXP || TYPEOF(shift_) != INTSXP ||
+		TYPEOF(bounded_) != LGLSXP ||
 		TYPEOF(t_code_) != INTSXP || XLENGTH(n_rep_) != 1)
 		return R_NilValue;
-	R_xlen_t n = XLENGTH(b_code_);
+	R_xlen_t n = raw != NULL ? raw->n : XLENGTH(b_code_);
 	R_xlen_t n_y = XLENGTH(y_code_);
 	R_xlen_t n_t = XLENGTH(t_code_);
 	int n_rep = INTEGER(n_rep_)[0];
 	int n_lev = LENGTH(circular_);
 	if (n == 0 || n_rep == NA_INTEGER || n_rep < 1 || n % n_rep != 0 ||
-		n > INT_MAX || n_y > INT_MAX || XLENGTH(b_start_) != n ||
-		XLENGTH(b_width_) != n || XLENGTH(shift_) != n ||
+		n > INT_MAX || n_y > INT_MAX || (raw == NULL &&
+		(XLENGTH(b_start_) != n || XLENGTH(b_width_) != n ||
+		XLENGTH(shift_) != n)) ||
 		XLENGTH(y_start_) != n_y || XLENGTH(y_end_) != n_y ||
 		XLENGTH(y_width_) != n_y || XLENGTH(seqlen_) != n_lev ||
 		XLENGTH(bounded_) != n_lev || (int64_t) n_rep * n_lev > INT_MAX)
@@ -522,26 +636,46 @@ static SEXP moved_impl(SEXP b_code_, SEXP b_start_, SEXP b_width_,
 	/* bait_overlaps(): every block on sorted_overlaps()' path, i.e. its
 	 * replicate has fewer blocks on its sequence than y has ranges there;
 	 * sorted_overlaps(): no empty block and none on a circular sequence;
-	 * end(bait), start + width - 1L, not NA */
-	const int *bc = INTEGER(b_code_), *bs = INTEGER(b_start_);
-	const int *bw = INTEGER(b_width_), *circ = LOGICAL(circular_);
+	 * end(bait), start + width - 1L, not NA. With 'raw', bait_blocks()'
+	 * checks first. */
+	const int *bc = raw == NULL ? INTEGER(b_code_) : NULL;
+	const int *bs = raw == NULL ? INTEGER(b_start_) : NULL;
+	const int *bw = raw == NULL ? INTEGER(b_width_) : NULL;
+	const int *circ = LOGICAL(circular_);
 	int *cnt = (int *) R_alloc(n_lev > 0 ? n_lev : 1, sizeof(int));
 	memset(cnt, 0, (n_lev > 0 ? n_lev : 1) * sizeof(int));
 	for (R_xlen_t r = 0; r < n_rep; r++) {
 		R_xlen_t b0 = r * n_blocks, b1 = b0 + n_blocks;
+		R_xlen_t j = raw != NULL ? b0 % raw->n_w : 0;
 		for (R_xlen_t b = b0; b < b1; b++) {
-			int c = bc[b];
-			int64_t e = (int64_t) bs[b] + bw[b];
+			int c, sb, wb;
+			if (raw != NULL) {
+				/* a replicate's blocks take the targets in order */
+				if (!raw_block(raw, b, j, b - b0))
+					return R_NilValue;
+				c = raw_code(raw, b);
+				sb = raw_start(raw, b);
+				wb = raw_width(raw, j);
+				if (++j == raw->n_w)
+					j = 0;
+			} else {
+				c = bc[b];
+				sb = bs[b];
+				wb = bw[b];
+			}
+			int64_t e = (int64_t) sb + wb;
 			if (c == NA_INTEGER || c < 1 || c > n_lev || !INT_OK(e) ||
-				!INT_OK(e - 1) || e - 1 < bs[b] || circ[c - 1] == TRUE)
+				!INT_OK(e - 1) || e - 1 < sb || circ[c - 1] == TRUE)
 				return R_NilValue;
 			cnt[c - 1]++;
 		}
-		for (R_xlen_t b = b0; b < b1; b++)
-			if (cnt[bc[b] - 1] >= seg[bc[b]] - seg[bc[b] - 1])
+		for (R_xlen_t b = b0; b < b1; b++) {
+			int c = raw != NULL ? raw_code(raw, b) : bc[b];
+			if (cnt[c - 1] >= seg[c] - seg[c - 1])
 				return R_NilValue;
+		}
 		for (R_xlen_t b = b0; b < b1; b++)
-			cnt[bc[b] - 1] = 0;
+			cnt[(raw != NULL ? raw_code(raw, b) : bc[b]) - 1] = 0;
 	}
 
 	buckets *bk_start = (buckets *) R_alloc(n_lev, sizeof(buckets));
@@ -573,7 +707,8 @@ static SEXP moved_impl(SEXP b_code_, SEXP b_start_, SEXP b_width_,
 	R_xlen_t *c_keep = (R_xlen_t *) R_alloc(n_chunk, sizeof(R_xlen_t));
 	int *c_ok = (int *) R_alloc(n_chunk, sizeof(int));
 	moved_ctx x = {
-		.bc = bc, .bs = bs, .bw = bw, .shift = INTEGER(shift_),
+		.bc = bc, .bs = bs, .bw = bw,
+		.shift = raw == NULL ? INTEGER(shift_) : NULL, .raw = raw,
 		.tc = INTEGER(t_code_), .seqlen = INTEGER(seqlen_),
 		.bounded = LOGICAL(bounded_), .ys = ys, .ye = ye, .yw = yw, .em = em,
 		.n_short = n_short, .seg = seg, .o = o, .t_start = t_start,
@@ -729,14 +864,14 @@ SEXP moved_positions(SEXP b_code_, SEXP b_start_, SEXP b_width_, SEXP n_rep_,
 {
 	return moved_impl(b_code_, b_start_, b_width_, n_rep_, y_code_, y_start_,
 		y_end_, y_width_, circular_, seqlen_, bounded_, shift_, t_code_, 0,
-		R_NilValue, R_NilValue, R_NilValue, 1, 0, R_NilValue, 1);
+		R_NilValue, R_NilValue, R_NilValue, 1, 0, R_NilValue, 1, NULL);
 }
 
 static SEXP moved_rows_impl(SEXP b_code_, SEXP b_start_, SEXP b_width_,
 	SEXP n_rep_, SEXP y_code_, SEXP y_start_, SEXP y_end_, SEXP y_width_,
 	SEXP circular_, SEXP seqlen_, SEXP bounded_, SEXP shift_, SEXP t_code_,
 	SEXP mode_, SEXP xseg_, SEXP xs_, SEXP xe_, int with_block, int with_cols,
-	SEXP cols_, int with_code)
+	SEXP cols_, int with_code, const bait_raw *raw)
 {
 	if (TYPEOF(mode_) != INTSXP || XLENGTH(mode_) != 1)
 		return ScalarLogical(FALSE);
@@ -745,7 +880,7 @@ static SEXP moved_rows_impl(SEXP b_code_, SEXP b_start_, SEXP b_width_,
 		return ScalarLogical(FALSE);
 	return moved_impl(b_code_, b_start_, b_width_, n_rep_, y_code_, y_start_,
 		y_end_, y_width_, circular_, seqlen_, bounded_, shift_, t_code_, mode,
-		xseg_, xs_, xe_, with_block, with_cols, cols_, with_code);
+		xseg_, xs_, xe_, with_block, with_cols, cols_, with_code, raw);
 }
 
 /* moved_impl() with the exclude step of mode_ (0 none, 1 drop, 2 trim) */
@@ -756,7 +891,7 @@ SEXP moved_rows(SEXP b_code_, SEXP b_start_, SEXP b_width_, SEXP n_rep_,
 {
 	return moved_rows_impl(b_code_, b_start_, b_width_, n_rep_, y_code_,
 		y_start_, y_end_, y_width_, circular_, seqlen_, bounded_, shift_,
-		t_code_, mode_, xseg_, xs_, xe_, 1, 0, R_NilValue, 1);
+		t_code_, mode_, xseg_, xs_, xe_, 1, 0, R_NilValue, 1, NULL);
 }
 
 /* moved_rows() with the rows per replicate ('lens') in place of 'block',
@@ -768,7 +903,7 @@ SEXP moved_rows_lens(SEXP b_code_, SEXP b_start_, SEXP b_width_,
 {
 	return moved_rows_impl(b_code_, b_start_, b_width_, n_rep_, y_code_,
 		y_start_, y_end_, y_width_, circular_, seqlen_, bounded_, shift_,
-		t_code_, mode_, xseg_, xs_, xe_, 0, 1, cols_, 1);
+		t_code_, mode_, xseg_, xs_, xe_, 0, 1, cols_, 1, NULL);
 }
 
 /* moved_rows_lens() whose per-row code column is written only when
@@ -782,15 +917,7 @@ SEXP moved_rows_opt(SEXP b_code_, SEXP b_start_, SEXP b_width_,
 	return moved_rows_impl(b_code_, b_start_, b_width_, n_rep_, y_code_,
 		y_start_, y_end_, y_width_, circular_, seqlen_, bounded_, shift_,
 		t_code_, mode_, xseg_, xs_, xe_, 0, 1, cols_,
-		asLogical(with_code_) != FALSE);
-}
-
-/* as.integer() of one double: NA for NaN and outside the integer range */
-static inline int int_of_real(double v)
-{
-	if (ISNAN(v) || v >= 2147483648.0 || v <= -2147483648.0)
-		return NA_INTEGER;
-	return (int) v;
+		asLogical(with_code_) != FALSE, NULL);
 }
 
 /* What move_blocks_bulk() builds for moved_positions() from the bait starts
@@ -897,4 +1024,48 @@ SEXP bait_blocks(SEXP start_, SEXP width_, SEXP target_, SEXP n_rep_)
 	}
 	UNPROTECT(2);
 	return ok ? ans : R_NilValue;
+}
+
+/* moved_rows_opt() given bait_blocks()' inputs (bait starts, widths and
+ * target starts, integer or double) and each block's segment (b_seg_, an
+ * index into seg_code_, each segment's seqlevel code) in place of the
+ * blocks' codes, starts, widths and shifts, which it derives where it reads
+ * them: R_NilValue wherever bait_blocks() declines, a block's code is NA or
+ * its segment index is outside [1, length(seg_code_)], or moved_rows_opt()
+ * on bait_blocks()' list and match(chr_names, seqlevels(y))[bait_seg]
+ * returns R_NilValue; FALSE where it returns FALSE. */
+SEXP moved_rows_bait(SEXP b_seg_, SEXP seg_code_, SEXP b_start_,
+	SEXP b_width_, SEXP n_rep_, SEXP y_code_, SEXP y_start_, SEXP y_end_,
+	SEXP y_width_, SEXP circular_, SEXP seqlen_, SEXP bounded_, SEXP t_start_,
+	SEXP t_code_, SEXP mode_, SEXP xseg_, SEXP xs_, SEXP xe_, SEXP cols_,
+	SEXP with_code_)
+{
+	int ts = TYPEOF(b_start_), tw = TYPEOF(b_width_), tt = TYPEOF(t_start_);
+	if (TYPEOF(b_seg_) != INTSXP || TYPEOF(seg_code_) != INTSXP ||
+		(ts != INTSXP && ts != REALSXP) || (tw != INTSXP && tw != REALSXP) ||
+		(tt != INTSXP && tt != REALSXP) || TYPEOF(n_rep_) != INTSXP ||
+		XLENGTH(n_rep_) != 1 || XLENGTH(seg_code_) > INT_MAX)
+		return R_NilValue;
+	bait_raw r;
+	r.n = XLENGTH(b_start_);
+	r.n_w = XLENGTH(b_width_);
+	r.n_ts = XLENGTH(t_start_);
+	int n_rep = INTEGER(n_rep_)[0];
+	if (XLENGTH(b_seg_) != r.n || r.n == 0 || r.n_w == 0 || r.n_ts == 0 ||
+		r.n > INT_MAX || n_rep == NA_INTEGER || n_rep < 1 ||
+		r.n % n_rep != 0 || r.n / n_rep != r.n_ts)
+		return R_NilValue;
+	r.n_seg = (int) XLENGTH(seg_code_);
+	r.seg = INTEGER_RO(b_seg_);
+	r.seg_code = INTEGER_RO(seg_code_);
+	r.si = ts == INTSXP ? INTEGER_RO(b_start_) : NULL;
+	r.sd = ts == REALSXP ? REAL_RO(b_start_) : NULL;
+	r.wi = tw == INTSXP ? INTEGER_RO(b_width_) : NULL;
+	r.wd = tw == REALSXP ? REAL_RO(b_width_) : NULL;
+	r.ti = tt == INTSXP ? INTEGER_RO(t_start_) : NULL;
+	r.td = tt == REALSXP ? REAL_RO(t_start_) : NULL;
+	return moved_rows_impl(R_NilValue, R_NilValue, R_NilValue, n_rep_,
+		y_code_, y_start_, y_end_, y_width_, circular_, seqlen_, bounded_,
+		R_NilValue, t_code_, mode_, xseg_, xs_, xe_, 0, 1, cols_,
+		asLogical(with_code_) != FALSE, &r);
 }

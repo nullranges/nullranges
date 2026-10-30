@@ -71,28 +71,28 @@ static void table_init(prob_table *t, const double *w, int n)
 	t->a = a;
 }
 
-/* one draw, 1-based */
-static int table_draw(const prob_table *t, Sampletype kind)
+/* one draw from a Walker table, 1-based */
+static int walker_draw(const prob_table *t, Sampletype kind)
 {
-	if (t->walker) {
-		int n = t->n, k;
-		double rU;
-		if (kind == ROUNDING) {
-			rU = unif_rand() * n;
-			k = (int) rU;
-		} else {
-			k = (int) R_unif_index(n);
-			rU = k + unif_rand();
-		}
-		return (rU < t->p[k]) ? k + 1 : t->a[k] + 1;
+	int n = t->n, k;
+	double rU;
+	if (kind == ROUNDING) {
+		rU = unif_rand() * n;
+		k = (int) rU;
+	} else {
+		k = (int) R_unif_index(n);
+		rU = k + unif_rand();
 	}
-	double rU = unif_rand();
-	/* R scans for the first j < n - 1 with rU <= p[j] (else n - 1); p is
-	 * non-decreasing, so that j is the count of p[0..n - 2] below rU, found
-	 * by a lower bound written without branches (the comparisons are
-	 * unpredictable) */
-	const double *base = t->p;
-	int len = t->n - 1;
+	return (rU < t->p[k]) ? k + 1 : t->a[k] + 1;
+}
+
+/* R scans for the first j < n - 1 with rU <= p[j] (else n - 1); p is
+ * non-decreasing, so that j is the count of p[0..len - 1] below rU, len =
+ * n - 1, found by a lower bound written without branches (the comparisons
+ * are unpredictable) */
+static inline int cum_index(const double *p, int len, double rU)
+{
+	const double *base = p;
 	if (len > 0) {
 		while (len > 1) {
 			int half = len / 2;
@@ -101,8 +101,55 @@ static int table_draw(const prob_table *t, Sampletype kind)
 		}
 		base += (*base < rU);
 	}
-	return t->a[base - t->p];
+	return (int) (base - p);
 }
+
+#define STEP(b, x) b = ((b)[half] < (x)) ? (b) + half : (b)
+#define LAST(b, x) b += (*(b) < (x))
+
+/* k draws from a cumulative (non-Walker) table into idx, each off + its
+ * 1-based entry. Each draw takes one unif_rand() and no other, so all k are
+ * drawn first, in order, into u; then the searches run 8 at a time, each
+ * step updating 8 independent lower bounds, whose step sizes depend on n
+ * alone, so their chains of loads overlap. */
+static void cum_draws(const prob_table *t, int k, double *u, int *idx, int off)
+{
+	const double *p = t->p;
+	const int *a = t->a;
+	int len1 = t->n - 1, i = 0;
+	for (int j = 0; j < k; j++)
+		u[j] = unif_rand();
+	if (len1 > 0) {
+		for (; i + 8 <= k; i += 8) {
+			const double *b0 = p, *b1 = p, *b2 = p, *b3 = p,
+				*b4 = p, *b5 = p, *b6 = p, *b7 = p;
+			double x0 = u[i], x1 = u[i + 1], x2 = u[i + 2], x3 = u[i + 3],
+				x4 = u[i + 4], x5 = u[i + 5], x6 = u[i + 6], x7 = u[i + 7];
+			int len = len1;
+			while (len > 1) {
+				int half = len / 2;
+				STEP(b0, x0); STEP(b1, x1); STEP(b2, x2); STEP(b3, x3);
+				STEP(b4, x4); STEP(b5, x5); STEP(b6, x6); STEP(b7, x7);
+				len -= half;
+			}
+			LAST(b0, x0); LAST(b1, x1); LAST(b2, x2); LAST(b3, x3);
+			LAST(b4, x4); LAST(b5, x5); LAST(b6, x6); LAST(b7, x7);
+			idx[i] = off + a[b0 - p];
+			idx[i + 1] = off + a[b1 - p];
+			idx[i + 2] = off + a[b2 - p];
+			idx[i + 3] = off + a[b3 - p];
+			idx[i + 4] = off + a[b4 - p];
+			idx[i + 5] = off + a[b5 - p];
+			idx[i + 6] = off + a[b6 - p];
+			idx[i + 7] = off + a[b7 - p];
+		}
+	}
+	for (; i < k; i++)
+		idx[i] = off + a[cum_index(p, len1, u[i])];
+}
+
+#undef STEP
+#undef LAST
 
 /* Every replicate's bait blocks for seg_bootstrap_prop() (st = NULL) or
  * seg_bootstrap_noprop(), drawn in the order and with the arguments the R
@@ -172,6 +219,7 @@ SEXP seg_draws(SEXP s_n_rep, SEXP prob, SEXP rmin, SEXP rmax, SEXP gidx,
 	for (int s = 0; s < n_tab; s++)
 		table_init(&tab[s], pr + o[s], o[s + 1] - o[s]);
 	int *idx = (int *) R_alloc(max_draw, sizeof(int));
+	double *ubuf = (double *) R_alloc(max_draw, sizeof(double));
 	int *sbuf = NULL, *cnt = NULL, *pos = NULL, *ord = NULL;
 	if (noprop) {
 		sbuf = (int *) R_alloc(max_draw, sizeof(int));
@@ -196,8 +244,11 @@ SEXP seg_draws(SEXP s_n_rep, SEXP prob, SEXP rmin, SEXP rmax, SEXP gidx,
 		if (!noprop) {
 			for (int s = 0; s < n_tab; s++) {
 				int k = nd[s], base = o[s];
-				for (int t = 0; t < k; t++)
-					idx[t] = base + table_draw(&tab[s], kind) - 1;
+				if (tab[s].walker) {
+					for (int t = 0; t < k; t++)
+						idx[t] = base + walker_draw(&tab[s], kind) - 1;
+				} else
+					cum_draws(&tab[s], k, ubuf, idx, base - 1);
 				for (int t = 0; t < k; t++) {
 					int j = idx[t];
 					os[w] = (int) fround(runif(lo[j], hi[j]), 0.);
@@ -207,8 +258,11 @@ SEXP seg_draws(SEXP s_n_rep, SEXP prob, SEXP rmin, SEXP rmax, SEXP gidx,
 			}
 		} else {
 			int k = nd[0];
-			for (int t = 0; t < k; t++)
-				idx[t] = table_draw(&tab[0], kind) - 1;
+			if (tab[0].walker) {
+				for (int t = 0; t < k; t++)
+					idx[t] = walker_draw(&tab[0], kind) - 1;
+			} else
+				cum_draws(&tab[0], k, ubuf, idx, -1);
 			for (int t = 0; t < k; t++) {
 				int j = idx[t];
 				sbuf[t] = (int) fround(runif(lo[j], hi[j]), 0.);

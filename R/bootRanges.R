@@ -82,7 +82,13 @@ bootRanges <- function(y, blockLength, R = 1,
   stopifnot(all(!is.na(chr_lens)))
   excludeOption <- match.arg(excludeOption)
   if (excludeOption == "trim") {
-    stopifnot(all(strand(exclude) == "*"))
+    # the runs of a GRanges' strand Rle hold every strand present; the Rle
+    # comparison makes R's JIT compile S4Vectors' rep method on a second
+    # call; the stopifnot text is kept for the failing path
+    ex_strand <- if (identical(as.vector(class(exclude)), "GRanges")) strand(exclude)
+    if (!(is(ex_strand, "Rle") && isTRUE(all(runValue(ex_strand) == "*")))) {
+      stopifnot(all(strand(exclude) == "*"))
+    }
   }
   if (!is.null(seg)) {
     seg_mcols <- mcols(seg)
@@ -155,11 +161,28 @@ bootRanges <- function(y, blockLength, R = 1,
 
   # from its runs, without a value per range
   keep <- lens > 0L
-  mcols(br)$iter <- Rle(factor(seq_len(R), levels=seq_len(R))[keep], lens[keep])
-  if (storeBlockLength) {
-    mcols(br)$blockLength <- Rle(as.integer(blockLength))
+  iter <- Rle(factor(seq_len(R), levels=seq_len(R))[keep], lens[keep])
+  if (!storeBlockLength && plain_iter_cols(br, sum(lens))) {
+    # the two mcols<- lines below on the DFrame's columns: list [[<-
+    # appends a new name at the end and replaces an existing one in place,
+    # as DataFrame's [[<- does
+    br_mcols <- br@elementMetadata
+    cols <- br_mcols@listData
+    cols[["iter"]] <- iter
+    cols[["block"]] <- NULL
+    br <- BiocGenerics:::replaceSlots(
+      br, elementMetadata = BiocGenerics:::replaceSlots(
+        br_mcols, listData = cols, check = FALSE
+      ),
+      check = FALSE
+    )
+  } else {
+    mcols(br)$iter <- iter
+    if (storeBlockLength) {
+      mcols(br)$blockLength <- Rle(as.integer(blockLength))
+    }
+    mcols(br)$block <- NULL # this is not needed except for debugging perhaps
   }
-  mcols(br)$block <- NULL # this is not needed except for debugging perhaps
   # new("BootRanges", br) would run validObject over every range again; a
   # plain GRanges here is already valid and within its seqlengths
   if (!identical(as.vector(class(br)), "GRanges")) {
@@ -170,6 +193,23 @@ bootRanges <- function(y, blockLength, R = 1,
     slot(out, s) <- slot(br, s)
   }
   out
+}
+
+# TRUE when bootRanges' result 'br' is exactly a GRanges without names
+# whose metadata columns are a DFrame without row names, column metadata
+# or metadata, with 'n' rows, one per range
+#
+# @param br the concatenated replicates
+# @param n the length of the iter column
+plain_iter_cols <- function(br, n) {
+  if (!identical(as.vector(class(br)), "GRanges") || !is.null(names(br))) {
+    return(FALSE)
+  }
+  mc <- br@elementMetadata
+  identical(as.vector(class(mc)), "DFrame") &&
+    is.null(mc@rownames) && is.null(mc@elementMetadata) &&
+    length(mc@metadata) == 0L &&
+    identical(mc@nrows, length(br)) && isTRUE(n == mc@nrows)
 }
 
 # deal with exclude regions, for one replicate
@@ -222,6 +262,7 @@ move_blocks <- function(y, blocks, d) {
 # exclude_tables() prepares it, and 'y' is subset once, for the ranges kept.
 move_blocks_bulk <- function(y, blocks, exclude, excludeOption) {
   n_blocks <- length(blocks$target_start)
+  seg_code <- NULL
   if (is.null(blocks$bait_start)) {
     draws <- blocks$draws
     n_rep <- length(draws)
@@ -239,34 +280,27 @@ move_blocks_bulk <- function(y, blocks, exclude, excludeOption) {
     }
     bait_start <- blocks$bait_start
     bait_chr <- NULL
-    bait_code <- match(blocks$chr_names, seqlevels(y))[blocks$bait_seg]
+    # each segment's code; each block's, seg_code[blocks$bait_seg], is
+    # built below only where moved_positions() does not derive it
+    seg_code <- match(blocks$chr_names, seqlevels(y))
+    bait_code <- NULL
   }
-  # plain numbers: then the check below is FALSE without a circular
-  # sequence, and bait_blocks() gives what moved_positions() reads of the
-  # IRanges and the shifts, wherever building them could not fail or warn
-  plain <- plain_number(bait_start) && plain_number(blocks$width) &&
-    plain_number(blocks$target_start) &&
-    length(bait_code) == length(bait_start)
   circular <- unname(Seqinfo::isCircular(y)) %in% TRUE
-  if (anyNA(bait_code) || ((!plain || any(circular)) &&
-      any(circular[bait_code] & (bait_start < 1 |
-      bait_start > unname(seqlengths(y))[bait_code])))) {
+  # moved_positions() takes bait_blocks()' inputs and the blocks' segments
+  # where the check below could return NULL only for an NA code, on which
+  # it declines: plain numbers, an integer segment per block and no
+  # circular sequence. Where it gives no list, the steps below run as for
+  # the other inputs.
+  raw <- !is.null(seg_code) && !any(circular) &&
+    plain_number(bait_start) && plain_number(blocks$width) &&
+    plain_number(blocks$target_start) && is.integer(blocks$bait_seg) &&
+    !is.object(blocks$bait_seg) &&
+    length(blocks$bait_seg) == length(bait_start)
+  if (!raw && !is.null(seg_code)) {
+    bait_code <- seg_code[blocks$bait_seg]
+  }
+  if (!raw && bait_declines(y, bait_start, bait_code, blocks, circular)) {
     return(NULL)
-  }
-  bait <- if (plain) {
-    .Call(C_bait_blocks, bait_start, blocks$width, blocks$target_start,
-          as.integer(n_rep))
-  }
-  if (is.null(bait)) {
-    bait_ranges <- IRanges(
-      start = bait_start,
-      width = rep_len(blocks$width, length(bait_start))
-    )
-    block_shift <- rep(blocks$target_start, n_rep) - start(bait_ranges)
-    bait <- bait_ranges
-  } else {
-    bait_ranges <- NULL
-    block_shift <- bait$shift
   }
   target_chr <- blocks$target_chr
   if (is(target_chr, "Rle")) {
@@ -291,14 +325,46 @@ move_blocks_bulk <- function(y, blocks, exclude, excludeOption) {
   if (identical(as.vector(class(y)), "GRanges")) {
     y <- updateObject(y, check = FALSE)
   }
-  moved <- moved_positions(
-    y, bait, bait_code, n_rep, block_shift, target_chr, ex
-  )
-  if (isFALSE(moved)) {
-    ex <- NULL
+  moved <- NULL
+  if (raw) {
     moved <- moved_positions(
-      y, bait, bait_code, n_rep, block_shift, target_chr
+      y, list(start = bait_start, width = blocks$width,
+              target = blocks$target_start, seg = blocks$bait_seg,
+              seg_code = seg_code),
+      NULL, n_rep, NULL, target_chr, ex
     )
+    if (!is.list(moved)) {
+      bait_code <- seg_code[blocks$bait_seg]
+      if (bait_declines(y, bait_start, bait_code, blocks, circular)) {
+        return(NULL)
+      }
+    }
+  }
+  if (!is.list(moved)) {
+    bait <- if (bait_plain(bait_start, bait_code, blocks)) {
+      .Call(C_bait_blocks, bait_start, blocks$width, blocks$target_start,
+            as.integer(n_rep))
+    }
+    if (is.null(bait)) {
+      bait_ranges <- IRanges(
+        start = bait_start,
+        width = rep_len(blocks$width, length(bait_start))
+      )
+      block_shift <- rep(blocks$target_start, n_rep) - start(bait_ranges)
+      bait <- bait_ranges
+    } else {
+      bait_ranges <- NULL
+      block_shift <- bait$shift
+    }
+    moved <- moved_positions(
+      y, bait, bait_code, n_rep, block_shift, target_chr, ex
+    )
+    if (isFALSE(moved)) {
+      ex <- NULL
+      moved <- moved_positions(
+        y, bait, bait_code, n_rep, block_shift, target_chr
+      )
+    }
   }
   if (is.null(moved)) {
     ex <- NULL
@@ -392,6 +458,30 @@ move_blocks_bulk <- function(y, blocks, exclude, excludeOption) {
   list(ranges = y_prime, lens = lens)
 }
 
+# Plain numbers: then bait_declines() is FALSE without a circular
+# sequence, and bait_blocks() gives what moved_positions() reads of the
+# IRanges and the shifts, wherever building them could not fail or warn
+#
+# @param bait_start,bait_code,blocks as in move_blocks_bulk()
+bait_plain <- function(bait_start, bait_code, blocks) {
+  plain_number(bait_start) && plain_number(blocks$width) &&
+    plain_number(blocks$target_start) &&
+    length(bait_code) == length(bait_start)
+}
+
+# TRUE where move_blocks_bulk() returns NULL before moving any block: a
+# block on a sequence 'y' lacks, or starting outside a circular one
+#
+# @param y the input GRanges
+# @param bait_start,bait_code,blocks as in move_blocks_bulk()
+# @param circular isCircular(y), FALSE for NA
+bait_declines <- function(y, bait_start, bait_code, blocks, circular) {
+  anyNA(bait_code) ||
+    ((!bait_plain(bait_start, bait_code, blocks) || any(circular)) &&
+      any(circular[bait_code] & (bait_start < 1 |
+      bait_start > unname(seqlengths(y))[bait_code])))
+}
+
 # An integer or double vector without a class
 #
 # @param x any object
@@ -417,10 +507,15 @@ plain_number <- function(x) {
 # @param y the input GRanges, updated (updateObject()), whose slots are read
 # @param bait the ranges (IRanges) of the bait blocks of all replicates,
 # in replicate order, or bait_blocks()' list of their integer starts and
-# widths
-# @param bait_code the index of each block's sequence in seqlevels(y)
+# widths, or bait_blocks()' inputs ('start', 'width', 'target') with each
+# block's segment ('seg') and each segment's index in seqlevels(y)
+# ('seg_code'), from which the C routine derives the blocks' starts,
+# widths, shifts and codes, declining wherever bait_blocks() would or a
+# code is NA
+# @param bait_code the index of each block's sequence in seqlevels(y);
+# unread with 'seg_code'
 # @param n_rep the number of replicates
-# @param block_shift the shift of each block
+# @param block_shift the shift of each block; unread with 'seg_code'
 # @param target_chr the sequence each block moves to, a factor
 # @param ex the output of exclude_tables(), the tables of no exclude step
 # (mode 0), or NULL
@@ -428,8 +523,9 @@ moved_positions <- function(y, bait, bait_code, n_rep, block_shift,
                             target_chr, ex = NULL) {
   chr_attr <- attributes(target_chr)
   lev <- seqlevels(y)
+  raw <- is.list(bait) && !is.null(bait$seg_code)
   if (!identical(as.vector(class(y)), "GRanges") ||
-      !is.numeric(block_shift) || length(lev) >= 2097152L ||
+      (!raw && !is.numeric(block_shift)) || length(lev) >= 2097152L ||
       !is.factor(target_chr) ||
       !setequal(names(chr_attr), c("levels", "class")) ||
       !identical(levels(target_chr), lev)) {
@@ -444,26 +540,37 @@ moved_positions <- function(y, bait, bait_code, n_rep, block_shift,
   } else {
     cols <- gather_columns(y)
   }
-  if (is.list(bait)) {
-    b_start <- bait$start
-    b_width <- bait$width
-  } else {
-    b_start <- start(bait)
-    b_width <- width(bait)
-  }
   # move_blocks_bulk() updated y, so its ranges slot is ranges(y); end()
   # computed as the Ranges method does
   rng <- y@ranges
   y_start <- start(rng)
   y_width <- width(rng)
-  moved <- .Call(
-    C_moved_rows_opt, as.integer(bait_code), b_start, b_width,
-    as.integer(n_rep), as.integer(seqnames(y)), y_start,
-    y_width - 1L + y_start, y_width,
-    circular, as.integer(seqlen), !(circular | is.na(seqlen)),
-    suppressWarnings(as.integer(block_shift)), as.integer(target_chr),
-    ex$mode, ex$seg, ex$start, ex$end, cols, with_code
-  )
+  moved <- if (raw) {
+    .Call(
+      C_moved_rows_bait, bait$seg, bait$seg_code, bait$start, bait$width,
+      as.integer(n_rep), as.integer(seqnames(y)), y_start,
+      y_width - 1L + y_start, y_width,
+      circular, as.integer(seqlen), !(circular | is.na(seqlen)),
+      bait$target, as.integer(target_chr),
+      ex$mode, ex$seg, ex$start, ex$end, cols, with_code
+    )
+  } else {
+    if (is.list(bait)) {
+      b_start <- bait$start
+      b_width <- bait$width
+    } else {
+      b_start <- start(bait)
+      b_width <- width(bait)
+    }
+    .Call(
+      C_moved_rows_opt, as.integer(bait_code), b_start, b_width,
+      as.integer(n_rep), as.integer(seqnames(y)), y_start,
+      y_width - 1L + y_start, y_width,
+      circular, as.integer(seqlen), !(circular | is.na(seqlen)),
+      suppressWarnings(as.integer(block_shift)), as.integer(target_chr),
+      ex$mode, ex$seg, ex$start, ex$end, cols, with_code
+    )
+  }
   if (!is.list(moved)) {
     return(moved)
   }
