@@ -16,6 +16,7 @@ SEXP moved_rows_lens(SEXP b_code, SEXP b_start, SEXP b_width, SEXP n_rep,
 SEXP ss_init(SEXP fps, SEXP pps, SEXP cnt, SEXP code, SEXP nLeft);
 SEXP ss_range(SEXP st);
 SEXP ss_sort(SEXP st);
+SEXP ss_init_sorted(SEXP fps, SEXP pps);
 SEXP ss_compact(SEXP st);
 SEXP ss_pass(SEXP st, SEXP br, SEXP mn, SEXP by, SEXP replace, SEXP count);
 SEXP ss_pass_by(SEXP st, SEXP mn, SEXP mx, SEXP by, SEXP replace,
@@ -30,6 +31,8 @@ SEXP intersect_gaps(SEXP code, SEXP start, SEXP end, SEXP seg,
 	SEXP g_start, SEXP g_end);
 SEXP seg_draws(SEXP s_n_rep, SEXP prob, SEXP rmin, SEXP rmax, SEXP gidx,
 	SEXP off, SEXP n_draw, SEXP st, SEXP rearr);
+SEXP scaled_linbin(SEXP x, SEXP s_m, SEXP s_s, SEXP s_a, SEXP s_b, SEXP s_M);
+SEXP order_stats(SEXP x, SEXP ranks);
 
 static const R_CallMethodDef callMethods[] = {
 	{"moved_positions", (DL_FUNC) &moved_positions, 13},
@@ -38,6 +41,7 @@ static const R_CallMethodDef callMethods[] = {
 	{"ss_init", (DL_FUNC) &ss_init, 5},
 	{"ss_range", (DL_FUNC) &ss_range, 1},
 	{"ss_sort", (DL_FUNC) &ss_sort, 1},
+	{"ss_init_sorted", (DL_FUNC) &ss_init_sorted, 2},
 	{"ss_compact", (DL_FUNC) &ss_compact, 1},
 	{"ss_pass", (DL_FUNC) &ss_pass, 6},
 	{"ss_pass_by", (DL_FUNC) &ss_pass_by, 6},
@@ -47,6 +51,8 @@ static const R_CallMethodDef callMethods[] = {
 	{"sample_groups", (DL_FUNC) &sample_groups, 3},
 	{"intersect_gaps", (DL_FUNC) &intersect_gaps, 6},
 	{"seg_draws", (DL_FUNC) &seg_draws, 9},
+	{"scaled_linbin", (DL_FUNC) &scaled_linbin, 6},
+	{"order_stats", (DL_FUNC) &order_stats, 2},
 	{NULL, NULL, 0}
 };
 

@@ -99,6 +99,84 @@ nnMatch <- function(fps, pps, replace) {
 
 }
 
+#' Bandwidth ks::kde(x) takes from ks::hpi when h is missing
+#'
+#' KernSmooth::dpik(x, level = 2L, gridsize = 401L) with each value from the
+#' same R call or the same double operations, but fewer passes over x: one
+#' quantile() for both quartiles, one mean(), and the binning of the scaled
+#' scores in C without storing them (dpik's first, unread binning is
+#' dropped). Checked against ks 1.15.3 and KernSmooth 2.23-27 only.
+#' @param x numeric vector of scores.
+#' @param q x's quartiles, quantile(x, c(1/4, 3/4), names = FALSE), when the
+#'   caller has them; NULL to compute them here.
+#' @return the bandwidth, or NULL where ks::kde(x) is to compute it itself:
+#'   other versions, x not a plain double vector of finite values with
+#'   length > 1, or a scale estimate that is 0 or not finite.
+#' @noRd
+poolBandwidth <- function(x, q = NULL) {
+  n <- length(x)
+  if (n < 2L || n > .Machine$integer.max || !is.double(x) || !is.vector(x))
+    return(NULL)
+  if (!isNamespaceLoaded("ks") || !isNamespaceLoaded("KernSmooth") ||
+      !identical(unname(getNamespaceVersion("ks")), "1.15.3") ||
+      !identical(unname(getNamespaceVersion("KernSmooth")), "2.23-27"))
+    return(NULL)
+  ## range() is NA, NaN or infinite at an end when any element is not finite
+  range.x <- range(x)
+  a <- range.x[1L]
+  b <- range.x[2L]
+  if (!is.finite(a) || !is.finite(b)) return(NULL)
+  if (is.null(q)) q <- stats::quantile(x, c(1/4, 3/4), names = FALSE)
+  scalest <- min((q[2L] - q[1L])/1.349, sqrt(stats::var(x)))
+  if (!is.finite(scalest) || scalest <= 0) return(NULL)
+  m <- mean(x)
+  sa <- (a - m)/scalest
+  sb <- (b - m)/scalest
+  if (!is.finite(sa) || !is.finite(sb)) return(NULL)
+  M <- 401L
+  gpoints <- seq(sa, sb, length.out = M)
+  gcounts <- .Call(C_scaled_linbin, x, m, scalest, gpoints[1L], gpoints[M], M)
+  ## bound locally, so a warning or error carries dpik's call
+  bkfe <- KernSmooth::bkfe
+  alpha <- (2 * (sqrt(2))^9/(7 * n))^(1/9)
+  psi6hat <- bkfe(gcounts, 6L, alpha, range.x = c(sa, sb),
+                  binned = TRUE)
+  alpha <- (-3 * sqrt(2/pi)/(psi6hat * n))^(1/7)
+  psi4hat <- bkfe(gcounts, 4L, alpha, range.x = c(sa, sb), binned = TRUE)
+  del0 <- 1/((4 * pi)^(1/10))
+  scalest * del0 * (1/(psi4hat * n))^(1/5)
+}
+
+#' Type 7 quantiles from one selection over x
+#'
+#' stats::quantile(x, probs, names = FALSE) for probs in [0, 1]: the same
+#' index, lo and hi and the same interpolation, with the order statistics at
+#' every lo and hi taken in one C call instead of a partial sort of a copy of
+#' x per quantile() call.
+#' @param x numeric vector.
+#' @param probs probabilities in [0, 1], none NA.
+#' @return the quantiles, or NULL where quantile() is to compute them: x not
+#'   an unclassed double vector, of length 0 or above .Machine$integer.max,
+#'   or holding NA or NaN.
+#' @noRd
+poolQuantiles <- function(x, probs) {
+  n <- length(x)
+  if (n < 1L || n > .Machine$integer.max || !is.double(x) || is.object(x))
+    return(NULL)
+  index <- 1 + max(n - 1, 0) * probs
+  lo <- floor(index)
+  hi <- ceiling(index)
+  r <- sort(unique(c(lo, hi)))
+  v <- .Call(C_order_stats, x, as.integer(r))
+  if (is.null(v)) return(NULL)
+  qs <- v[match(lo, r)]
+  xhi <- v[match(hi, r)]
+  i <- which(index > lo & xhi != qs)
+  h <- (index - lo)[i]
+  qs[i] <- (1 - h) * qs[i] + h * xhi[i]
+  qs
+}
+
 #' Perform rejection sampling
 #' @inheritParams nnMatch
 #' @return A binary numeric vector equal to the length
@@ -119,11 +197,17 @@ rejectSample <- function(fps, pps) {
   ## Kernal density estimates for focal and pool
   ## (compute.cont = FALSE: the contour levels are never read)
   df <- ks::kde(fps, compute.cont = FALSE)
-  dp <- ks::kde(pps, compute.cont = FALSE)
+  ## the pool's 0.1%, 25%, 75% and 99.9% quantiles, or NULL
+  pq <- poolQuantiles(pps, c(.001, 1/4, 3/4, .999))
+  h <- poolBandwidth(pps, pq[2:3])
+  dp <- if (is.null(h)) ks::kde(pps, compute.cont = FALSE) else
+    ks::kde(pps, h = h, compute.cont = FALSE)
 
   ## Set scale by finding the highest point of density ratios (focal/pool)
   ## This ensures that pool covers focal at all points
-  grid <- seq(from=quantile(pps, .001), to=quantile(pps, .999), length=1000)
+  grid <- if (is.null(pq))
+    seq(from=quantile(pps, .001), to=quantile(pps, .999), length=1000) else
+    seq(from=pq[1L], to=pq[4L], length=1000)
   fgrid <- predict(df, x=grid)
   pgrid <- predict(dp, x=grid)
   if (any(fgrid < 0 | pgrid < 0)) {
@@ -308,23 +392,31 @@ ssMatch <- function(fps, pps, replace) {
   p <- pps
   pIdx <- seq_along(pps)
 
-  ## The number of distinct scores remaining, kept as rows leave:
-  ## code[j] is the first position of row j's score in c(fps, pps)
-  ## (match() and unique() share one notion of equality)
-  x <- c(fps, pps)
-  code <- match(x, x)
-  cnt <- tabulate(code, length(x))
-  nLeft <- sum(cnt > 0L)
-  rm(x)
-
   ## Double scores make each pass in C (st), drawing exactly as
   ## sample() does below the 1e7 rows where sample.int would hash
   st <- NULL
-  if (is.double(fps) && is.double(pps) && length(fps) <= 1e7 &&
-      length(pps) <= 1e7 && (isTRUE(replace) || isFALSE(replace))) {
-    st <- .Call(C_ss_init, fps, pps, cnt, code, nLeft)
-    ## Passes find each focal bin's pool rows in the pool sorted by score
-    .Call(C_ss_sort, st)
+  inC <- is.double(fps) && is.double(pps) && length(fps) <= 1e7 &&
+    length(pps) <= 1e7 && (isTRUE(replace) || isFALSE(replace))
+  ## Without NaN, C_ss_init_sorted sorts the scores (the passes find each
+  ## focal bin's pool rows in the sorted pool) and derives code, cnt and
+  ## nLeft below from them
+  if (inC) st <- .Call(C_ss_init_sorted, fps, pps)
+
+  ## The number of distinct scores remaining, kept as rows leave:
+  ## code[j] is the first position of row j's score in c(fps, pps)
+  ## (match() and unique() share one notion of equality)
+  if (is.null(st)) {
+    x <- c(fps, pps)
+    code <- match(x, x)
+    cnt <- tabulate(code, length(x))
+    nLeft <- sum(cnt > 0L)
+    rm(x)
+    if (inC) {
+      st <- .Call(C_ss_init, fps, pps, cnt, code, nLeft)
+      .Call(C_ss_sort, st)
+    }
+  } else {
+    nLeft <- st[[7L]][3L]
   }
 
   ## Matched indices, one element per pass
@@ -364,6 +456,8 @@ ssMatch <- function(fps, pps, replace) {
       }
 
       ## The breaks fail binCode's guard: go on in R from this state
+      code <- st[[6L]]
+      cnt <- st[[5L]]
       if (nDone > 0L) {
         .Call(C_ss_compact, st)
         lens <- st[[7L]]
@@ -371,7 +465,6 @@ ssMatch <- function(fps, pps, replace) {
         f <- fps[fIdx]
         pIdx <- st[[4L]][seq_len(lens[2L])]
         p <- pps[pIdx]
-        cnt <- st[[5L]]
         resF <- list(st[[8L]][seq_len(nDone)])
         resP <- list(st[[9L]][seq_len(nDone)])
       }

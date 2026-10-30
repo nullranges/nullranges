@@ -16,15 +16,11 @@ enum {
 };
 /* S_LENS: remaining focal, remaining pool, nLeft, matched so far */
 
-SEXP ss_init(SEXP fps, SEXP pps, SEXP cnt, SEXP code, SEXP nLeft)
+/* The state list with the scores copied and the row indices filled;
+ * S_CODE is code, S_CNT is allocated but not filled */
+static SEXP state_new(SEXP fps, SEXP pps, SEXP code)
 {
-	if (!isReal(fps) || !isReal(pps) || !isInteger(cnt) ||
-	    !isInteger(code) || !isInteger(nLeft) || XLENGTH(nLeft) != 1)
-		error("ss_init: invalid arguments");
 	R_xlen_t nf = XLENGTH(fps), np = XLENGTH(pps);
-	if (nf + np > INT_MAX / 2 || XLENGTH(code) != nf + np ||
-	    XLENGTH(cnt) != nf + np)
-		error("ss_init: invalid lengths");
 	R_xlen_t cap = nf + np + 2, capr = nf + 2;
 
 	SEXP st = PROTECT(allocVector(VECSXP, S_N));
@@ -53,9 +49,6 @@ SEXP ss_init(SEXP fps, SEXP pps, SEXP cnt, SEXP code, SEXP nLeft)
 		memcpy(REAL(VECTOR_ELT(st, S_F)), REAL(fps), nf * sizeof(double));
 	if (np)
 		memcpy(REAL(VECTOR_ELT(st, S_P)), REAL(pps), np * sizeof(double));
-	if (nf + np)
-		memcpy(INTEGER(VECTOR_ELT(st, S_CNT)), INTEGER(cnt),
-			(nf + np) * sizeof(int));
 	int *fi = INTEGER(VECTOR_ELT(st, S_FIDX));
 	for (R_xlen_t j = 0; j < nf; j++)
 		fi[j] = (int) j + 1;
@@ -65,8 +58,26 @@ SEXP ss_init(SEXP fps, SEXP pps, SEXP cnt, SEXP code, SEXP nLeft)
 	int *lens = INTEGER(VECTOR_ELT(st, S_LENS));
 	lens[0] = (int) nf;
 	lens[1] = (int) np;
-	lens[2] = INTEGER(nLeft)[0];
 	lens[3] = 0;
+	UNPROTECT(1);
+	return st;
+}
+
+SEXP ss_init(SEXP fps, SEXP pps, SEXP cnt, SEXP code, SEXP nLeft)
+{
+	if (!isReal(fps) || !isReal(pps) || !isInteger(cnt) ||
+	    !isInteger(code) || !isInteger(nLeft) || XLENGTH(nLeft) != 1)
+		error("ss_init: invalid arguments");
+	R_xlen_t nf = XLENGTH(fps), np = XLENGTH(pps);
+	if (nf + np > INT_MAX / 2 || XLENGTH(code) != nf + np ||
+	    XLENGTH(cnt) != nf + np)
+		error("ss_init: invalid lengths");
+
+	SEXP st = PROTECT(state_new(fps, pps, code));
+	if (nf + np)
+		memcpy(INTEGER(VECTOR_ELT(st, S_CNT)), INTEGER(cnt),
+			(nf + np) * sizeof(int));
+	INTEGER(VECTOR_ELT(st, S_LENS))[2] = INTEGER(nLeft)[0];
 	UNPROTECT(1);
 	return st;
 }
@@ -217,15 +228,9 @@ static int sort_scores(const double *x, int n, int *ord, double *sv)
 	return 1;
 }
 
-/* Enter sorted mode on a state no pass has changed, when no score is NaN;
- * TRUE when it did */
-SEXP ss_sort(SEXP st)
+/* The "ss_sorted" list, its vectors allocated */
+static SEXP sorted_new(int nf, int np)
 {
-	const int *lens = INTEGER(VECTOR_ELT(st, S_LENS));
-	int nf = (int) XLENGTH(VECTOR_ELT(st, S_F));
-	int np = (int) XLENGTH(VECTOR_ELT(st, S_P));
-	if (sorted_of(st) || lens[0] != nf || lens[1] != np || lens[3] != 0)
-		return ScalarLogical(FALSE);
 	SEXP q = PROTECT(allocVector(VECSXP, Q_N));
 	SET_VECTOR_ELT(q, Q_FORD, allocVector(INTSXP, nf));
 	SET_VECTOR_ELT(q, Q_FSV, allocVector(REALSXP, nf));
@@ -237,14 +242,20 @@ SEXP ss_sort(SEXP st)
 	SET_VECTOR_ELT(q, Q_RUN, allocVector(INTSXP, (R_xlen_t) R_W * (nf + 1)));
 	SET_VECTOR_ELT(q, Q_PTAG, allocVector(INTSXP, np));
 	SET_VECTOR_ELT(q, Q_KEYS, allocVector(INTSXP, 2 * ((R_xlen_t) nf + 1)));
+	UNPROTECT(1);
+	return q;
+}
+
+/* Sort f and p into q; FALSE (q partly written) when either holds NaN */
+static int sorted_fill(SEXP q, const double *f, int nf, const double *p,
+	int np)
+{
 	for (int s = 0; s < 2; s++) {
 		int n = s ? np : nf;
-		if (!sort_scores(REAL(VECTOR_ELT(st, s ? S_P : S_F)), n,
+		if (!sort_scores(s ? p : f, n,
 			INTEGER(VECTOR_ELT(q, s ? Q_PORD : Q_FORD)),
-			REAL(VECTOR_ELT(q, s ? Q_PSV : Q_FSV)))) {
-			UNPROTECT(1);
-			return ScalarLogical(FALSE);
-		}
+			REAL(VECTOR_ELT(q, s ? Q_PSV : Q_FSV))))
+			return 0;
 		if (n)
 			memset(RAW(VECTOR_ELT(q, s ? Q_PAL : Q_FAL)), 1, n);
 	}
@@ -255,9 +266,83 @@ SEXP ss_sort(SEXP st)
 	ptr[3] = np;
 	if (np)
 		memset(INTEGER(VECTOR_ELT(q, Q_PTAG)), 0, np * sizeof(int));
+	return 1;
+}
+
+/* Enter sorted mode on a state no pass has changed, when no score is NaN;
+ * TRUE when it did */
+SEXP ss_sort(SEXP st)
+{
+	const int *lens = INTEGER(VECTOR_ELT(st, S_LENS));
+	int nf = (int) XLENGTH(VECTOR_ELT(st, S_F));
+	int np = (int) XLENGTH(VECTOR_ELT(st, S_P));
+	if (sorted_of(st) || lens[0] != nf || lens[1] != np || lens[3] != 0)
+		return ScalarLogical(FALSE);
+	SEXP q = PROTECT(sorted_new(nf, np));
+	if (!sorted_fill(q, REAL(VECTOR_ELT(st, S_F)), nf,
+		REAL(VECTOR_ELT(st, S_P)), np)) {
+		UNPROTECT(1);
+		return ScalarLogical(FALSE);
+	}
 	setAttrib(st, sorted_sym(), q);
 	UNPROTECT(1);
 	return ScalarLogical(TRUE);
+}
+
+/* ss_init and ss_sort in one, with code, cnt and nLeft taken from the
+ * sorted scores rather than from match(x, x) on x = c(fps, pps): each
+ * maximal run of equal scores (==, so 0 and -0 together) across the
+ * sorted focal and pool is one score, whose code is its first position
+ * in x, 1 + its smallest focal row or else nf + 1 + its smallest pool row
+ * (match() on doubles also ties 0 and -0). NULL when either side holds
+ * NaN, with nothing changed: the caller then calls match(), ss_init and
+ * ss_sort. */
+SEXP ss_init_sorted(SEXP fps, SEXP pps)
+{
+	if (!isReal(fps) || !isReal(pps))
+		error("ss_init_sorted: invalid arguments");
+	R_xlen_t nf_ = XLENGTH(fps), np_ = XLENGTH(pps);
+	if (nf_ + np_ > INT_MAX / 2)
+		error("ss_init_sorted: invalid lengths");
+	int nf = (int) nf_, np = (int) np_;
+	SEXP q = PROTECT(sorted_new(nf, np));
+	if (!sorted_fill(q, REAL(fps), nf, REAL(pps), np)) {
+		UNPROTECT(1);
+		return R_NilValue;
+	}
+	SEXP code_ = PROTECT(allocVector(INTSXP, nf_ + np_));
+	SEXP st = PROTECT(state_new(fps, pps, code_));
+	int *code = INTEGER(code_);
+	int *cnt = INTEGER(VECTOR_ELT(st, S_CNT));
+	if (nf + np)
+		memset(cnt, 0, (nf_ + np_) * sizeof(int));
+	const int *ford = INTEGER(VECTOR_ELT(q, Q_FORD));
+	const int *pord = INTEGER(VECTOR_ELT(q, Q_PORD));
+	const double *fsv = REAL(VECTOR_ELT(q, Q_FSV));
+	const double *psv = REAL(VECTOR_ELT(q, Q_PSV));
+	int i = 0, j = 0, groups = 0;
+	while (i < nf || j < np) {
+		double v = i < nf && (j >= np || fsv[i] <= psv[j]) ? fsv[i] : psv[j];
+		int i0 = i, j0 = j, fmin = INT_MAX, pmin = INT_MAX;
+		/* sort_scores leaves ties in any order */
+		for (; i < nf && fsv[i] == v; i++)
+			if (ford[i] < fmin)
+				fmin = ford[i];
+		for (; j < np && psv[j] == v; j++)
+			if (pord[j] < pmin)
+				pmin = pord[j];
+		int c = i > i0 ? fmin + 1 : nf + pmin + 1;
+		for (int t = i0; t < i; t++)
+			code[ford[t]] = c;
+		for (int t = j0; t < j; t++)
+			code[nf + pord[t]] = c;
+		cnt[c - 1] = (i - i0) + (j - j0);
+		groups++;
+	}
+	INTEGER(VECTOR_ELT(st, S_LENS))[2] = groups;
+	setAttrib(st, sorted_sym(), q);
+	UNPROTECT(3);
+	return st;
 }
 
 /* Move the alive bounds of the sorted focal (s = 0) or pool (s = 1) past
