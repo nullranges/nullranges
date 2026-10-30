@@ -280,15 +280,16 @@ static int moved_pass1(const moved_ctx *x, R_xlen_t b0, R_xlen_t b1,
 }
 
 /* Pass 2 over blocks [b0, b1): their rows, written from row 'at' of out
- * (out[0], 's', and out[4], the replicate, left out when NULL) and of the
- * gathered columns; last[b] then holds the number of rows block b wrote */
+ * (out[0], 's', out[1], the code, and out[4], the replicate, left out when
+ * NULL) and of the gathered columns; last[b] then holds the number of rows
+ * block b wrote */
 static void moved_pass2(const moved_ctx *x, R_xlen_t b0, R_xlen_t b1,
 	R_xlen_t at, int *const *out)
 {
 	const int mode = x->mode;
 	const int *ys = x->ys, *ye = x->ye, *yw = x->yw, *o = x->o;
 	const int *xseg = x->xseg, *xs = x->xs, *xe = x->xe;
-	int *blk = out[4];
+	int *sv = out[0], *cv = out[1], *blk = out[4];
 	int ex_prev = 0, ex_k = 0;
 	for (R_xlen_t b = b0; b < b1; b++) {
 		int lo = x->first[b], hi = x->last[b];
@@ -302,21 +303,33 @@ static void moved_pass2(const moved_ctx *x, R_xlen_t b0, R_xlen_t b1,
 		int bstart = x->bs[b];
 		int rep = (int) (b / x->n_blocks) + 1;
 		if (x->plain[b]) {
-			if (out[0] != NULL) {
+			if (sv != NULL && cv != NULL) {
 				for (int k = lo; k < hi; k++, at++) {
-					out[0][at] = (o == NULL ? k : o[k]) + 1;
-					out[1][at] = code;
+					sv[at] = (o == NULL ? k : o[k]) + 1;
+					cv[at] = code;
+					out[2][at] = ys[k] + sh;
+					out[3][at] = yw[k];
+				}
+			} else if (cv != NULL) {
+				for (int k = lo; k < hi; k++, at++) {
+					cv[at] = code;
+					out[2][at] = ys[k] + sh;
+					out[3][at] = yw[k];
+				}
+			} else if (sv != NULL) {
+				for (int k = lo; k < hi; k++, at++) {
+					sv[at] = (o == NULL ? k : o[k]) + 1;
 					out[2][at] = ys[k] + sh;
 					out[3][at] = yw[k];
 				}
 			} else {
 				for (int k = lo; k < hi; k++, at++) {
-					out[1][at] = code;
 					out[2][at] = ys[k] + sh;
 					out[3][at] = yw[k];
 				}
-				put_cols_run(x, at0, lo, hi);
 			}
+			if (sv == NULL)
+				put_cols_run(x, at0, lo, hi);
 			if (blk != NULL)
 				for (R_xlen_t i = at0; i < at; i++)
 					blk[i] = rep;
@@ -335,10 +348,11 @@ static void moved_pass2(const moved_ctx *x, R_xlen_t b0, R_xlen_t b1,
 				continue;
 			int s_k = (o == NULL ? k : o[k]) + 1;
 			if (mode == 0) {
-				if (out[0] != NULL)
-					out[0][at] = s_k;
+				if (sv != NULL)
+					sv[at] = s_k;
 				put_cols(x, at, s_k - 1);
-				out[1][at] = code;
+				if (cv != NULL)
+					cv[at] = code;
 				out[2][at] = ns;
 				out[3][at] = nw;
 				at++;
@@ -351,10 +365,11 @@ static void moved_pass2(const moved_ctx *x, R_xlen_t b0, R_xlen_t b1,
 			if (mode == 1) {
 				if (a < xhi && xs[a] <= ne)
 					continue;
-				if (out[0] != NULL)
-					out[0][at] = s_k;
+				if (sv != NULL)
+					sv[at] = s_k;
 				put_cols(x, at, s_k - 1);
-				out[1][at] = code;
+				if (cv != NULL)
+					cv[at] = code;
 				out[2][at] = ns;
 				out[3][at] = nw;
 				at++;
@@ -363,10 +378,11 @@ static void moved_pass2(const moved_ctx *x, R_xlen_t b0, R_xlen_t b1,
 			for (int j = a; j < xhi && xs[j] <= ne; j++, at++) {
 				int ps = ns > xs[j] ? ns : xs[j];
 				int pe = ne < xe[j] ? ne : xe[j];
-				if (out[0] != NULL)
-					out[0][at] = s_k;
+				if (sv != NULL)
+					sv[at] = s_k;
 				put_cols(x, at, s_k - 1);
-				out[1][at] = code;
+				if (cv != NULL)
+					cv[at] = code;
 				out[2][at] = ps;
 				out[3][at] = pe - ps + 1;
 			}
@@ -399,12 +415,14 @@ static void moved_pass2(const moved_ctx *x, R_xlen_t b0, R_xlen_t b1,
  * a list of double, integer or logical vectors, each of y's length, the
  * rows' values of each, y's at the row's index, in a list named as cols_,
  * and 's' is then NULL; otherwise 'cols' is NULL and 's' is written. The
- * caller passes only vectors without attributes (gather_columns()). */
+ * caller passes only vectors without attributes (gather_columns()).
+ *
+ * Without 'with_code', 'code' is NULL: only its runs are returned. */
 static SEXP moved_impl(SEXP b_code_, SEXP b_start_, SEXP b_width_,
 	SEXP n_rep_, SEXP y_code_, SEXP y_start_, SEXP y_end_, SEXP y_width_,
 	SEXP circular_, SEXP seqlen_, SEXP bounded_, SEXP shift_, SEXP t_code_,
 	int mode, SEXP xseg_, SEXP xs_, SEXP xe_, int with_block, int with_cols,
-	SEXP cols_)
+	SEXP cols_, int with_code)
 {
 	if (TYPEOF(b_code_) != INTSXP || TYPEOF(b_start_) != INTSXP ||
 		TYPEOF(b_width_) != INTSXP || TYPEOF(n_rep_) != INTSXP ||
@@ -612,7 +630,10 @@ static SEXP moved_impl(SEXP b_code_, SEXP b_start_, SEXP b_width_,
 		with_block ? "block" : "lens", "run_code", "run_length", "cols"};
 	int *out[5];
 	out[0] = NULL;
+	out[1] = NULL;
 	for (int j = gather ? 1 : 0; j < 5; j++) {
+		if (j == 1 && !with_code)
+			continue;
 		SET_VECTOR_ELT(ans, j, allocVector(INTSXP,
 			j < 4 || with_block ? n_keep : (R_xlen_t) n_rep));
 		out[j] = INTEGER(VECTOR_ELT(ans, j));
@@ -708,14 +729,14 @@ SEXP moved_positions(SEXP b_code_, SEXP b_start_, SEXP b_width_, SEXP n_rep_,
 {
 	return moved_impl(b_code_, b_start_, b_width_, n_rep_, y_code_, y_start_,
 		y_end_, y_width_, circular_, seqlen_, bounded_, shift_, t_code_, 0,
-		R_NilValue, R_NilValue, R_NilValue, 1, 0, R_NilValue);
+		R_NilValue, R_NilValue, R_NilValue, 1, 0, R_NilValue, 1);
 }
 
 static SEXP moved_rows_impl(SEXP b_code_, SEXP b_start_, SEXP b_width_,
 	SEXP n_rep_, SEXP y_code_, SEXP y_start_, SEXP y_end_, SEXP y_width_,
 	SEXP circular_, SEXP seqlen_, SEXP bounded_, SEXP shift_, SEXP t_code_,
 	SEXP mode_, SEXP xseg_, SEXP xs_, SEXP xe_, int with_block, int with_cols,
-	SEXP cols_)
+	SEXP cols_, int with_code)
 {
 	if (TYPEOF(mode_) != INTSXP || XLENGTH(mode_) != 1)
 		return ScalarLogical(FALSE);
@@ -724,7 +745,7 @@ static SEXP moved_rows_impl(SEXP b_code_, SEXP b_start_, SEXP b_width_,
 		return ScalarLogical(FALSE);
 	return moved_impl(b_code_, b_start_, b_width_, n_rep_, y_code_, y_start_,
 		y_end_, y_width_, circular_, seqlen_, bounded_, shift_, t_code_, mode,
-		xseg_, xs_, xe_, with_block, with_cols, cols_);
+		xseg_, xs_, xe_, with_block, with_cols, cols_, with_code);
 }
 
 /* moved_impl() with the exclude step of mode_ (0 none, 1 drop, 2 trim) */
@@ -735,7 +756,7 @@ SEXP moved_rows(SEXP b_code_, SEXP b_start_, SEXP b_width_, SEXP n_rep_,
 {
 	return moved_rows_impl(b_code_, b_start_, b_width_, n_rep_, y_code_,
 		y_start_, y_end_, y_width_, circular_, seqlen_, bounded_, shift_,
-		t_code_, mode_, xseg_, xs_, xe_, 1, 0, R_NilValue);
+		t_code_, mode_, xseg_, xs_, xe_, 1, 0, R_NilValue, 1);
 }
 
 /* moved_rows() with the rows per replicate ('lens') in place of 'block',
@@ -747,5 +768,133 @@ SEXP moved_rows_lens(SEXP b_code_, SEXP b_start_, SEXP b_width_,
 {
 	return moved_rows_impl(b_code_, b_start_, b_width_, n_rep_, y_code_,
 		y_start_, y_end_, y_width_, circular_, seqlen_, bounded_, shift_,
-		t_code_, mode_, xseg_, xs_, xe_, 0, 1, cols_);
+		t_code_, mode_, xseg_, xs_, xe_, 0, 1, cols_, 1);
+}
+
+/* moved_rows_lens() whose per-row code column is written only when
+ * with_code_ is not FALSE; otherwise 'code' is NULL and only its runs
+ * ('run_code', 'run_length') are returned */
+SEXP moved_rows_opt(SEXP b_code_, SEXP b_start_, SEXP b_width_,
+	SEXP n_rep_, SEXP y_code_, SEXP y_start_, SEXP y_end_, SEXP y_width_,
+	SEXP circular_, SEXP seqlen_, SEXP bounded_, SEXP shift_, SEXP t_code_,
+	SEXP mode_, SEXP xseg_, SEXP xs_, SEXP xe_, SEXP cols_, SEXP with_code_)
+{
+	return moved_rows_impl(b_code_, b_start_, b_width_, n_rep_, y_code_,
+		y_start_, y_end_, y_width_, circular_, seqlen_, bounded_, shift_,
+		t_code_, mode_, xseg_, xs_, xe_, 0, 1, cols_,
+		asLogical(with_code_) != FALSE);
+}
+
+/* as.integer() of one double: NA for NaN and outside the integer range */
+static inline int int_of_real(double v)
+{
+	if (ISNAN(v) || v >= 2147483648.0 || v <= -2147483648.0)
+		return NA_INTEGER;
+	return (int) v;
+}
+
+/* What move_blocks_bulk() builds for moved_positions() from the bait starts
+ * of all replicates, the block widths (recycled as rep_len()) and the
+ * target starts of one replicate (recycled n_rep times): the integer start
+ * and width slots of IRanges(start, width = rep_len(width, n)) and
+ * as.integer(rep(target, n_rep) - start), as a list (start, width, shift).
+ * R_NilValue wherever IRanges() errors (an NA start or width, a negative
+ * width, a start, width or end outside the integer range), integer
+ * subtraction overflows (with a warning) or the lengths are not those of
+ * one bait block per target per replicate: the caller then builds them in
+ * R. */
+SEXP bait_blocks(SEXP start_, SEXP width_, SEXP target_, SEXP n_rep_)
+{
+	int ts = TYPEOF(start_), tw = TYPEOF(width_), tt = TYPEOF(target_);
+	if ((ts != INTSXP && ts != REALSXP) || (tw != INTSXP && tw != REALSXP) ||
+		(tt != INTSXP && tt != REALSXP) || TYPEOF(n_rep_) != INTSXP ||
+		XLENGTH(n_rep_) != 1)
+		return R_NilValue;
+	R_xlen_t n = XLENGTH(start_), n_w = XLENGTH(width_);
+	R_xlen_t n_t = XLENGTH(target_);
+	int n_rep = INTEGER(n_rep_)[0];
+	if (n == 0 || n_w == 0 || n_t == 0 || n > INT_MAX ||
+		n_rep == NA_INTEGER || n_rep < 1 || n % n_rep != 0 ||
+		n / n_rep != n_t)
+		return R_NilValue;
+	SEXP ans = PROTECT(allocVector(VECSXP, 3));
+	SEXP nms = PROTECT(allocVector(STRSXP, 3));
+	const char *names[3] = {"start", "width", "shift"};
+	for (int k = 0; k < 3; k++) {
+		SET_VECTOR_ELT(ans, k, allocVector(INTSXP, n));
+		SET_STRING_ELT(nms, k, mkChar(names[k]));
+	}
+	setAttrib(ans, R_NamesSymbol, nms);
+	int *s = INTEGER(VECTOR_ELT(ans, 0)), *w = INTEGER(VECTOR_ELT(ans, 1));
+	int *sh = INTEGER(VECTOR_ELT(ans, 2));
+	const int *si = ts == INTSXP ? INTEGER_RO(start_) : NULL;
+	const double *sd = ts == REALSXP ? REAL_RO(start_) : NULL;
+	const int *wi = tw == INTSXP ? INTEGER_RO(width_) : NULL;
+	const double *wd = tw == REALSXP ? REAL_RO(width_) : NULL;
+	const int *ti = tt == INTSXP ? INTEGER_RO(target_) : NULL;
+	const double *td = tt == REALSXP ? REAL_RO(target_) : NULL;
+	int ok = 1;
+	for (R_xlen_t b = 0, j = 0, t = 0; b < n; b++) {
+		int sb;
+		if (si != NULL) {
+			sb = si[b];
+			if (sb == NA_INTEGER) {
+				ok = 0;
+				break;
+			}
+		} else {
+			double v = sd[b];
+			if (ISNAN(v) || v >= 2147483648.0 || v <= -2147483648.0) {
+				ok = 0;
+				break;
+			}
+			sb = (int) v;
+		}
+		int wb;
+		if (wi != NULL) {
+			wb = wi[j];
+			if (wb == NA_INTEGER || wb < 0) {
+				ok = 0;
+				break;
+			}
+		} else {
+			double v = wd[j];
+			if (ISNAN(v) || v < 0 || v >= 2147483648.0) {
+				ok = 0;
+				break;
+			}
+			wb = (int) v;
+		}
+		/* IRanges' end, -1 + start + width, as.integer() under warn = 2 */
+		int64_t e = (int64_t) sb + wb - 1;
+		if (!INT_OK(e)) {
+			ok = 0;
+			break;
+		}
+		int shb;
+		if (ti != NULL) {
+			int tv = ti[t];
+			if (tv == NA_INTEGER) {
+				shb = NA_INTEGER;
+			} else {
+				int64_t d = (int64_t) tv - sb;
+				if (!INT_OK(d)) {
+					ok = 0;
+					break;
+				}
+				shb = (int) d;
+			}
+		} else {
+			shb = int_of_real(td[t] - (double) sb);
+		}
+		s[b] = sb;
+		w[b] = wb;
+		sh[b] = shb;
+		if (++j == n_w)
+			j = 0;
+		if (++t == n_t)
+			t = 0;
+	}
+	UNPROTECT(2);
+	return ok ? ans : R_NilValue;
 }

@@ -231,16 +231,33 @@ move_blocks_bulk <- function(y, blocks, exclude, excludeOption) {
     bait_chr <- NULL
     bait_code <- match(blocks$chr_names, seqlevels(y))[blocks$bait_seg]
   }
+  # plain numbers: then the check below is FALSE without a circular
+  # sequence, and bait_blocks() gives what moved_positions() reads of the
+  # IRanges and the shifts, wherever building them could not fail or warn
+  plain <- plain_number(bait_start) && plain_number(blocks$width) &&
+    plain_number(blocks$target_start) &&
+    length(bait_code) == length(bait_start)
   circular <- unname(Seqinfo::isCircular(y)) %in% TRUE
-  if (anyNA(bait_code) || any(circular[bait_code] & (bait_start < 1 |
-      bait_start > unname(seqlengths(y))[bait_code]))) {
+  if (anyNA(bait_code) || ((!plain || any(circular)) &&
+      any(circular[bait_code] & (bait_start < 1 |
+      bait_start > unname(seqlengths(y))[bait_code])))) {
     return(NULL)
   }
-  bait_ranges <- IRanges(
-    start = bait_start,
-    width = rep_len(blocks$width, length(bait_start))
-  )
-  block_shift <- rep(blocks$target_start, n_rep) - start(bait_ranges)
+  bait <- if (plain) {
+    .Call(C_bait_blocks, bait_start, blocks$width, blocks$target_start,
+          as.integer(n_rep))
+  }
+  if (is.null(bait)) {
+    bait_ranges <- IRanges(
+      start = bait_start,
+      width = rep_len(blocks$width, length(bait_start))
+    )
+    block_shift <- rep(blocks$target_start, n_rep) - start(bait_ranges)
+    bait <- bait_ranges
+  } else {
+    bait_ranges <- NULL
+    block_shift <- bait$shift
+  }
   target_chr <- blocks$target_chr
   if (is(target_chr, "Rle")) {
     target_chr <- decode(target_chr)
@@ -260,16 +277,21 @@ move_blocks_bulk <- function(y, blocks, exclude, excludeOption) {
                end = integer(), seqinfo = NULL)
   }
   moved <- moved_positions(
-    y, bait_ranges, bait_code, n_rep, block_shift, target_chr, ex
+    y, bait, bait_code, n_rep, block_shift, target_chr, ex
   )
   if (isFALSE(moved)) {
     ex <- NULL
     moved <- moved_positions(
-      y, bait_ranges, bait_code, n_rep, block_shift, target_chr
+      y, bait, bait_code, n_rep, block_shift, target_chr
     )
   }
   if (is.null(moved)) {
     ex <- NULL
+    if (is.null(bait_ranges)) {
+      # as built above from bait_start and the widths
+      bait_ranges <- IRanges(start = bait$start, width = bait$width)
+      block_shift <- rep(blocks$target_start, n_rep) - bait$start
+    }
     # moved_positions() reads only starts and widths; with no NA in
     # bait_code this GRanges cannot fail, so building it here changes no
     # fallback
@@ -295,6 +317,7 @@ move_blocks_bulk <- function(y, blocks, exclude, excludeOption) {
   }
   # only rows of positive width from here: overlapsAny() is per range
   s <- moved$s
+  # NULL when moved_positions() got 'ex': moved_ranges() reads its runs
   code <- moved$code
   new_start <- moved$start
   new_width <- moved$width
@@ -354,6 +377,13 @@ move_blocks_bulk <- function(y, blocks, exclude, excludeOption) {
   list(ranges = y_prime, lens = lens)
 }
 
+# An integer or double vector without a class
+#
+# @param x any object
+plain_number <- function(x) {
+  (is.integer(x) || is.double(x)) && !is.object(x)
+}
+
 # What shift_swap_trim_positions() gives for the hits of bait_overlaps(),
 # in one compiled pass, restricted to the rows of positive width, with
 # the number of rows of each replicate as 'lens' (the rows are in
@@ -366,11 +396,13 @@ move_blocks_bulk <- function(y, blocks, exclude, excludeOption) {
 # outside_exclude() keeps (drop) or the pieces intersect_gaps() cuts (trim),
 # in the same order; FALSE where that step declines. Given 'ex', also the
 # metadata columns of 'y' at the rows' indices in 'y', as 'cols', in place
-# of 's', when gather_columns() gives them.
+# of 's', when gather_columns() gives them, and 'code' is NULL: only its
+# runs are returned, which moved_ranges() reads in its place.
 #
 # @param y the input GRanges
 # @param bait the ranges (IRanges) of the bait blocks of all replicates,
-# in replicate order
+# in replicate order, or bait_blocks()' list of their integer starts and
+# widths
 # @param bait_code the index of each block's sequence in seqlevels(y)
 # @param n_rep the number of replicates
 # @param block_shift the shift of each block
@@ -391,17 +423,25 @@ moved_positions <- function(y, bait, bait_code, n_rep, block_shift,
   circular <- unname(Seqinfo::isCircular(y)) %in% TRUE
   seqlen <- unname(seqlengths(y))
   cols <- NULL
-  if (is.null(ex)) {
+  with_code <- is.null(ex)
+  if (with_code) {
     ex <- list(mode = 0L, seg = integer(), start = integer(), end = integer())
   } else {
     cols <- gather_columns(y)
   }
+  if (is.list(bait)) {
+    b_start <- bait$start
+    b_width <- bait$width
+  } else {
+    b_start <- start(bait)
+    b_width <- width(bait)
+  }
   moved <- .Call(
-    C_moved_rows_lens, as.integer(bait_code), start(bait), width(bait),
+    C_moved_rows_opt, as.integer(bait_code), b_start, b_width,
     as.integer(n_rep), as.integer(seqnames(y)), start(y), end(y), width(y),
     circular, as.integer(seqlen), !(circular | is.na(seqlen)),
     suppressWarnings(as.integer(block_shift)), as.integer(target_chr),
-    ex$mode, ex$seg, ex$start, ex$end, cols
+    ex$mode, ex$seg, ex$start, ex$end, cols, with_code
   )
   if (!is.list(moved)) {
     return(moved)

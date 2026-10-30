@@ -13,6 +13,11 @@ SEXP moved_rows_lens(SEXP b_code, SEXP b_start, SEXP b_width, SEXP n_rep,
 	SEXP y_code, SEXP y_start, SEXP y_end, SEXP y_width, SEXP circular,
 	SEXP seqlen, SEXP bounded, SEXP shift, SEXP t_code, SEXP mode,
 	SEXP xseg, SEXP xs, SEXP xe, SEXP cols);
+SEXP moved_rows_opt(SEXP b_code, SEXP b_start, SEXP b_width, SEXP n_rep,
+	SEXP y_code, SEXP y_start, SEXP y_end, SEXP y_width, SEXP circular,
+	SEXP seqlen, SEXP bounded, SEXP shift, SEXP t_code, SEXP mode,
+	SEXP xseg, SEXP xs, SEXP xe, SEXP cols, SEXP with_code);
+SEXP bait_blocks(SEXP start, SEXP width, SEXP target, SEXP n_rep);
 SEXP ss_init(SEXP fps, SEXP pps, SEXP cnt, SEXP code, SEXP nLeft);
 SEXP ss_range(SEXP st);
 SEXP ss_sort(SEXP st);
@@ -38,6 +43,8 @@ static const R_CallMethodDef callMethods[] = {
 	{"moved_positions", (DL_FUNC) &moved_positions, 13},
 	{"moved_rows", (DL_FUNC) &moved_rows, 17},
 	{"moved_rows_lens", (DL_FUNC) &moved_rows_lens, 18},
+	{"moved_rows_opt", (DL_FUNC) &moved_rows_opt, 19},
+	{"bait_blocks", (DL_FUNC) &bait_blocks, 4},
 	{"ss_init", (DL_FUNC) &ss_init, 5},
 	{"ss_range", (DL_FUNC) &ss_range, 1},
 	{"ss_sort", (DL_FUNC) &ss_sort, 1},
