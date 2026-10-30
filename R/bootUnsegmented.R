@@ -14,11 +14,18 @@ unseg_bootstrap_setup <- function(y, L_b,
   blocks <- NULL
   if (!within_chrom) {
     # TODO: code assumes sorted 'y'
-    stopifnot(all(y == GenomicRanges::sort(y)))
+    # is.unsorted() tests the keys sort() orders a GRanges by, so when it
+    # is FALSE sort(y) equals y and the check passes
+    if (!identical(as.vector(class(y)), "GRanges") || is.unsorted(y)) {
+      stopifnot(all(y == GenomicRanges::sort(y)))
+    }
     # TODO: what happens when no features occur on a chromosome?
-    blocks <- GenomicRanges::tileGenome(seqlengths=chrom_lens,
-                                        tilewidth=L_b,
-                                        cut.last.tile.in.chrom=TRUE)
+    blocks <- if (type == "bootstrap") tile_starts_genome(chrom_lens, L_b)
+    if (is.null(blocks)) {
+      blocks <- GenomicRanges::tileGenome(seqlengths=chrom_lens,
+                                          tilewidth=L_b,
+                                          cut.last.tile.in.chrom=TRUE)
+    }
     if (type == "permute") {
       # pass along the full seqlengths of 'y'
       seqlengths(blocks) <- seqlengths(y)
@@ -27,6 +34,42 @@ unseg_bootstrap_setup <- function(y, L_b,
   }
   list(y = y, L_b = L_b, type = type, within_chrom = within_chrom,
        chrom_lens = chrom_lens, chroms = chroms, blocks = blocks)
+}
+
+# start() and seqnames() of tileGenome(seqlengths = chrom_lens, tilewidth =
+# L_b, cut.last.tile.in.chrom = TRUE), all the bootstrap reads of it, as a
+# list: with a whole L_b a sequence of length len is tiled from 1 + L_b * k,
+# k = 0 .. ceiling(len / L_b) - 1. NULL wherever tileGenome() could fail or
+# cut otherwise: L_b not a single whole number >= 1, no sequence, names
+# missing, empty or duplicated, a length missing or below L_b.
+#
+# @param chrom_lens the chromosome lengths, named
+# @param L_b the length of the blocks
+tile_starts_genome <- function(chrom_lens, L_b) {
+  nm <- names(chrom_lens)
+  if (!is.numeric(L_b) || length(L_b) != 1L || is.object(L_b) ||
+      !is.finite(L_b) || L_b < 1 || L_b != floor(L_b) ||
+      !is.integer(chrom_lens) || length(chrom_lens) == 0L || is.null(nm) ||
+      anyNA(nm) || any(nm == "") || anyDuplicated(nm) ||
+      anyNA(chrom_lens) || any(chrom_lens < L_b)) {
+    return(NULL)
+  }
+  n_tile <- as.integer(ceiling(unname(chrom_lens) / L_b))
+  list(
+    start = as.integer(1 + L_b * (sequence(n_tile) - 1L)),
+    seqnames = Rle(factor(nm, levels = nm), n_tile)
+  )
+}
+
+# start() and seqnames() of the tiling blocks: tileGenome()'s GRanges, or
+# the list tile_starts_genome() gives in its place
+#
+# @param blocks the blocks tiling the genome
+tile_parts <- function(blocks) {
+  if (is.list(blocks)) {
+    return(blocks)
+  }
+  list(start = start(blocks), seqnames = seqnames(blocks))
 }
 
 # One un-segmented bootstrap (or permutation) replicate
@@ -173,11 +216,12 @@ unseg_across_draws <- function(n_rep, L_b, L_s, rearranged_blocks,
       nblocks = n_per_chrom, L = L_b, n = n
     )), n_rep)
   }
+  tiles <- tile_parts(rearranged_blocks)
   if (!is.null(d)) {
     return(list(
       draws = NULL, width = L_b,
-      target_start = start(rearranged_blocks),
-      target_chr = seqnames(rearranged_blocks),
+      target_start = tiles$start,
+      target_chr = tiles$seqnames,
       bait_start = d[[1L]], bait_seg = d[[2L]], bait_len = d[[3L]],
       chr_names = names(L_s)
     ))
@@ -190,8 +234,8 @@ unseg_across_draws <- function(n_rep, L_b, L_s, rearranged_blocks,
     list(start = random_start, chr = random_chr)
   })
   list(draws = draws, width = L_b,
-       target_start = start(rearranged_blocks),
-       target_chr = seqnames(rearranged_blocks))
+       target_start = tiles$start,
+       target_chr = tiles$seqnames)
 }
 
 # Permute blocks of GRanges across chomosome

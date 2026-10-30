@@ -85,7 +85,11 @@ bootRanges <- function(y, blockLength, R = 1,
     stopifnot(all(strand(exclude) == "*"))
   }
   if (!is.null(seg)) {
-    stopifnot("state" %in% names(mcols(seg)))
+    seg_mcols <- mcols(seg)
+    # the check, with its message, where it fails
+    if (!("state" %in% names(seg_mcols))) {
+      stopifnot("state" %in% names(mcols(seg)))
+    }
   }
 
   # done once for all replicates; skipped, with its checks, when R < 1
@@ -105,9 +109,15 @@ bootRanges <- function(y, blockLength, R = 1,
     # the random bait blocks of every replicate first, in replicate order,
     # then the features they capture are moved for all replicates at once
     blocks <- if (!is.null(seg)) {
+      # what seg$state gives, without DataFrame's [[ and its selectMethod()
+      state <- if (identical(as.vector(class(seg_mcols)), "DFrame")) {
+        seg_mcols@listData[["state"]]
+      } else {
+        seg$state
+      }
       seg_bootstrap_draws(
         n_rep, y = y, seg = ranges(seg),
-        state = seg$state, L_b = blockLength,
+        state = state, L_b = blockLength,
         chr_names = seqnames(seg),
         chr_lens = chr_lens,
         proportion_length = proportionLength
@@ -276,6 +286,11 @@ move_blocks_bulk <- function(y, blocks, exclude, excludeOption) {
     ex <- list(mode = 0L, seg = integer(), start = integer(),
                end = integer(), seqinfo = NULL)
   }
+  # moved_positions() and moved_ranges() take y only as a GRanges, and
+  # read its slots where the accessors would run updateObject() on them
+  if (identical(as.vector(class(y)), "GRanges")) {
+    y <- updateObject(y, check = FALSE)
+  }
   moved <- moved_positions(
     y, bait, bait_code, n_rep, block_shift, target_chr, ex
   )
@@ -399,7 +414,7 @@ plain_number <- function(x) {
 # of 's', when gather_columns() gives them, and 'code' is NULL: only its
 # runs are returned, which moved_ranges() reads in its place.
 #
-# @param y the input GRanges
+# @param y the input GRanges, updated (updateObject()), whose slots are read
 # @param bait the ranges (IRanges) of the bait blocks of all replicates,
 # in replicate order, or bait_blocks()' list of their integer starts and
 # widths
@@ -436,9 +451,15 @@ moved_positions <- function(y, bait, bait_code, n_rep, block_shift,
     b_start <- start(bait)
     b_width <- width(bait)
   }
+  # move_blocks_bulk() updated y, so its ranges slot is ranges(y); end()
+  # computed as the Ranges method does
+  rng <- y@ranges
+  y_start <- start(rng)
+  y_width <- width(rng)
   moved <- .Call(
     C_moved_rows_opt, as.integer(bait_code), b_start, b_width,
-    as.integer(n_rep), as.integer(seqnames(y)), start(y), end(y), width(y),
+    as.integer(n_rep), as.integer(seqnames(y)), y_start,
+    y_width - 1L + y_start, y_width,
     circular, as.integer(seqlen), !(circular | is.na(seqlen)),
     suppressWarnings(as.integer(block_shift)), as.integer(target_chr),
     ex$mode, ex$seg, ex$start, ex$end, cols, with_code
@@ -517,7 +538,7 @@ shift_swap_trim_positions <- function(y, s, shift, target_chr, n_rep,
 # not subset. Given the runs of 'code', maximal, the seqnames
 # are built from them.
 #
-# @param y the input GRanges
+# @param y the input GRanges, updated (updateObject()), whose slots are read
 # @param s the index in 'y' of each range
 # @param code the index of each range's sequence in seqlevels(y)
 # @param start,width the start and width of each range
@@ -562,9 +583,9 @@ moved_ranges <- function(y, s, code, start, width, chr_attr, block = NULL,
     # what the branch below gives, without gathering starts and widths
     # that update_ranges() replaces; 's' holds indices in 1..length(y)
     ans_ranges <- BiocGenerics:::replaceSlots(
-      ranges(y), start = start, width = width, check = FALSE
+      y@ranges, start = start, width = width, check = FALSE
     )
-    ans_mcols <- mcols(y, use.names = FALSE)
+    ans_mcols <- y@elementMetadata
     if (is.null(cols)) {
       cols <- lapply(as.list(ans_mcols), `[`, s)
     }
@@ -573,20 +594,21 @@ moved_ranges <- function(y, s, code, start, width, chr_attr, block = NULL,
     )
   } else {
     ans_ranges <- update_ranges(
-      extractROWS(ranges(y), s), start = start, width = width
+      extractROWS(y@ranges, s), start = start, width = width
     )
-    ans_mcols <- extractROWS(mcols(y, use.names = FALSE), s)
+    ans_mcols <- extractROWS(y@elementMetadata, s)
   }
   if (!is.null(block)) {
     ans_mcols$block <- block
   }
-  ans <- update(y, seqnames = ans_seqnames, ranges = ans_ranges,
-                strand = ans_strand, elementMetadata = ans_mcols,
-                check = FALSE)
-  if (!is.null(seqinfo)) {
-    ans <- update(ans, seqinfo = seqinfo, check = FALSE)
-  }
-  ans
+  # update() without its updateObject(y), and with the seqinfo in the
+  # same call
+  BiocGenerics:::replaceSlots(
+    y, seqnames = ans_seqnames, ranges = ans_ranges, strand = ans_strand,
+    elementMetadata = ans_mcols,
+    .slotList = if (!is.null(seqinfo)) list(seqinfo = seqinfo),
+    check = FALSE
+  )
 }
 
 # TRUE when y[s] with the given starts and widths is the ranges of 'y'
@@ -679,8 +701,12 @@ exclude_intervals <- function(y, exclude) {
   }
   si <- merge(seqinfo(y), seqinfo(exclude))
   lev <- seqlevels(y)
+  # one ranges() call for start(), width() and end() (the Ranges method)
+  rng <- ranges(exclude)
+  rng_start <- start(rng)
+  rng_width <- width(rng)
   if (length(lev) >= 2097152L || any(Seqinfo::isCircular(si) %in% TRUE) ||
-      !all(strand(exclude) == "*") || any(width(exclude) == 0L)) {
+      !all(runValue(strand(exclude)) == "*") || any(rng_width == 0L)) {
     return(NULL)
   }
   ex_code <- match(seqlevels(exclude), lev)[as.integer(seqnames(exclude))]
@@ -694,10 +720,10 @@ exclude_intervals <- function(y, exclude) {
     # positions offset by 2^32 per sequence, so the intervals of all
     # sequences form one sorted vector and cummax() stays in a sequence
     key <- ex_code * 4294967296
-    ex_start <- key + start(exclude)[on_y]
+    ex_start <- key + rng_start[on_y]
     o <- order(ex_start, method = "radix")
     ex_start <- ex_start[o]
-    ex_end <- cummax((key[o] + end(exclude)[on_y][o]))
+    ex_end <- cummax((key[o] + (rng_width - 1L + rng_start)[on_y][o]))
     first <- c(TRUE, ex_start[-1L] > ex_end[-n_ex])
     last <- c(which(first)[-1L] - 1L, n_ex)
     int_code <- ex_code[o][first]
@@ -727,16 +753,73 @@ exclude_tables <- function(y, exclude, excludeOption) {
                 seqinfo = NULL))
   }
   if (excludeOption == "trim") {
-    gap <- gaps(exclude, end = seqlengths(y))
-    gap <- gap[strand(gap) == "*"]
-    tb <- gap_tables(y, gap)
-    if (is.null(tb) || !tb$ordered) {
-      return(NULL)
+    tb <- interval_gaps(y, exclude)
+    if (is.null(tb)) {
+      gap <- gaps(exclude, end = seqlengths(y))
+      gap <- gap[strand(gap) == "*"]
+      tb <- gap_tables(y, gap)
+      if (is.null(tb) || !tb$ordered) {
+        return(NULL)
+      }
     }
     return(list(mode = 2L, seg = tb$seg, start = tb$start, end = tb$end,
                 seqinfo = tb$seqinfo))
   }
   NULL
+}
+
+# gap_tables(y, gap) for gap <- gaps(exclude, end = seqlengths(y)) on
+# strand "*", built from exclude_intervals(): per sequence of 'y', the parts
+# of [1, seqlength] between its merged intervals (before the first, between
+# two, after the last; all of it when it has none), those of positive
+# width, in order. NULL unless 'y' and 'exclude' are plain GRanges with
+# identical seqinfo, every seqlength is known and below the integer
+# maximum, exclude_intervals() takes 'exclude' (all on "*", no empty range,
+# no circular sequence) and every range of 'exclude' lies within [1, its
+# seqlength]; gaps() then makes the same gaps, and gap_tables() keeps
+# seqinfo(y).
+#
+# @param y the input GRanges
+# @param exclude the excluded regions
+interval_gaps <- function(y, exclude) {
+  if (!identical(as.vector(class(y)), "GRanges") ||
+      !identical(as.vector(class(exclude)), "GRanges") ||
+      !identical(seqinfo(exclude), seqinfo(y))) {
+    return(NULL)
+  }
+  seqlen <- unname(seqlengths(y))
+  # IRanges' gaps() with end = .Machine$integer.max ignores the ranges
+  # (IRanges 2.47.5: [1, end] plus a gap after each range)
+  if (anyNA(seqlen) || any(seqlen == .Machine$integer.max)) {
+    return(NULL)
+  }
+  iv <- exclude_intervals(y, exclude)
+  if (is.null(iv)) {
+    return(NULL)
+  }
+  n_lev <- length(seqlen)
+  n_int <- diff(iv$seg)
+  int_code <- rep.int(seq_len(n_lev), n_int)
+  if (any(iv$start < 1L) || any(iv$end > seqlen[int_code])) {
+    return(NULL)
+  }
+  # sequence c holds candidates seg[c] + c to seg[c + 1] + c: the one
+  # before interval i is i + c - 1, the one after it i + c (doubles, so
+  # that an end at the integer maximum does not overflow)
+  n_cand <- length(int_code) + n_lev
+  cand_code <- rep.int(seq_len(n_lev), n_int + 1L)
+  cand_start <- rep.int(1, n_cand)
+  cand_end <- as.double(seqlen)[cand_code]
+  at <- seq_along(int_code) + int_code
+  cand_start[at] <- as.double(iv$end) + 1
+  cand_end[at - 1L] <- as.double(iv$start) - 1
+  keep <- which(cand_start <= cand_end)
+  gap_code <- cand_code[keep]
+  list(
+    seg = c(0L, cumsum(tabulate(gap_code, n_lev))),
+    start = as.integer(cand_start[keep]), end = as.integer(cand_end[keep]),
+    seqinfo = seqinfo(y)
+  )
 }
 
 # plyranges::join_overlap_intersect(x, gap) for the moved ranges whose
@@ -818,8 +901,9 @@ gap_tables <- function(y, gap) {
   # stable, so each sequence's gaps stay in index order
   o <- order(gap_code, method = "radix")
   gap_code <- gap_code[o]
-  gap_start <- start(gap)[on_x][o]
-  gap_end <- end(gap)[on_x][o]
+  rng <- ranges(gap)
+  gap_start <- start(rng)[on_x][o]
+  gap_end <- end(rng)[on_x][o]
   n_gap <- length(gap_code)
   list(
     code = gap_code, start = gap_start, end = gap_end,
