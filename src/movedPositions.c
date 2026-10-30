@@ -131,20 +131,38 @@ static R_xlen_t plan_buckets(const int *p, const int *seg, int n_lev,
 	return off;
 }
 
-static void fill_buckets(const int *p, const int *seg, int n_lev,
-	const buckets *b, int *t_all)
+/* one sequence's table, entries cs to ce - 1 of p, planned in b */
+static void fill_buckets(const int *p, int cs, int ce, const buckets *b,
+	int *t_all)
 {
-	for (int c = 0; c < n_lev; c++) {
-		int *t = t_all + b[c].off;
-		int64_t k = 0;
-		for (int i = seg[c]; i < seg[c + 1]; i++) {
-			int64_t bi = ((int64_t) p[i] - b[c].lo) >> b[c].sh;
-			while (k <= bi)
-				t[k++] = i;
-		}
-		while (k <= b[c].nb)
-			t[k++] = seg[c + 1];
+	int *t = t_all + b->off;
+	int64_t k = 0;
+	for (int i = cs; i < ce; i++) {
+		int64_t bi = ((int64_t) p[i] - b->lo) >> b->sh;
+		while (k <= bi)
+			t[k++] = i;
 	}
+	while (k <= b->nb)
+		t[k++] = ce;
+}
+
+/* sorted_overlaps()' checks of one sequence's ranges cs to ce - 1 (no
+ * empty range, starts in order) and their end_max, the running maximum of
+ * ends; ns[k + 1] counts the ranges from cs to k ending before their
+ * end_max. Returns that count over the sequence, or -1 where a check
+ * fails. */
+static int end_max(const int *ys, const int *ye, int cs, int ce, int *em,
+	int *ns)
+{
+	int m = 0;
+	for (int k = cs; k < ce; k++) {
+		if (ye[k] < ys[k] || (k > cs && ys[k] < ys[k - 1]))
+			return -1;
+		em[k] = (k > cs && em[k - 1] > ye[k]) ? em[k - 1] : ye[k];
+		m += ye[k] < em[k];
+		ns[k + 1] = m;
+	}
+	return m;
 }
 
 /* The end of the entries in [cs, ce) at or before x */
@@ -249,6 +267,8 @@ typedef struct {
 	R_xlen_t n_t, n_t_rep, n_blocks;
 	int *first, *last;
 	unsigned char *plain;
+	/* with 'lens', the row at which each replicate starts, or NULL */
+	int *rep_at;
 	/* columns of y gathered at each row's index in y: 8-byte (double) or
 	 * 4-byte (integer, logical) elements, copied bit for bit */
 	int ncol;
@@ -292,8 +312,10 @@ static inline void put_cols_run(const moved_ctx *x, R_xlen_t at, int lo,
 	}
 }
 
-/* Pass 1 over blocks [b0, b1): each block's candidates, the checks R makes
- * over the hits, and the numbers of hits and rows kept; 0 where R declines */
+/* Pass 1 over blocks [b0, b1): each block's checks (bait_blocks()' with
+ * 'raw', and end(bait) not NA and not before its start; the code and the
+ * circular check are made before), its candidates, the checks R makes over
+ * the hits, and the numbers of hits and rows kept; 0 where R declines */
 static int moved_pass1(const moved_ctx *x, R_xlen_t b0, R_xlen_t b1,
 	R_xlen_t *hits, R_xlen_t *keeps)
 {
@@ -310,6 +332,9 @@ static int moved_pass1(const moved_ctx *x, R_xlen_t b0, R_xlen_t b1,
 		int bc, bstart, bw;
 		R_xlen_t tb = t;
 		if (rw != NULL) {
+			/* a replicate's blocks take the targets in order */
+			if (!raw_block(rw, b, j, t))
+				return 0;
 			bc = raw_code(rw, b);
 			bstart = raw_start(rw, b);
 			bw = raw_width(rw, j);
@@ -322,6 +347,9 @@ static int moved_pass1(const moved_ctx *x, R_xlen_t b0, R_xlen_t b1,
 			bstart = x->bs[b];
 			bw = x->bw[b];
 		}
+		int64_t be = (int64_t) bstart + bw;
+		if (!INT_OK(be) || !INT_OK(be - 1) || be - 1 < bstart)
+			return 0;
 		int c = bc - 1, cs = x->seg[c], ce = x->seg[c + 1];
 		int lo = count_le(em, cs, ce, x->bk_max + c, x->t_max,
 			(int64_t) bstart - 1);
@@ -382,12 +410,30 @@ static int moved_pass1(const moved_ctx *x, R_xlen_t b0, R_xlen_t b1,
 	return 1;
 }
 
+/* The rows block b wrote, n of them with target code 'code', added to the
+ * runs of its chunk, which are kept in first[b0 + k] (code) and last[b0 + k]
+ * (rows): never past b, whose entries pass 2 has read */
+static inline void add_run(const moved_ctx *x, R_xlen_t b0, R_xlen_t *nr,
+	int code, int n)
+{
+	if (n == 0)
+		return;
+	if (*nr > 0 && x->first[b0 + *nr - 1] == code) {
+		x->last[b0 + *nr - 1] += n;
+		return;
+	}
+	x->first[b0 + *nr] = code;
+	x->last[b0 + *nr] = n;
+	(*nr)++;
+}
+
 /* Pass 2 over blocks [b0, b1): their rows, written from row 'at' of out
  * (out[0], 's', out[1], the code, and out[4], the replicate, left out when
- * NULL) and of the gathered columns; last[b] then holds the number of rows
- * block b wrote */
+ * NULL) and of the gathered columns; the chunk's maximal runs of the code
+ * column then fill first[b0..] and last[b0..], *n_run of them, and rep_at
+ * the first row of each replicate starting in it */
 static void moved_pass2(const moved_ctx *x, R_xlen_t b0, R_xlen_t b1,
-	R_xlen_t at, int *const *out)
+	R_xlen_t at, int *const *out, R_xlen_t *n_run)
 {
 	const int mode = x->mode;
 	const int *ys = x->ys, *ye = x->ye, *yw = x->yw, *o = x->o;
@@ -396,15 +442,18 @@ static void moved_pass2(const moved_ctx *x, R_xlen_t b0, R_xlen_t b1,
 	int ex_prev = 0, ex_k = 0;
 	const bait_raw *rw = x->raw;
 	R_xlen_t t = rw != NULL ? b0 % rw->n_ts : 0;
+	R_xlen_t nr = 0, rb = b0 % x->n_blocks;
 	for (R_xlen_t b = b0; b < b1; b++) {
 		int lo = x->first[b], hi = x->last[b];
 		R_xlen_t tb = t;
 		if (rw != NULL && ++t == rw->n_ts)
 			t = 0;
-		if (lo >= hi) {
-			x->last[b] = 0;
+		if (rb == 0 && x->rep_at != NULL)
+			x->rep_at[b / x->n_blocks] = (int) at;
+		if (++rb == x->n_blocks)
+			rb = 0;
+		if (lo >= hi)
 			continue;
-		}
 		R_xlen_t at0 = at;
 		int bstart = rw != NULL ? raw_start(rw, b) : x->bs[b];
 		int sh = rw != NULL ? raw_shift(rw, tb, bstart) : x->shift[b];
@@ -441,7 +490,7 @@ static void moved_pass2(const moved_ctx *x, R_xlen_t b0, R_xlen_t b1,
 			if (blk != NULL)
 				for (R_xlen_t i = at0; i < at; i++)
 					blk[i] = rep;
-			x->last[b] = hi - lo;
+			add_run(x, b0, &nr, code, hi - lo);
 			continue;
 		}
 		int xlo = mode != 0 ? xseg[code - 1] : 0;
@@ -498,8 +547,9 @@ static void moved_pass2(const moved_ctx *x, R_xlen_t b0, R_xlen_t b1,
 		if (blk != NULL)
 			for (R_xlen_t i = at0; i < at; i++)
 				blk[i] = rep;
-		x->last[b] = (int) (at - at0);
+		add_run(x, b0, &nr, code, (int) (at - at0));
 	}
+	*n_run = nr;
 }
 
 /* The moved ranges of every bait block in one pass: per block, in order,
@@ -619,55 +669,69 @@ static SEXP moved_impl(SEXP b_code_, SEXP b_start_, SEXP b_width_,
 		ye = e2;
 		yw = w2;
 	}
-	/* sorted_overlaps(): no empty range, starts in order on each sequence;
-	 * end_max, the running maximum of ends along each sequence */
+	/* the threads of the per-sequence tables and of the two passes */
+	int n_thr = 1;
+#ifdef _OPENMP
+	if (n >= MOVED_PAR_MIN) {
+		n_thr = omp_get_max_threads();
+		if (n_thr > MOVED_MAX_THREADS)
+			n_thr = MOVED_MAX_THREADS;
+		if (n_thr < 1)
+			n_thr = 1;
+	}
+#endif
+
+	/* end_max() per sequence; n_short[k + 1], the ranges up to k along
+	 * all sequences ending before end_max, is counted per sequence and
+	 * then offset by n_base[c], the counts of the sequences before c */
 	int *em = (int *) R_alloc(n_y > 0 ? n_y : 1, sizeof(int));
 	int *n_short = (int *) R_alloc(n_y + 1, sizeof(int));
+	int *n_base = (int *) R_alloc(n_lev > 0 ? n_lev : 1, sizeof(int));
 	n_short[0] = 0;
+#ifdef _OPENMP
+#pragma omp parallel for num_threads(n_thr) schedule(dynamic, 1) if(n_thr > 1)
+#endif
+	for (int c = 0; c < n_lev; c++)
+		n_base[c] = end_max(ys, ye, seg[c], seg[c + 1], em, n_short);
+	int n_before = 0;
 	for (int c = 0; c < n_lev; c++) {
-		for (int k = seg[c]; k < seg[c + 1]; k++) {
-			if (ye[k] < ys[k] || (k > seg[c] && ys[k] < ys[k - 1]))
-				return R_NilValue;
-			em[k] = (k > seg[c] && em[k - 1] > ye[k]) ? em[k - 1] : ye[k];
-			n_short[k + 1] = n_short[k] + (ye[k] < em[k]);
-		}
+		int m = n_base[c];
+		if (m < 0)
+			return R_NilValue;
+		n_base[c] = n_before;
+		n_before += m;
 	}
 
 	/* bait_overlaps(): every block on sorted_overlaps()' path, i.e. its
 	 * replicate has fewer blocks on its sequence than y has ranges there;
 	 * sorted_overlaps(): no empty block and none on a circular sequence;
 	 * end(bait), start + width - 1L, not NA. With 'raw', bait_blocks()'
-	 * checks first. */
+	 * checks first. Every check declines with R_NilValue, so pass 1 makes
+	 * the checks of each block's start, width and target; here the code,
+	 * the circular check and the count test, over the seqlevels a
+	 * replicate's blocks counted when there are no more of them than
+	 * blocks. */
 	const int *bc = raw == NULL ? INTEGER(b_code_) : NULL;
 	const int *bs = raw == NULL ? INTEGER(b_start_) : NULL;
 	const int *bw = raw == NULL ? INTEGER(b_width_) : NULL;
 	const int *circ = LOGICAL(circular_);
 	int *cnt = (int *) R_alloc(n_lev > 0 ? n_lev : 1, sizeof(int));
 	memset(cnt, 0, (n_lev > 0 ? n_lev : 1) * sizeof(int));
+	int by_lev = (R_xlen_t) n_lev <= n_blocks;
 	for (R_xlen_t r = 0; r < n_rep; r++) {
 		R_xlen_t b0 = r * n_blocks, b1 = b0 + n_blocks;
-		R_xlen_t j = raw != NULL ? b0 % raw->n_w : 0;
 		for (R_xlen_t b = b0; b < b1; b++) {
-			int c, sb, wb;
-			if (raw != NULL) {
-				/* a replicate's blocks take the targets in order */
-				if (!raw_block(raw, b, j, b - b0))
-					return R_NilValue;
-				c = raw_code(raw, b);
-				sb = raw_start(raw, b);
-				wb = raw_width(raw, j);
-				if (++j == raw->n_w)
-					j = 0;
-			} else {
-				c = bc[b];
-				sb = bs[b];
-				wb = bw[b];
-			}
-			int64_t e = (int64_t) sb + wb;
-			if (c == NA_INTEGER || c < 1 || c > n_lev || !INT_OK(e) ||
-				!INT_OK(e - 1) || e - 1 < sb || circ[c - 1] == TRUE)
+			int c = raw != NULL ? raw_code(raw, b) : bc[b];
+			if (c == NA_INTEGER || c < 1 || c > n_lev || circ[c - 1] == TRUE)
 				return R_NilValue;
 			cnt[c - 1]++;
+		}
+		if (by_lev) {
+			for (int c = 0; c < n_lev; c++)
+				if (cnt[c] != 0 && cnt[c] >= seg[c + 1] - seg[c])
+					return R_NilValue;
+			memset(cnt, 0, n_lev * sizeof(int));
+			continue;
 		}
 		for (R_xlen_t b = b0; b < b1; b++) {
 			int c = raw != NULL ? raw_code(raw, b) : bc[b];
@@ -684,24 +748,22 @@ static SEXP moved_impl(SEXP b_code_, SEXP b_start_, SEXP b_width_,
 		sizeof(int));
 	int *t_max = (int *) R_alloc(plan_buckets(em, seg, n_lev, bk_max),
 		sizeof(int));
-	fill_buckets(ys, seg, n_lev, bk_start, t_start);
-	fill_buckets(em, seg, n_lev, bk_max, t_max);
+#ifdef _OPENMP
+#pragma omp parallel for num_threads(n_thr) schedule(dynamic, 1) if(n_thr > 1)
+#endif
+	for (int c = 0; c < n_lev; c++) {
+		int cs = seg[c], ce = seg[c + 1], b = n_base[c];
+		fill_buckets(ys, cs, ce, bk_start + c, t_start);
+		fill_buckets(em, cs, ce, bk_max + c, t_max);
+		for (int k = cs; k < ce; k++)
+			n_short[k + 1] += b;
+	}
 
 	/* the blocks in chunks of consecutive blocks: pass 1 counts each
 	 * chunk's rows, and pass 2 writes them from the sum of the counts
 	 * before it, so the rows land as one pass in block order puts them.
 	 * The answer for an exclude interval does not depend on the previous
 	 * row's, which each chunk starts without. */
-	int n_thr = 1;
-#ifdef _OPENMP
-	if (n >= MOVED_PAR_MIN) {
-		n_thr = omp_get_max_threads();
-		if (n_thr > MOVED_MAX_THREADS)
-			n_thr = MOVED_MAX_THREADS;
-		if (n_thr < 1)
-			n_thr = 1;
-	}
-#endif
 	int n_chunk = n_thr == 1 ? 1 : 8 * n_thr;
 	R_xlen_t *c_hit = (R_xlen_t *) R_alloc(n_chunk, sizeof(R_xlen_t));
 	R_xlen_t *c_keep = (R_xlen_t *) R_alloc(n_chunk, sizeof(R_xlen_t));
@@ -717,7 +779,7 @@ static SEXP moved_impl(SEXP b_code_, SEXP b_start_, SEXP b_width_,
 		.n_t_rep = n_t * (R_xlen_t) n_rep, .n_blocks = n_blocks,
 		.first = (int *) R_alloc(n, sizeof(int)),
 		.last = (int *) R_alloc(n, sizeof(int)),
-		.plain = (unsigned char *) R_alloc(n, 1),
+		.plain = (unsigned char *) R_alloc(n, 1), .rep_at = NULL,
 		.ncol = 0, .col8 = NULL, .col_in = NULL, .col_out = NULL
 	};
 
@@ -780,6 +842,7 @@ static SEXP moved_impl(SEXP b_code_, SEXP b_start_, SEXP b_width_,
 	if (!with_block) {
 		lens = out[4];
 		out[4] = NULL;
+		x.rep_at = lens;
 	}
 	if (gather) {
 		SEXP cols = allocVector(VECSXP, ncol);
@@ -810,22 +873,28 @@ static SEXP moved_impl(SEXP b_code_, SEXP b_start_, SEXP b_width_,
 		x.col_in = (const void *const *) cin;
 		x.col_out = (void *const *) cout;
 	}
+	R_xlen_t *c_run = (R_xlen_t *) R_alloc(n_chunk, sizeof(R_xlen_t));
 #ifdef _OPENMP
 #pragma omp parallel for num_threads(n_thr) schedule(dynamic, 1) if(n_thr > 1)
 #endif
 	for (int c = 0; c < n_chunk; c++)
 		moved_pass2(&x, n * c / n_chunk, n * (c + 1) / n_chunk, c_keep[c],
-			out);
+			out, c_run + c);
 
 	/* the runs of the code column: each block's rows share its target
 	 * sequence, so one run per block that wrote rows, merged with the run
-	 * before when the sequence is the same; maximal, as Rle() finds them */
+	 * before when the sequence is the same; maximal, as Rle() finds them.
+	 * Each chunk's runs are maximal, so only its first can join the run
+	 * before. */
 	R_xlen_t n_run = 0;
 	int prev = NA_INTEGER;
-	for (R_xlen_t b = 0, t = 0; b < n; b++, t = t + 1 == n_t ? 0 : t + 1) {
-		if (x.last[b] != 0 && x.tc[t] != prev) {
-			n_run++;
-			prev = x.tc[t];
+	for (int c = 0; c < n_chunk; c++) {
+		const int *code = x.first + n * c / n_chunk;
+		for (R_xlen_t k = 0; k < c_run[c]; k++) {
+			if (code[k] != prev) {
+				n_run++;
+				prev = code[k];
+			}
 		}
 	}
 	SET_VECTOR_ELT(ans, 5, allocVector(INTSXP, n_run));
@@ -833,25 +902,24 @@ static SEXP moved_impl(SEXP b_code_, SEXP b_start_, SEXP b_width_,
 	int *rc = INTEGER(VECTOR_ELT(ans, 5)), *rl = INTEGER(VECTOR_ELT(ans, 6));
 	R_xlen_t r = -1;
 	prev = NA_INTEGER;
-	for (R_xlen_t b = 0, t = 0; b < n; b++, t = t + 1 == n_t ? 0 : t + 1) {
-		if (x.last[b] == 0)
-			continue;
-		if (x.tc[t] != prev) {
-			prev = x.tc[t];
-			rc[++r] = prev;
-			rl[r] = 0;
+	for (int c = 0; c < n_chunk; c++) {
+		const int *code = x.first + n * c / n_chunk;
+		const int *rows = x.last + n * c / n_chunk;
+		for (R_xlen_t k = 0; k < c_run[c]; k++) {
+			if (code[k] != prev) {
+				prev = code[k];
+				rc[++r] = prev;
+				rl[r] = 0;
+			}
+			rl[r] += rows[k];
 		}
-		rl[r] += x.last[b];
 	}
-	/* each replicate's rows; their sum, n_keep, fits an int */
+	/* each replicate's rows, from the row it starts at; their sum, n_keep,
+	 * fits an int */
 	if (lens != NULL) {
-		for (int rr = 0; rr < n_rep; rr++) {
-			R_xlen_t sum = 0;
-			const int *nb = x.last + rr * n_blocks;
-			for (R_xlen_t b = 0; b < n_blocks; b++)
-				sum += nb[b];
-			lens[rr] = (int) sum;
-		}
+		for (int rr = 0; rr < n_rep; rr++)
+			lens[rr] = (rr + 1 < n_rep ? lens[rr + 1] : (int) n_keep) -
+				lens[rr];
 	}
 	UNPROTECT(2);
 	return ans;

@@ -806,7 +806,11 @@ exclude_intervals <- function(y, exclude) {
   if (!identical(as.vector(class(exclude)), "GRanges")) {
     return(NULL)
   }
-  si <- merge(seqinfo(y), seqinfo(exclude))
+  si_y <- seqinfo(y)
+  si_ex <- seqinfo(exclude)
+  # merge() of two identical Seqinfo objects warns of nothing and keeps
+  # their circularity
+  si <- if (identical(si_y, si_ex)) si_y else merge(si_y, si_ex)
   lev <- seqlevels(y)
   # one ranges() call for start(), width() and end() (the Ranges method)
   rng <- ranges(exclude)

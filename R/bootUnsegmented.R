@@ -9,8 +9,14 @@ unseg_bootstrap_setup <- function(y, L_b,
   # TODO: what kind of solution do we want for this?
   # it's probably not a good idea to have L_b larger than one of the sequences
   stopifnot(all(chrom_lens >= L_b))
-  tab <- table(seqnames(y))
-  chroms <- names(tab)
+  # chroms is read only by the within-chromosome replicates; table() of a
+  # plain GRanges' seqnames cannot fail, so for one it is made only there
+  plain <- identical(as.vector(class(y)), "GRanges")
+  chroms <- NULL
+  if (!plain) {
+    tab <- table(seqnames(y))
+    chroms <- names(tab)
+  }
   blocks <- NULL
   if (!within_chrom) {
     # TODO: code assumes sorted 'y'
@@ -31,6 +37,9 @@ unseg_bootstrap_setup <- function(y, L_b,
       seqlengths(blocks) <- seqlengths(y)
       mcols(y)$block <- GenomicRanges::findOverlaps(y, blocks, select = "first")
     }
+  } else if (plain) {
+    tab <- table(seqnames(y))
+    chroms <- names(tab)
   }
   list(y = y, L_b = L_b, type = type, within_chrom = within_chrom,
        chrom_lens = chrom_lens, chroms = chroms, blocks = blocks)

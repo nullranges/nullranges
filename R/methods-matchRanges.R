@@ -44,8 +44,13 @@ nnMatch <- function(fps, pps, replace) {
   fpsIndex <- NULL
   N <- NULL
 
-  ## Create data table with original pps index and setkey to sort
-  dt <- data.table(pps, val = pps, ppsIndex = seq_along(pps))
+  ## Create data table with original pps index and setkey to sort; an
+  ## empty pool keeps the unread val column, because the join's
+  ## malformed-table error below names ppsIndex by its position
+  dt <- if (length(pps) > 0L)
+    data.table(pps, ppsIndex = seq_along(pps))
+  else
+    data.table(pps, val = pps, ppsIndex = seq_along(pps))
   setkey(dt, pps)
 
   ## Map ids to unique propensity scores
