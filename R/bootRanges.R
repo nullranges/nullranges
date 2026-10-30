@@ -114,7 +114,8 @@ bootRanges <- function(y, blockLength, R = 1,
       )
     } else {
       unseg_across_draws(
-        n_rep, unseg_setup$L_b, unseg_setup$chrom_lens, unseg_setup$blocks
+        n_rep, unseg_setup$L_b, unseg_setup$chrom_lens, unseg_setup$blocks,
+        compiled = TRUE
       )
     }
     # NULL for any input where the replicates, run one at a time, could

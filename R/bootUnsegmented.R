@@ -155,11 +155,33 @@ unseg_bootstrap_across_chrom <- function(y, L_b, L_s, rearranged_blocks) {
 # @param L_s the lengths of the chromosomes
 # @param rearranged_blocks the blocks tiling the genome (tileGenome),
 # where the bait blocks will move to
-unseg_across_draws <- function(n_rep, L_b, L_s, rearranged_blocks) {
+# @param compiled whether seg_draws_compiled() may make the draws, as one
+# table over the chromosomes; then 'draws' is NULL and 'bait_start',
+# 'bait_seg' (the chromosome's index in L_s), 'bait_len' and 'chr_names'
+# hold them, as seg_prop_compiled() lays them out
+unseg_across_draws <- function(n_rep, L_b, L_s, rearranged_blocks,
+                               compiled = FALSE) {
   # blocks allowed to go over L_s
   n_per_chrom  <- ceiling(L_s / L_b)
   # total number of tiling blocks
   n <- sum(n_per_chrom)
+  # the loop's draws per replicate: sample() over the chromosomes, then
+  # runif() up to (n_per_chrom - 1) * L_b + 1
+  d <- if (compiled) {
+    seg_draws_compiled(list(list(
+      index = seq_along(L_s), width = L_s, start = rep(1L, length(L_s)),
+      nblocks = n_per_chrom, L = L_b, n = n
+    )), n_rep)
+  }
+  if (!is.null(d)) {
+    return(list(
+      draws = NULL, width = L_b,
+      target_start = start(rearranged_blocks),
+      target_chr = seqnames(rearranged_blocks),
+      bait_start = d[[1L]], bait_seg = d[[2L]], bait_len = d[[3L]],
+      chr_names = names(L_s)
+    ))
+  }
   draws <- lapply(seq_len(n_rep), function(r) {
     # sample according to chromosome length
     random_chr <- sample(names(L_s), n, replace=TRUE, prob=L_s)

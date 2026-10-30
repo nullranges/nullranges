@@ -88,13 +88,20 @@ static int table_draw(const prob_table *t, Sampletype kind)
 	}
 	double rU = unif_rand();
 	/* R scans for the first j < n - 1 with rU <= p[j] (else n - 1); p is
-	 * non-decreasing, so a binary search finds the same j */
-	int lo = 0, hi = t->n - 1;
-	while (lo < hi) {
-		int mid = lo + (hi - lo) / 2;
-		if (rU <= t->p[mid]) hi = mid; else lo = mid + 1;
+	 * non-decreasing, so that j is the count of p[0..n - 2] below rU, found
+	 * by a lower bound written without branches (the comparisons are
+	 * unpredictable) */
+	const double *base = t->p;
+	int len = t->n - 1;
+	if (len > 0) {
+		while (len > 1) {
+			int half = len / 2;
+			base = (base[half] < rU) ? base + half : base;
+			len -= half;
+		}
+		base += (*base < rU);
 	}
-	return t->a[lo];
+	return t->a[base - t->p];
 }
 
 /* Every replicate's bait blocks for seg_bootstrap_prop() (st = NULL) or
