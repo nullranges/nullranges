@@ -46,8 +46,16 @@ nnMatch <- function(fps, pps, replace) {
 
   ## Create data table with original pps index and setkey to sort; an
   ## empty pool keeps the unread val column, because the join's
-  ## malformed-table error below names ppsIndex by its position
-  dt <- if (length(pps) > 0L)
+  ## malformed-table error below names ppsIndex by its position. On finite
+  ## doubles joined exactly, only the pool rows the nearest join can return
+  ## (src/nnKeep.c), in row order, so ties keep their order
+  keep <- if (length(pps) > 0L && is.double(fps) && is.double(pps) &&
+              is.null(attributes(fps)) && is.null(attributes(pps)) &&
+              identical(getNumericRounding(), 0L))
+    .Call(C_nn_keep, fps, pps)
+  dt <- if (!is.null(keep))
+    data.table(pps = pps[keep], ppsIndex = keep)
+  else if (length(pps) > 0L)
     data.table(pps, ppsIndex = seq_along(pps))
   else
     data.table(pps, val = pps, ppsIndex = seq_along(pps))
@@ -298,11 +306,18 @@ rsMatch <- function(fps, pps, replace) {
 
   })
 
+  ## which(accept == 1) and the count of ones in one C scan when accept is
+  ## a plain 0/1 integer vector, else NULL
+  idx <- if (is.integer(accept) && is.null(attributes(accept)))
+    .Call(C_accept_index, accept)
+
   ## Ensure there are adequate options
-  stopifnot(sum(accept) >= length(fps))
+  if (is.null(idx) || length(idx) < length(fps))
+    stopifnot(sum(accept) >= length(fps))
 
   ## Select matching indices irrespective of data order
-  ppsIndex <- sample(which(accept == 1), length(fps), replace = replace)
+  if (is.null(idx)) idx <- which(accept == 1)
+  ppsIndex <- sample(idx, length(fps), replace = replace)
 
   ## Assemble matched data table
   mdt <- data.table(fps, ppsIndex, fpsIndex = seq_along(fps))
@@ -791,11 +806,15 @@ propensityMatch <- function(covarData, covars, method, replace, nf) {
 covarTable <- function(focal, pool, covars, ids) {
   direct <- identical(make.names(c("id", covars), unique = TRUE),
                       c("id", covars))
+  ## a DFrame's [[ by name is its listData's first exact match; read it
+  ## there, without the method selection callNextMethod() makes per call
+  f_list <- identical(as.vector(class(focal)), "DFrame")
+  p_list <- identical(as.vector(class(pool)), "DFrame")
   cols <- vector("list", length(covars))
   for (i in seq_along(covars)) {
     if (!direct) break
-    x <- focal[[covars[i]]]
-    y <- pool[[covars[i]]]
+    x <- if (f_list) focal@listData[[covars[i]]] else focal[[covars[i]]]
+    y <- if (p_list) pool@listData[[covars[i]]] else pool[[covars[i]]]
     ax <- attributes(x)
     ay <- attributes(y)
     if (is.null(ax) && is.null(ay)) {
@@ -848,12 +867,14 @@ matchRanges_Core <- function(focal, pool, covar, method, replace) {
     stop("focal must be <= pool for stratified sampling.")
 
   ## id: focal "1", pool "0", equal to factor(c(rep(1, nf), rep(0, np))),
-  ## built directly because factor() converts a double vector to character
+  ## built directly because factor() converts a double vector to character;
+  ## attributes in structure()'s order, levels then class
   nf <- nrow(focal)
   np <- nrow(pool)
   if (nf >= 1L && np >= 1L) {
-    ids <- structure(c(rep(2L, nf), rep(1L, np)),
-                     levels = c("0", "1"), class = "factor")
+    ids <- rep.int(c(2L, 1L), c(nf, np))
+    attr(ids, "levels") <- c("0", "1")
+    class(ids) <- "factor"
   } else {
     ids <- factor(c(rep(1, nf), rep(0, np)))
   }
@@ -1043,7 +1064,22 @@ matchRanges_MatchedGRanges <- function(focal, pool, covar, method, replace) {
   md <- matchRanges_Core(f, p, covar, method, replace)
   idx <- indices(md)
 
-  ## Combine matched data into MatchedGRanges class
+  ## Combine matched data into MatchedGRanges class: without the validity
+  ## pass when the slot checks show it would pass silently
+  d <- pool_rows(pool, idx)
+  if (!is.null(d) &&
+      matched_granges_ok(d, focal, pool, matchedData(md), idx,
+                         covariates(md), method(md), withReplacement(md))) {
+    obj <- new("MatchedGRanges", delegate = d)
+    slot(obj, "focal", check = FALSE) <- focal
+    slot(obj, "pool", check = FALSE) <- pool
+    slot(obj, "matchedData", check = FALSE) <- matchedData(md)
+    slot(obj, "matchedIndex", check = FALSE) <- idx
+    slot(obj, "covar", check = FALSE) <- covariates(md)
+    slot(obj, "method", check = FALSE) <- method(md)
+    slot(obj, "replace", check = FALSE) <- withReplacement(md)
+    return(obj)
+  }
   obj <- MatchedGRanges(focal = focal,
                         pool = pool,
                         matchedData = matchedData(md),
@@ -1055,6 +1091,109 @@ matchRanges_MatchedGRanges <- function(focal, pool, covar, method, replace) {
 
   ## Return MatchedGRanges object
   return(obj)
+}
+
+#' pool[idx] for a plain pool, slot by slot as moved_ranges()' plain branch
+#' builds it: an exact GRanges whose strand is one run and whose ranges and
+#' metadata columns gather_columns() accepts, with parallel slots of one
+#' length, and an integer idx without attributes or NA, in 1..length(pool).
+#' The seqnames are extracted as pool[idx] extracts them.
+#' @param pool A `GRanges` object.
+#' @param idx Integer vector of indices into pool.
+#' @return A `GRanges` object identical to pool[idx], or NULL.
+#' @noRd
+pool_rows <- function(pool, idx) {
+  if (!identical(as.vector(class(pool)), "GRanges") ||
+      !is.integer(idx) || !is.null(attributes(idx)) ||
+      !identical(as.vector(class(pool@strand)), "Rle") ||
+      !identical(as.vector(class(pool@seqnames)), "Rle") ||
+      is.null(gather_columns(pool))) {
+    return(NULL)
+  }
+  rng <- pool@ranges
+  mc <- pool@elementMetadata
+  n <- length(rng@start)
+  if (length(rng@width) != n || length(pool@seqnames) != n ||
+      length(pool@strand) != n || !identical(mc@nrows, n)) {
+    return(NULL)
+  }
+  m <- length(idx)
+  if (m != 0L && (anyNA(idx) || min(idx) < 1L || max(idx) > n)) {
+    return(NULL)
+  }
+  BiocGenerics:::replaceSlots(
+    pool,
+    seqnames = extractROWS(pool@seqnames, idx),
+    ranges = BiocGenerics:::replaceSlots(
+      rng, start = rng@start[idx], width = rng@width[idx], check = FALSE
+    ),
+    strand = Rle(runValue(pool@strand), m),
+    elementMetadata = BiocGenerics:::replaceSlots(
+      mc, listData = lapply(mc@listData, `[`, idx), nrows = m, check = FALSE
+    ),
+    check = FALSE
+  )
+}
+
+#' TRUE when validObject() on the MatchedGRanges that MatchedGRanges() makes
+#' from these values would pass without a warning: each slot's class, the
+#' validity of Vector, GenomicRanges, GRanges (on d, whose accessors give the
+#' GRanges slots) and Matched, and no range past either end of a sequence
+#' with a length (circularity ignored). FALSE whenever a check cannot show
+#' that, and under S4Vectors' debugValidity(), whose messages the
+#' validity methods print.
+#' @param d A `GRanges` object from pool_rows().
+#' @inheritParams matchRanges_MatchedGRanges
+#' @param matchedData,idx,covar,method,replace The Matched slot values.
+#' @return TRUE or FALSE.
+#' @noRd
+matched_granges_ok <- function(d, focal, pool, matchedData, idx, covar,
+                               method, replace) {
+  debug_validity <- get0("debugValidity", envir = asNamespace("S4Vectors"),
+                         inherits = FALSE)
+  invalid_names <- get0("INVALID.GR.COLNAMES",
+                        envir = asNamespace("GenomicRanges"),
+                        inherits = FALSE)
+  if (!is.function(debug_validity) || !identical(debug_validity(), FALSE) ||
+      !is.character(invalid_names) ||
+      !identical(as.vector(class(focal)), "GRanges") ||
+      !identical(as.vector(class(pool)), "GRanges") ||
+      !identical(class(matchedData), c("data.table", "data.frame")) ||
+      !all(c("id", "ps", "set") %in% names(matchedData)) ||
+      !identical(class(idx), "integer") ||
+      !identical(class(covar), "character") ||
+      !identical(class(method), "character") ||
+      !identical(class(replace), "logical") ||
+      !identical(as.vector(class(d@seqinfo)), "Seqinfo") ||
+      !identical(class(d@elementType), "character") ||
+      !identical(class(d@metadata), "list")) {
+    return(FALSE)
+  }
+  sn <- d@seqnames
+  rv <- runValue(sn)
+  st <- runValue(d@strand)
+  rng <- d@ranges
+  mc <- d@elementMetadata
+  m <- length(sn)
+  if (!is.factor(rv) || anyNA(rv) || !is.null(names(sn)) ||
+      !is.factor(st) || anyNA(st) ||
+      !identical(levels(st), levels(strand())) ||
+      !identical(as.vector(class(rng)), "IRanges") ||
+      !is.null(rng@NAMES) || !is.null(rng@elementMetadata) ||
+      length(rng@start) != m || length(rng@width) != m ||
+      length(d@strand) != m ||
+      !identical(as.vector(class(mc)), "DFrame") ||
+      !is.null(mc@rownames) || !identical(mc@nrows, m) ||
+      any(invalid_names %in% names(mc@listData)) ||
+      !identical(seqlevels(d@seqinfo), levels(rv))) {
+    return(FALSE)
+  }
+  code <- rep.int(as.integer(rv), runLength(sn))
+  len <- unname(seqlengths(d@seqinfo))
+  start <- rng@start
+  end <- start + (as.numeric(rng@width) - 1)
+  oob <- !is.na(len)[code] & (start < 1L | end > len[code])
+  identical(any(oob), FALSE)
 }
 
 #' @rdname matchRanges

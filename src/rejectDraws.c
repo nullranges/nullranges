@@ -2,6 +2,7 @@
 #include <Rinternals.h>
 #include <Rmath.h>
 #include <float.h>
+#include <limits.h>
 
 /* rejectSample's acceptance draws: for each pool score, the focal density fx
  * and pool density px at it, the acceptance probability
@@ -39,6 +40,33 @@ SEXP reject_draws(SEXP fx, SEXP px, SEXP s_scale)
 		o[i] = (int) rbinom(1.0, pr);
 	}
 	PutRNGstate();
+	UNPROTECT(1);
+	return out;
+}
+
+/* which(x == 1) for an integer vector x whose values are all 0 or 1, and so
+ * also the count of ones, sum(x); NULL when any value is something else
+ * (NA included) or x is not an integer vector with a data pointer. The
+ * caller checks that x has no attributes. */
+SEXP accept_index(SEXP x)
+{
+	if (TYPEOF(x) != INTSXP || XLENGTH(x) > INT_MAX)
+		return R_NilValue;
+	const int *a = INTEGER_OR_NULL(x);
+	R_xlen_t n = XLENGTH(x), ones = 0;
+	if (a == NULL && n > 0)
+		return R_NilValue;
+	for (R_xlen_t i = 0; i < n; i++) {
+		if ((unsigned int) a[i] > 1u)
+			return R_NilValue;
+		ones += a[i];
+	}
+	SEXP out = PROTECT(allocVector(INTSXP, ones));
+	int *o = INTEGER(out);
+	R_xlen_t w = 0;
+	for (R_xlen_t i = 0; w < ones; i++)
+		if (a[i])
+			o[w++] = (int) i + 1;
 	UNPROTECT(1);
 	return out;
 }

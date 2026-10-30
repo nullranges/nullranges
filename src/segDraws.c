@@ -5,19 +5,13 @@
 #include <R_ext/Utils.h>
 #include <limits.h>
 #include <string.h>
+#include "segDraws.h"
 
 /* sample(m, k, replace = TRUE, prob = w) as R 4.6.1's do_sample makes it
  * (src/main/random.c): FixupProb, then walker_ProbSampleReplace when more
  * than 200 of m * p exceed 0.1, else ProbSampleReplace. The tables depend
  * on w alone, so one is built per w and reused by every call. The caller
  * has checked that w is finite, non-negative and has a positive entry. */
-typedef struct {
-	int n;
-	int walker;
-	double *p; /* cumulative p in revsort order, or Walker's q */
-	int *a;    /* the permutation, or Walker's aliases */
-} prob_table;
-
 static void table_init(prob_table *t, const double *w, int n)
 {
 	double *p = (double *) R_alloc(n, sizeof(double));
@@ -151,6 +145,193 @@ static void cum_draws(const prob_table *t, int k, double *u, int *idx, int off)
 #undef STEP
 #undef LAST
 
+/* seg_draws()' checks of its arguments and its tables and buffers, in p;
+ * 0, before any draw, for arguments out of shape */
+int seg_plan_init(seg_plan *p, SEXP s_n_rep, SEXP prob, SEXP rmin,
+	SEXP rmax, SEXP gidx, SEXP off, SEXP n_draw, SEXP st, SEXP rearr)
+{
+	if (!isReal(prob) || !isReal(rmin) || !isReal(rmax) ||
+	    !isInteger(gidx) || !isInteger(off) || !isInteger(n_draw) ||
+	    !isInteger(s_n_rep) || XLENGTH(s_n_rep) != 1 || XLENGTH(off) < 2)
+		return 0;
+	int n_rep = INTEGER(s_n_rep)[0];
+	int n_tab = LENGTH(off) - 1;
+	R_xlen_t m_all = XLENGTH(prob);
+	const int *o = INTEGER(off), *nd = INTEGER(n_draw);
+	int noprop = !isNull(st);
+	if (n_rep < 1 || XLENGTH(rmin) != m_all || XLENGTH(rmax) != m_all ||
+	    XLENGTH(gidx) != m_all || XLENGTH(n_draw) != n_tab ||
+	    o[0] != 0 || o[n_tab] != m_all || (noprop && n_tab != 1))
+		return 0;
+	int max_draw = 0;
+	R_xlen_t per_rep = 0;
+	for (int s = 0; s < n_tab; s++) {
+		if (o[s + 1] - o[s] < 1 || nd[s] < 1)
+			return 0;
+		if (nd[s] > max_draw)
+			max_draw = nd[s];
+		per_rep += nd[s];
+	}
+	int n_state = 0;
+	const int *stc = NULL, *re = NULL;
+	if (noprop) {
+		if (!isInteger(st) || XLENGTH(st) != m_all || !isInteger(rearr) ||
+		    XLENGTH(rearr) < 1)
+			return 0;
+		n_state = LENGTH(rearr);
+		stc = INTEGER(st);
+		re = INTEGER(rearr);
+		for (R_xlen_t j = 0; j < m_all; j++)
+			if (stc[j] < 0 || stc[j] > n_state)
+				return 0;
+		per_rep = 0;
+		for (int s = 0; s < n_state; s++) {
+			if (re[s] < 0)
+				return 0;
+			per_rep += re[s];
+		}
+	}
+	if (per_rep > INT_MAX / n_rep)
+		return 0;
+
+	p->n_rep = n_rep;
+	p->n_tab = n_tab;
+	p->noprop = noprop;
+	p->n_state = n_state;
+	p->per_rep = per_rep;
+	p->total = per_rep * n_rep;
+	p->w = 0;
+	p->o = o;
+	p->nd = nd;
+	p->stc = stc;
+	p->re = re;
+	p->tab = (prob_table *) R_alloc(n_tab, sizeof(prob_table));
+	const double *pr = REAL(prob);
+	p->lo = REAL(rmin);
+	p->hi = REAL(rmax);
+	p->gi = INTEGER(gidx);
+	for (int s = 0; s < n_tab; s++)
+		table_init(&p->tab[s], pr + o[s], o[s + 1] - o[s]);
+	p->idx = (int *) R_alloc(max_draw, sizeof(int));
+	p->ubuf = (double *) R_alloc(max_draw, sizeof(double));
+	p->sbuf = p->cnt = p->pos = p->ord = NULL;
+	if (noprop) {
+		p->sbuf = (int *) R_alloc(max_draw, sizeof(int));
+		p->ord = (int *) R_alloc(max_draw, sizeof(int));
+		p->cnt = (int *) R_alloc(n_state + 1, sizeof(int));
+		p->pos = (int *) R_alloc(n_state + 2, sizeof(int));
+	}
+	p->os = p->og = p->ol = NULL;
+	return 1;
+}
+
+/* The value, a list of n_el (at least 3) whose first three elements take
+ * the draws: start, seg and len; the caller protects it */
+SEXP seg_plan_out(seg_plan *p, int n_el)
+{
+	SEXP out = PROTECT(allocVector(VECSXP, n_el));
+	SEXP start = allocVector(INTSXP, p->total);
+	SET_VECTOR_ELT(out, 0, start);
+	SEXP seg = allocVector(INTSXP, p->total);
+	SET_VECTOR_ELT(out, 1, seg);
+	SEXP len = allocVector(INTSXP, p->n_rep);
+	SET_VECTOR_ELT(out, 2, len);
+	p->os = INTEGER(start);
+	p->og = INTEGER(seg);
+	p->ol = INTEGER(len);
+	UNPROTECT(1);
+	return out;
+}
+
+/* Replicate r's draws, after those of replicates 0 to r - 1, between
+ * GetRNGstate() and PutRNGstate(), p->kind set to R_sample_kind() */
+void seg_plan_rep(seg_plan *p, int r)
+{
+	const int *o = p->o, *nd = p->nd, *stc = p->stc, *re = p->re;
+	const int *gi = p->gi;
+	const double *lo = p->lo, *hi = p->hi;
+	prob_table *tab = p->tab;
+	int *idx = p->idx, *sbuf = p->sbuf, *cnt = p->cnt, *pos = p->pos;
+	int *ord = p->ord, *os = p->os, *og = p->og;
+	double *ubuf = p->ubuf;
+	int n_tab = p->n_tab, n_state = p->n_state;
+	Sampletype kind = p->kind;
+	R_xlen_t w = p->w, w0 = w;
+	if (!p->noprop) {
+		for (int s = 0; s < n_tab; s++) {
+			int k = nd[s], base = o[s];
+			if (tab[s].walker) {
+				for (int t = 0; t < k; t++)
+					idx[t] = base + walker_draw(&tab[s], kind) - 1;
+			} else
+				cum_draws(&tab[s], k, ubuf, idx, base - 1);
+			for (int t = 0; t < k; t++) {
+				int j = idx[t];
+				os[w] = (int) fround(runif(lo[j], hi[j]), 0.);
+				og[w] = gi[j];
+				w++;
+			}
+		}
+	} else {
+		int k = nd[0];
+		if (tab[0].walker) {
+			for (int t = 0; t < k; t++)
+				idx[t] = walker_draw(&tab[0], kind) - 1;
+		} else
+			cum_draws(&tab[0], k, ubuf, idx, -1);
+		for (int t = 0; t < k; t++) {
+			int j = idx[t];
+			sbuf[t] = (int) fround(runif(lo[j], hi[j]), 0.);
+		}
+		/* the draws of each state, in draw order */
+		memset(cnt, 0, (n_state + 1) * sizeof(int));
+		for (int t = 0; t < k; t++)
+			cnt[stc[idx[t]]]++;
+		pos[0] = 0;
+		for (int c = 0; c <= n_state; c++)
+			pos[c + 1] = pos[c] + cnt[c];
+		for (int c = 0; c <= n_state; c++)
+			cnt[c] = pos[c];
+		for (int t = 0; t < k; t++)
+			ord[cnt[stc[idx[t]]]++] = t;
+		for (int s = 1; s <= n_state; s++) {
+			const int *lst = ord + pos[s];
+			int rand_n = pos[s + 1] - pos[s], rearr_n = re[s - 1];
+			if (rand_n < rearr_n) {
+				double dn = rand_n > 0 ? (double) rand_n : 1.0;
+				for (int u = 0; u < rearr_n; u++) {
+					int i = (int) R_unif_index(dn);
+					if (rand_n > 0) {
+						int t = lst[i];
+						os[w] = sbuf[t];
+						og[w] = gi[idx[t]];
+						w++;
+					}
+				}
+			} else {
+				for (int u = 0; u < rearr_n; u++) {
+					int t = lst[u];
+					os[w] = sbuf[t];
+					og[w] = gi[idx[t]];
+					w++;
+				}
+			}
+		}
+	}
+	p->ol[r] = (int) (w - w0);
+	p->w = w;
+}
+
+/* The start and seg vectors of out cut to the draws made, after
+ * PutRNGstate() */
+void seg_plan_trim(const seg_plan *p, SEXP out)
+{
+	if (p->w < p->total) {
+		SET_VECTOR_ELT(out, 0, xlengthgets(VECTOR_ELT(out, 0), p->w));
+		SET_VECTOR_ELT(out, 1, xlengthgets(VECTOR_ELT(out, 1), p->w));
+	}
+}
+
 /* Every replicate's bait blocks for seg_bootstrap_prop() (st = NULL) or
  * seg_bootstrap_noprop(), drawn in the order and with the arguments the R
  * loop uses, between one GetRNGstate and one PutRNGstate. Segment tables:
@@ -168,147 +349,17 @@ static void cum_draws(const prob_table *t, int k, double *u, int *idx, int off)
 SEXP seg_draws(SEXP s_n_rep, SEXP prob, SEXP rmin, SEXP rmax, SEXP gidx,
 	SEXP off, SEXP n_draw, SEXP st, SEXP rearr)
 {
-	if (!isReal(prob) || !isReal(rmin) || !isReal(rmax) ||
-	    !isInteger(gidx) || !isInteger(off) || !isInteger(n_draw) ||
-	    !isInteger(s_n_rep) || XLENGTH(s_n_rep) != 1 || XLENGTH(off) < 2)
+	seg_plan p;
+	if (!seg_plan_init(&p, s_n_rep, prob, rmin, rmax, gidx, off, n_draw, st,
+		rearr))
 		return R_NilValue;
-	int n_rep = INTEGER(s_n_rep)[0];
-	int n_tab = LENGTH(off) - 1;
-	R_xlen_t m_all = XLENGTH(prob);
-	const int *o = INTEGER(off), *nd = INTEGER(n_draw);
-	int noprop = !isNull(st);
-	if (n_rep < 1 || XLENGTH(rmin) != m_all || XLENGTH(rmax) != m_all ||
-	    XLENGTH(gidx) != m_all || XLENGTH(n_draw) != n_tab ||
-	    o[0] != 0 || o[n_tab] != m_all || (noprop && n_tab != 1))
-		return R_NilValue;
-	int max_draw = 0;
-	R_xlen_t per_rep = 0;
-	for (int s = 0; s < n_tab; s++) {
-		if (o[s + 1] - o[s] < 1 || nd[s] < 1)
-			return R_NilValue;
-		if (nd[s] > max_draw)
-			max_draw = nd[s];
-		per_rep += nd[s];
-	}
-	int n_state = 0;
-	const int *stc = NULL, *re = NULL;
-	if (noprop) {
-		if (!isInteger(st) || XLENGTH(st) != m_all || !isInteger(rearr) ||
-		    XLENGTH(rearr) < 1)
-			return R_NilValue;
-		n_state = LENGTH(rearr);
-		stc = INTEGER(st);
-		re = INTEGER(rearr);
-		for (R_xlen_t j = 0; j < m_all; j++)
-			if (stc[j] < 0 || stc[j] > n_state)
-				return R_NilValue;
-		per_rep = 0;
-		for (int s = 0; s < n_state; s++) {
-			if (re[s] < 0)
-				return R_NilValue;
-			per_rep += re[s];
-		}
-	}
-	if (per_rep > INT_MAX / n_rep)
-		return R_NilValue;
-	R_xlen_t total = per_rep * n_rep;
-
-	prob_table *tab = (prob_table *) R_alloc(n_tab, sizeof(prob_table));
-	const double *pr = REAL(prob), *lo = REAL(rmin), *hi = REAL(rmax);
-	const int *gi = INTEGER(gidx);
-	for (int s = 0; s < n_tab; s++)
-		table_init(&tab[s], pr + o[s], o[s + 1] - o[s]);
-	int *idx = (int *) R_alloc(max_draw, sizeof(int));
-	double *ubuf = (double *) R_alloc(max_draw, sizeof(double));
-	int *sbuf = NULL, *cnt = NULL, *pos = NULL, *ord = NULL;
-	if (noprop) {
-		sbuf = (int *) R_alloc(max_draw, sizeof(int));
-		ord = (int *) R_alloc(max_draw, sizeof(int));
-		cnt = (int *) R_alloc(n_state + 1, sizeof(int));
-		pos = (int *) R_alloc(n_state + 2, sizeof(int));
-	}
-	SEXP out = PROTECT(allocVector(VECSXP, 3));
-	SEXP start = allocVector(INTSXP, total);
-	SET_VECTOR_ELT(out, 0, start);
-	SEXP seg = allocVector(INTSXP, total);
-	SET_VECTOR_ELT(out, 1, seg);
-	SEXP len = allocVector(INTSXP, n_rep);
-	SET_VECTOR_ELT(out, 2, len);
-	int *os = INTEGER(start), *og = INTEGER(seg), *ol = INTEGER(len);
-
-	R_xlen_t w = 0;
+	SEXP out = PROTECT(seg_plan_out(&p, 3));
 	GetRNGstate();
-	Sampletype kind = R_sample_kind();
-	for (int r = 0; r < n_rep; r++) {
-		R_xlen_t w0 = w;
-		if (!noprop) {
-			for (int s = 0; s < n_tab; s++) {
-				int k = nd[s], base = o[s];
-				if (tab[s].walker) {
-					for (int t = 0; t < k; t++)
-						idx[t] = base + walker_draw(&tab[s], kind) - 1;
-				} else
-					cum_draws(&tab[s], k, ubuf, idx, base - 1);
-				for (int t = 0; t < k; t++) {
-					int j = idx[t];
-					os[w] = (int) fround(runif(lo[j], hi[j]), 0.);
-					og[w] = gi[j];
-					w++;
-				}
-			}
-		} else {
-			int k = nd[0];
-			if (tab[0].walker) {
-				for (int t = 0; t < k; t++)
-					idx[t] = walker_draw(&tab[0], kind) - 1;
-			} else
-				cum_draws(&tab[0], k, ubuf, idx, -1);
-			for (int t = 0; t < k; t++) {
-				int j = idx[t];
-				sbuf[t] = (int) fround(runif(lo[j], hi[j]), 0.);
-			}
-			/* the draws of each state, in draw order */
-			memset(cnt, 0, (n_state + 1) * sizeof(int));
-			for (int t = 0; t < k; t++)
-				cnt[stc[idx[t]]]++;
-			pos[0] = 0;
-			for (int c = 0; c <= n_state; c++)
-				pos[c + 1] = pos[c] + cnt[c];
-			for (int c = 0; c <= n_state; c++)
-				cnt[c] = pos[c];
-			for (int t = 0; t < k; t++)
-				ord[cnt[stc[idx[t]]]++] = t;
-			for (int s = 1; s <= n_state; s++) {
-				const int *lst = ord + pos[s];
-				int rand_n = pos[s + 1] - pos[s], rearr_n = re[s - 1];
-				if (rand_n < rearr_n) {
-					double dn = rand_n > 0 ? (double) rand_n : 1.0;
-					for (int u = 0; u < rearr_n; u++) {
-						int i = (int) R_unif_index(dn);
-						if (rand_n > 0) {
-							int t = lst[i];
-							os[w] = sbuf[t];
-							og[w] = gi[idx[t]];
-							w++;
-						}
-					}
-				} else {
-					for (int u = 0; u < rearr_n; u++) {
-						int t = lst[u];
-						os[w] = sbuf[t];
-						og[w] = gi[idx[t]];
-						w++;
-					}
-				}
-			}
-		}
-		ol[r] = (int) (w - w0);
-	}
+	p.kind = R_sample_kind();
+	for (int r = 0; r < p.n_rep; r++)
+		seg_plan_rep(&p, r);
 	PutRNGstate();
-	if (w < total) {
-		SET_VECTOR_ELT(out, 0, xlengthgets(start, w));
-		SET_VECTOR_ELT(out, 1, xlengthgets(seg, w));
-	}
+	seg_plan_trim(&p, out);
 	UNPROTECT(1);
 	return out;
 }

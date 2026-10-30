@@ -40,12 +40,19 @@ SEXP intersect_gaps(SEXP code, SEXP start, SEXP end, SEXP seg,
 	SEXP g_start, SEXP g_end);
 SEXP seg_draws(SEXP s_n_rep, SEXP prob, SEXP rmin, SEXP rmax, SEXP gidx,
 	SEXP off, SEXP n_draw, SEXP st, SEXP rearr);
+SEXP seg_draws_moved(SEXP s_n_rep, SEXP prob, SEXP rmin, SEXP rmax,
+	SEXP gidx, SEXP off, SEXP n_draw, SEXP st, SEXP rearr, SEXP seg_code,
+	SEXP b_width, SEXP y_code, SEXP y_start, SEXP y_end, SEXP y_width,
+	SEXP circular, SEXP seqlen, SEXP bounded, SEXP t_start, SEXP t_code,
+	SEXP mode, SEXP xseg, SEXP xs, SEXP xe, SEXP cols, SEXP with_code);
 SEXP scaled_linbin(SEXP x, SEXP s_m, SEXP s_s, SEXP s_a, SEXP s_b, SEXP s_M);
 SEXP order_stats(SEXP x, SEXP ranks);
 SEXP order_stats_range(SEXP x, SEXP ranks);
 SEXP reject_draws(SEXP fx, SEXP px, SEXP s_scale);
 SEXP matched_rows(SEXP s_nf, SEXP index, SEXP s_np);
 SEXP any_nan(SEXP x);
+SEXP accept_index(SEXP x);
+SEXP nn_keep(SEXP fps, SEXP pps);
 
 static const R_CallMethodDef callMethods[] = {
 	{"moved_positions", (DL_FUNC) &moved_positions, 13},
@@ -67,12 +74,15 @@ static const R_CallMethodDef callMethods[] = {
 	{"sample_groups", (DL_FUNC) &sample_groups, 3},
 	{"intersect_gaps", (DL_FUNC) &intersect_gaps, 6},
 	{"seg_draws", (DL_FUNC) &seg_draws, 9},
+	{"seg_draws_moved", (DL_FUNC) &seg_draws_moved, 26},
 	{"scaled_linbin", (DL_FUNC) &scaled_linbin, 6},
 	{"order_stats", (DL_FUNC) &order_stats, 2},
 	{"order_stats_range", (DL_FUNC) &order_stats_range, 2},
 	{"reject_draws", (DL_FUNC) &reject_draws, 3},
 	{"matched_rows", (DL_FUNC) &matched_rows, 3},
 	{"any_nan", (DL_FUNC) &any_nan, 1},
+	{"accept_index", (DL_FUNC) &accept_index, 1},
+	{"nn_keep", (DL_FUNC) &nn_keep, 2},
 	{NULL, NULL, 0}
 };
 

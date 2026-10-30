@@ -112,6 +112,13 @@ bootRanges <- function(y, blockLength, R = 1,
     (unseg_setup$type == "bootstrap" && isFALSE(unseg_setup$within_chrom)))
 
   if (bait) {
+    # what moving the blocks reads of 'y' and 'exclude', which no draw
+    # changes, so that the compiled draws can move each replicate's blocks
+    # while the next are drawn; NULL where they are moved after the draws
+    fuse <- tryCatch(
+      bulk_setup(y, exclude, excludeOption),
+      warning = function(w) NULL, error = function(e) NULL
+    )
     # the random bait blocks of every replicate first, in replicate order,
     # then the features they capture are moved for all replicates at once
     blocks <- if (!is.null(seg)) {
@@ -126,18 +133,19 @@ bootRanges <- function(y, blockLength, R = 1,
         state = state, L_b = blockLength,
         chr_names = seqnames(seg),
         chr_lens = chr_lens,
-        proportion_length = proportionLength
+        proportion_length = proportionLength,
+        fuse = fuse
       )
     } else {
       unseg_across_draws(
         n_rep, unseg_setup$L_b, unseg_setup$chrom_lens, unseg_setup$blocks,
-        compiled = TRUE
+        compiled = TRUE, fuse = fuse
       )
     }
     # NULL for any input where the replicates, run one at a time, could
     # warn, fail or differ: then they are run one at a time
     bulk <- tryCatch(
-      move_blocks_bulk(y, blocks, exclude, excludeOption),
+      move_blocks_bulk(y, blocks, exclude, excludeOption, fuse),
       warning = function(w) NULL, error = function(e) NULL
     )
     if (!is.null(bulk)) {
@@ -260,7 +268,16 @@ move_blocks <- function(y, blocks, d) {
 # end of a circular one, an input shift_swap_trim() declines). The moved positions are computed on
 # vectors, by moved_positions() where it can, with the exclude step when
 # exclude_tables() prepares it, and 'y' is subset once, for the ranges kept.
-move_blocks_bulk <- function(y, blocks, exclude, excludeOption) {
+#
+# With 'fuse', bulk_setup()'s value, and blocks$moved, the rows
+# moved_positions() gives for these blocks (C_seg_draws_moved made them
+# with the draws), the steps after moved_positions() run on them.
+move_blocks_bulk <- function(y, blocks, exclude, excludeOption,
+                             fuse = NULL) {
+  if (is.list(blocks$moved) && !is.null(fuse)) {
+    return(bulk_rows(fuse$y, blocks$moved, fuse$ex, exclude, excludeOption,
+                     length(blocks$bait_len)))
+  }
   n_blocks <- length(blocks$target_start)
   seg_code <- NULL
   if (is.null(blocks$bait_start)) {
@@ -396,6 +413,19 @@ move_blocks_bulk <- function(y, blocks, exclude, excludeOption) {
       chr_attr = moved$chr_attr
     )
   }
+  bulk_rows(y, moved, ex, exclude, excludeOption, n_rep)
+}
+
+# move_blocks_bulk()'s steps after the moved positions: the exclude step,
+# if moved_positions() did not apply it, and the ranges with the number
+# per replicate
+#
+# @param y the input GRanges, updated as move_blocks_bulk() updates it
+# @param moved moved_positions()' list, or the list built from the hits
+# @param ex the exclude tables moved_positions() was given, or NULL
+# @param exclude,excludeOption as in bootRanges()
+# @param n_rep the number of replicates
+bulk_rows <- function(y, moved, ex, exclude, excludeOption, n_rep) {
   # only rows of positive width from here: overlapsAny() is per range
   s <- moved$s
   # NULL when moved_positions() got 'ex': moved_ranges() reads its runs
@@ -456,6 +486,89 @@ move_blocks_bulk <- function(y, blocks, exclude, excludeOption) {
     lens <- tabulate(mcols(y_prime)$block, n_rep)
   }
   list(ranges = y_prime, lens = lens)
+}
+
+# What move_blocks_bulk() computes from 'y' and 'exclude' alone on its way
+# to moved_positions() with bait_blocks()' inputs (its 'raw' route): the
+# updated 'y', the exclude tables 'ex' (NULL where exclude_tables() fails
+# or warns), the seqlevels of 'y' before and after the update ('lev0',
+# 'lev') and moved_positions()' arguments to C_moved_rows_bait that do not
+# depend on the blocks ('args'). NULL where that route is not taken
+# whatever the blocks: 'y' not a GRanges, a circular sequence, too many
+# seqlevels, or seqlevels the update changes.
+#
+# @param y the input GRanges
+# @param exclude,excludeOption as in bootRanges()
+bulk_setup <- function(y, exclude, excludeOption) {
+  if (!identical(as.vector(class(y)), "GRanges") ||
+      any(unname(Seqinfo::isCircular(y)) %in% TRUE)) {
+    return(NULL)
+  }
+  if (!is.null(exclude)) {
+    ex <- tryCatch(
+      exclude_tables(y, exclude, excludeOption),
+      warning = function(w) NULL, error = function(e) NULL
+    )
+  } else {
+    ex <- list(mode = 0L, seg = integer(), start = integer(),
+               end = integer(), seqinfo = NULL)
+  }
+  lev0 <- seqlevels(y)
+  y <- updateObject(y, check = FALSE)
+  lev <- seqlevels(y)
+  if (length(lev) >= 2097152L || !identical(lev, lev0)) {
+    return(NULL)
+  }
+  circular <- unname(Seqinfo::isCircular(y)) %in% TRUE
+  seqlen <- unname(seqlengths(y))
+  cols <- NULL
+  ex_c <- ex
+  with_code <- is.null(ex)
+  if (with_code) {
+    ex_c <- list(mode = 0L, seg = integer(), start = integer(),
+                 end = integer())
+  } else {
+    cols <- gather_columns(y)
+  }
+  rng <- y@ranges
+  y_start <- start(rng)
+  y_width <- width(rng)
+  list(
+    y = y, ex = ex, lev0 = lev0, lev = lev,
+    args = list(
+      as.integer(seqnames(y)), y_start, y_width - 1L + y_start, y_width,
+      circular, as.integer(seqlen), !(circular | is.na(seqlen)),
+      ex_c$mode, ex_c$seg, ex_c$start, ex_c$end, cols, with_code
+    )
+  )
+}
+
+# The arguments C_seg_draws_moved takes besides the draws' for blocks of
+# these widths, targets and segment sequences, as move_blocks_bulk() and
+# moved_positions() would build them; NULL where move_blocks_bulk() would
+# not take its 'raw' route to moved_positions() for any draws.
+#
+# @param fuse bulk_setup()'s value
+# @param chr_names the sequence of each segment the draws index
+# @param width the block widths
+# @param target_start,target_chr the blocks' targets, as the draws' value
+# holds them (target_chr a factor or an Rle of one)
+fuse_args <- function(fuse, chr_names, width, target_start, target_chr) {
+  if (is(target_chr, "Rle")) {
+    target_chr <- decode(target_chr)
+  }
+  chr_attr <- attributes(target_chr)
+  if (!plain_number(width) || !plain_number(target_start) ||
+      !is.factor(target_chr) ||
+      !setequal(names(chr_attr), c("levels", "class")) ||
+      !identical(levels(target_chr), fuse$lev)) {
+    return(NULL)
+  }
+  list(
+    seg_code = match(chr_names, fuse$lev0), width = width,
+    target_start = target_start, t_code = as.integer(target_chr),
+    chr_attr = chr_attr, args = fuse$args
+  )
 }
 
 # Plain numbers: then bait_declines() is FALSE without a circular
@@ -1210,7 +1323,7 @@ count_at_or_before <- function(code, pos, x_code, x_pos) {
 # hold them, with 'chr_names'; bait_draws() gives the list
 seg_bootstrap_draws <- function(n_rep, y, seg, state, L_b,
                                 chr_names, chr_lens,
-                                proportion_length = TRUE) {
+                                proportion_length = TRUE, fuse = NULL) {
 
   # sequence along the states: 1,2,..,S
   esses <- seq_len(max(state))
@@ -1219,12 +1332,15 @@ seg_bootstrap_draws <- function(n_rep, y, seg, state, L_b,
   # break apart this into two sub-functions, defined below
   if (proportion_length) {
     out <- seg_bootstrap_prop(seg, state, L_b, chr_names, chr_lens,
-                              esses, n_rep)
+                              esses, n_rep, fuse)
   } else {
     out <- seg_bootstrap_noprop(seg, state, L_b, chr_names, chr_lens,
-                                esses, n_rep)
+                                esses, n_rep, fuse)
   }
-  out$target_chr <- factor(out$target_chr, levels = seqlevels(y))
+  # with 'fuse' the compiled branches made it before the draws
+  if (!isTRUE(out$chr_factor)) {
+    out$target_chr <- factor(out$target_chr, levels = seqlevels(y))
+  }
   if (!is.null(out$bait_start)) {
     out$chr_names <- chr_names
   }
@@ -1254,11 +1370,16 @@ bait_draws <- function(blocks) {
 # draw, wherever a draw could fail, warn or give a start past the integer
 # range, so the R loop runs and fails or warns as before.
 #
+# With 'fz', fuse_args()' value, C_seg_draws_moved makes the same draws and
+# the rows moved_positions() gives for them, as a fourth element.
+#
 # @param tabs per table, list(index, width, start, nblocks, L, n)
 # @param n_rep the number of replicates
 # @param st the state of each segment (0 for none), noprop only
 # @param rearr the number of tiling blocks per state, noprop only
-seg_draws_compiled <- function(tabs, n_rep, st = NULL, rearr = NULL) {
+# @param fz fuse_args()' value, or NULL
+seg_draws_compiled <- function(tabs, n_rep, st = NULL, rearr = NULL,
+                               fz = NULL) {
   if (length(tabs) < 1L || !is.integer(n_rep) || length(n_rep) != 1L ||
       is.na(n_rep) || n_rep < 1L) {
     return(NULL)
@@ -1287,19 +1408,41 @@ seg_draws_compiled <- function(tabs, n_rep, st = NULL, rearr = NULL) {
     rmax[[k]] <- as.double(hi)
   }
   m <- lengths(lapply(tabs, `[[`, "width"))
+  prob <- as.double(unlist(lapply(tabs, `[[`, "width"), use.names = FALSE))
+  rmin <- as.double(unlist(lapply(tabs, `[[`, "start"), use.names = FALSE))
+  rmax <- unlist(rmax, use.names = FALSE)
+  gidx <- as.integer(unlist(lapply(tabs, `[[`, "index"), use.names = FALSE))
+  off <- c(0L, cumsum(m))
+  if (is.null(fz)) {
+    return(.Call(C_seg_draws, n_rep, prob, rmin, rmax, gidx, off, n_draw,
+                 st, rearr))
+  }
+  a <- fz$args
   .Call(
-    C_seg_draws, n_rep,
-    as.double(unlist(lapply(tabs, `[[`, "width"), use.names = FALSE)),
-    as.double(unlist(lapply(tabs, `[[`, "start"), use.names = FALSE)),
-    unlist(rmax, use.names = FALSE),
-    as.integer(unlist(lapply(tabs, `[[`, "index"), use.names = FALSE)),
-    c(0L, cumsum(m)), n_draw, st, rearr
+    C_seg_draws_moved, n_rep, prob, rmin, rmax, gidx, off, n_draw, st,
+    rearr, fz$seg_code, fz$width, a[[1L]], a[[2L]], a[[3L]], a[[4L]],
+    a[[5L]], a[[6L]], a[[7L]], fz$target_start, fz$t_code, a[[8L]],
+    a[[9L]], a[[10L]], a[[11L]], a[[12L]], a[[13L]]
   )
+}
+
+# The draws' value with the moved rows of C_seg_draws_moved, if any, as
+# moved_positions() returns them
+#
+# @param d seg_draws_compiled()'s value
+# @param fz the fuse_args() it was given, or NULL
+draws_moved <- function(d, fz) {
+  moved <- if (length(d) > 3L) d[[4L]]
+  if (!is.list(moved)) {
+    return(NULL)
+  }
+  moved$chr_attr <- fz$chr_attr
+  moved
 }
 
 # breaking up the seg_bootstrap_draws() code... proportional length case
 seg_bootstrap_prop <- function(seg, state, L_b, chr_names, chr_lens,
-                               esses, n_rep) {
+                               esses, n_rep, fuse = NULL) {
   seg_width <- width(seg)
   seg_start <- start(seg)
   # length of genome
@@ -1327,7 +1470,8 @@ seg_bootstrap_prop <- function(seg, state, L_b, chr_names, chr_lens,
     )
   })
 
-  out <- seg_prop_compiled(per_state, L_b, L_b_per_state, n_rep)
+  out <- seg_prop_compiled(per_state, L_b, L_b_per_state, n_rep, fuse,
+                           chr_names)
   if (!is.null(out)) {
     return(out)
   }
@@ -1420,8 +1564,12 @@ tile_starts <- function(from, to, by) {
 }
 
 # seg_bootstrap_prop()'s value by seg_draws_compiled(), the tiling blocks
-# computed first; NULL where the R loop must run
-seg_prop_compiled <- function(per_state, L_b, L_b_per_state, n_rep) {
+# computed first; NULL where the R loop must run. Where fuse_args() takes
+# 'fuse' (with chr_names, the segments' sequences), target_chr is made as
+# seg_bootstrap_draws() makes it, before the draws, and the draws move the
+# blocks (fused_parts()).
+seg_prop_compiled <- function(per_state, L_b, L_b_per_state, n_rep,
+                              fuse = NULL, chr_names = NULL) {
   if (length(L_b) != 1L) {
     return(NULL)
   }
@@ -1441,23 +1589,50 @@ seg_prop_compiled <- function(per_state, L_b, L_b_per_state, n_rep) {
     list(index = p$index, width = p$width, start = p$start,
          nblocks = p$nblocks, L = L_b_per_state[s], n = p$n)
   })
-  d <- seg_draws_compiled(tabs, n_rep)
+  target_chr <- NULL
+  fz <- NULL
+  if (!is.null(fuse)) {
+    fz <- tryCatch({
+      target_chr <- factor(do.call(c, lapply(tiles, `[[`, 2)),
+                           levels = fuse$lev0)
+      nb <- vapply(tabs, function(tb) as.integer(tb$n), 1L)
+      fuse_args(fuse, chr_names, rep(L_b_per_state, nb),
+                unlist(lapply(tiles, `[[`, 1)), target_chr)
+    }, warning = function(w) NULL, error = function(e) NULL)
+  }
+  d <- seg_draws_compiled(tabs, n_rep, fz = fz)
   if (is.null(d)) {
     return(NULL)
   }
   nblocks_per_state <- vapply(tabs, function(tb) as.integer(tb$n), 1L)
-  list(
+  out <- list(
     draws = NULL,
     width = rep(L_b_per_state, nblocks_per_state),
     target_start = unlist(lapply(tiles, `[[`, 1)),
-    target_chr = do.call(c, lapply(tiles, `[[`, 2)),
+    target_chr = if (is.null(fz)) do.call(c, lapply(tiles, `[[`, 2)) else
+      target_chr,
     bait_start = d[[1L]], bait_seg = d[[2L]], bait_len = d[[3L]]
   )
+  fused_parts(out, d, fz)
+}
+
+# 'out' with, after C_seg_draws_moved, 'chr_factor' (TRUE: target_chr is
+# already the factor seg_bootstrap_draws() makes) and 'moved', the rows of
+# draws_moved() where it gives any; 'out' itself without 'fz'
+#
+# @param out the draws' value
+# @param d,fz as in draws_moved()
+fused_parts <- function(out, d, fz) {
+  if (!is.null(fz)) {
+    out$chr_factor <- TRUE
+    out$moved <- draws_moved(d, fz)
+  }
+  out
 }
 
 # breaking up the seg_bootstrap_draws() code... non-proportional length case
 seg_bootstrap_noprop <- function(seg, state, L_b, chr_names, chr_lens,
-                                 esses, n_rep) {
+                                 esses, n_rep, fuse = NULL) {
 
   seg_width <- width(seg)
   seg_start <- start(seg)
@@ -1467,7 +1642,7 @@ seg_bootstrap_noprop <- function(seg, state, L_b, chr_names, chr_lens,
   n <- sum(nblocks_per_seg)
 
   out <- seg_noprop_compiled(seg_width, seg_start, nblocks_per_seg, n,
-                             L_b, state, chr_names, esses, n_rep)
+                             L_b, state, chr_names, esses, n_rep, fuse)
   if (!is.null(out)) {
     return(out)
   }
@@ -1539,9 +1714,11 @@ seg_bootstrap_noprop <- function(seg, state, L_b, chr_names, chr_lens,
 }
 
 # seg_bootstrap_noprop()'s value by seg_draws_compiled(), the tiling blocks
-# computed first; NULL where the R loop must run
+# computed first; NULL where the R loop must run. 'fuse' as in
+# seg_prop_compiled().
 seg_noprop_compiled <- function(seg_width, seg_start, nblocks_per_seg, n,
-                                L_b, state, chr_names, esses, n_rep) {
+                                L_b, state, chr_names, esses, n_rep,
+                                fuse = NULL) {
   if (length(L_b) != 1L || !is.numeric(state) ||
       length(state) != length(seg_width) || length(esses) < 1L) {
     return(NULL)
@@ -1570,17 +1747,26 @@ seg_noprop_compiled <- function(seg_width, seg_start, nblocks_per_seg, n,
   tabs <- list(list(index = seq_along(seg_width), width = seg_width,
                     start = seg_start, nblocks = nblocks_per_seg, L = L_b,
                     n = n))
+  target_chr <- NULL
+  fz <- NULL
+  if (!is.null(fuse)) {
+    fz <- tryCatch({
+      target_chr <- factor(do.call(c, tiles[[2L]]), levels = fuse$lev0)
+      fuse_args(fuse, chr_names, L_b, unlist(tiles[[1L]]), target_chr)
+    }, warning = function(w) NULL, error = function(e) NULL)
+  }
   d <- seg_draws_compiled(tabs, n_rep,
                           st = match(state, esses, nomatch = 0L),
-                          rearr = lengths(tiles[[1L]]))
+                          rearr = lengths(tiles[[1L]]), fz = fz)
   if (is.null(d)) {
     return(NULL)
   }
-  list(
+  out <- list(
     draws = NULL,
     width = L_b,
     target_start = unlist(tiles[[1L]]),
-    target_chr = do.call(c, tiles[[2L]]),
+    target_chr = if (is.null(fz)) do.call(c, tiles[[2L]]) else target_chr,
     bait_start = d[[1L]], bait_seg = d[[2L]], bait_len = d[[3L]]
   )
+  fused_parts(out, d, fz)
 }

@@ -3,6 +3,7 @@
 #include <limits.h>
 #include <stdint.h>
 #include <string.h>
+#include "segDraws.h"
 #ifdef _OPENMP
 #include <omp.h>
 #endif
@@ -552,39 +553,45 @@ static void moved_pass2(const moved_ctx *x, R_xlen_t b0, R_xlen_t b1,
 	*n_run = nr;
 }
 
-/* The moved ranges of every bait block in one pass: per block, in order,
- * the ranges of y it overlaps, by increasing index in y, with their index
- * in y ('s'), target seqlevel code, shifted and trimmed start and width,
- * and, with with_block, replicate ('block'), keeping width > 0, and the
- * runs of the code column ('run_code', 'run_length'); without with_block,
- * the number of rows of each replicate ('lens') in place of 'block', as
- * tabulate(block, n_rep) counts them. R_NilValue wherever the R
- * route (bait_overlaps(), shift_swap_trim_positions()) would not take
- * sorted_overlaps() for every block or could decline, or has no hit.
- *
- * With mode 1 or 2 the exclude step is applied to those rows: sequence c
- * holds the sorted, disjoint intervals xseg[c - 1] to xseg[c] - 1 of xs and
- * xe; mode 1 (drop) keeps the rows overlapping none of them, mode 2 (trim)
- * puts in each row's place its pieces clipped to each interval (gap) it
- * overlaps, by gap. FALSE where the exclude tables are malformed or the
- * pieces outnumber an integer index.
- *
- * With 'with_cols', the result has an eighth element, 'cols': when cols_ is
- * a list of double, integer or logical vectors, each of y's length, the
- * rows' values of each, y's at the row's index, in a list named as cols_,
- * and 's' is then NULL; otherwise 'cols' is NULL and 's' is written. The
- * caller passes only vectors without attributes (gather_columns()).
- *
- * Without 'with_code', 'code' is NULL: only its runs are returned.
- *
- * With 'raw' (b_code_, b_start_, b_width_ and shift_ unread), each block's
- * code, start, width and shift are derived from it, and R_NilValue is also
- * returned wherever bait_blocks() declines. */
-static SEXP moved_impl(SEXP b_code_, SEXP b_start_, SEXP b_width_,
-	SEXP n_rep_, SEXP y_code_, SEXP y_start_, SEXP y_end_, SEXP y_width_,
-	SEXP circular_, SEXP seqlen_, SEXP bounded_, SEXP shift_, SEXP t_code_,
-	int mode, SEXP xseg_, SEXP xs_, SEXP xe_, int with_block, int with_cols,
-	SEXP cols_, int with_code, const bait_raw *raw)
+/* Where moved_setup() allocates: R_alloc() without an arena; with one, raw
+ * vectors kept in its list, which outlive an R_tryCatchError() body */
+typedef struct {
+	SEXP keep;
+	int k;
+} m_arena;
+
+#define ARENA_SLOTS 24
+
+static void *m_alloc(m_arena *a, size_t n, size_t sz)
+{
+	if (a == NULL)
+		return R_alloc(n, sz);
+	SEXP v = allocVector(RAWSXP, (R_xlen_t) (n * sz));
+	SET_VECTOR_ELT(a->keep, a->k++, v);
+	return RAW(v);
+}
+
+/* What moved_impl() builds before its passes */
+typedef struct {
+	moved_ctx x;
+	R_xlen_t n, n_blocks;
+	int n_rep, n_lev, n_thr, by_lev;
+	int with_block, with_cols, with_code, gather;
+	R_xlen_t ncol;
+	const int *circ;
+	SEXP cols_;
+} moved_plan;
+
+/* moved_impl()'s checks of its arguments, y sorted by seqlevel with its
+ * end_max and bucket tables, and the pass buffers, in pl: 0, or 1 where
+ * moved_impl() returns R_NilValue, 2 where it returns FALSE. The checks of
+ * each replicate's blocks are moved_rep_check()'s. */
+static int moved_setup(moved_plan *pl, SEXP b_code_, SEXP b_start_,
+	SEXP b_width_, SEXP n_rep_, SEXP y_code_, SEXP y_start_, SEXP y_end_,
+	SEXP y_width_, SEXP circular_, SEXP seqlen_, SEXP bounded_, SEXP shift_,
+	SEXP t_code_, int mode, SEXP xseg_, SEXP xs_, SEXP xe_, int with_block,
+	int with_cols, SEXP cols_, int with_code, const bait_raw *raw,
+	m_arena *arena)
 {
 	if ((raw == NULL && (TYPEOF(b_code_) != INTSXP ||
 		TYPEOF(b_start_) != INTSXP || TYPEOF(b_width_) != INTSXP ||
@@ -594,7 +601,7 @@ static SEXP moved_impl(SEXP b_code_, SEXP b_start_, SEXP b_width_,
 		TYPEOF(circular_) != LGLSXP || TYPEOF(seqlen_) != INTSXP ||
 		TYPEOF(bounded_) != LGLSXP ||
 		TYPEOF(t_code_) != INTSXP || XLENGTH(n_rep_) != 1)
-		return R_NilValue;
+		return 1;
 	R_xlen_t n = raw != NULL ? raw->n : XLENGTH(b_code_);
 	R_xlen_t n_y = XLENGTH(y_code_);
 	R_xlen_t n_t = XLENGTH(t_code_);
@@ -607,7 +614,7 @@ static SEXP moved_impl(SEXP b_code_, SEXP b_start_, SEXP b_width_,
 		XLENGTH(y_start_) != n_y || XLENGTH(y_end_) != n_y ||
 		XLENGTH(y_width_) != n_y || XLENGTH(seqlen_) != n_lev ||
 		XLENGTH(bounded_) != n_lev || (int64_t) n_rep * n_lev > INT_MAX)
-		return R_NilValue;
+		return 1;
 
 	/* the exclude tables: one run of intervals per seqlevel of y, each
 	 * sorted and disjoint, as exclude_intervals() and gap_tables() give */
@@ -616,32 +623,32 @@ static SEXP moved_impl(SEXP b_code_, SEXP b_start_, SEXP b_width_,
 		if (TYPEOF(xseg_) != INTSXP || TYPEOF(xs_) != INTSXP ||
 			TYPEOF(xe_) != INTSXP || XLENGTH(xseg_) != (R_xlen_t) n_lev + 1 ||
 			XLENGTH(xe_) != XLENGTH(xs_) || XLENGTH(xs_) > INT_MAX)
-			return ScalarLogical(FALSE);
+			return 2;
 		xseg = INTEGER(xseg_);
 		xs = INTEGER(xs_);
 		xe = INTEGER(xe_);
 		if (xseg[0] != 0 || xseg[n_lev] != XLENGTH(xs_))
-			return ScalarLogical(FALSE);
+			return 2;
 		for (int c = 0; c < n_lev; c++) {
 			if (xseg[c + 1] < xseg[c])
-				return ScalarLogical(FALSE);
+				return 2;
 			for (int j = xseg[c]; j < xseg[c + 1]; j++)
 				if (xs[j] == NA_INTEGER || xe[j] == NA_INTEGER ||
 					xe[j] < xs[j] || (j > xseg[c] && xs[j] <= xe[j - 1]))
-					return ScalarLogical(FALSE);
+					return 2;
 		}
 	}
 	R_xlen_t n_blocks = n / n_rep;
 	const int *yc = INTEGER(y_code_);
 
 	/* y sorted by seqlevel, stably, as order(method = "radix") does */
-	int *seg = (int *) R_alloc(n_lev + 1, sizeof(int));
+	int *seg = (int *) m_alloc(arena, n_lev + 1, sizeof(int));
 	memset(seg, 0, (n_lev + 1) * sizeof(int));
 	int sorted = 1;
 	for (R_xlen_t i = 0; i < n_y; i++) {
 		int c = yc[i];
 		if (c == NA_INTEGER || c < 1 || c > n_lev)
-			return R_NilValue;
+			return 1;
 		seg[c]++;
 		if (i > 0 && c < yc[i - 1])
 			sorted = 0;
@@ -652,14 +659,14 @@ static SEXP moved_impl(SEXP b_code_, SEXP b_start_, SEXP b_width_,
 	const int *yw = INTEGER(y_width_);
 	int *o = NULL;
 	if (!sorted) {
-		o = (int *) R_alloc(n_y, sizeof(int));
-		int *pos = (int *) R_alloc(n_lev, sizeof(int));
+		o = (int *) m_alloc(arena, n_y, sizeof(int));
+		int *pos = (int *) m_alloc(arena, n_lev, sizeof(int));
 		memcpy(pos, seg, n_lev * sizeof(int));
 		for (R_xlen_t i = 0; i < n_y; i++)
 			o[pos[yc[i] - 1]++] = (int) i;
-		int *s2 = (int *) R_alloc(n_y, sizeof(int));
-		int *e2 = (int *) R_alloc(n_y, sizeof(int));
-		int *w2 = (int *) R_alloc(n_y, sizeof(int));
+		int *s2 = (int *) m_alloc(arena, n_y, sizeof(int));
+		int *e2 = (int *) m_alloc(arena, n_y, sizeof(int));
+		int *w2 = (int *) m_alloc(arena, n_y, sizeof(int));
 		for (R_xlen_t k = 0; k < n_y; k++) {
 			s2[k] = ys[o[k]];
 			e2[k] = ye[o[k]];
@@ -684,9 +691,9 @@ static SEXP moved_impl(SEXP b_code_, SEXP b_start_, SEXP b_width_,
 	/* end_max() per sequence; n_short[k + 1], the ranges up to k along
 	 * all sequences ending before end_max, is counted per sequence and
 	 * then offset by n_base[c], the counts of the sequences before c */
-	int *em = (int *) R_alloc(n_y > 0 ? n_y : 1, sizeof(int));
-	int *n_short = (int *) R_alloc(n_y + 1, sizeof(int));
-	int *n_base = (int *) R_alloc(n_lev > 0 ? n_lev : 1, sizeof(int));
+	int *em = (int *) m_alloc(arena, n_y > 0 ? n_y : 1, sizeof(int));
+	int *n_short = (int *) m_alloc(arena, n_y + 1, sizeof(int));
+	int *n_base = (int *) m_alloc(arena, n_lev > 0 ? n_lev : 1, sizeof(int));
 	n_short[0] = 0;
 #ifdef _OPENMP
 #pragma omp parallel for num_threads(n_thr) schedule(dynamic, 1) if(n_thr > 1)
@@ -697,57 +704,17 @@ static SEXP moved_impl(SEXP b_code_, SEXP b_start_, SEXP b_width_,
 	for (int c = 0; c < n_lev; c++) {
 		int m = n_base[c];
 		if (m < 0)
-			return R_NilValue;
+			return 1;
 		n_base[c] = n_before;
 		n_before += m;
 	}
 
-	/* bait_overlaps(): every block on sorted_overlaps()' path, i.e. its
-	 * replicate has fewer blocks on its sequence than y has ranges there;
-	 * sorted_overlaps(): no empty block and none on a circular sequence;
-	 * end(bait), start + width - 1L, not NA. With 'raw', bait_blocks()'
-	 * checks first. Every check declines with R_NilValue, so pass 1 makes
-	 * the checks of each block's start, width and target; here the code,
-	 * the circular check and the count test, over the seqlevels a
-	 * replicate's blocks counted when there are no more of them than
-	 * blocks. */
-	const int *bc = raw == NULL ? INTEGER(b_code_) : NULL;
-	const int *bs = raw == NULL ? INTEGER(b_start_) : NULL;
-	const int *bw = raw == NULL ? INTEGER(b_width_) : NULL;
-	const int *circ = LOGICAL(circular_);
-	int *cnt = (int *) R_alloc(n_lev > 0 ? n_lev : 1, sizeof(int));
-	memset(cnt, 0, (n_lev > 0 ? n_lev : 1) * sizeof(int));
-	int by_lev = (R_xlen_t) n_lev <= n_blocks;
-	for (R_xlen_t r = 0; r < n_rep; r++) {
-		R_xlen_t b0 = r * n_blocks, b1 = b0 + n_blocks;
-		for (R_xlen_t b = b0; b < b1; b++) {
-			int c = raw != NULL ? raw_code(raw, b) : bc[b];
-			if (c == NA_INTEGER || c < 1 || c > n_lev || circ[c - 1] == TRUE)
-				return R_NilValue;
-			cnt[c - 1]++;
-		}
-		if (by_lev) {
-			for (int c = 0; c < n_lev; c++)
-				if (cnt[c] != 0 && cnt[c] >= seg[c + 1] - seg[c])
-					return R_NilValue;
-			memset(cnt, 0, n_lev * sizeof(int));
-			continue;
-		}
-		for (R_xlen_t b = b0; b < b1; b++) {
-			int c = raw != NULL ? raw_code(raw, b) : bc[b];
-			if (cnt[c - 1] >= seg[c] - seg[c - 1])
-				return R_NilValue;
-		}
-		for (R_xlen_t b = b0; b < b1; b++)
-			cnt[(raw != NULL ? raw_code(raw, b) : bc[b]) - 1] = 0;
-	}
-
-	buckets *bk_start = (buckets *) R_alloc(n_lev, sizeof(buckets));
-	buckets *bk_max = (buckets *) R_alloc(n_lev, sizeof(buckets));
-	int *t_start = (int *) R_alloc(plan_buckets(ys, seg, n_lev, bk_start),
-		sizeof(int));
-	int *t_max = (int *) R_alloc(plan_buckets(em, seg, n_lev, bk_max),
-		sizeof(int));
+	buckets *bk_start = (buckets *) m_alloc(arena, n_lev, sizeof(buckets));
+	buckets *bk_max = (buckets *) m_alloc(arena, n_lev, sizeof(buckets));
+	int *t_start = (int *) m_alloc(arena,
+		plan_buckets(ys, seg, n_lev, bk_start), sizeof(int));
+	int *t_max = (int *) m_alloc(arena,
+		plan_buckets(em, seg, n_lev, bk_max), sizeof(int));
 #ifdef _OPENMP
 #pragma omp parallel for num_threads(n_thr) schedule(dynamic, 1) if(n_thr > 1)
 #endif
@@ -759,17 +726,10 @@ static SEXP moved_impl(SEXP b_code_, SEXP b_start_, SEXP b_width_,
 			n_short[k + 1] += b;
 	}
 
-	/* the blocks in chunks of consecutive blocks: pass 1 counts each
-	 * chunk's rows, and pass 2 writes them from the sum of the counts
-	 * before it, so the rows land as one pass in block order puts them.
-	 * The answer for an exclude interval does not depend on the previous
-	 * row's, which each chunk starts without. */
-	int n_chunk = n_thr == 1 ? 1 : 8 * n_thr;
-	R_xlen_t *c_hit = (R_xlen_t *) R_alloc(n_chunk, sizeof(R_xlen_t));
-	R_xlen_t *c_keep = (R_xlen_t *) R_alloc(n_chunk, sizeof(R_xlen_t));
-	int *c_ok = (int *) R_alloc(n_chunk, sizeof(int));
 	moved_ctx x = {
-		.bc = bc, .bs = bs, .bw = bw,
+		.bc = raw == NULL ? INTEGER(b_code_) : NULL,
+		.bs = raw == NULL ? INTEGER(b_start_) : NULL,
+		.bw = raw == NULL ? INTEGER(b_width_) : NULL,
 		.shift = raw == NULL ? INTEGER(shift_) : NULL, .raw = raw,
 		.tc = INTEGER(t_code_), .seqlen = INTEGER(seqlen_),
 		.bounded = LOGICAL(bounded_), .ys = ys, .ye = ye, .yw = yw, .em = em,
@@ -777,9 +737,9 @@ static SEXP moved_impl(SEXP b_code_, SEXP b_start_, SEXP b_width_,
 		.t_max = t_max, .bk_start = bk_start, .bk_max = bk_max, .xseg = xseg,
 		.xs = xs, .xe = xe, .mode = mode, .n_lev = n_lev, .n_t = n_t,
 		.n_t_rep = n_t * (R_xlen_t) n_rep, .n_blocks = n_blocks,
-		.first = (int *) R_alloc(n, sizeof(int)),
-		.last = (int *) R_alloc(n, sizeof(int)),
-		.plain = (unsigned char *) R_alloc(n, 1), .rep_at = NULL,
+		.first = (int *) m_alloc(arena, n, sizeof(int)),
+		.last = (int *) m_alloc(arena, n, sizeof(int)),
+		.plain = (unsigned char *) m_alloc(arena, n, 1), .rep_at = NULL,
 		.ncol = 0, .col8 = NULL, .col_in = NULL, .col_out = NULL
 	};
 
@@ -796,13 +756,72 @@ static SEXP moved_impl(SEXP b_code_, SEXP b_start_, SEXP b_width_,
 	if (!gather)
 		ncol = 0;
 
-	/* pass 1 */
-#ifdef _OPENMP
-#pragma omp parallel for num_threads(n_thr) schedule(dynamic, 1) if(n_thr > 1)
-#endif
-	for (int c = 0; c < n_chunk; c++)
-		c_ok[c] = moved_pass1(&x, n * c / n_chunk, n * (c + 1) / n_chunk,
-			c_hit + c, c_keep + c);
+	pl->x = x;
+	pl->n = n;
+	pl->n_blocks = n_blocks;
+	pl->n_rep = n_rep;
+	pl->n_lev = n_lev;
+	pl->n_thr = n_thr;
+	/* the count test over the seqlevels a replicate's blocks counted when
+	 * there are no more of them than blocks */
+	pl->by_lev = (R_xlen_t) n_lev <= n_blocks;
+	pl->with_block = with_block;
+	pl->with_cols = with_cols;
+	pl->with_code = with_code;
+	pl->gather = gather;
+	pl->ncol = ncol;
+	pl->circ = LOGICAL(circular_);
+	pl->cols_ = cols_;
+	return 0;
+}
+
+/* bait_overlaps(): every block of replicate r (0-based) on
+ * sorted_overlaps()' path, i.e. its replicate has fewer blocks on its
+ * sequence than y has ranges there; sorted_overlaps(): none on a circular
+ * sequence. The code, the circular check and the count test; pass 1 makes
+ * the checks of each block's start, width and target. 0 where moved_impl()
+ * returns R_NilValue. cnt holds n_lev zeros, as it is left on success. */
+static int moved_rep_check(const moved_plan *pl, R_xlen_t r, int *cnt)
+{
+	const bait_raw *raw = pl->x.raw;
+	const int *bc = pl->x.bc, *seg = pl->x.seg, *circ = pl->circ;
+	int n_lev = pl->n_lev;
+	R_xlen_t b0 = r * pl->n_blocks, b1 = b0 + pl->n_blocks;
+	for (R_xlen_t b = b0; b < b1; b++) {
+		int c = raw != NULL ? raw_code(raw, b) : bc[b];
+		if (c == NA_INTEGER || c < 1 || c > n_lev || circ[c - 1] == TRUE)
+			return 0;
+		cnt[c - 1]++;
+	}
+	if (pl->by_lev) {
+		for (int c = 0; c < n_lev; c++)
+			if (cnt[c] != 0 && cnt[c] >= seg[c + 1] - seg[c])
+				return 0;
+		memset(cnt, 0, n_lev * sizeof(int));
+		return 1;
+	}
+	for (R_xlen_t b = b0; b < b1; b++) {
+		int c = raw != NULL ? raw_code(raw, b) : bc[b];
+		if (cnt[c - 1] >= seg[c] - seg[c - 1])
+			return 0;
+	}
+	for (R_xlen_t b = b0; b < b1; b++)
+		cnt[(raw != NULL ? raw_code(raw, b) : bc[b]) - 1] = 0;
+	return 1;
+}
+
+/* After pass 1 over the chunks of blocks [cb[c], cb[c + 1]), which gave
+ * c_ok, c_hit and c_keep: pass 2, writing each chunk from the sum of the
+ * counts before it, so the rows land as one pass in block order puts
+ * them, and the value moved_impl() returns */
+static SEXP moved_finish(moved_plan *pl, int n_chunk, const R_xlen_t *cb,
+	const R_xlen_t *c_hit, R_xlen_t *c_keep, const int *c_ok)
+{
+	moved_ctx x = pl->x;
+	int n_rep = pl->n_rep, with_block = pl->with_block;
+	int gather = pl->gather;
+	R_xlen_t ncol = pl->ncol;
+	SEXP cols_ = pl->cols_;
 	R_xlen_t n_hit = 0, n_keep = 0;
 	for (int c = 0; c < n_chunk; c++)
 		if (!c_ok[c])
@@ -820,7 +839,7 @@ static SEXP moved_impl(SEXP b_code_, SEXP b_start_, SEXP b_width_,
 
 	/* pass 2: the rows */
 	/* element 4 is 'block' (n_keep rows) or 'lens' (n_rep counts) */
-	int n_el = with_cols ? 8 : 7;
+	int n_el = pl->with_cols ? 8 : 7;
 	SEXP ans = PROTECT(allocVector(VECSXP, n_el));
 	SEXP nms = PROTECT(allocVector(STRSXP, n_el));
 	const char *names[8] = {"s", "code", "start", "width",
@@ -829,7 +848,7 @@ static SEXP moved_impl(SEXP b_code_, SEXP b_start_, SEXP b_width_,
 	out[0] = NULL;
 	out[1] = NULL;
 	for (int j = gather ? 1 : 0; j < 5; j++) {
-		if (j == 1 && !with_code)
+		if (j == 1 && !pl->with_code)
 			continue;
 		SET_VECTOR_ELT(ans, j, allocVector(INTSXP,
 			j < 4 || with_block ? n_keep : (R_xlen_t) n_rep));
@@ -875,11 +894,11 @@ static SEXP moved_impl(SEXP b_code_, SEXP b_start_, SEXP b_width_,
 	}
 	R_xlen_t *c_run = (R_xlen_t *) R_alloc(n_chunk, sizeof(R_xlen_t));
 #ifdef _OPENMP
+	int n_thr = pl->n_thr;
 #pragma omp parallel for num_threads(n_thr) schedule(dynamic, 1) if(n_thr > 1)
 #endif
 	for (int c = 0; c < n_chunk; c++)
-		moved_pass2(&x, n * c / n_chunk, n * (c + 1) / n_chunk, c_keep[c],
-			out, c_run + c);
+		moved_pass2(&x, cb[c], cb[c + 1], c_keep[c], out, c_run + c);
 
 	/* the runs of the code column: each block's rows share its target
 	 * sequence, so one run per block that wrote rows, merged with the run
@@ -889,7 +908,7 @@ static SEXP moved_impl(SEXP b_code_, SEXP b_start_, SEXP b_width_,
 	R_xlen_t n_run = 0;
 	int prev = NA_INTEGER;
 	for (int c = 0; c < n_chunk; c++) {
-		const int *code = x.first + n * c / n_chunk;
+		const int *code = x.first + cb[c];
 		for (R_xlen_t k = 0; k < c_run[c]; k++) {
 			if (code[k] != prev) {
 				n_run++;
@@ -903,8 +922,8 @@ static SEXP moved_impl(SEXP b_code_, SEXP b_start_, SEXP b_width_,
 	R_xlen_t r = -1;
 	prev = NA_INTEGER;
 	for (int c = 0; c < n_chunk; c++) {
-		const int *code = x.first + n * c / n_chunk;
-		const int *rows = x.last + n * c / n_chunk;
+		const int *code = x.first + cb[c];
+		const int *rows = x.last + cb[c];
 		for (R_xlen_t k = 0; k < c_run[c]; k++) {
 			if (code[k] != prev) {
 				prev = code[k];
@@ -923,6 +942,77 @@ static SEXP moved_impl(SEXP b_code_, SEXP b_start_, SEXP b_width_,
 	}
 	UNPROTECT(2);
 	return ans;
+}
+
+/* The moved ranges of every bait block in one pass: per block, in order,
+ * the ranges of y it overlaps, by increasing index in y, with their index
+ * in y ('s'), target seqlevel code, shifted and trimmed start and width,
+ * and, with with_block, replicate ('block'), keeping width > 0, and the
+ * runs of the code column ('run_code', 'run_length'); without with_block,
+ * the number of rows of each replicate ('lens') in place of 'block', as
+ * tabulate(block, n_rep) counts them. R_NilValue wherever the R
+ * route (bait_overlaps(), shift_swap_trim_positions()) would not take
+ * sorted_overlaps() for every block or could decline, or has no hit.
+ *
+ * With mode 1 or 2 the exclude step is applied to those rows: sequence c
+ * holds the sorted, disjoint intervals xseg[c - 1] to xseg[c] - 1 of xs and
+ * xe; mode 1 (drop) keeps the rows overlapping none of them, mode 2 (trim)
+ * puts in each row's place its pieces clipped to each interval (gap) it
+ * overlaps, by gap. FALSE where the exclude tables are malformed or the
+ * pieces outnumber an integer index.
+ *
+ * With 'with_cols', the result has an eighth element, 'cols': when cols_ is
+ * a list of double, integer or logical vectors, each of y's length, the
+ * rows' values of each, y's at the row's index, in a list named as cols_,
+ * and 's' is then NULL; otherwise 'cols' is NULL and 's' is written. The
+ * caller passes only vectors without attributes (gather_columns()).
+ *
+ * Without 'with_code', 'code' is NULL: only its runs are returned.
+ *
+ * With 'raw' (b_code_, b_start_, b_width_ and shift_ unread), each block's
+ * code, start, width and shift are derived from it, and R_NilValue is also
+ * returned wherever bait_blocks() declines. */
+static SEXP moved_impl(SEXP b_code_, SEXP b_start_, SEXP b_width_,
+	SEXP n_rep_, SEXP y_code_, SEXP y_start_, SEXP y_end_, SEXP y_width_,
+	SEXP circular_, SEXP seqlen_, SEXP bounded_, SEXP shift_, SEXP t_code_,
+	int mode, SEXP xseg_, SEXP xs_, SEXP xe_, int with_block, int with_cols,
+	SEXP cols_, int with_code, const bait_raw *raw)
+{
+	moved_plan pl;
+	int st = moved_setup(&pl, b_code_, b_start_, b_width_, n_rep_, y_code_,
+		y_start_, y_end_, y_width_, circular_, seqlen_, bounded_, shift_,
+		t_code_, mode, xseg_, xs_, xe_, with_block, with_cols, cols_,
+		with_code, raw, NULL);
+	if (st != 0)
+		return st == 1 ? R_NilValue : ScalarLogical(FALSE);
+	int n_lev = pl.n_lev;
+	int *cnt = (int *) R_alloc(n_lev > 0 ? n_lev : 1, sizeof(int));
+	memset(cnt, 0, (n_lev > 0 ? n_lev : 1) * sizeof(int));
+	for (R_xlen_t r = 0; r < pl.n_rep; r++)
+		if (!moved_rep_check(&pl, r, cnt))
+			return R_NilValue;
+
+	/* the blocks in chunks of consecutive blocks: pass 1 counts each
+	 * chunk's rows, and pass 2 writes them from the prefix sum of the
+	 * counts. The answer for an exclude interval does not depend on the
+	 * previous row's, which each chunk starts without. */
+	int n_thr = pl.n_thr;
+	R_xlen_t n = pl.n;
+	int n_chunk = n_thr == 1 ? 1 : 8 * n_thr;
+	R_xlen_t *cb = (R_xlen_t *) R_alloc(n_chunk + 1, sizeof(R_xlen_t));
+	for (int c = 0; c <= n_chunk; c++)
+		cb[c] = n * c / n_chunk;
+	R_xlen_t *c_hit = (R_xlen_t *) R_alloc(n_chunk, sizeof(R_xlen_t));
+	R_xlen_t *c_keep = (R_xlen_t *) R_alloc(n_chunk, sizeof(R_xlen_t));
+	int *c_ok = (int *) R_alloc(n_chunk, sizeof(int));
+
+	/* pass 1 */
+#ifdef _OPENMP
+#pragma omp parallel for num_threads(n_thr) schedule(dynamic, 1) if(n_thr > 1)
+#endif
+	for (int c = 0; c < n_chunk; c++)
+		c_ok[c] = moved_pass1(&pl.x, cb[c], cb[c + 1], c_hit + c, c_keep + c);
+	return moved_finish(&pl, n_chunk, cb, c_hit, c_keep, c_ok);
 }
 
 /* moved_impl() without an exclude step */
@@ -1136,4 +1226,288 @@ SEXP moved_rows_bait(SEXP b_seg_, SEXP seg_code_, SEXP b_start_,
 		y_code_, y_start_, y_end_, y_width_, circular_, seqlen_, bounded_,
 		R_NilValue, t_code_, mode_, xseg_, xs_, xe_, 0, 1, cols_,
 		asLogical(with_code_) != FALSE, &r);
+}
+
+/* seg_draws_moved()' work before GetRNGstate(), run under
+ * R_tryCatchError(): moved_setup() given the draws' vectors, which it
+ * does not read, and the buffers of the units, all in the arena */
+typedef struct {
+	moved_plan *pl;
+	m_arena *arena;
+	const bait_raw *raw;
+	SEXP n_rep_, y_code_, y_start_, y_end_, y_width_, circular_, seqlen_;
+	SEXP bounded_, t_code_, xseg_, xs_, xe_, cols_;
+	int mode, with_code, q, n_unit, status;
+	R_xlen_t *cb, *c_hit, *c_keep;
+	int *c_ok, *rep_state, *cnt;
+} fuse_setup;
+
+static SEXP fuse_setup_body(void *d)
+{
+	fuse_setup *f = (fuse_setup *) d;
+	f->status = moved_setup(f->pl, R_NilValue, R_NilValue, R_NilValue,
+		f->n_rep_, f->y_code_, f->y_start_, f->y_end_, f->y_width_,
+		f->circular_, f->seqlen_, f->bounded_, R_NilValue, f->t_code_, f->mode,
+		f->xseg_, f->xs_, f->xe_, 0, 1, f->cols_, f->with_code, f->raw,
+		f->arena);
+	if (f->status != 0)
+		return R_NilValue;
+	moved_plan *pl = f->pl;
+	R_xlen_t nb = pl->n_blocks;
+	int n_rep = pl->n_rep, n_lev1 = pl->n_lev > 0 ? pl->n_lev : 1;
+	/* units of consecutive blocks within one replicate: q per replicate,
+	 * at least 8 per thread in all where there are blocks enough */
+	int q = 1;
+	if (pl->n_thr > 1) {
+		int want = 8 * pl->n_thr;
+		q = (want + n_rep - 1) / n_rep;
+		if (q > nb)
+			q = (int) nb;
+		if (q < 1)
+			q = 1;
+	}
+	int n_unit = pl->n_thr > 1 ? n_rep * q : 1;
+	f->q = q;
+	f->n_unit = n_unit;
+	f->cb = (R_xlen_t *) m_alloc(f->arena, n_unit + 1, sizeof(R_xlen_t));
+	f->c_hit = (R_xlen_t *) m_alloc(f->arena, n_unit, sizeof(R_xlen_t));
+	f->c_keep = (R_xlen_t *) m_alloc(f->arena, n_unit, sizeof(R_xlen_t));
+	f->c_ok = (int *) m_alloc(f->arena, n_unit, sizeof(int));
+	f->rep_state = (int *) m_alloc(f->arena, n_rep, sizeof(int));
+	f->cnt = (int *) m_alloc(f->arena, (size_t) pl->n_thr * n_lev1,
+		sizeof(int));
+	if (pl->n_thr > 1) {
+		for (int r = 0; r < n_rep; r++)
+			for (int i = 0; i < q; i++)
+				f->cb[(R_xlen_t) r * q + i] = r * nb + nb * i / q;
+	} else
+		f->cb[0] = 0;
+	f->cb[n_unit] = pl->n;
+	memset(f->c_ok, 0, n_unit * sizeof(int));
+	memset(f->rep_state, 0, n_rep * sizeof(int));
+	memset(f->cnt, 0, (size_t) pl->n_thr * n_lev1 * sizeof(int));
+	return R_NilValue;
+}
+
+typedef struct {
+	moved_plan *pl;
+	int n_chunk;
+	const R_xlen_t *cb, *c_hit;
+	R_xlen_t *c_keep;
+	const int *c_ok;
+} fuse_finish;
+
+static SEXP fuse_finish_body(void *d)
+{
+	fuse_finish *f = (fuse_finish *) d;
+	return moved_finish(f->pl, f->n_chunk, f->cb, f->c_hit, f->c_keep,
+		f->c_ok);
+}
+
+static SEXP fuse_error(SEXP cond, void *d)
+{
+	*(int *) d = 1;
+	return R_NilValue;
+}
+
+/* seg_draws() and moved_rows_bait() on its draws in one call: pass 1 of
+ * moved_impl() (each replicate's checks, then each block's) runs on the
+ * other threads on each replicate as soon as it is drawn, while this
+ * thread, R's, draws the next, exactly as seg_draws() does; pass 2 runs
+ * after the draws. The arguments are seg_draws()' and then those of
+ * moved_rows_bait() but b_seg_, b_start_ and n_rep_, which the draws
+ * give. Returns NULL where seg_draws() does, else list(start, seg, len,
+ * moved): the draws as seg_draws() returns them, and moved_rows_bait()'s
+ * list on them, or NULL where it gives no list, where a replicate holds
+ * other than length(t_start_) blocks, or where an allocation for the
+ * moved rows fails. */
+SEXP seg_draws_moved(SEXP s_n_rep, SEXP prob, SEXP rmin, SEXP rmax,
+	SEXP gidx, SEXP off, SEXP n_draw, SEXP st, SEXP rearr, SEXP seg_code_,
+	SEXP b_width_, SEXP y_code_, SEXP y_start_, SEXP y_end_, SEXP y_width_,
+	SEXP circular_, SEXP seqlen_, SEXP bounded_, SEXP t_start_, SEXP t_code_,
+	SEXP mode_, SEXP xseg_, SEXP xs_, SEXP xe_, SEXP cols_, SEXP with_code_)
+{
+	seg_plan sp;
+	if (!seg_plan_init(&sp, s_n_rep, prob, rmin, rmax, gidx, off, n_draw,
+		st, rearr))
+		return R_NilValue;
+	SEXP out = PROTECT(seg_plan_out(&sp, 4));
+	SEXP nms = PROTECT(allocVector(STRSXP, 4));
+	const char *names[4] = {"start", "seg", "len", "moved"};
+	for (int k = 0; k < 4; k++)
+		SET_STRING_ELT(nms, k, mkChar(names[k]));
+	int n_rep = sp.n_rep;
+
+	/* moved_rows_bait()'s and moved_rows_impl()'s checks, with the draws'
+	 * starts and segments as b_start_ and b_seg_, all replicates full */
+	int fuse = 1;
+	int tw = TYPEOF(b_width_), tt = TYPEOF(t_start_);
+	if (TYPEOF(seg_code_) != INTSXP || (tw != INTSXP && tw != REALSXP) ||
+		(tt != INTSXP && tt != REALSXP) || XLENGTH(seg_code_) > INT_MAX ||
+		TYPEOF(mode_) != INTSXP || XLENGTH(mode_) != 1)
+		fuse = 0;
+	int mode = fuse ? INTEGER(mode_)[0] : 0;
+	if (mode != 0 && mode != 1 && mode != 2)
+		fuse = 0;
+	bait_raw r;
+	r.n = sp.total;
+	r.n_w = XLENGTH(b_width_);
+	r.n_ts = XLENGTH(t_start_);
+	if (r.n == 0 || r.n_w == 0 || r.n_ts == 0 || r.n > INT_MAX ||
+		sp.per_rep != r.n_ts)
+		fuse = 0;
+	moved_plan pl;
+	fuse_setup fs;
+	SEXP keep = R_NilValue;
+	if (fuse) {
+		r.n_seg = (int) XLENGTH(seg_code_);
+		r.seg = sp.og;
+		r.seg_code = INTEGER_RO(seg_code_);
+		r.si = sp.os;
+		r.sd = NULL;
+		r.wi = tw == INTSXP ? INTEGER_RO(b_width_) : NULL;
+		r.wd = tw == REALSXP ? REAL_RO(b_width_) : NULL;
+		r.ti = tt == INTSXP ? INTEGER_RO(t_start_) : NULL;
+		r.td = tt == REALSXP ? REAL_RO(t_start_) : NULL;
+		keep = allocVector(VECSXP, ARENA_SLOTS);
+	}
+	PROTECT(keep);
+	m_arena arena = {keep, 0};
+	if (fuse) {
+		fs.pl = &pl;
+		fs.arena = &arena;
+		fs.raw = &r;
+		fs.n_rep_ = s_n_rep;
+		fs.y_code_ = y_code_;
+		fs.y_start_ = y_start_;
+		fs.y_end_ = y_end_;
+		fs.y_width_ = y_width_;
+		fs.circular_ = circular_;
+		fs.seqlen_ = seqlen_;
+		fs.bounded_ = bounded_;
+		fs.t_code_ = t_code_;
+		fs.xseg_ = xseg_;
+		fs.xs_ = xs_;
+		fs.xe_ = xe_;
+		fs.cols_ = cols_;
+		fs.mode = mode;
+		fs.with_code = asLogical(with_code_) != FALSE;
+		fs.status = 1;
+		int err = 0;
+		R_tryCatchError(fuse_setup_body, &fs, fuse_error, &err);
+		if (err || fs.status != 0)
+			fuse = 0;
+	}
+
+	GetRNGstate();
+	sp.kind = R_sample_kind();
+	int n_thr = fuse ? pl.n_thr : 1;
+	if (!fuse || n_thr == 1) {
+		for (int rr = 0; rr < n_rep; rr++)
+			seg_plan_rep(&sp, rr);
+	}
+#ifdef _OPENMP
+	else {
+		R_xlen_t nb = pl.n_blocks;
+		int q = fs.q, n_unit = fs.n_unit, n_lev1 = pl.n_lev > 0 ? pl.n_lev : 1;
+		int next_u = 0, fail = 0;
+		int *rep_state = fs.rep_state;
+		const R_xlen_t *cb = fs.cb;
+#pragma omp parallel num_threads(n_thr)
+		{
+			int tid = omp_get_thread_num();
+			int *cnt = fs.cnt + (R_xlen_t) tid * n_lev1;
+			if (tid == 0) {
+				/* R's thread: the draws, published replicate by
+				 * replicate; one of another length moves the blocks of
+				 * every later one */
+				int bad = 0;
+				for (int rr = 0; rr < n_rep; rr++) {
+					seg_plan_rep(&sp, rr);
+					if (sp.ol[rr] != nb)
+						bad = 1;
+#pragma omp flush
+#pragma omp atomic write
+					rep_state[rr] = bad ? -1 : 1;
+#pragma omp flush
+				}
+			}
+			/* the units in order: a replicate's first checks it (state
+			 * 1 -> 2), the others wait for that */
+			for (;;) {
+				int u, f, s;
+#pragma omp atomic capture
+				u = next_u++;
+				if (u >= n_unit)
+					break;
+#pragma omp atomic read
+				f = fail;
+				if (f)
+					continue;
+				int rr = u / q, need = u % q == 0 ? 1 : 2;
+				for (;;) {
+#pragma omp flush
+#pragma omp atomic read
+					s = rep_state[rr];
+#pragma omp atomic read
+					f = fail;
+					if (s >= need || s < 0 || f)
+						break;
+				}
+#pragma omp flush
+				if (s < need) {
+#pragma omp atomic write
+					fail = 1;
+					continue;
+				}
+				if (need == 1) {
+					int ok = moved_rep_check(&pl, rr, cnt);
+#pragma omp flush
+#pragma omp atomic write
+					rep_state[rr] = ok ? 2 : -1;
+#pragma omp flush
+					if (!ok) {
+#pragma omp atomic write
+						fail = 1;
+						continue;
+					}
+				}
+				fs.c_ok[u] = moved_pass1(&pl.x, cb[u], cb[u + 1],
+					fs.c_hit + u, fs.c_keep + u);
+				if (!fs.c_ok[u]) {
+#pragma omp atomic write
+					fail = 1;
+				}
+			}
+		}
+		if (fail)
+			fuse = 0;
+	}
+#endif
+	PutRNGstate();
+	seg_plan_trim(&sp, out);
+
+	if (fuse && n_thr == 1) {
+		/* moved_impl() on one thread */
+		if (sp.w != sp.total)
+			fuse = 0;
+		for (R_xlen_t rr = 0; fuse && rr < n_rep; rr++)
+			if (!moved_rep_check(&pl, rr, fs.cnt))
+				fuse = 0;
+		if (fuse)
+			fs.c_ok[0] = moved_pass1(&pl.x, 0, pl.n, fs.c_hit, fs.c_keep);
+	}
+	SEXP moved = R_NilValue;
+	if (fuse) {
+		fuse_finish ff = {&pl, fs.n_unit, fs.cb, fs.c_hit, fs.c_keep,
+			fs.c_ok};
+		int err = 0;
+		moved = R_tryCatchError(fuse_finish_body, &ff, fuse_error, &err);
+		if (err || TYPEOF(moved) != VECSXP)
+			moved = R_NilValue;
+	}
+	SET_VECTOR_ELT(out, 3, moved);
+	setAttrib(out, R_NamesSymbol, nms);
+	UNPROTECT(3);
+	return out;
 }

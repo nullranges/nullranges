@@ -165,19 +165,17 @@ static int sort_scores(const double *x, int n, int *ord, double *sv)
 {
 	if (n == 0)
 		return 1;
-	kv *a = (kv *) R_alloc(n, sizeof(kv)), *b = (kv *) R_alloc(n, sizeof(kv));
 	uint64_t lo = UINT64_MAX, hi = 0;
 	for (int i = 0; i < n; i++) {
 		if (ISNAN(x[i]))
 			return 0;
 		uint64_t k = dkey(x[i]);
-		a[i].k = k;
-		a[i].i = i;
 		if (k < lo)
 			lo = k;
 		if (k > hi)
 			hi = k;
 	}
+	kv *b = (kv *) R_alloc(n, sizeof(kv));
 	int bits = 1;
 	while ((1 << bits) < n && bits < SS_SORT_BITS)
 		bits++;
@@ -190,11 +188,15 @@ static int sort_scores(const double *x, int n, int *ord, double *sv)
 	int *cnt = (int *) R_alloc(nb + 1, sizeof(int));
 	memset(cnt, 0, (nb + 1) * sizeof(int));
 	for (int i = 0; i < n; i++)
-		cnt[((a[i].k - lo) >> shift) + 1]++;
+		cnt[((dkey(x[i]) - lo) >> shift) + 1]++;
 	for (int q = 1; q <= nb; q++)
 		cnt[q] += cnt[q - 1];
-	for (int i = 0; i < n; i++)
-		b[cnt[(a[i].k - lo) >> shift]++] = a[i];
+	for (int i = 0; i < n; i++) {
+		uint64_t k = dkey(x[i]);
+		kv *d = b + cnt[(k - lo) >> shift]++;
+		d->k = k;
+		d->i = i;
+	}
 	/* bucket q now ends at cnt[q] */
 	for (int q = 0, s = 0; q < nb; s = cnt[q++]) {
 		int m = cnt[q] - s;
@@ -465,10 +467,60 @@ static inline void count_out(int *cnt, const int *code, int row, int *nLeft)
 		(*nLeft)--;
 }
 
+/* Break k of seq(from, to, by) in seq.default's usual case, as ss_pass_by
+ * makes it: R rounds (0L:n) * by and from + that separately */
+static inline double brk(double from, double to, double by, int k)
+{
+	volatile double kb = (double) k * by;
+	double v = from + kb;
+	return to < v ? to : v;
+}
+
+/* br[0..ni], every break */
+static void fill_breaks(double *br, int ni, double from, double to,
+	double by)
+{
+	for (int k = 0; k <= ni; k++)
+		br[k] = brk(from, to, by, k);
+}
+
+/* bin_of on the breaks brk() makes, for x >= br0 = brk(0) without NaN,
+ * with br[b - 1] and br[b] of the bin b it returns (b < nb) in *blo and
+ * *bhi; the same comparisons on the same doubles */
+static inline int bin_of_by(double x, double from, double to, double by,
+	int nb, double br0, double brN, double *blo, double *bhi)
+{
+	if (ISNAN(x) || x < br0 || brN < x)
+		return nb;
+	double t = ceil((x - from) / by);
+	if (!(t >= 1))
+		t = 1;
+	if (t > nb - 1)
+		t = nb - 1;
+	int g = (int) t;
+	double a = brk(from, to, by, g - 1), b = brk(from, to, by, g);
+	if (a < x && x <= b) {
+		*blo = a;
+		*bhi = b;
+		return g;
+	}
+	int lo = 0, hi = nb - 1;
+	while (hi - lo >= 2) {
+		int mid = (hi + lo) / 2;
+		if (x > brk(from, to, by, mid))
+			lo = mid;
+		else
+			hi = mid;
+	}
+	*blo = brk(from, to, by, lo);
+	*bhi = brk(from, to, by, lo + 1);
+	return lo + 1;
+}
+
 static SEXP run_pass(SEXP st, const double *br, int nb, double mn,
 	double by, SEXP replace_, SEXP count_);
-static SEXP run_pass_sorted(SEXP st, SEXP q, const double *br, int nb,
-	double mn, double by, SEXP replace_, SEXP count_);
+static SEXP run_pass_sorted(SEXP st, SEXP q, SEXP buf, int nb, double from,
+	double to, double by, SEXP replace_, SEXP count_);
 
 /* One pass of ssMatch after seq() made the breaks: bin the remaining
  * focal and pool as stratify does, draw each qualifying bin's pool rows
@@ -531,17 +583,12 @@ SEXP ss_pass_by(SEXP st, SEXP mn_, SEXP mx_, SEXP by_, SEXP replace_,
 	if (!(t >= 1) || !(t < (double) XLENGTH(buf) - 1))
 		return R_NilValue;
 	int ni = (int) t;
-	double *br = REAL(buf);
-	for (int k = 0; k <= ni; k++) {
-		/* R rounds (0L:n) * by and from + that separately */
-		volatile double kb = (double) k * by;
-		double v = from + kb;
-		br[k] = to < v ? to : v;
-	}
 	SEXP q = sorted_of(st);
 	if (q)
-		return run_pass_sorted(st, q, br, ni + 1, from, by, replace_, count_);
-	return run_pass(st, br, ni + 1, from, by, replace_, count_);
+		return run_pass_sorted(st, q, buf, ni + 1, from, to, by, replace_,
+			count_);
+	fill_breaks(REAL(buf), ni, from, to, by);
+	return run_pass(st, REAL(buf), ni + 1, from, by, replace_, count_);
 }
 
 static SEXP run_pass(SEXP st, const double *br, int nb, double mn,
@@ -756,8 +803,8 @@ static void sort_ints(int *x, int n)
  * their smallest alive pool row, the first appearance in the compacted
  * pool, and each lists its rows in row order, so the draws and pairs are
  * run_pass's; matched rows are marked dead rather than compacted. */
-static SEXP run_pass_sorted(SEXP st, SEXP q, const double *br, int nb,
-	double mn, double by, SEXP replace_, SEXP count_)
+static SEXP run_pass_sorted(SEXP st, SEXP q, SEXP buf, int nb, double from,
+	double to, double by, SEXP replace_, SEXP count_)
 {
 	int *lens = INTEGER(VECTOR_ELT(st, S_LENS));
 	int nLeft = lens[2], nDone = lens[3];
@@ -780,11 +827,13 @@ static SEXP run_pass_sorted(SEXP st, SEXP q, const double *br, int nb,
 		return out;
 	}
 	/* bins rise with the score only above br[0], which ss_range's min
-	 * guarantees; otherwise scan */
-	if (fsv[fa] < br[0] || (pa < pz && psv[pa] < br[0])) {
+	 * guarantees; otherwise scan, on every break */
+	double br0 = brk(from, to, by, 0), brN = brk(from, to, by, nb - 1);
+	if (fsv[fa] < br0 || (pa < pz && psv[pa] < br0)) {
 		UNPROTECT(1);
 		ss_compact(st);
-		return run_pass(st, br, nb, mn, by, replace_, count_);
+		fill_breaks(REAL(buf), nb - 1, from, to, by);
+		return run_pass(st, REAL(buf), nb, from, by, replace_, count_);
 	}
 
 	/* Each focal bin: its sorted focal span, its pool range and counts */
@@ -795,8 +844,9 @@ static SEXP run_pass_sorted(SEXP st, SEXP q, const double *br, int nb,
 			s++;
 			continue;
 		}
-		int b = bin_of(fsv[s], br, nb, mn, by);
-		double top = b < nb ? br[b] : R_PosInf;
+		double blo = 0, bhi = 0;
+		int b = bin_of_by(fsv[s], from, to, by, nb, br0, brN, &blo, &bhi);
+		double top = b < nb ? bhi : R_PosInf;
 		int fs = s, fN = 1;
 		for (s++; s < fz; s++)
 			if (fal[ford[s]]) {
@@ -806,12 +856,12 @@ static SEXP run_pass_sorted(SEXP st, SEXP q, const double *br, int nb,
 			}
 		int lo, hi;
 		if (b == nb) {
-			lo = gallop(psv, cur, pz, br[nb - 1], 1);
+			lo = gallop(psv, cur, pz, brN, 1);
 			hi = pz;
 		} else {
-			lo = b == 1 ? gallop(psv, cur, pz, br[0], 0) :
-				gallop(psv, cur, pz, br[b - 1], 1);
-			hi = gallop(psv, lo, pz, br[b], 1);
+			lo = b == 1 ? gallop(psv, cur, pz, blo, 0) :
+				gallop(psv, cur, pz, blo, 1);
+			hi = gallop(psv, lo, pz, bhi, 1);
 		}
 		cur = hi;
 		int pN = 0;
