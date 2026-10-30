@@ -38,17 +38,22 @@ static R_INLINE double x_d_omx(double x) {
 
 static R_INLINE double x_d_opx(double x) {return x/(1 + x);}
 
-static R_INLINE double linkinv1(double etai)
+/* linkinv1 also stores the exp(etai) it computes in *expE, and mu_eta1 reads
+ * that value back in the next IRLS step instead of calling exp(etai) again.
+ * mu_eta1 uses expE only when MTHRESH <= etai <= THRESH, exactly where
+ * linkinv1 called exp(etai). */
+static R_INLINE double linkinv1(double etai, double *expE)
 {
 	double tmp;
 	tmp = (etai < MTHRESH) ? DBL_EPSILON :
 		((etai > THRESH) ? INVEPS : exp(etai));
+	*expE = tmp;
 	return x_d_opx(tmp);
 }
 
-static R_INLINE double mu_eta1(double etai)
+static R_INLINE double mu_eta1(double etai, double expE)
 {
-	double expE = exp(etai), opexp = 1 + expE;
+	double opexp = 1 + expE;
 	return (etai > THRESH || etai < MTHRESH) ? DBL_EPSILON : expE/(opexp * opexp);
 }
 
@@ -119,6 +124,8 @@ static SEXP logit_impl(SEXP x, SEXP ycode, SEXP s_eps, SEXP s_maxit,
 	double *mu = REAL(s_mu), *qr = REAL(s_qr), *zw = REAL(s_zw),
 		*rsd = REAL(s_rsd), *qty = REAL(s_qty), *eta = REAL(s_eta),
 		*y = REAL(s_y), *w = REAL(s_w);
+	/* w[i] holds linkinv1's exp(eta[i]) from the end of one step until the
+	 * next step reads it for mu_eta1 and overwrites it with the weight */
 	double *coef = (double *) R_alloc(p, sizeof(double));
 	double *start = (double *) R_alloc(p, sizeof(double));
 	double *qraux = (double *) R_alloc(p, sizeof(double));
@@ -159,7 +166,7 @@ static SEXP logit_impl(SEXP x, SEXP ycode, SEXP s_eps, SEXP s_maxit,
 		double mustart = (1.0 * yi + 0.5)/(1.0 + 1);
 		double etai = log(x_d_omx(mustart));
 		eta[i] = etai;
-		double mui = linkinv1(etai);
+		double mui = linkinv1(etai, w + i);
 		mu[i] = mui;
 		if (!(mui > 0 && mui < 1))
 			goto fallback;
@@ -188,7 +195,7 @@ static SEXP logit_impl(SEXP x, SEXP ycode, SEXP s_eps, SEXP s_maxit,
 					bad = 1;
 					break;
 				}
-				double mev = mu_eta1(etai);
+				double mev = mu_eta1(etai, w[i]);
 				if (ISNAN(mev) || mev == 0) {
 					bad = 1;
 					break;
@@ -250,7 +257,7 @@ static SEXP logit_impl(SEXP x, SEXP ycode, SEXP s_eps, SEXP s_maxit,
 		for (R_xlen_t i = 0; i < N; i++) {
 			double etai = eta[i] + 0.0;
 			eta[i] = etai;
-			double mui = linkinv1(etai);
+			double mui = linkinv1(etai, w + i);
 			mu[i] = mui;
 			dr[i] = dev_resid1(y[i], mui, 1.0);
 			if (!(mui > 0 && mui < 1))

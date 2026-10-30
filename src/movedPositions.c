@@ -238,7 +238,8 @@ static int moved_pass1(const moved_ctx *x, R_xlen_t b0, R_xlen_t b1,
 	return 1;
 }
 
-/* Pass 2 over blocks [b0, b1): their rows, written from row 'at' of out */
+/* Pass 2 over blocks [b0, b1): their rows, written from row 'at' of out;
+ * last[b] then holds the number of rows block b wrote */
 static void moved_pass2(const moved_ctx *x, R_xlen_t b0, R_xlen_t b1,
 	R_xlen_t at, int *const *out)
 {
@@ -248,8 +249,11 @@ static void moved_pass2(const moved_ctx *x, R_xlen_t b0, R_xlen_t b1,
 	int ex_prev = 0, ex_k = 0;
 	for (R_xlen_t b = b0; b < b1; b++) {
 		int lo = x->first[b], hi = x->last[b];
-		if (lo >= hi)
+		if (lo >= hi) {
+			x->last[b] = 0;
 			continue;
+		}
+		R_xlen_t at0 = at;
 		int sh = x->shift[b];
 		int code = x->tc[b % x->n_t];
 		int bstart = x->bs[b];
@@ -262,6 +266,7 @@ static void moved_pass2(const moved_ctx *x, R_xlen_t b0, R_xlen_t b1,
 				out[3][at] = yw[k];
 				out[4][at] = rep;
 			}
+			x->last[b] = hi - lo;
 			continue;
 		}
 		int xlo = mode != 0 ? xseg[code - 1] : 0;
@@ -309,13 +314,15 @@ static void moved_pass2(const moved_ctx *x, R_xlen_t b0, R_xlen_t b1,
 				out[4][at] = rep;
 			}
 		}
+		x->last[b] = (int) (at - at0);
 	}
 }
 
 /* The moved ranges of every bait block in one pass: per block, in order,
  * the ranges of y it overlaps, by increasing index in y, with their index
  * in y ('s'), target seqlevel code, shifted and trimmed start and width,
- * and replicate ('block'), keeping width > 0. R_NilValue wherever the R
+ * and replicate ('block'), keeping width > 0, and the runs of the code
+ * column ('run_code', 'run_length'). R_NilValue wherever the R
  * route (bait_overlaps(), shift_swap_trim_positions()) would not take
  * sorted_overlaps() for every block or could decline, or has no hit.
  *
@@ -514,15 +521,17 @@ static SEXP moved_impl(SEXP b_code_, SEXP b_start_, SEXP b_width_,
 		return ScalarLogical(FALSE);
 
 	/* pass 2: the rows */
-	SEXP ans = PROTECT(allocVector(VECSXP, 5));
-	SEXP nms = PROTECT(allocVector(STRSXP, 5));
-	const char *names[5] = {"s", "code", "start", "width", "block"};
+	SEXP ans = PROTECT(allocVector(VECSXP, 7));
+	SEXP nms = PROTECT(allocVector(STRSXP, 7));
+	const char *names[7] = {"s", "code", "start", "width", "block",
+		"run_code", "run_length"};
 	int *out[5];
 	for (int j = 0; j < 5; j++) {
 		SET_VECTOR_ELT(ans, j, allocVector(INTSXP, n_keep));
-		SET_STRING_ELT(nms, j, mkChar(names[j]));
 		out[j] = INTEGER(VECTOR_ELT(ans, j));
 	}
+	for (int j = 0; j < 7; j++)
+		SET_STRING_ELT(nms, j, mkChar(names[j]));
 	setAttrib(ans, R_NamesSymbol, nms);
 #ifdef _OPENMP
 #pragma omp parallel for num_threads(n_thr) schedule(dynamic, 1) if(n_thr > 1)
@@ -530,6 +539,33 @@ static SEXP moved_impl(SEXP b_code_, SEXP b_start_, SEXP b_width_,
 	for (int c = 0; c < n_chunk; c++)
 		moved_pass2(&x, n * c / n_chunk, n * (c + 1) / n_chunk, c_keep[c],
 			out);
+
+	/* the runs of the code column: each block's rows share its target
+	 * sequence, so one run per block that wrote rows, merged with the run
+	 * before when the sequence is the same; maximal, as Rle() finds them */
+	R_xlen_t n_run = 0;
+	int prev = NA_INTEGER;
+	for (R_xlen_t b = 0, t = 0; b < n; b++, t = t + 1 == n_t ? 0 : t + 1) {
+		if (x.last[b] != 0 && x.tc[t] != prev) {
+			n_run++;
+			prev = x.tc[t];
+		}
+	}
+	SET_VECTOR_ELT(ans, 5, allocVector(INTSXP, n_run));
+	SET_VECTOR_ELT(ans, 6, allocVector(INTSXP, n_run));
+	int *rc = INTEGER(VECTOR_ELT(ans, 5)), *rl = INTEGER(VECTOR_ELT(ans, 6));
+	R_xlen_t r = -1;
+	prev = NA_INTEGER;
+	for (R_xlen_t b = 0, t = 0; b < n; b++, t = t + 1 == n_t ? 0 : t + 1) {
+		if (x.last[b] == 0)
+			continue;
+		if (x.tc[t] != prev) {
+			prev = x.tc[t];
+			rc[++r] = prev;
+			rl[r] = 0;
+		}
+		rl[r] += x.last[b];
+	}
 	UNPROTECT(2);
 	return ans;
 }

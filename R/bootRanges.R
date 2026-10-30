@@ -282,7 +282,8 @@ move_blocks_bulk <- function(y, blocks, exclude, excludeOption) {
   if (!is.null(ex)) {
     # the exclude step is applied: the rows kept, or the pieces
     y_prime <- moved_ranges(
-      y, s, code, new_start, new_width, moved$chr_attr, block, ex$seqinfo
+      y, s, code, new_start, new_width, moved$chr_attr, block, ex$seqinfo,
+      moved$run_code, moved$run_length
     )
   } else if (!is.null(exclude) && excludeOption == "drop") {
     i <- outside_exclude(y, exclude, code, new_start, new_width)
@@ -315,7 +316,8 @@ move_blocks_bulk <- function(y, blocks, exclude, excludeOption) {
     }
   } else {
     y_prime <- moved_ranges(
-      y, s, code, new_start, new_width, moved$chr_attr, block
+      y, s, code, new_start, new_width, moved$chr_attr, block, NULL,
+      moved$run_code, moved$run_length
     )
   }
   list(ranges = y_prime, lens = tabulate(mcols(y_prime)$block, n_rep))
@@ -325,7 +327,8 @@ move_blocks_bulk <- function(y, blocks, exclude, excludeOption) {
 # in one compiled pass, restricted to the rows of positive width, with
 # each row's replicate as 'block': for each bait block in order, the
 # ranges of 'y' it overlaps by increasing index in 'y', found as
-# sorted_overlaps() finds them. NULL wherever bait_overlaps() would not
+# sorted_overlaps() finds them, and the runs of the code column
+# ('run_code', 'run_length'). NULL wherever bait_overlaps() would not
 # take sorted_overlaps() for every block, either function could decline,
 # or there is no hit: the caller then runs them. With 'ex', the rows
 # outside_exclude() keeps (drop) or the pieces intersect_gaps() cuts (trim),
@@ -433,7 +436,8 @@ shift_swap_trim_positions <- function(y, s, shift, target_chr, n_rep,
 # metadata columns at 's', with the replicate added as column 'block' (no
 # metadata columns and no names when 'block' is NULL), the given starts,
 # widths and seqlevel codes, and 'seqinfo' (y's when NULL). A strand of
-# one run is not subset.
+# one run is not subset. Given the runs of 'code', maximal, the seqnames
+# are built from them.
 #
 # @param y the input GRanges
 # @param s the index in 'y' of each range
@@ -442,9 +446,17 @@ shift_swap_trim_positions <- function(y, s, shift, target_chr, n_rep,
 # @param chr_attr the attributes of the seqnames factor
 # @param block the replicate of each range, or NULL
 # @param seqinfo the seqinfo of the result, or NULL
+# @param run_code,run_length the runs of 'code', or NULL
 moved_ranges <- function(y, s, code, start, width, chr_attr, block = NULL,
-                         seqinfo = NULL) {
-  attributes(code) <- chr_attr
+                         seqinfo = NULL, run_code = NULL,
+                         run_length = NULL) {
+  if (is.null(run_length)) {
+    attributes(code) <- chr_attr
+    ans_seqnames <- Rle(code)
+  } else {
+    attributes(run_code) <- chr_attr
+    ans_seqnames <- Rle(run_code, run_length)
+  }
   n <- length(s)
   ans_strand <- strand(y)
   one_strand <- nrun(ans_strand) == 1L
@@ -480,7 +492,7 @@ moved_ranges <- function(y, s, code, start, width, chr_attr, block = NULL,
     ans_mcols <- extractROWS(mcols(y, use.names = FALSE), s)
     ans_mcols$block <- block
   }
-  ans <- update(y, seqnames = Rle(code), ranges = ans_ranges,
+  ans <- update(y, seqnames = ans_seqnames, ranges = ans_ranges,
                 strand = ans_strand, elementMetadata = ans_mcols,
                 check = FALSE)
   if (!is.null(seqinfo)) {
