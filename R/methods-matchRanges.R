@@ -44,15 +44,25 @@ nnMatch <- function(fps, pps, replace) {
   fpsIndex <- NULL
   N <- NULL
 
+  ## On finite doubles joined exactly with replace = TRUE, the matched pool
+  ## row of every focal row in C (src/nnKeep.c): the rows the join below
+  ## returns and the draws sample_groups makes from them, in the same order
+  exact <- length(pps) > 0L && is.double(fps) && is.double(pps) &&
+    is.null(attributes(fps)) && is.null(attributes(pps)) &&
+    identical(getNumericRounding(), 0L)
+  if (exact && isTRUE(replace)) {
+    drawn <- .Call(C_nn_draws, fps, pps)
+    if (!is.null(drawn))
+      return(data.table(fps = fps, ppsIndex = drawn,
+                        fpsIndex = seq_along(fps)))
+  }
+
   ## Create data table with original pps index and setkey to sort; an
   ## empty pool keeps the unread val column, because the join's
   ## malformed-table error below names ppsIndex by its position. On finite
   ## doubles joined exactly, only the pool rows the nearest join can return
   ## (src/nnKeep.c), in row order, so ties keep their order
-  keep <- if (length(pps) > 0L && is.double(fps) && is.double(pps) &&
-              is.null(attributes(fps)) && is.null(attributes(pps)) &&
-              identical(getNumericRounding(), 0L))
-    .Call(C_nn_keep, fps, pps)
+  keep <- if (exact) .Call(C_nn_keep, fps, pps)
   dt <- if (!is.null(keep))
     data.table(pps = pps[keep], ppsIndex = keep)
   else if (length(pps) > 0L)
@@ -712,15 +722,25 @@ propensityMatch <- function(covarData, covars, method, replace, nf) {
   ## strings, one per row, only to drop them
   ps <- predict(model, type = "response")
   names(ps) <- NULL
-  if (!(length(ps) == nrow(covarData) && is.double(ps) &&
-        is.null(attributes(ps)))) {
+  n <- nrow(covarData)
+  plain <- length(ps) == n && is.double(ps) && is.null(attributes(ps))
+  if (!plain) {
     ## data.table() recycles a short ps, with a warning (rows glm dropped)
     ps <- data.table(ps = ps, id = covarData$id)$ps
   }
-  focalRows <- seq_len(nf)
-  poolRows <- nf + seq_len(nrow(covarData) - nf)
-  fps <- ps[focalRows]
-  pps <- ps[poolRows]
+  ## two block copies, without a pool-sized row index to gather by
+  sp <- if (plain) .Call(C_split_scores, ps, nf, n)
+  if (is.null(sp)) {
+    focalRows <- seq_len(nf)
+    poolRows <- nf + seq_len(nrow(covarData) - nf)
+    fps <- ps[focalRows]
+    pps <- ps[poolRows]
+    np <- length(poolRows)
+  } else {
+    fps <- sp[[1L]]
+    pps <- sp[[2L]]
+    np <- n - nf
+  }
 
   ## Add propensity scores to covarData (by reference: covarData is the
   ## caller's temporary)
@@ -752,7 +772,6 @@ propensityMatch <- function(covarData, covars, method, replace, nf) {
   ## appends a second "set" column) and a factor with an NA level (rbind
   ## drops the level and turns its codes NA).
   ppsIndex <- mdt$ppsIndex
-  np <- length(poolRows)
   if (!("set" %in% names(covarData)) && is.integer(ppsIndex) &&
       !anyNA(ppsIndex) && (length(ppsIndex) == 0L ||
       (min(ppsIndex) >= 1L && max(ppsIndex) <= np)) &&
@@ -762,7 +781,8 @@ propensityMatch <- function(covarData, covars, method, replace, nf) {
     if (is.null(rows)) {
       drawn <- logical(np)
       drawn[ppsIndex] <- TRUE
-      rows <- c(focalRows, nf + ppsIndex, poolRows, nf + which(!drawn))
+      rows <- c(seq_len(nf), nf + ppsIndex, nf + seq_len(np),
+                nf + which(!drawn))
     }
     matchedData <- covarData[rows]
     nu <- length(rows) - nf - length(ppsIndex) - np
@@ -770,6 +790,9 @@ propensityMatch <- function(covarData, covars, method, replace, nf) {
         value = rep(c("focal", "matched", "pool", "unmatched"),
                     c(nf, length(ppsIndex), np, nu)))
   } else {
+    ## i is evaluated among the columns: keep these two names
+    focalRows <- seq_len(nf)
+    poolRows <- nf + seq_len(np)
     poolData <- covarData[poolRows]
     matchedData <- rbind(
       covarData[focalRows, c(.SD, set = 'focal')],

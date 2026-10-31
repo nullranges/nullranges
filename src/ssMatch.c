@@ -16,18 +16,25 @@ enum {
 };
 /* S_LENS: remaining focal, remaining pool, nLeft, matched so far */
 
-/* The state list with the scores copied and the row indices filled;
- * S_CODE is code, S_CNT is allocated but not filled */
-static SEXP state_new(SEXP fps, SEXP pps, SEXP code)
+/* The state list with the scores copied and the row indices filled, or,
+ * with `borrow`, fps and pps themselves as S_F and S_P, never written, and
+ * S_FIDX and S_PIDX left NULL until ss_compact makes them; S_CODE is code,
+ * S_CNT is allocated but not filled */
+static SEXP state_new(SEXP fps, SEXP pps, SEXP code, int borrow)
 {
 	R_xlen_t nf = XLENGTH(fps), np = XLENGTH(pps);
 	R_xlen_t cap = nf + np + 2, capr = nf + 2;
 
 	SEXP st = PROTECT(allocVector(VECSXP, S_N));
-	SET_VECTOR_ELT(st, S_F, allocVector(REALSXP, nf));
-	SET_VECTOR_ELT(st, S_FIDX, allocVector(INTSXP, nf));
-	SET_VECTOR_ELT(st, S_P, allocVector(REALSXP, np));
-	SET_VECTOR_ELT(st, S_PIDX, allocVector(INTSXP, np));
+	if (borrow) {
+		SET_VECTOR_ELT(st, S_F, fps);
+		SET_VECTOR_ELT(st, S_P, pps);
+	} else {
+		SET_VECTOR_ELT(st, S_F, allocVector(REALSXP, nf));
+		SET_VECTOR_ELT(st, S_FIDX, allocVector(INTSXP, nf));
+		SET_VECTOR_ELT(st, S_P, allocVector(REALSXP, np));
+		SET_VECTOR_ELT(st, S_PIDX, allocVector(INTSXP, np));
+	}
 	SET_VECTOR_ELT(st, S_CNT, allocVector(INTSXP, nf + np));
 	SET_VECTOR_ELT(st, S_CODE, code);
 	SET_VECTOR_ELT(st, S_LENS, allocVector(INTSXP, 4));
@@ -45,16 +52,18 @@ static SEXP state_new(SEXP fps, SEXP pps, SEXP code)
 	SET_VECTOR_ELT(st, S_FGRP, allocVector(INTSXP, nf));
 	SET_VECTOR_ELT(st, S_BR, allocVector(REALSXP, cap));
 
-	if (nf)
-		memcpy(REAL(VECTOR_ELT(st, S_F)), REAL(fps), nf * sizeof(double));
-	if (np)
-		memcpy(REAL(VECTOR_ELT(st, S_P)), REAL(pps), np * sizeof(double));
-	int *fi = INTEGER(VECTOR_ELT(st, S_FIDX));
-	for (R_xlen_t j = 0; j < nf; j++)
-		fi[j] = (int) j + 1;
-	int *pi = INTEGER(VECTOR_ELT(st, S_PIDX));
-	for (R_xlen_t j = 0; j < np; j++)
-		pi[j] = (int) j + 1;
+	if (!borrow) {
+		if (nf)
+			memcpy(REAL(VECTOR_ELT(st, S_F)), REAL(fps), nf * sizeof(double));
+		if (np)
+			memcpy(REAL(VECTOR_ELT(st, S_P)), REAL(pps), np * sizeof(double));
+		int *fi = INTEGER(VECTOR_ELT(st, S_FIDX));
+		for (R_xlen_t j = 0; j < nf; j++)
+			fi[j] = (int) j + 1;
+		int *pi = INTEGER(VECTOR_ELT(st, S_PIDX));
+		for (R_xlen_t j = 0; j < np; j++)
+			pi[j] = (int) j + 1;
+	}
 	int *lens = INTEGER(VECTOR_ELT(st, S_LENS));
 	lens[0] = (int) nf;
 	lens[1] = (int) np;
@@ -73,7 +82,7 @@ SEXP ss_init(SEXP fps, SEXP pps, SEXP cnt, SEXP code, SEXP nLeft)
 	    XLENGTH(cnt) != nf + np)
 		error("ss_init: invalid lengths");
 
-	SEXP st = PROTECT(state_new(fps, pps, code));
+	SEXP st = PROTECT(state_new(fps, pps, code, 0));
 	if (nf + np)
 		memcpy(INTEGER(VECTOR_ELT(st, S_CNT)), INTEGER(cnt),
 			(nf + np) * sizeof(int));
@@ -85,8 +94,10 @@ SEXP ss_init(SEXP fps, SEXP pps, SEXP cnt, SEXP code, SEXP nLeft)
 /* Sorted mode, held in the state's "ss_sorted" attribute (the state list
  * keeps its 20 elements): the focal and the pool ordered by score, with
  * alive flags by row. S_F, S_FIDX, S_P and S_PIDX then stay the full
- * input, S_LENS[0:1] count the alive rows, and ss_compact turns the state
- * back into the compacted form the scan and the R fallback read. */
+ * input (from ss_init_sorted, S_F and S_P are fps and pps themselves and
+ * S_FIDX and S_PIDX are NULL), S_LENS[0:1] count the alive rows, and
+ * ss_compact turns the state back into the compacted form the scan and the
+ * R fallback read. */
 enum {
 	Q_FORD, Q_FSV, Q_PORD, Q_PSV, Q_FAL, Q_PAL, Q_PTR, Q_RUN, Q_PTAG,
 	Q_KEYS, Q_N
@@ -110,7 +121,9 @@ static SEXP sorted_of(SEXP st)
 }
 
 /* Write the alive rows of S_F/S_FIDX and S_P/S_PIDX to their fronts in
- * row order, as run_pass's compaction leaves them, and leave sorted mode */
+ * row order, as run_pass's compaction leaves them, and leave sorted mode;
+ * a borrowed fps or pps (S_FIDX or S_PIDX NULL) is first copied, with
+ * row indices 1..n, so the state matches ss_init's */
 SEXP ss_compact(SEXP st)
 {
 	SEXP q = sorted_of(st);
@@ -118,10 +131,24 @@ SEXP ss_compact(SEXP st)
 		return R_NilValue;
 	int *lens = INTEGER(VECTOR_ELT(st, S_LENS));
 	for (int s = 0; s < 2; s++) {
-		double *x = REAL(VECTOR_ELT(st, s ? S_P : S_F));
-		int *idx = INTEGER(VECTOR_ELT(st, s ? S_PIDX : S_FIDX));
+		int sx = s ? S_P : S_F, si = s ? S_PIDX : S_FIDX;
+		if (TYPEOF(VECTOR_ELT(st, si)) != INTSXP) {
+			SEXP src = VECTOR_ELT(st, sx);
+			R_xlen_t m = XLENGTH(src);
+			SEXP cx = PROTECT(allocVector(REALSXP, m));
+			if (m)
+				memcpy(REAL(cx), REAL(src), m * sizeof(double));
+			SET_VECTOR_ELT(st, sx, cx);
+			UNPROTECT(1);
+			SET_VECTOR_ELT(st, si, allocVector(INTSXP, m));
+			int *ci = INTEGER(VECTOR_ELT(st, si));
+			for (R_xlen_t j = 0; j < m; j++)
+				ci[j] = (int) j + 1;
+		}
+		double *x = REAL(VECTOR_ELT(st, sx));
+		int *idx = INTEGER(VECTOR_ELT(st, si));
 		const Rbyte *al = RAW(VECTOR_ELT(q, s ? Q_PAL : Q_FAL));
-		int n = (int) XLENGTH(VECTOR_ELT(st, s ? S_P : S_F)), w = 0;
+		int n = (int) XLENGTH(VECTOR_ELT(st, sx)), w = 0;
 		for (int j = 0; j < n; j++)
 			if (al[j]) {
 				x[w] = x[j];
@@ -313,7 +340,7 @@ SEXP ss_init_sorted(SEXP fps, SEXP pps)
 		return R_NilValue;
 	}
 	SEXP code_ = PROTECT(allocVector(INTSXP, nf_ + np_));
-	SEXP st = PROTECT(state_new(fps, pps, code_));
+	SEXP st = PROTECT(state_new(fps, pps, code_, 1));
 	int *code = INTEGER(code_);
 	int *cnt = INTEGER(VECTOR_ELT(st, S_CNT));
 	if (nf + np)

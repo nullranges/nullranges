@@ -53,6 +53,8 @@ SEXP matched_rows(SEXP s_nf, SEXP index, SEXP s_np);
 SEXP any_nan(SEXP x);
 SEXP accept_index(SEXP x);
 SEXP nn_keep(SEXP fps, SEXP pps);
+SEXP nn_draws(SEXP fps, SEXP pps);
+SEXP split_scores(SEXP ps, SEXP s_nf, SEXP s_n);
 
 static const R_CallMethodDef callMethods[] = {
 	{"moved_positions", (DL_FUNC) &moved_positions, 13},
@@ -83,6 +85,8 @@ static const R_CallMethodDef callMethods[] = {
 	{"any_nan", (DL_FUNC) &any_nan, 1},
 	{"accept_index", (DL_FUNC) &accept_index, 1},
 	{"nn_keep", (DL_FUNC) &nn_keep, 2},
+	{"nn_draws", (DL_FUNC) &nn_draws, 2},
+	{"split_scores", (DL_FUNC) &split_scores, 3},
 	{NULL, NULL, 0}
 };
 

@@ -1,6 +1,8 @@
 #include <R.h>
 #include <Rinternals.h>
+#include <Rversion.h>
 #include <limits.h>
+#include <math.h>
 #include <stdint.h>
 #include <string.h>
 #include "segDraws.h"
@@ -11,6 +13,21 @@
 /* at most this many threads, and only from this many bait blocks */
 #define MOVED_MAX_THREADS 4
 #define MOVED_PAR_MIN 16384
+
+/* seg_draws_moved() runs pass 2 inside the draws' region, into vectors
+ * allocated before it with R's resizable vector API (R >= 4.6.0), of
+ * ceil(MOVED_P2_SCALE * k0 * n_rep) + MOVED_P2_SLACK rows, k0 the rows
+ * replicate 0 keeps; where the rows outgrow them, or without the API,
+ * pass 2 runs after the draws */
+#if defined(_OPENMP) && R_VERSION >= R_Version(4, 6, 0)
+#define MOVED_P2_REGION 1
+#else
+#define MOVED_P2_REGION 0
+#endif
+#define MOVED_P2_SCALE 1.125
+#define MOVED_P2_SLACK 65536
+/* the pieces replicate 0's pass 1 runs in before the region */
+#define MOVED_P1_PIECES 128
 
 /* R's integer + and - give NA outside [-INT_MAX, INT_MAX] */
 #define INT_OK(v) ((v) <= INT_MAX && (v) >= -(int64_t) INT_MAX)
@@ -560,7 +577,7 @@ typedef struct {
 	int k;
 } m_arena;
 
-#define ARENA_SLOTS 24
+#define ARENA_SLOTS 32
 
 static void *m_alloc(m_arena *a, size_t n, size_t sz)
 {
@@ -810,6 +827,10 @@ static int moved_rep_check(const moved_plan *pl, R_xlen_t r, int *cnt)
 	return 1;
 }
 
+static void moved_runs_lens(SEXP ans, const moved_ctx *xp, int n_chunk,
+	const R_xlen_t *cb, const R_xlen_t *c_run, int *lens, int n_rep,
+	R_xlen_t n_keep);
+
 /* After pass 1 over the chunks of blocks [cb[c], cb[c + 1]), which gave
  * c_ok, c_hit and c_keep: pass 2, writing each chunk from the sum of the
  * counts before it, so the rows land as one pass in block order puts
@@ -899,7 +920,19 @@ static SEXP moved_finish(moved_plan *pl, int n_chunk, const R_xlen_t *cb,
 #endif
 	for (int c = 0; c < n_chunk; c++)
 		moved_pass2(&x, cb[c], cb[c + 1], c_keep[c], out, c_run + c);
+	moved_runs_lens(ans, &x, n_chunk, cb, c_run, lens, n_rep, n_keep);
+	UNPROTECT(2);
+	return ans;
+}
 
+/* After pass 2 over every chunk: elements 5 and 6 of ans, the runs of the
+ * code column, and lens (or NULL) from the row each replicate starts at
+ * to the rows of each */
+static void moved_runs_lens(SEXP ans, const moved_ctx *xp, int n_chunk,
+	const R_xlen_t *cb, const R_xlen_t *c_run, int *lens, int n_rep,
+	R_xlen_t n_keep)
+{
+	const moved_ctx x = *xp;
 	/* the runs of the code column: each block's rows share its target
 	 * sequence, so one run per block that wrote rows, merged with the run
 	 * before when the sequence is the same; maximal, as Rle() finds them.
@@ -940,8 +973,6 @@ static SEXP moved_finish(moved_plan *pl, int n_chunk, const R_xlen_t *cb,
 			lens[rr] = (rr + 1 < n_rep ? lens[rr + 1] : (int) n_keep) -
 				lens[rr];
 	}
-	UNPROTECT(2);
-	return ans;
 }
 
 /* The moved ranges of every bait block in one pass: per block, in order,
@@ -1310,10 +1341,251 @@ static SEXP fuse_error(SEXP cond, void *d)
 	return R_NilValue;
 }
 
+#if MOVED_P2_REGION
+/* Pass 2 in the draws' region: units below the frontier 'front' (the
+ * first unit whose pass 1 is not done, done1) have their row offsets in
+ * off, and are written in order from 'next' while their rows end at most
+ * maxlen rows in; 'stop' once one would not. done2 marks the units
+ * written. front, next and stop change only under the critical section. */
+typedef struct {
+	const moved_ctx *x;
+	const R_xlen_t *cb, *c_keep;
+	R_xlen_t *off, *c_run, maxlen;
+	int *done1, *done2;
+	int *const *out;
+	int n_unit, front, next, stop;
+} p2_sched;
+
+/* One unit of pass 2, where one is ready: 1 when it wrote one */
+static int p2_take(p2_sched *s)
+{
+	int nx, fr, st, d = 1;
+#pragma omp atomic read
+	st = s->stop;
+	if (st)
+		return 0;
+#pragma omp atomic read
+	nx = s->next;
+#pragma omp atomic read
+	fr = s->front;
+	if (nx >= fr) {
+		if (fr >= s->n_unit)
+			return 0;
+#pragma omp atomic read
+		d = s->done1[fr];
+		if (!d)
+			return 0;
+	}
+	int p = -1;
+#pragma omp critical(moved_p2)
+	{
+		int f = s->front;
+		while (f < s->n_unit) {
+#pragma omp atomic read
+			d = s->done1[f];
+			if (!d)
+				break;
+#pragma omp flush
+			s->off[f + 1] = s->off[f] + s->c_keep[f];
+			f++;
+		}
+#pragma omp atomic write
+		s->front = f;
+		if (!s->stop && s->next < f) {
+			if (s->off[s->next + 1] <= s->maxlen) {
+				p = s->next;
+#pragma omp atomic write
+				s->next = p + 1;
+			} else {
+#pragma omp atomic write
+				s->stop = 1;
+			}
+		}
+	}
+	if (p < 0)
+		return 0;
+	moved_pass2(s->x, s->cb[p], s->cb[p + 1], s->off[p], s->out,
+		s->c_run + p);
+	s->done2[p] = 1;
+	return 1;
+}
+
+/* 0 once no unit is left for pass 2 in the region */
+static int p2_more(p2_sched *s, int *fail)
+{
+	int f, st, nx;
+#pragma omp atomic read
+	f = *fail;
+#pragma omp atomic read
+	st = s->stop;
+#pragma omp atomic read
+	nx = s->next;
+	return !f && !st && nx < s->n_unit;
+}
+
+/* Before the region, under R_tryCatchError(): moved_finish()'s value with
+ * every vector pass 2 writes allocated resizable at maxlen rows (lens at
+ * n_rep), pass 2's context x2 writing into them, and the units' buffers */
+typedef struct {
+	moved_plan *pl;
+	m_arena *arena;
+	R_xlen_t maxlen;
+	int n_unit;
+	moved_ctx x2;
+	int *out[5];
+	int *lens;
+	R_xlen_t *off, *c_run;
+	int *done1, *done2;
+} fuse_alloc;
+
+static SEXP fuse_alloc_body(void *d)
+{
+	fuse_alloc *f = (fuse_alloc *) d;
+	moved_plan *pl = f->pl;
+	int with_block = pl->with_block, gather = pl->gather;
+	R_xlen_t ncol = pl->ncol, maxlen = f->maxlen;
+	SEXP cols_ = pl->cols_;
+	int n_unit = f->n_unit;
+	f->off = (R_xlen_t *) m_alloc(f->arena, n_unit + 1, sizeof(R_xlen_t));
+	f->c_run = (R_xlen_t *) m_alloc(f->arena, n_unit, sizeof(R_xlen_t));
+	f->done1 = (int *) m_alloc(f->arena, n_unit, sizeof(int));
+	f->done2 = (int *) m_alloc(f->arena, n_unit, sizeof(int));
+	memset(f->done1, 0, n_unit * sizeof(int));
+	memset(f->done2, 0, n_unit * sizeof(int));
+	f->x2 = pl->x;
+	int n_el = pl->with_cols ? 8 : 7;
+	SEXP ans = PROTECT(allocVector(VECSXP, n_el));
+	SEXP nms = PROTECT(allocVector(STRSXP, n_el));
+	const char *names[8] = {"s", "code", "start", "width",
+		with_block ? "block" : "lens", "run_code", "run_length", "cols"};
+	f->out[0] = NULL;
+	f->out[1] = NULL;
+	for (int j = gather ? 1 : 0; j < 5; j++) {
+		if (j == 1 && !pl->with_code)
+			continue;
+		SEXP v = j < 4 || with_block ?
+			R_allocResizableVector(INTSXP, maxlen) :
+			allocVector(INTSXP, (R_xlen_t) pl->n_rep);
+		SET_VECTOR_ELT(ans, j, v);
+		f->out[j] = INTEGER(v);
+	}
+	for (int j = 0; j < n_el; j++)
+		SET_STRING_ELT(nms, j, mkChar(names[j]));
+	setAttrib(ans, R_NamesSymbol, nms);
+	f->lens = NULL;
+	if (!with_block) {
+		f->lens = f->out[4];
+		f->out[4] = NULL;
+		f->x2.rep_at = f->lens;
+	}
+	if (gather) {
+		SEXP cols = allocVector(VECSXP, ncol);
+		SET_VECTOR_ELT(ans, 7, cols);
+		setAttrib(cols, R_NamesSymbol, getAttrib(cols_, R_NamesSymbol));
+		const void **cin = (const void **) m_alloc(f->arena,
+			ncol > 0 ? ncol : 1, sizeof(void *));
+		void **cout = (void **) m_alloc(f->arena, ncol > 0 ? ncol : 1,
+			sizeof(void *));
+		unsigned char *c8 = (unsigned char *) m_alloc(f->arena,
+			ncol > 0 ? ncol : 1, 1);
+		for (R_xlen_t j = 0; j < ncol; j++) {
+			SEXP v = VECTOR_ELT(cols_, j);
+			SEXP w = R_allocResizableVector(TYPEOF(v), maxlen);
+			SET_VECTOR_ELT(cols, j, w);
+			c8[j] = TYPEOF(v) == REALSXP;
+			if (TYPEOF(v) == REALSXP) {
+				cin[j] = REAL_RO(v);
+				cout[j] = REAL(w);
+			} else if (TYPEOF(v) == INTSXP) {
+				cin[j] = INTEGER_RO(v);
+				cout[j] = INTEGER(w);
+			} else {
+				cin[j] = LOGICAL_RO(v);
+				cout[j] = LOGICAL(w);
+			}
+		}
+		f->x2.ncol = (int) ncol;
+		f->x2.col8 = c8;
+		f->x2.col_in = (const void *const *) cin;
+		f->x2.col_out = (void *const *) cout;
+	}
+	UNPROTECT(2);
+	return ans;
+}
+
+/* After the region, under R_tryCatchError(): moved_finish()'s value from
+ * the rows pass 2 wrote in the region, the units it did not write written
+ * now, each vector cut to the rows; moved_finish() itself where the rows
+ * outgrew the vectors */
+typedef struct {
+	moved_plan *pl;
+	fuse_alloc *fa;
+	SEXP ans;
+	int n_chunk, stop;
+	const R_xlen_t *cb, *c_hit;
+	R_xlen_t *c_keep;
+	const int *c_ok;
+} fuse_finish2;
+
+static SEXP fuse_finish2_body(void *d)
+{
+	fuse_finish2 *f = (fuse_finish2 *) d;
+	moved_plan *pl = f->pl;
+	fuse_alloc *fa = f->fa;
+	int n_chunk = f->n_chunk, n_thr = pl->n_thr;
+	const R_xlen_t *cb = f->cb;
+	R_xlen_t n_hit = 0, n_keep = 0;
+	for (int c = 0; c < n_chunk; c++) {
+		if (!f->c_ok[c])
+			return R_NilValue;
+		n_hit += f->c_hit[c];
+		n_keep += f->c_keep[c];
+	}
+	if (n_hit == 0 || n_hit > INT_MAX)
+		return R_NilValue;
+	if (f->stop || n_keep > fa->maxlen) {
+		/* pass 2 overwrote pass 1's entries of the blocks it wrote */
+#pragma omp parallel for num_threads(n_thr) schedule(dynamic, 1) if(n_thr > 1)
+		for (int c = 0; c < n_chunk; c++) {
+			R_xlen_t h, k;
+			if (fa->done2[c])
+				moved_pass1(&pl->x, cb[c], cb[c + 1], &h, &k);
+		}
+		return moved_finish(pl, n_chunk, cb, f->c_hit, f->c_keep, f->c_ok);
+	}
+	R_xlen_t *off = fa->off;
+	off[0] = 0;
+	for (int c = 0; c < n_chunk; c++)
+		off[c + 1] = off[c] + f->c_keep[c];
+#pragma omp parallel for num_threads(n_thr) schedule(dynamic, 1) if(n_thr > 1)
+	for (int c = 0; c < n_chunk; c++)
+		if (!fa->done2[c])
+			moved_pass2(&fa->x2, cb[c], cb[c + 1], off[c], fa->out,
+				fa->c_run + c);
+	SEXP ans = f->ans;
+	for (int j = 0; j < 5; j++) {
+		SEXP v = VECTOR_ELT(ans, j);
+		if (v != R_NilValue && (j < 4 || pl->with_block))
+			R_resizeVector(v, n_keep);
+	}
+	if (pl->gather) {
+		SEXP cols = VECTOR_ELT(ans, 7);
+		for (R_xlen_t j = 0; j < XLENGTH(cols); j++)
+			R_resizeVector(VECTOR_ELT(cols, j), n_keep);
+	}
+	moved_runs_lens(ans, &fa->x2, n_chunk, cb, fa->c_run, fa->lens,
+		pl->n_rep, n_keep);
+	return ans;
+}
+#endif
+
 /* seg_draws() and moved_rows_bait() on its draws in one call: pass 1 of
  * moved_impl() (each replicate's checks, then each block's) runs on the
  * other threads on each replicate as soon as it is drawn, while this
- * thread, R's, draws the next, exactly as seg_draws() does; pass 2 runs
+ * thread, R's, draws the next, exactly as seg_draws() does. Pass 2 of a
+ * unit runs in the same region once pass 1 of it and of every unit before
+ * it is done, into vectors fuse_alloc_body() allocates before the region
+ * from replicate 0's rows (drawn and passed before it), and otherwise
  * after the draws. The arguments are seg_draws()' and then those of
  * moved_rows_bait() but b_seg_, b_start_ and n_rep_, which the draws
  * give. Returns NULL where seg_draws() does, else list(start, seg, len,
@@ -1358,6 +1630,11 @@ SEXP seg_draws_moved(SEXP s_n_rep, SEXP prob, SEXP rmin, SEXP rmax,
 		fuse = 0;
 	moved_plan pl;
 	fuse_setup fs;
+#if MOVED_P2_REGION
+	fuse_alloc fa;
+	p2_sched ps;
+	SEXP p2_ans = R_NilValue;
+#endif
 	SEXP keep = R_NilValue;
 	if (fuse) {
 		r.n_seg = (int) XLENGTH(seg_code_);
@@ -1410,78 +1687,194 @@ SEXP seg_draws_moved(SEXP s_n_rep, SEXP prob, SEXP rmin, SEXP rmax,
 	else {
 		R_xlen_t nb = pl.n_blocks;
 		int q = fs.q, n_unit = fs.n_unit, n_lev1 = pl.n_lev > 0 ? pl.n_lev : 1;
-		int next_u = 0, fail = 0;
+		int next_u = 0, fail = 0, r0 = 0;
+#if MOVED_P2_REGION
+		int p2 = 0;
+#endif
 		int *rep_state = fs.rep_state;
 		const R_xlen_t *cb = fs.cb;
-#pragma omp parallel num_threads(n_thr)
-		{
-			int tid = omp_get_thread_num();
-			int *cnt = fs.cnt + (R_xlen_t) tid * n_lev1;
-			if (tid == 0) {
-				/* R's thread: the draws, published replicate by
-				 * replicate; one of another length moves the blocks of
-				 * every later one */
-				int bad = 0;
-				for (int rr = 0; rr < n_rep; rr++) {
-					seg_plan_rep(&sp, rr);
-					if (sp.ol[rr] != nb)
-						bad = 1;
-#pragma omp flush
-#pragma omp atomic write
-					rep_state[rr] = bad ? -1 : 1;
-#pragma omp flush
+#if MOVED_P2_REGION
+		/* replicate 0 before the region: its draws, its checks and pass 1
+		 * of its units, whose rows size the vectors of pass 2 */
+		seg_plan_rep(&sp, 0);
+		r0 = 1;
+		int ok0 = sp.ol[0] == nb && moved_rep_check(&pl, 0, fs.cnt);
+		if (ok0) {
+			/* each unit in n_s pieces on the threads; pass 1 gives the
+			 * same entries and counts however the blocks are cut */
+			int n_s = n_thr, n_p = q * n_s;
+			int p_ok[MOVED_P1_PIECES];
+			R_xlen_t p_hit[MOVED_P1_PIECES], p_keep[MOVED_P1_PIECES];
+			if (n_p > MOVED_P1_PIECES) {
+				n_s = 1;
+				n_p = q;
+			}
+#pragma omp parallel for num_threads(n_thr) schedule(static)
+			for (int i = 0; i < n_p; i++) {
+				int u = i / n_s, k = i % n_s;
+				R_xlen_t w = cb[u + 1] - cb[u];
+				R_xlen_t a = cb[u] + w * k / n_s, b = cb[u] + w * (k + 1) / n_s;
+				p_hit[i] = 0;
+				p_keep[i] = 0;
+				p_ok[i] = a < b ? moved_pass1(&pl.x, a, b, p_hit + i,
+					p_keep + i) : 1;
+			}
+			for (int u = 0; u < q; u++) {
+				int ok = 1;
+				R_xlen_t h = 0, k = 0;
+				for (int i = u * n_s; i < (u + 1) * n_s; i++) {
+					ok = ok && p_ok[i];
+					h += p_hit[i];
+					k += p_keep[i];
+				}
+				fs.c_ok[u] = ok;
+				fs.c_hit[u] = h;
+				fs.c_keep[u] = k;
+				ok0 = ok0 && ok;
+			}
+		}
+		if (!ok0) {
+			fuse = 0;
+			for (int rr = 1; rr < n_rep; rr++)
+				seg_plan_rep(&sp, rr);
+		} else {
+			rep_state[0] = 2;
+			next_u = q;
+			R_xlen_t k0 = 0;
+			for (int u = 0; u < q; u++)
+				k0 += fs.c_keep[u];
+			double want = ceil(MOVED_P2_SCALE * (double) k0 * n_rep) +
+				MOVED_P2_SLACK;
+			if (want <= INT_MAX) {
+				fa.pl = &pl;
+				fa.arena = &arena;
+				fa.maxlen = (R_xlen_t) want;
+				fa.n_unit = n_unit;
+				int err = 0;
+				SEXP a = R_tryCatchError(fuse_alloc_body, &fa, fuse_error,
+					&err);
+				if (!err && TYPEOF(a) == VECSXP &&
+					arena.k < ARENA_SLOTS) {
+					SET_VECTOR_ELT(arena.keep, arena.k++, a);
+					p2_ans = a;
+					p2 = 1;
 				}
 			}
-			/* the units in order: a replicate's first checks it (state
-			 * 1 -> 2), the others wait for that */
-			for (;;) {
-				int u, f, s;
-#pragma omp atomic capture
-				u = next_u++;
-				if (u >= n_unit)
-					break;
-#pragma omp atomic read
-				f = fail;
-				if (f)
-					continue;
-				int rr = u / q, need = u % q == 0 ? 1 : 2;
-				for (;;) {
+		}
+		if (p2) {
+			ps.x = &fa.x2;
+			ps.cb = cb;
+			ps.c_keep = fs.c_keep;
+			ps.off = fa.off;
+			ps.c_run = fa.c_run;
+			ps.maxlen = fa.maxlen;
+			ps.done1 = fa.done1;
+			ps.done2 = fa.done2;
+			ps.out = fa.out;
+			ps.n_unit = n_unit;
+			ps.front = q;
+			ps.next = 0;
+			ps.stop = 0;
+			fa.off[0] = 0;
+			for (int u = 0; u < q; u++) {
+				fa.off[u + 1] = fa.off[u] + fs.c_keep[u];
+				fa.done1[u] = 1;
+			}
+		}
+#endif
+		if (fuse) {
+#pragma omp parallel num_threads(n_thr)
+			{
+				int tid = omp_get_thread_num();
+				int *cnt = fs.cnt + (R_xlen_t) tid * n_lev1;
+				if (tid == 0) {
+					/* R's thread: the draws, published replicate by
+					 * replicate; one of another length moves the blocks of
+					 * every later one */
+					int bad = 0;
+					for (int rr = r0; rr < n_rep; rr++) {
+						seg_plan_rep(&sp, rr);
+						if (sp.ol[rr] != nb)
+							bad = 1;
 #pragma omp flush
-#pragma omp atomic read
-					s = rep_state[rr];
+#pragma omp atomic write
+						rep_state[rr] = bad ? -1 : 1;
+#pragma omp flush
+					}
+				}
+				/* the units in order: a replicate's first checks it (state
+				 * 1 -> 2), the others wait for that; between them, and while
+				 * waiting, pass 2 of the units below the frontier */
+				for (;;) {
+					int u, f, s;
+#if MOVED_P2_REGION
+					if (p2 && p2_take(&ps))
+						continue;
+#endif
+#pragma omp atomic capture
+					u = next_u++;
+					if (u >= n_unit)
+						break;
 #pragma omp atomic read
 					f = fail;
-					if (s >= need || s < 0 || f)
-						break;
-				}
+					if (f)
+						continue;
+					int rr = u / q, need = u % q == 0 ? 1 : 2;
+					for (;;) {
 #pragma omp flush
-				if (s < need) {
-#pragma omp atomic write
-					fail = 1;
-					continue;
-				}
-				if (need == 1) {
-					int ok = moved_rep_check(&pl, rr, cnt);
+#pragma omp atomic read
+						s = rep_state[rr];
+#pragma omp atomic read
+						f = fail;
+						if (s >= need || s < 0 || f)
+							break;
+#if MOVED_P2_REGION
+						if (p2)
+							p2_take(&ps);
+#endif
+					}
 #pragma omp flush
-#pragma omp atomic write
-					rep_state[rr] = ok ? 2 : -1;
-#pragma omp flush
-					if (!ok) {
+					if (s < need) {
 #pragma omp atomic write
 						fail = 1;
 						continue;
 					}
-				}
-				fs.c_ok[u] = moved_pass1(&pl.x, cb[u], cb[u + 1],
-					fs.c_hit + u, fs.c_keep + u);
-				if (!fs.c_ok[u]) {
+					if (need == 1) {
+						int ok = moved_rep_check(&pl, rr, cnt);
+#pragma omp flush
 #pragma omp atomic write
-					fail = 1;
+						rep_state[rr] = ok ? 2 : -1;
+#pragma omp flush
+						if (!ok) {
+#pragma omp atomic write
+							fail = 1;
+							continue;
+						}
+					}
+					fs.c_ok[u] = moved_pass1(&pl.x, cb[u], cb[u + 1],
+						fs.c_hit + u, fs.c_keep + u);
+					if (!fs.c_ok[u]) {
+#pragma omp atomic write
+						fail = 1;
+					}
+#if MOVED_P2_REGION
+					else if (p2) {
+#pragma omp flush
+#pragma omp atomic write
+						ps.done1[u] = 1;
+					}
+#endif
 				}
+#if MOVED_P2_REGION
+				/* every pass-1 unit taken: pass 2 of the rest as their
+				 * pass 1 ends */
+				while (p2 && p2_more(&ps, &fail))
+					p2_take(&ps);
+#endif
 			}
+			if (fail)
+				fuse = 0;
 		}
-		if (fail)
-			fuse = 0;
 	}
 #endif
 	PutRNGstate();
@@ -1499,10 +1892,19 @@ SEXP seg_draws_moved(SEXP s_n_rep, SEXP prob, SEXP rmin, SEXP rmax,
 	}
 	SEXP moved = R_NilValue;
 	if (fuse) {
-		fuse_finish ff = {&pl, fs.n_unit, fs.cb, fs.c_hit, fs.c_keep,
-			fs.c_ok};
 		int err = 0;
-		moved = R_tryCatchError(fuse_finish_body, &ff, fuse_error, &err);
+#if MOVED_P2_REGION
+		if (p2_ans != R_NilValue) {
+			fuse_finish2 f2 = {&pl, &fa, p2_ans, fs.n_unit, ps.stop, fs.cb,
+				fs.c_hit, fs.c_keep, fs.c_ok};
+			moved = R_tryCatchError(fuse_finish2_body, &f2, fuse_error, &err);
+		} else
+#endif
+		{
+			fuse_finish ff = {&pl, fs.n_unit, fs.cb, fs.c_hit, fs.c_keep,
+				fs.c_ok};
+			moved = R_tryCatchError(fuse_finish_body, &ff, fuse_error, &err);
+		}
 		if (err || TYPEOF(moved) != VECSXP)
 			moved = R_NilValue;
 	}
