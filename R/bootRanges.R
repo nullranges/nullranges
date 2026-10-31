@@ -98,20 +98,81 @@ bootRanges <- function(y, blockLength, R = 1,
     }
   }
 
-  # done once for all replicates; skipped, with its checks, when R < 1
-  if (is.null(seg) && R >= 1) {
-    unseg_setup <- unseg_bootstrap_setup(
-      y = y, L_b = blockLength, type = type,
-      within_chrom = withinChrom
+  # base's code (bootRanges_base()) where the paths below could differ from
+  # it: no blockLength (missing there too, for the same error), R not one
+  # number >= 1, a 'y' whose moved ranges base's replicates would reject, a
+  # generator .Random.seed may not hold
+  if (missing(blockLength)) {
+    return(bootRanges_base(y, R = R, seg = seg, exclude = exclude,
+                           excludeOption = excludeOption,
+                           proportionLength = proportionLength, type = type,
+                           withinChrom = withinChrom,
+                           storeBlockLength = storeBlockLength))
+  }
+  if (!plain_count(R) || !boot_y_valid(y) || user_rng()) {
+    return(bootRanges_base(y, blockLength, R, seg, exclude, excludeOption,
+                           proportionLength, type, withinChrom,
+                           storeBlockLength))
+  }
+
+  # the arguments base's first replicate reads before its first draw, read
+  # in its order and outside the handlers below, which would leave them
+  # half evaluated
+  if (is.null(seg)) {
+    force(type)
+    force(blockLength)
+    force(withinChrom)
+  } else {
+    force(proportionLength)
+    force(blockLength)
+  }
+  # a block length other than one whole number: base's code. With a
+  # fractional one, its tiling of a segmentation without proportional
+  # lengths gives fewer target starts than target sequences, which base
+  # pairs per replicate and the moves for all replicates at once do not.
+  if (!plain_count(blockLength) || blockLength != floor(blockLength)) {
+    return(bootRanges_base(y, blockLength, R, seg, exclude, excludeOption,
+                           proportionLength, type, withinChrom,
+                           storeBlockLength))
+  }
+  if (is.null(seg)) {
+    # done once for all replicates. Any warning or error it signals, base's
+    # first replicate signals before its first draw, or after its draws for
+    # the tiling of the bootstrap across chromosomes: base's code runs.
+    unseg_setup <- tryCatch(
+      unseg_bootstrap_setup(
+        y = y, L_b = blockLength, type = type,
+        within_chrom = withinChrom
+      ),
+      warning = function(w) NULL, error = function(e) NULL
     )
+    if (is.null(unseg_setup)) {
+      return(bootRanges_base(y, blockLength, R, seg, exclude, excludeOption,
+                             proportionLength, type, withinChrom,
+                             storeBlockLength))
+    }
   }
 
   # as many replicates as replicate(R, ...) makes
   n_rep <- length(integer(R))
-  bait <- n_rep >= 1L && (!is.null(seg) ||
-    (unseg_setup$type == "bootstrap" && isFALSE(unseg_setup$within_chrom)))
+  bait <- !is.null(seg) ||
+    (unseg_setup$type == "bootstrap" && isFALSE(unseg_setup$within_chrom))
 
   if (bait) {
+    # read before the draws; base reads it after its first replicate is
+    # drawn and moved. Where reading it fails, that replicate runs, as base
+    # runs it, and then the error is raised.
+    ex_error <- tryCatch({
+      force(exclude)
+      NULL
+    }, error = function(e) e)
+    if (!is.null(ex_error)) {
+      bootRanges_base(y, blockLength, R = 1, seg = seg, exclude = NULL,
+                      excludeOption = excludeOption,
+                      proportionLength = proportionLength, type = type,
+                      withinChrom = withinChrom, storeBlockLength = FALSE)
+      stop(ex_error)
+    }
     # what moving the blocks reads of 'y' and 'exclude', which no draw
     # changes, so that the compiled draws can move each replicate's blocks
     # while the next are drawn; NULL where they are moved after the draws
@@ -119,45 +180,59 @@ bootRanges <- function(y, blockLength, R = 1,
       bulk_setup(y, exclude, excludeOption),
       warning = function(w) NULL, error = function(e) NULL
     )
-    # the random bait blocks of every replicate first, in replicate order,
-    # then the features they capture are moved for all replicates at once
-    blocks <- if (!is.null(seg)) {
-      # what seg$state gives, without DataFrame's [[ and its selectMethod()
-      state <- if (identical(as.vector(class(seg_mcols)), "DFrame")) {
-        seg_mcols@listData[["state"]]
+    # every replicate is drawn before any is moved. On any warning or error
+    # from here, .Random.seed is put back as it was before the first draw
+    # and base's code, which draws and moves one replicate at a time, makes
+    # the call, so that the condition comes at its point of the stream.
+    mark <- rng_mark()
+    moved <- tryCatch({
+      # the random bait blocks of every replicate first, in replicate
+      # order, then the features they capture are moved for all
+      # replicates at once
+      blocks <- if (!is.null(seg)) {
+        # what seg$state gives, without DataFrame's [[ and its selectMethod()
+        state <- if (identical(as.vector(class(seg_mcols)), "DFrame")) {
+          seg_mcols@listData[["state"]]
+        } else {
+          seg$state
+        }
+        seg_bootstrap_draws(
+          n_rep, y = y, seg = ranges(seg),
+          state = state, L_b = blockLength,
+          chr_names = seqnames(seg),
+          chr_lens = chr_lens,
+          proportion_length = proportionLength,
+          fuse = fuse
+        )
       } else {
-        seg$state
+        unseg_across_draws(
+          n_rep, unseg_setup$L_b, unseg_setup$chrom_lens, unseg_setup$blocks,
+          compiled = TRUE, fuse = fuse
+        )
       }
-      seg_bootstrap_draws(
-        n_rep, y = y, seg = ranges(seg),
-        state = state, L_b = blockLength,
-        chr_names = seqnames(seg),
-        chr_lens = chr_lens,
-        proportion_length = proportionLength,
-        fuse = fuse
+      # NULL for any input where the replicates, run one at a time, could
+      # warn, fail or differ: then they are run one at a time
+      bulk <- tryCatch(
+        move_blocks_bulk(y, blocks, exclude, excludeOption, fuse),
+        warning = function(w) NULL, error = function(e) NULL
       )
-    } else {
-      unseg_across_draws(
-        n_rep, unseg_setup$L_b, unseg_setup$chrom_lens, unseg_setup$blocks,
-        compiled = TRUE, fuse = fuse
-      )
+      if (!is.null(bulk)) {
+        bulk
+      } else {
+        br <- lapply(bait_draws(blocks), function(d) {
+          exclude_ranges(move_blocks(y, blocks, d), y, exclude, excludeOption)
+        })
+        list(ranges = do.call(c, br), lens = lengths(br))
+      }
+    }, warning = function(w) NULL, error = function(e) NULL)
+    if (is.null(moved)) {
+      rng_restore(mark)
+      return(bootRanges_base(y, blockLength, R, seg, exclude, excludeOption,
+                             proportionLength, type, withinChrom,
+                             storeBlockLength))
     }
-    # NULL for any input where the replicates, run one at a time, could
-    # warn, fail or differ: then they are run one at a time
-    bulk <- tryCatch(
-      move_blocks_bulk(y, blocks, exclude, excludeOption, fuse),
-      warning = function(w) NULL, error = function(e) NULL
-    )
-    if (!is.null(bulk)) {
-      lens <- bulk$lens
-      br <- bulk$ranges
-    } else {
-      br <- lapply(bait_draws(blocks), function(d) {
-        exclude_ranges(move_blocks(y, blocks, d), y, exclude, excludeOption)
-      })
-      lens <- lengths(br)
-      br <- do.call(c, br)
-    }
+    lens <- moved$lens
+    br <- moved$ranges
   } else {
     br <- replicate(R, {
       y_prime <- unseg_bootstrap(unseg_setup)
@@ -170,7 +245,8 @@ bootRanges <- function(y, blockLength, R = 1,
   # from its runs, without a value per range
   keep <- lens > 0L
   iter <- Rle(factor(seq_len(R), levels=seq_len(R))[keep], lens[keep])
-  if (!storeBlockLength && plain_iter_cols(br, sum(lens))) {
+  # storeBlockLength is read once, after the replicates, as base reads it
+  if (plain_iter_cols(br, sum(lens)) && isFALSE(storeBlockLength)) {
     # the two mcols<- lines below on the DFrame's columns: list [[<-
     # appends a new name at the end and replaces an existing one in place,
     # as DataFrame's [[<- does
@@ -201,6 +277,79 @@ bootRanges <- function(y, blockLength, R = 1,
     slot(out, s) <- slot(br, s)
   }
   out
+}
+
+# TRUE for one finite number >= 1 without a class (for R, integer(R) then
+# reads it as replicate(R, ...) in base's code does)
+#
+# @param x the number of replicates or the block length
+plain_count <- function(x) {
+  is.numeric(x) && !is.object(x) && length(x) == 1L && is.finite(x) &&
+    x >= 1
+}
+
+# FALSE where 'y', exactly a GRanges, fails a check of the validity methods
+# of GRanges and its superclasses (GenomicRanges 1.65.4, S4Vectors 0.51.10)
+# other than the warning for ranges past a seqlength. Base's replicates run
+# them on the ranges they move (shift(), seqnames<-); the moves here, on a
+# GRanges, do not. TRUE for other classes, whose moves call shift().
+#
+# @param y the input GRanges
+boot_y_valid <- function(y) {
+  if (!identical(as.vector(class(y)), "GRanges")) {
+    return(TRUE)
+  }
+  sn <- y@seqnames
+  st <- y@strand
+  rng <- y@ranges
+  mc <- y@elementMetadata
+  n <- length(sn)
+  nm <- names(rng)
+  # GenomicRanges: seqnames, ranges, strand, mcols and seqinfo
+  is(sn, "Rle") && is.factor(runValue(sn)) && is.null(names(sn)) &&
+    !anyNA(runValue(sn)) &&
+    as.vector(class(rng)) %in% c("IRanges", "StitchedIPos", "UnstitchedIPos") &&
+    is.factor(runValue(st)) &&
+    identical(levels(runValue(st)), c("+", "-", "*")) &&
+    !anyNA(runValue(st)) &&
+    identical(seqlevels(y@seqinfo), levels(runValue(sn))) &&
+    # GRanges: no metadata columns on the ranges, no row names on mcols
+    is.null(rng@elementMetadata) &&
+    # Vector: slots parallel to 'y', names, mcols a DataFrame
+    NROW(rng) == n && NROW(st) == n &&
+    (is.null(nm) || (is.character(nm) && is.null(attributes(nm)) &&
+      length(nm) == n)) &&
+    (is.null(mc) || (is(mc, "DataFrame") && nrow(mc) == n &&
+      is.null(rownames(mc)) &&
+      !any(c("seqnames", "ranges", "strand", "seqlevels", "seqlengths",
+             "isCircular", "start", "end", "width", "element") %in%
+           colnames(mc))))
+}
+
+# TRUE when the generator is user-supplied (RNGkind()), whose state need
+# not be in .Random.seed, so that rng_restore() could not rewind it
+user_rng <- function() {
+  seed <- get0(".Random.seed", envir = globalenv(), inherits = FALSE)
+  is.integer(seed) && length(seed) >= 1L && !is.na(seed[1L]) &&
+    seed[1L] %% 100L == 5L
+}
+
+# .Random.seed as it stands, NULL when there is none, for rng_restore()
+rng_mark <- function() {
+  list(seed = get0(".Random.seed", envir = globalenv(), inherits = FALSE))
+}
+
+# Puts back the .Random.seed of rng_mark(): the next draw continues from
+# it, or, when there was none, seeds the generator afresh, as the first
+# draw of a session does
+#
+# @param mark the value of rng_mark()
+rng_restore <- function(mark) {
+  if (!is.null(mark$seed)) {
+    assign(".Random.seed", mark$seed, envir = globalenv())
+  } else if (exists(".Random.seed", envir = globalenv(), inherits = FALSE)) {
+    rm(".Random.seed", envir = globalenv())
+  }
 }
 
 # TRUE when bootRanges' result 'br' is exactly a GRanges without names

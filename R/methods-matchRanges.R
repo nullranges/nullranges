@@ -778,8 +778,9 @@ propensityMatch <- function(covarData, covars, method, replace, nf) {
   ## kept), pool, and unmatched (pool order, rows never drawn), as one
   ## positional subset. The rbind stays for a covariate named "set" (it
   ## appends a second "set" column) and a factor with an NA level (rbind
-  ## drops the level and turns its codes NA).
-  ppsIndex <- mdt$ppsIndex
+  ## drops the level and turns its codes NA). mdt exists only for replace
+  ## TRUE or FALSE: otherwise the rbind raises data.table's error for it.
+  ppsIndex <- if (isTRUE(replace) || isFALSE(replace)) mdt$ppsIndex
   if (!("set" %in% names(covarData)) && is.integer(ppsIndex) &&
       !anyNA(ppsIndex) && (length(ppsIndex) == 0L ||
       (min(ppsIndex) >= 1L && max(ppsIndex) <= np)) &&
