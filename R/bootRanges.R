@@ -180,49 +180,82 @@ bootRanges <- function(y, blockLength, R = 1,
       bulk_setup(y, exclude, excludeOption),
       warning = function(w) NULL, error = function(e) NULL
     )
-    # every replicate is drawn before any is moved. On any warning or error
-    # from here, .Random.seed is put back as it was before the first draw
-    # and base's code, which draws and moves one replicate at a time, makes
-    # the call, so that the condition comes at its point of the stream.
+    # the replicates in chunks of at most boot_block_budget() bait blocks
+    # (at least one replicate each), so that the blocks held at once stay
+    # bounded; moving draws nothing, so the draws keep their order
+    per_rep <- bait_blocks_per_rep(
+      seg, seg_mcols, chr_lens, blockLength, proportionLength, unseg_setup
+    )
+    chunks <- boot_chunks(n_rep, per_rep)
+    # where each replicate has at least as many blocks as 'y' has ranges, the
+    # compiled moves decline every replicate (some sequence holds at least
+    # as many of its blocks as ranges of 'y'): the draws are made without
+    # them and the blocks moved by move_blocks_pieces()
+    r_route <- identical(as.vector(class(y)), "GRanges") &&
+      !is.na(per_rep) && per_rep >= length(y)
+    # each chunk's replicates are drawn before any of them is moved. On any
+    # warning or error from here, .Random.seed is put back as it was before
+    # the first draw and base's code, which draws and moves one replicate
+    # at a time, makes the call, so that the condition comes at its point
+    # of the stream.
     mark <- rng_mark()
     moved <- tryCatch({
-      # the random bait blocks of every replicate first, in replicate
-      # order, then the features they capture are moved for all
-      # replicates at once
-      blocks <- if (!is.null(seg)) {
-        # what seg$state gives, without DataFrame's [[ and its selectMethod()
-        state <- if (identical(as.vector(class(seg_mcols)), "DFrame")) {
+      # what seg$state gives, without DataFrame's [[ and its selectMethod()
+      state <- if (!is.null(seg)) {
+        if (identical(as.vector(class(seg_mcols)), "DFrame")) {
           seg_mcols@listData[["state"]]
         } else {
           seg$state
         }
-        seg_bootstrap_draws(
-          n_rep, y = y, seg = ranges(seg),
-          state = state, L_b = blockLength,
-          chr_names = seqnames(seg),
-          chr_lens = chr_lens,
-          proportion_length = proportionLength,
-          fuse = fuse
-        )
-      } else {
-        unseg_across_draws(
-          n_rep, unseg_setup$L_b, unseg_setup$chrom_lens, unseg_setup$blocks,
-          compiled = TRUE, fuse = fuse
-        )
       }
-      # NULL for any input where the replicates, run one at a time, could
-      # warn, fail or differ: then they are run one at a time
-      bulk <- tryCatch(
-        move_blocks_bulk(y, blocks, exclude, excludeOption, fuse),
-        warning = function(w) NULL, error = function(e) NULL
-      )
-      if (!is.null(bulk)) {
-        bulk
+      fz <- if (!r_route) fuse
+      # the random bait blocks of n replicates first, in replicate order,
+      # then the features they capture moved for those replicates at once
+      draw_move <- function(n) {
+        blocks <- if (!is.null(seg)) {
+          seg_bootstrap_draws(
+            n, y = y, seg = ranges(seg),
+            state = state, L_b = blockLength,
+            chr_names = seqnames(seg),
+            chr_lens = chr_lens,
+            proportion_length = proportionLength,
+            fuse = fz
+          )
+        } else {
+          unseg_across_draws(
+            n, unseg_setup$L_b, unseg_setup$chrom_lens, unseg_setup$blocks,
+            compiled = TRUE, fuse = fz
+          )
+        }
+        # NULL for any input where the replicates, run one at a time, could
+        # warn, fail or differ: then they are run one at a time
+        bulk <- tryCatch({
+          pieces <- if (r_route) {
+            move_blocks_pieces(y, blocks, exclude, excludeOption,
+                               boot_block_budget())
+          } else {
+            FALSE
+          }
+          if (isFALSE(pieces)) {
+            move_blocks_bulk(y, blocks, exclude, excludeOption, fz)
+          } else {
+            pieces
+          }
+        }, warning = function(w) NULL, error = function(e) NULL)
+        if (!is.null(bulk)) {
+          bulk
+        } else {
+          br <- lapply(bait_draws(blocks), function(d) {
+            exclude_ranges(move_blocks(y, blocks, d), y, exclude,
+                           excludeOption)
+          })
+          list(ranges = do.call(c, br), lens = lengths(br))
+        }
+      }
+      if (length(chunks) == 1L) {
+        draw_move(n_rep)
       } else {
-        br <- lapply(bait_draws(blocks), function(d) {
-          exclude_ranges(move_blocks(y, blocks, d), y, exclude, excludeOption)
-        })
-        list(ranges = do.call(c, br), lens = lengths(br))
+        bind_chunks(lapply(chunks, draw_move))
       }
     }, warning = function(w) NULL, error = function(e) NULL)
     if (is.null(moved)) {
@@ -367,6 +400,88 @@ plain_iter_cols <- function(br, n) {
     is.null(mc@rownames) && is.null(mc@elementMetadata) &&
     length(mc@metadata) == 0L &&
     identical(mc@nrows, length(br)) && isTRUE(n == mc@nrows)
+}
+
+# The most bait blocks bootRanges() draws and moves at once, unless one
+# replicate alone has more
+boot_block_budget <- function() {
+  BOOT_BLOCK_BUDGET
+}
+
+BOOT_BLOCK_BUDGET <- 1e6
+
+# The number of bait blocks each replicate draws on the bait routes, as
+# seg_bootstrap_prop(), seg_bootstrap_noprop() (before its blocks are cut
+# to the tiling's) and unseg_across_draws() count them; NA where it cannot
+# be computed. No draws.
+#
+# @param seg,proportionLength as in bootRanges()
+# @param seg_mcols mcols(seg)
+# @param chr_lens seqlengths(y)
+# @param L_b the block length
+# @param unseg_setup unseg_bootstrap_setup()'s value, without 'seg'
+bait_blocks_per_rep <- function(seg, seg_mcols, chr_lens, L_b,
+                                proportionLength, unseg_setup) {
+  n <- tryCatch(suppressWarnings({
+    if (is.null(seg)) {
+      sum(ceiling(as.numeric(unseg_setup$chrom_lens) / unseg_setup$L_b))
+    } else if (identical(as.vector(class(seg_mcols)), "DFrame")) {
+      w <- as.numeric(width(seg))
+      if (isTRUE(proportionLength)) {
+        state <- seg_mcols@listData[["state"]]
+        L_g <- sum(as.numeric(chr_lens))
+        sum(vapply(seq_len(max(state)), function(s) {
+          w_s <- w[state == s]
+          sum(ceiling(w_s / round(L_b * sum(w_s) / L_g)))
+        }, 0))
+      } else {
+        # the blocks kept: the tiling's of the segments in a state
+        state <- seg_mcols@listData[["state"]]
+        sum(ceiling(w[state %in% seq_len(max(state))] / L_b))
+      }
+    }
+  }), error = function(e) NULL)
+  if (!is.numeric(n) || length(n) != 1L || !is.finite(n)) {
+    return(NA_real_)
+  }
+  n
+}
+
+# The replicates of each chunk: as many as boot_block_budget() holds, at
+# least one, in order; all in one chunk where the count per replicate is NA
+#
+# @param n_rep the number of replicates, an integer
+# @param per_rep the bait blocks per replicate, or NA
+boot_chunks <- function(n_rep, per_rep) {
+  k <- if (is.na(per_rep) || per_rep <= 0) n_rep else
+    max(1, floor(boot_block_budget() / per_rep))
+  if (k >= n_rep) {
+    return(list(n_rep))
+  }
+  k <- as.integer(k)
+  sizes <- rep.int(k, n_rep %/% k)
+  if (n_rep %% k != 0L) {
+    sizes <- c(sizes, n_rep %% k)
+  }
+  as.list(sizes)
+}
+
+# The moved ranges and counts per replicate of the chunks, in order, as one
+# draw_move() of all replicates gives them; the 'block' column, which
+# bootRanges() drops, is dropped first, as the chunks may differ in it
+#
+# @param parts per chunk, list(ranges, lens)
+bind_chunks <- function(parts) {
+  lens <- unlist(lapply(parts, `[[`, "lens"), use.names = FALSE)
+  ranges <- lapply(parts, function(p) {
+    x <- p$ranges
+    if ("block" %in% names(mcols(x))) {
+      mcols(x)$block <- NULL
+    }
+    x
+  })
+  rm(parts)
+  list(ranges = do.call(c, ranges), lens = lens)
 }
 
 # deal with exclude regions, for one replicate
@@ -563,6 +678,161 @@ move_blocks_bulk <- function(y, blocks, exclude, excludeOption,
     )
   }
   bulk_rows(y, moved, ex, exclude, excludeOption, n_rep)
+}
+
+# move_blocks_bulk() where a replicate has at least as many bait blocks as
+# 'y' has ranges, so that some sequence holds at least as many of its blocks
+# as ranges of 'y' and moved_positions() declines: its route by
+# bait_overlaps() and shift_swap_trim_positions(), run on pieces of at most
+# 'piece' consecutive blocks, whose rows, in block order, are those of one
+# pass. Each block's hits are found as bait_overlaps() finds them for all
+# blocks at once: on the side its replicate's count on its sequence picks
+# (the replicate's, counted over all pieces), and on y's NCList, prebuilt,
+# wherever IRanges would build it on 'y'. Returns FALSE where the inputs are
+# not of that kind (move_blocks_bulk() then runs), NULL where
+# move_blocks_bulk() returns NULL, else its value.
+#
+# @param y the input GRanges
+# @param blocks the draws, laid out by seg_draws_compiled(), without 'moved'
+# @param exclude,excludeOption as in bootRanges()
+# @param piece the most blocks moved at once
+move_blocks_pieces <- function(y, blocks, exclude, excludeOption, piece) {
+  len <- blocks$bait_len
+  n_blocks <- length(blocks$target_start)
+  start_all <- blocks$bait_start
+  seg_all <- blocks$bait_seg
+  width <- blocks$width
+  target_chr <- blocks$target_chr
+  # a factor whose subsets keep its attributes, as shift_swap_trim_positions()
+  # reads them
+  chr_fac <- if (is(target_chr, "Rle")) runValue(target_chr) else target_chr
+  if (!identical(as.vector(class(y)), "GRanges") || !is.null(blocks$moved) ||
+      is.null(start_all) || !is.integer(seg_all) || is.object(seg_all) ||
+      length(seg_all) != length(start_all) || length(len) < 1L ||
+      !plain_number(start_all) || !plain_number(width) ||
+      !(length(width) %in% c(1L, n_blocks)) ||
+      !plain_number(blocks$target_start) || !is.factor(chr_fac) ||
+      !setequal(names(attributes(chr_fac)), c("levels", "class")) ||
+      any(unname(Seqinfo::isCircular(y)) %in% TRUE) ||
+      !any(len >= length(y))) {
+    return(FALSE)
+  }
+  n_rep <- length(len)
+  if (any(len != n_blocks)) {
+    return(NULL)
+  }
+  lev <- seqlevels(y)
+  n_lev <- length(lev)
+  seg_code <- match(blocks$chr_names, lev)
+  n <- length(start_all)
+  size <- as.integer(max(1, min(floor(piece), n)))
+  bounds <- unique(c(seq.int(0L, n, by = size), n))
+  piece_at <- function(k) seq.int(bounds[k] + 1L, bounds[k + 1L])
+  rep_of <- function(i) (i - 1L) %/% n_blocks + 1L
+  # each replicate's blocks per sequence, and bait_declines() over all
+  n_bait <- numeric(n_rep * n_lev)
+  for (k in seq_len(length(bounds) - 1L)) {
+    i <- piece_at(k)
+    code <- seg_code[seg_all[i]]
+    if (anyNA(code)) {
+      return(NULL)
+    }
+    n_bait <- n_bait + tabulate((rep_of(i) - 1L) * n_lev + code, n_rep * n_lev)
+  }
+  y <- updateObject(y, check = FALSE)
+  n_y <- tabulate(as.integer(seqnames(y)), n_lev)
+  y_nclist <- NULL
+  parts <- vector("list", length(bounds) - 1L)
+  n_hit <- 0
+  for (k in seq_along(parts)) {
+    i <- piece_at(k)
+    t <- (i - 1L) %% n_blocks + 1L
+    code <- seg_code[seg_all[i]]
+    bait_ranges <- IRanges(
+      start = start_all[i],
+      width = if (length(width) == 1L) rep_len(width, length(i)) else width[t]
+    )
+    block_shift <- blocks$target_start[t] - start(bait_ranges)
+    random_blocks <- GRanges(seqnames = blocks$chr_names[seg_all[i]],
+                             ranges = bait_ranges)
+    rep_chr <- (rep_of(i) - 1L) * n_lev + code
+    on_y <- n_bait[rep_chr] >= n_y[code]
+    if (any(on_y) && is.null(y_nclist)) {
+      y_nclist <- GNCList(y)
+    }
+    fo <- piece_overlaps(random_blocks, code, which(!on_y), which(on_y), y,
+                         y_nclist)
+    hit_block <- fo$query
+    tc <- target_chr[t]
+    if (is(tc, "Rle")) {
+      tc <- decode(tc)
+    }
+    n_hit <- n_hit + length(hit_block)
+    if (length(hit_block) == 0L) {
+      next
+    }
+    moved <- shift_swap_trim_positions(
+      y, fo$subject, block_shift[hit_block], tc, 1L, hit_block
+    )
+    if (is.null(moved)) {
+      return(NULL)
+    }
+    w <- which(moved$width > 0L)
+    parts[[k]] <- list(
+      s = moved$s[w], code = moved$code[w], start = moved$start[w],
+      width = moved$width[w], block = rep_of(i[hit_block[w]]),
+      chr_attr = moved$chr_attr
+    )
+  }
+  if (n_hit == 0) {
+    return(NULL)
+  }
+  parts <- parts[!vapply(parts, is.null, NA)]
+  moved <- list(
+    s = unlist(lapply(parts, `[[`, "s"), use.names = FALSE),
+    code = unlist(lapply(parts, `[[`, "code"), use.names = FALSE),
+    start = unlist(lapply(parts, `[[`, "start"), use.names = FALSE),
+    width = unlist(lapply(parts, `[[`, "width"), use.names = FALSE),
+    block = unlist(lapply(parts, `[[`, "block"), use.names = FALSE),
+    chr_attr = parts[[1L]]$chr_attr
+  )
+  rm(parts)
+  bulk_rows(y, moved, NULL, exclude, excludeOption, n_rep)
+}
+
+# bait_overlaps() for one piece of the blocks, given which of them find
+# their hits on the bait side ('on_bait') and which on y's NCList ('on_y',
+# prebuilt as 'y_nclist'), by block and within a block as bait_overlaps()
+# orders them
+#
+# @param bait the piece's bait blocks
+# @param bait_code the index of each block's sequence in seqlevels(y)
+# @param on_bait,on_y the blocks of each kind, by index in 'bait'
+# @param y the input GRanges
+# @param y_nclist GNCList(y), or NULL when 'on_y' is empty
+piece_overlaps <- function(bait, bait_code, on_bait, on_y, y, y_nclist) {
+  query <- integer()
+  subject <- integer()
+  if (length(on_bait) != 0L) {
+    fo <- sorted_overlaps(bait, bait_code, on_bait, y)
+    if (is.null(fo)) {
+      fo <- findOverlaps(GNCList(bait[on_bait]), y)
+      fo <- list(query = on_bait[queryHits(fo)], subject = subjectHits(fo))
+    }
+    query <- fo$query
+    subject <- fo$subject
+  }
+  if (length(on_y) != 0L) {
+    fo_y <- findOverlaps(bait[on_y], y_nclist)
+    query <- c(query, on_y[queryHits(fo_y)])
+    subject <- c(subject, subjectHits(fo_y))
+    if (length(on_bait) != 0L) {
+      o <- order(query, method = "radix")
+      query <- query[o]
+      subject <- subject[o]
+    }
+  }
+  list(query = query, subject = subject)
 }
 
 # move_blocks_bulk()'s steps after the moved positions: the exclude step,
