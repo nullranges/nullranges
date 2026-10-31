@@ -1,13 +1,15 @@
 #define USE_FC_LEN_T
+/* omp.h before the R headers: Rinternals.h defines match, which LLVM
+ * libomp's omp.h uses in a pragma */
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 #include <R.h>
 #include <Rinternals.h>
 #include <R_ext/Applic.h>
 #include <R_ext/BLAS.h>
 #include <float.h>
 #include <math.h>
-#ifdef _OPENMP
-#include <omp.h>
-#endif
 #ifndef FCONE
 # define FCONE
 #endif

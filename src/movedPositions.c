@@ -1,3 +1,8 @@
+/* omp.h before the R headers: Rinternals.h defines match, which LLVM
+ * libomp's omp.h uses in a pragma */
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 #include <R.h>
 #include <Rinternals.h>
 #include <Rversion.h>
@@ -6,9 +11,6 @@
 #include <stdint.h>
 #include <string.h>
 #include "segDraws.h"
-#ifdef _OPENMP
-#include <omp.h>
-#endif
 
 /* at most this many threads, and only from this many bait blocks */
 #define MOVED_MAX_THREADS 4

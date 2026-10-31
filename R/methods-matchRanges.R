@@ -141,10 +141,7 @@ poolBandwidth <- function(x, q = NULL, range.x = NULL) {
   n <- length(x)
   if (n < 2L || n > .Machine$integer.max || !is.double(x) || !is.vector(x))
     return(NULL)
-  if (!isNamespaceLoaded("ks") || !isNamespaceLoaded("KernSmooth") ||
-      !identical(unname(getNamespaceVersion("ks")), "1.15.3") ||
-      !identical(unname(getNamespaceVersion("KernSmooth")), "2.23-27"))
-    return(NULL)
+  if (!kdeVersionsPinned()) return(NULL)
   ## range() is NA, NaN or infinite at an end when any element is not finite
   if (is.null(range.x)) range.x <- range(x)
   a <- range.x[1L]
@@ -169,6 +166,17 @@ poolBandwidth <- function(x, q = NULL, range.x = NULL) {
   psi4hat <- bkfe(gcounts, 4L, alpha, range.x = c(sa, sb), binned = TRUE)
   del0 <- 1/((4 * pi)^(1/10))
   scalest * del0 * (1/(psi4hat * n))^(1/5)
+}
+
+#' Whether the ks and KernSmooth that poolBandwidth() was checked against
+#' are the ones loaded
+#' @return TRUE when ks 1.15.3 and KernSmooth 2.23-27 are loaded, else FALSE
+#'   (poolBandwidth() then returns NULL and ks::kde() picks its bandwidth).
+#' @noRd
+kdeVersionsPinned <- function() {
+  isNamespaceLoaded("ks") && isNamespaceLoaded("KernSmooth") &&
+    identical(unname(getNamespaceVersion("ks")), "1.15.3") &&
+    identical(unname(getNamespaceVersion("KernSmooth")), "2.23-27")
 }
 
 #' Type 7 quantiles from one selection over x
