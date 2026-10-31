@@ -17,11 +17,20 @@ SEXP moved_rows_opt(SEXP b_code, SEXP b_start, SEXP b_width, SEXP n_rep,
 	SEXP y_code, SEXP y_start, SEXP y_end, SEXP y_width, SEXP circular,
 	SEXP seqlen, SEXP bounded, SEXP shift, SEXP t_code, SEXP mode,
 	SEXP xseg, SEXP xs, SEXP xe, SEXP cols, SEXP with_code);
+SEXP moved_rows_opt_par(SEXP b_code, SEXP b_start, SEXP b_width, SEXP n_rep,
+	SEXP y_code, SEXP y_start, SEXP y_end, SEXP y_width, SEXP circular,
+	SEXP seqlen, SEXP bounded, SEXP shift, SEXP t_code, SEXP mode,
+	SEXP xseg, SEXP xs, SEXP xe, SEXP cols, SEXP with_code, SEXP n_threads);
 SEXP bait_blocks(SEXP start, SEXP width, SEXP target, SEXP n_rep);
 SEXP moved_rows_bait(SEXP b_seg, SEXP seg_code, SEXP b_start, SEXP b_width,
 	SEXP n_rep, SEXP y_code, SEXP y_start, SEXP y_end, SEXP y_width,
 	SEXP circular, SEXP seqlen, SEXP bounded, SEXP t_start, SEXP t_code,
 	SEXP mode, SEXP xseg, SEXP xs, SEXP xe, SEXP cols, SEXP with_code);
+SEXP moved_rows_bait_par(SEXP b_seg, SEXP seg_code, SEXP b_start,
+	SEXP b_width, SEXP n_rep, SEXP y_code, SEXP y_start, SEXP y_end,
+	SEXP y_width, SEXP circular, SEXP seqlen, SEXP bounded, SEXP t_start,
+	SEXP t_code, SEXP mode, SEXP xseg, SEXP xs, SEXP xe, SEXP cols,
+	SEXP with_code, SEXP n_threads);
 SEXP ss_init(SEXP fps, SEXP pps, SEXP cnt, SEXP code, SEXP nLeft);
 SEXP ss_range(SEXP st);
 SEXP ss_sort(SEXP st);
@@ -45,6 +54,12 @@ SEXP seg_draws_moved(SEXP s_n_rep, SEXP prob, SEXP rmin, SEXP rmax,
 	SEXP b_width, SEXP y_code, SEXP y_start, SEXP y_end, SEXP y_width,
 	SEXP circular, SEXP seqlen, SEXP bounded, SEXP t_start, SEXP t_code,
 	SEXP mode, SEXP xseg, SEXP xs, SEXP xe, SEXP cols, SEXP with_code);
+SEXP seg_draws_moved_par(SEXP s_n_rep, SEXP prob, SEXP rmin, SEXP rmax,
+	SEXP gidx, SEXP off, SEXP n_draw, SEXP st, SEXP rearr, SEXP seg_code,
+	SEXP b_width, SEXP y_code, SEXP y_start, SEXP y_end, SEXP y_width,
+	SEXP circular, SEXP seqlen, SEXP bounded, SEXP t_start, SEXP t_code,
+	SEXP mode, SEXP xseg, SEXP xs, SEXP xe, SEXP cols, SEXP with_code,
+	SEXP n_threads);
 SEXP scaled_linbin(SEXP x, SEXP s_m, SEXP s_s, SEXP s_a, SEXP s_b, SEXP s_M);
 SEXP order_stats(SEXP x, SEXP ranks);
 SEXP order_stats_range(SEXP x, SEXP ranks);
@@ -61,8 +76,10 @@ static const R_CallMethodDef callMethods[] = {
 	{"moved_rows", (DL_FUNC) &moved_rows, 17},
 	{"moved_rows_lens", (DL_FUNC) &moved_rows_lens, 18},
 	{"moved_rows_opt", (DL_FUNC) &moved_rows_opt, 19},
+	{"moved_rows_opt_par", (DL_FUNC) &moved_rows_opt_par, 20},
 	{"bait_blocks", (DL_FUNC) &bait_blocks, 4},
 	{"moved_rows_bait", (DL_FUNC) &moved_rows_bait, 20},
+	{"moved_rows_bait_par", (DL_FUNC) &moved_rows_bait_par, 21},
 	{"ss_init", (DL_FUNC) &ss_init, 5},
 	{"ss_range", (DL_FUNC) &ss_range, 1},
 	{"ss_sort", (DL_FUNC) &ss_sort, 1},
@@ -77,6 +94,7 @@ static const R_CallMethodDef callMethods[] = {
 	{"intersect_gaps", (DL_FUNC) &intersect_gaps, 6},
 	{"seg_draws", (DL_FUNC) &seg_draws, 9},
 	{"seg_draws_moved", (DL_FUNC) &seg_draws_moved, 26},
+	{"seg_draws_moved_par", (DL_FUNC) &seg_draws_moved_par, 27},
 	{"scaled_linbin", (DL_FUNC) &scaled_linbin, 6},
 	{"order_stats", (DL_FUNC) &order_stats, 2},
 	{"order_stats_range", (DL_FUNC) &order_stats_range, 2},

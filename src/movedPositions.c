@@ -602,15 +602,16 @@ typedef struct {
 } moved_plan;
 
 /* moved_impl()'s checks of its arguments, y sorted by seqlevel with its
- * end_max and bucket tables, and the pass buffers, in pl: 0, or 1 where
- * moved_impl() returns R_NilValue, 2 where it returns FALSE. The checks of
- * each replicate's blocks are moved_rep_check()'s. */
+ * end_max and bucket tables, the pass buffers and the thread count (at most
+ * n_threads), in pl: 0, or 1 where moved_impl() returns R_NilValue, 2 where
+ * it returns FALSE. The checks of each replicate's blocks are
+ * moved_rep_check()'s. */
 static int moved_setup(moved_plan *pl, SEXP b_code_, SEXP b_start_,
 	SEXP b_width_, SEXP n_rep_, SEXP y_code_, SEXP y_start_, SEXP y_end_,
 	SEXP y_width_, SEXP circular_, SEXP seqlen_, SEXP bounded_, SEXP shift_,
 	SEXP t_code_, int mode, SEXP xseg_, SEXP xs_, SEXP xe_, int with_block,
 	int with_cols, SEXP cols_, int with_code, const bait_raw *raw,
-	m_arena *arena)
+	m_arena *arena, int n_threads)
 {
 	if ((raw == NULL && (TYPEOF(b_code_) != INTSXP ||
 		TYPEOF(b_start_) != INTSXP || TYPEOF(b_width_) != INTSXP ||
@@ -695,16 +696,21 @@ static int moved_setup(moved_plan *pl, SEXP b_code_, SEXP b_start_,
 		ye = e2;
 		yw = w2;
 	}
-	/* the threads of the per-sequence tables and of the two passes */
+	/* the threads of the per-sequence tables and of the two passes: at
+	 * most n_threads, the caller's omp_threads() (R/zzz.R) */
 	int n_thr = 1;
 #ifdef _OPENMP
-	if (n >= MOVED_PAR_MIN) {
+	if (n >= MOVED_PAR_MIN && n_threads > 1) {
 		n_thr = omp_get_max_threads();
+		if (n_thr > n_threads)
+			n_thr = n_threads;
 		if (n_thr > MOVED_MAX_THREADS)
 			n_thr = MOVED_MAX_THREADS;
 		if (n_thr < 1)
 			n_thr = 1;
 	}
+#else
+	(void) n_threads;
 #endif
 
 	/* end_max() per sequence; n_short[k + 1], the ranges up to k along
@@ -1009,13 +1015,13 @@ static SEXP moved_impl(SEXP b_code_, SEXP b_start_, SEXP b_width_,
 	SEXP n_rep_, SEXP y_code_, SEXP y_start_, SEXP y_end_, SEXP y_width_,
 	SEXP circular_, SEXP seqlen_, SEXP bounded_, SEXP shift_, SEXP t_code_,
 	int mode, SEXP xseg_, SEXP xs_, SEXP xe_, int with_block, int with_cols,
-	SEXP cols_, int with_code, const bait_raw *raw)
+	SEXP cols_, int with_code, const bait_raw *raw, int n_threads)
 {
 	moved_plan pl;
 	int st = moved_setup(&pl, b_code_, b_start_, b_width_, n_rep_, y_code_,
 		y_start_, y_end_, y_width_, circular_, seqlen_, bounded_, shift_,
 		t_code_, mode, xseg_, xs_, xe_, with_block, with_cols, cols_,
-		with_code, raw, NULL);
+		with_code, raw, NULL, n_threads);
 	if (st != 0)
 		return st == 1 ? R_NilValue : ScalarLogical(FALSE);
 	int n_lev = pl.n_lev;
@@ -1048,21 +1054,33 @@ static SEXP moved_impl(SEXP b_code_, SEXP b_start_, SEXP b_width_,
 	return moved_finish(&pl, n_chunk, cb, c_hit, c_keep, c_ok);
 }
 
-/* moved_impl() without an exclude step */
+/* The thread count a _par entry point was given: 1 (serial) unless one
+ * integer, not NA; the caller passes omp_threads() (R/zzz.R), which is 1 in
+ * a forked child, where libgomp's threads from the parent do not exist and
+ * a parallel region would wait for them */
+static int threads_arg(SEXP n_threads_)
+{
+	if (TYPEOF(n_threads_) == INTSXP && XLENGTH(n_threads_) == 1 &&
+		INTEGER(n_threads_)[0] != NA_INTEGER)
+		return INTEGER(n_threads_)[0];
+	return 1;
+}
+
+/* moved_impl() without an exclude step, on one thread */
 SEXP moved_positions(SEXP b_code_, SEXP b_start_, SEXP b_width_, SEXP n_rep_,
 	SEXP y_code_, SEXP y_start_, SEXP y_end_, SEXP y_width_, SEXP circular_,
 	SEXP seqlen_, SEXP bounded_, SEXP shift_, SEXP t_code_)
 {
 	return moved_impl(b_code_, b_start_, b_width_, n_rep_, y_code_, y_start_,
 		y_end_, y_width_, circular_, seqlen_, bounded_, shift_, t_code_, 0,
-		R_NilValue, R_NilValue, R_NilValue, 1, 0, R_NilValue, 1, NULL);
+		R_NilValue, R_NilValue, R_NilValue, 1, 0, R_NilValue, 1, NULL, 1);
 }
 
 static SEXP moved_rows_impl(SEXP b_code_, SEXP b_start_, SEXP b_width_,
 	SEXP n_rep_, SEXP y_code_, SEXP y_start_, SEXP y_end_, SEXP y_width_,
 	SEXP circular_, SEXP seqlen_, SEXP bounded_, SEXP shift_, SEXP t_code_,
 	SEXP mode_, SEXP xseg_, SEXP xs_, SEXP xe_, int with_block, int with_cols,
-	SEXP cols_, int with_code, const bait_raw *raw)
+	SEXP cols_, int with_code, const bait_raw *raw, int n_threads)
 {
 	if (TYPEOF(mode_) != INTSXP || XLENGTH(mode_) != 1)
 		return ScalarLogical(FALSE);
@@ -1071,10 +1089,12 @@ static SEXP moved_rows_impl(SEXP b_code_, SEXP b_start_, SEXP b_width_,
 		return ScalarLogical(FALSE);
 	return moved_impl(b_code_, b_start_, b_width_, n_rep_, y_code_, y_start_,
 		y_end_, y_width_, circular_, seqlen_, bounded_, shift_, t_code_, mode,
-		xseg_, xs_, xe_, with_block, with_cols, cols_, with_code, raw);
+		xseg_, xs_, xe_, with_block, with_cols, cols_, with_code, raw,
+		n_threads);
 }
 
-/* moved_impl() with the exclude step of mode_ (0 none, 1 drop, 2 trim) */
+/* moved_impl() with the exclude step of mode_ (0 none, 1 drop, 2 trim), on
+ * one thread */
 SEXP moved_rows(SEXP b_code_, SEXP b_start_, SEXP b_width_, SEXP n_rep_,
 	SEXP y_code_, SEXP y_start_, SEXP y_end_, SEXP y_width_, SEXP circular_,
 	SEXP seqlen_, SEXP bounded_, SEXP shift_, SEXP t_code_, SEXP mode_,
@@ -1082,11 +1102,11 @@ SEXP moved_rows(SEXP b_code_, SEXP b_start_, SEXP b_width_, SEXP n_rep_,
 {
 	return moved_rows_impl(b_code_, b_start_, b_width_, n_rep_, y_code_,
 		y_start_, y_end_, y_width_, circular_, seqlen_, bounded_, shift_,
-		t_code_, mode_, xseg_, xs_, xe_, 1, 0, R_NilValue, 1, NULL);
+		t_code_, mode_, xseg_, xs_, xe_, 1, 0, R_NilValue, 1, NULL, 1);
 }
 
 /* moved_rows() with the rows per replicate ('lens') in place of 'block',
- * gathering the columns 'cols' (see moved_impl()) */
+ * gathering the columns 'cols' (see moved_impl()), on one thread */
 SEXP moved_rows_lens(SEXP b_code_, SEXP b_start_, SEXP b_width_,
 	SEXP n_rep_, SEXP y_code_, SEXP y_start_, SEXP y_end_, SEXP y_width_,
 	SEXP circular_, SEXP seqlen_, SEXP bounded_, SEXP shift_, SEXP t_code_,
@@ -1094,12 +1114,13 @@ SEXP moved_rows_lens(SEXP b_code_, SEXP b_start_, SEXP b_width_,
 {
 	return moved_rows_impl(b_code_, b_start_, b_width_, n_rep_, y_code_,
 		y_start_, y_end_, y_width_, circular_, seqlen_, bounded_, shift_,
-		t_code_, mode_, xseg_, xs_, xe_, 0, 1, cols_, 1, NULL);
+		t_code_, mode_, xseg_, xs_, xe_, 0, 1, cols_, 1, NULL, 1);
 }
 
 /* moved_rows_lens() whose per-row code column is written only when
  * with_code_ is not FALSE; otherwise 'code' is NULL and only its runs
- * ('run_code', 'run_length') are returned */
+ * ('run_code', 'run_length') are returned. On one thread; moved_rows_opt_par()
+ * on up to n_threads_. */
 SEXP moved_rows_opt(SEXP b_code_, SEXP b_start_, SEXP b_width_,
 	SEXP n_rep_, SEXP y_code_, SEXP y_start_, SEXP y_end_, SEXP y_width_,
 	SEXP circular_, SEXP seqlen_, SEXP bounded_, SEXP shift_, SEXP t_code_,
@@ -1108,7 +1129,19 @@ SEXP moved_rows_opt(SEXP b_code_, SEXP b_start_, SEXP b_width_,
 	return moved_rows_impl(b_code_, b_start_, b_width_, n_rep_, y_code_,
 		y_start_, y_end_, y_width_, circular_, seqlen_, bounded_, shift_,
 		t_code_, mode_, xseg_, xs_, xe_, 0, 1, cols_,
-		asLogical(with_code_) != FALSE, NULL);
+		asLogical(with_code_) != FALSE, NULL, 1);
+}
+
+SEXP moved_rows_opt_par(SEXP b_code_, SEXP b_start_, SEXP b_width_,
+	SEXP n_rep_, SEXP y_code_, SEXP y_start_, SEXP y_end_, SEXP y_width_,
+	SEXP circular_, SEXP seqlen_, SEXP bounded_, SEXP shift_, SEXP t_code_,
+	SEXP mode_, SEXP xseg_, SEXP xs_, SEXP xe_, SEXP cols_, SEXP with_code_,
+	SEXP n_threads_)
+{
+	return moved_rows_impl(b_code_, b_start_, b_width_, n_rep_, y_code_,
+		y_start_, y_end_, y_width_, circular_, seqlen_, bounded_, shift_,
+		t_code_, mode_, xseg_, xs_, xe_, 0, 1, cols_,
+		asLogical(with_code_) != FALSE, NULL, threads_arg(n_threads_));
 }
 
 /* What move_blocks_bulk() builds for moved_positions() from the bait starts
@@ -1224,12 +1257,13 @@ SEXP bait_blocks(SEXP start_, SEXP width_, SEXP target_, SEXP n_rep_)
  * them: R_NilValue wherever bait_blocks() declines, a block's code is NA or
  * its segment index is outside [1, length(seg_code_)], or moved_rows_opt()
  * on bait_blocks()' list and match(chr_names, seqlevels(y))[bait_seg]
- * returns R_NilValue; FALSE where it returns FALSE. */
-SEXP moved_rows_bait(SEXP b_seg_, SEXP seg_code_, SEXP b_start_,
+ * returns R_NilValue; FALSE where it returns FALSE. On up to n_threads
+ * threads. */
+static SEXP moved_bait_impl(SEXP b_seg_, SEXP seg_code_, SEXP b_start_,
 	SEXP b_width_, SEXP n_rep_, SEXP y_code_, SEXP y_start_, SEXP y_end_,
 	SEXP y_width_, SEXP circular_, SEXP seqlen_, SEXP bounded_, SEXP t_start_,
 	SEXP t_code_, SEXP mode_, SEXP xseg_, SEXP xs_, SEXP xe_, SEXP cols_,
-	SEXP with_code_)
+	SEXP with_code_, int n_threads)
 {
 	int ts = TYPEOF(b_start_), tw = TYPEOF(b_width_), tt = TYPEOF(t_start_);
 	if (TYPEOF(b_seg_) != INTSXP || TYPEOF(seg_code_) != INTSXP ||
@@ -1258,7 +1292,32 @@ SEXP moved_rows_bait(SEXP b_seg_, SEXP seg_code_, SEXP b_start_,
 	return moved_rows_impl(R_NilValue, R_NilValue, R_NilValue, n_rep_,
 		y_code_, y_start_, y_end_, y_width_, circular_, seqlen_, bounded_,
 		R_NilValue, t_code_, mode_, xseg_, xs_, xe_, 0, 1, cols_,
-		asLogical(with_code_) != FALSE, &r);
+		asLogical(with_code_) != FALSE, &r, n_threads);
+}
+
+/* moved_bait_impl() on one thread */
+SEXP moved_rows_bait(SEXP b_seg_, SEXP seg_code_, SEXP b_start_,
+	SEXP b_width_, SEXP n_rep_, SEXP y_code_, SEXP y_start_, SEXP y_end_,
+	SEXP y_width_, SEXP circular_, SEXP seqlen_, SEXP bounded_, SEXP t_start_,
+	SEXP t_code_, SEXP mode_, SEXP xseg_, SEXP xs_, SEXP xe_, SEXP cols_,
+	SEXP with_code_)
+{
+	return moved_bait_impl(b_seg_, seg_code_, b_start_, b_width_, n_rep_,
+		y_code_, y_start_, y_end_, y_width_, circular_, seqlen_, bounded_,
+		t_start_, t_code_, mode_, xseg_, xs_, xe_, cols_, with_code_, 1);
+}
+
+/* moved_bait_impl() on up to n_threads_ threads */
+SEXP moved_rows_bait_par(SEXP b_seg_, SEXP seg_code_, SEXP b_start_,
+	SEXP b_width_, SEXP n_rep_, SEXP y_code_, SEXP y_start_, SEXP y_end_,
+	SEXP y_width_, SEXP circular_, SEXP seqlen_, SEXP bounded_, SEXP t_start_,
+	SEXP t_code_, SEXP mode_, SEXP xseg_, SEXP xs_, SEXP xe_, SEXP cols_,
+	SEXP with_code_, SEXP n_threads_)
+{
+	return moved_bait_impl(b_seg_, seg_code_, b_start_, b_width_, n_rep_,
+		y_code_, y_start_, y_end_, y_width_, circular_, seqlen_, bounded_,
+		t_start_, t_code_, mode_, xseg_, xs_, xe_, cols_, with_code_,
+		threads_arg(n_threads_));
 }
 
 /* seg_draws_moved()' work before GetRNGstate(), run under
@@ -1270,7 +1329,7 @@ typedef struct {
 	const bait_raw *raw;
 	SEXP n_rep_, y_code_, y_start_, y_end_, y_width_, circular_, seqlen_;
 	SEXP bounded_, t_code_, xseg_, xs_, xe_, cols_;
-	int mode, with_code, q, n_unit, status;
+	int mode, with_code, n_threads, q, n_unit, status;
 	R_xlen_t *cb, *c_hit, *c_keep;
 	int *c_ok, *rep_state, *cnt;
 } fuse_setup;
@@ -1282,7 +1341,7 @@ static SEXP fuse_setup_body(void *d)
 		f->n_rep_, f->y_code_, f->y_start_, f->y_end_, f->y_width_,
 		f->circular_, f->seqlen_, f->bounded_, R_NilValue, f->t_code_, f->mode,
 		f->xseg_, f->xs_, f->xe_, 0, 1, f->cols_, f->with_code, f->raw,
-		f->arena);
+		f->arena, f->n_threads);
 	if (f->status != 0)
 		return R_NilValue;
 	moved_plan *pl = f->pl;
@@ -1594,12 +1653,13 @@ static SEXP fuse_finish2_body(void *d)
  * moved): the draws as seg_draws() returns them, and moved_rows_bait()'s
  * list on them, or NULL where it gives no list, where a replicate holds
  * other than length(t_start_) blocks, or where an allocation for the
- * moved rows fails. */
-SEXP seg_draws_moved(SEXP s_n_rep, SEXP prob, SEXP rmin, SEXP rmax,
-	SEXP gidx, SEXP off, SEXP n_draw, SEXP st, SEXP rearr, SEXP seg_code_,
-	SEXP b_width_, SEXP y_code_, SEXP y_start_, SEXP y_end_, SEXP y_width_,
-	SEXP circular_, SEXP seqlen_, SEXP bounded_, SEXP t_start_, SEXP t_code_,
-	SEXP mode_, SEXP xseg_, SEXP xs_, SEXP xe_, SEXP cols_, SEXP with_code_)
+ * moved rows fails. The region has at most n_threads threads. */
+static SEXP seg_draws_moved_impl(SEXP s_n_rep, SEXP prob, SEXP rmin,
+	SEXP rmax, SEXP gidx, SEXP off, SEXP n_draw, SEXP st, SEXP rearr,
+	SEXP seg_code_, SEXP b_width_, SEXP y_code_, SEXP y_start_, SEXP y_end_,
+	SEXP y_width_, SEXP circular_, SEXP seqlen_, SEXP bounded_, SEXP t_start_,
+	SEXP t_code_, SEXP mode_, SEXP xseg_, SEXP xs_, SEXP xe_, SEXP cols_,
+	SEXP with_code_, int n_threads)
 {
 	seg_plan sp;
 	if (!seg_plan_init(&sp, s_n_rep, prob, rmin, rmax, gidx, off, n_draw,
@@ -1671,6 +1731,7 @@ SEXP seg_draws_moved(SEXP s_n_rep, SEXP prob, SEXP rmin, SEXP rmax,
 		fs.cols_ = cols_;
 		fs.mode = mode;
 		fs.with_code = asLogical(with_code_) != FALSE;
+		fs.n_threads = n_threads;
 		fs.status = 1;
 		int err = 0;
 		R_tryCatchError(fuse_setup_body, &fs, fuse_error, &err);
@@ -1914,4 +1975,31 @@ SEXP seg_draws_moved(SEXP s_n_rep, SEXP prob, SEXP rmin, SEXP rmax,
 	setAttrib(out, R_NamesSymbol, nms);
 	UNPROTECT(3);
 	return out;
+}
+
+/* seg_draws_moved_impl() on one thread */
+SEXP seg_draws_moved(SEXP s_n_rep, SEXP prob, SEXP rmin, SEXP rmax,
+	SEXP gidx, SEXP off, SEXP n_draw, SEXP st, SEXP rearr, SEXP seg_code_,
+	SEXP b_width_, SEXP y_code_, SEXP y_start_, SEXP y_end_, SEXP y_width_,
+	SEXP circular_, SEXP seqlen_, SEXP bounded_, SEXP t_start_, SEXP t_code_,
+	SEXP mode_, SEXP xseg_, SEXP xs_, SEXP xe_, SEXP cols_, SEXP with_code_)
+{
+	return seg_draws_moved_impl(s_n_rep, prob, rmin, rmax, gidx, off, n_draw,
+		st, rearr, seg_code_, b_width_, y_code_, y_start_, y_end_, y_width_,
+		circular_, seqlen_, bounded_, t_start_, t_code_, mode_, xseg_, xs_,
+		xe_, cols_, with_code_, 1);
+}
+
+/* seg_draws_moved_impl() on up to n_threads_ threads */
+SEXP seg_draws_moved_par(SEXP s_n_rep, SEXP prob, SEXP rmin, SEXP rmax,
+	SEXP gidx, SEXP off, SEXP n_draw, SEXP st, SEXP rearr, SEXP seg_code_,
+	SEXP b_width_, SEXP y_code_, SEXP y_start_, SEXP y_end_, SEXP y_width_,
+	SEXP circular_, SEXP seqlen_, SEXP bounded_, SEXP t_start_, SEXP t_code_,
+	SEXP mode_, SEXP xseg_, SEXP xs_, SEXP xe_, SEXP cols_, SEXP with_code_,
+	SEXP n_threads_)
+{
+	return seg_draws_moved_impl(s_n_rep, prob, rmin, rmax, gidx, off, n_draw,
+		st, rearr, seg_code_, b_width_, y_code_, y_start_, y_end_, y_width_,
+		circular_, seqlen_, bounded_, t_start_, t_code_, mode_, xseg_, xs_,
+		xe_, cols_, with_code_, threads_arg(n_threads_));
 }

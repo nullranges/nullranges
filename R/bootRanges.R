@@ -911,8 +911,9 @@ bulk_rows <- function(y, moved, ex, exclude, excludeOption, n_rep) {
 # to moved_positions() with bait_blocks()' inputs (its 'raw' route): the
 # updated 'y', the exclude tables 'ex' (NULL where exclude_tables() fails
 # or warns), the seqlevels of 'y' before and after the update ('lev0',
-# 'lev') and moved_positions()' arguments to C_moved_rows_bait that do not
-# depend on the blocks ('args'). NULL where that route is not taken
+# 'lev') and moved_positions()' arguments to C_moved_rows_bait_par that do
+# not depend on the blocks ('args', and 'threads', omp_threads() read once
+# for every chunk's compiled draws). NULL where that route is not taken
 # whatever the blocks: 'y' not a GRanges, a circular sequence, too many
 # seqlevels, or seqlevels the update changes.
 #
@@ -953,7 +954,7 @@ bulk_setup <- function(y, exclude, excludeOption) {
   y_start <- start(rng)
   y_width <- width(rng)
   list(
-    y = y, ex = ex, lev0 = lev0, lev = lev,
+    y = y, ex = ex, lev0 = lev0, lev = lev, threads = omp_threads(),
     args = list(
       as.integer(seqnames(y)), y_start, y_width - 1L + y_start, y_width,
       circular, as.integer(seqlen), !(circular | is.na(seqlen)),
@@ -962,7 +963,7 @@ bulk_setup <- function(y, exclude, excludeOption) {
   )
 }
 
-# The arguments C_seg_draws_moved takes besides the draws' for blocks of
+# The arguments C_seg_draws_moved_par takes besides the draws' for blocks of
 # these widths, targets and segment sequences, as move_blocks_bulk() and
 # moved_positions() would build them; NULL where move_blocks_bulk() would
 # not take its 'raw' route to moved_positions() for any draws.
@@ -986,7 +987,7 @@ fuse_args <- function(fuse, chr_names, width, target_start, target_chr) {
   list(
     seg_code = match(chr_names, fuse$lev0), width = width,
     target_start = target_start, t_code = as.integer(target_chr),
-    chr_attr = chr_attr, args = fuse$args
+    chr_attr = chr_attr, args = fuse$args, threads = fuse$threads
   )
 }
 
@@ -1079,12 +1080,12 @@ moved_positions <- function(y, bait, bait_code, n_rep, block_shift,
   y_width <- width(rng)
   moved <- if (raw) {
     .Call(
-      C_moved_rows_bait, bait$seg, bait$seg_code, bait$start, bait$width,
-      as.integer(n_rep), as.integer(seqnames(y)), y_start,
+      C_moved_rows_bait_par, bait$seg, bait$seg_code, bait$start,
+      bait$width, as.integer(n_rep), as.integer(seqnames(y)), y_start,
       y_width - 1L + y_start, y_width,
       circular, as.integer(seqlen), !(circular | is.na(seqlen)),
       bait$target, as.integer(target_chr),
-      ex$mode, ex$seg, ex$start, ex$end, cols, with_code
+      ex$mode, ex$seg, ex$start, ex$end, cols, with_code, omp_threads()
     )
   } else {
     if (is.list(bait)) {
@@ -1095,12 +1096,12 @@ moved_positions <- function(y, bait, bait_code, n_rep, block_shift,
       b_width <- width(bait)
     }
     .Call(
-      C_moved_rows_opt, as.integer(bait_code), b_start, b_width,
+      C_moved_rows_opt_par, as.integer(bait_code), b_start, b_width,
       as.integer(n_rep), as.integer(seqnames(y)), y_start,
       y_width - 1L + y_start, y_width,
       circular, as.integer(seqlen), !(circular | is.na(seqlen)),
       suppressWarnings(as.integer(block_shift)), as.integer(target_chr),
-      ex$mode, ex$seg, ex$start, ex$end, cols, with_code
+      ex$mode, ex$seg, ex$start, ex$end, cols, with_code, omp_threads()
     )
   }
   if (!is.list(moved)) {
@@ -1838,10 +1839,10 @@ seg_draws_compiled <- function(tabs, n_rep, st = NULL, rearr = NULL,
   }
   a <- fz$args
   .Call(
-    C_seg_draws_moved, n_rep, prob, rmin, rmax, gidx, off, n_draw, st,
+    C_seg_draws_moved_par, n_rep, prob, rmin, rmax, gidx, off, n_draw, st,
     rearr, fz$seg_code, fz$width, a[[1L]], a[[2L]], a[[3L]], a[[4L]],
     a[[5L]], a[[6L]], a[[7L]], fz$target_start, fz$t_code, a[[8L]],
-    a[[9L]], a[[10L]], a[[11L]], a[[12L]], a[[13L]]
+    a[[9L]], a[[10L]], a[[11L]], a[[12L]], a[[13L]], fz$threads
   )
 }
 

@@ -305,7 +305,7 @@ SEXP logit_irls(SEXP x, SEXP ycode, SEXP s_eps, SEXP s_maxit, SEXP s_tol)
 }
 
 /* logit_impl() on up to n_threads_ threads (at most 4, and only with
- * OpenMP); the caller passes data.table's thread count, which is 1 in a
+ * OpenMP); the caller passes omp_threads() (R/zzz.R), which is 1 in a
  * forked child, where a parallel region would wait for the parent's OpenMP
  * threads */
 SEXP logit_irls_par(SEXP x, SEXP ycode, SEXP s_eps, SEXP s_maxit, SEXP s_tol,
