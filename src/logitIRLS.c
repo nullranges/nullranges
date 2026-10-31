@@ -5,8 +5,6 @@
 #include <R_ext/BLAS.h>
 #include <float.h>
 #include <math.h>
-#include <stdlib.h>
-#include <string.h>
 #ifdef _OPENMP
 #include <omp.h>
 #endif
@@ -20,10 +18,6 @@
 #define LOGIT_PAR_MIN 16384
 /* rows per unit of work in the z, w and x * w loop, whose w stays in cache */
 #define LOGIT_BLOCK 2048
-/* the most bytes the last fit's copy of x, codes and fitted values may hold */
-#ifndef LOGIT_CACHE_MAX
-#define LOGIT_CACHE_MAX 268435456.0
-#endif
 
 /* stats::glm.fit's IRLS loop for binomial("logit") with prior weights of 1
  * and no offset. Every value is computed with the operations, in the order,
@@ -93,81 +87,6 @@ static int may_have_nan_or_inf(const double *x, R_xlen_t n)
 	return 0;
 }
 
-/* The last fit that returned a value: its inputs, compared bitwise, and its
- * result. A call with equal inputs (and thread count) returns a copy of that
- * result without refitting; propensityMatch fits the same design on every
- * call with the same focal, pool and formula. The BLAS library's own thread
- * count is not part of the key. */
-static struct {
-	int valid, n, p, maxit, n_thr, conv, bound;
-	double epsilon, tol;
-	double *x, *mu;
-	int *yc;
-} last_fit;
-
-static void last_fit_clear(void)
-{
-	free(last_fit.x);
-	free(last_fit.mu);
-	free(last_fit.yc);
-	last_fit.x = last_fit.mu = NULL;
-	last_fit.yc = NULL;
-	last_fit.valid = 0;
-}
-
-static int last_fit_equal(const double *X, const int *yc, int n, int p,
-	double epsilon, int maxit, double tol, int n_thr)
-{
-	return last_fit.valid && last_fit.n == n && last_fit.p == p &&
-		last_fit.maxit == maxit && last_fit.n_thr == n_thr &&
-		memcmp(&last_fit.epsilon, &epsilon, sizeof(double)) == 0 &&
-		memcmp(&last_fit.tol, &tol, sizeof(double)) == 0 &&
-		memcmp(last_fit.yc, yc, (size_t) n * sizeof(int)) == 0 &&
-		memcmp(last_fit.x, X, (size_t) n * (size_t) p * sizeof(double)) == 0;
-}
-
-/* stores nothing when the copy would pass LOGIT_CACHE_MAX bytes or malloc
- * fails */
-static void last_fit_store(const double *X, const int *yc, const double *mu,
-	int n, int p, double epsilon, int maxit, double tol, int n_thr, int conv,
-	int bound)
-{
-	last_fit_clear();
-	if ((double) n * p * sizeof(double) +
-		(double) n * (sizeof(double) + sizeof(int)) > LOGIT_CACHE_MAX)
-		return;
-	size_t nx = (size_t) n * (size_t) p * sizeof(double);
-	last_fit.x = malloc(nx);
-	last_fit.mu = malloc((size_t) n * sizeof(double));
-	last_fit.yc = malloc((size_t) n * sizeof(int));
-	if (!last_fit.x || !last_fit.mu || !last_fit.yc) {
-		last_fit_clear();
-		return;
-	}
-	memcpy(last_fit.x, X, nx);
-	memcpy(last_fit.mu, mu, (size_t) n * sizeof(double));
-	memcpy(last_fit.yc, yc, (size_t) n * sizeof(int));
-	last_fit.n = n;
-	last_fit.p = p;
-	last_fit.maxit = maxit;
-	last_fit.n_thr = n_thr;
-	last_fit.epsilon = epsilon;
-	last_fit.tol = tol;
-	last_fit.conv = conv;
-	last_fit.bound = bound;
-	last_fit.valid = 1;
-}
-
-static SEXP fit_value(SEXP s_mu, int conv, int bound)
-{
-	SEXP ans = PROTECT(allocVector(VECSXP, 3));
-	SET_VECTOR_ELT(ans, 0, s_mu);
-	SET_VECTOR_ELT(ans, 1, ScalarLogical(conv));
-	SET_VECTOR_ELT(ans, 2, ScalarLogical(bound));
-	UNPROTECT(1);
-	return ans;
-}
-
 /* x: glm's model matrix (double, n x p); y: the response factor's codes.
  * Returns list(fitted values, converged, any fitted value within 10 eps of
  * 0 or 1), or NULL wherever glm.fit would stop, warn inside its loop, halve
@@ -190,29 +109,6 @@ static SEXP logit_impl(SEXP x, SEXP ycode, SEXP s_eps, SEXP s_maxit,
 	const int *yc = INTEGER(ycode);
 	double epsilon = asReal(s_eps), tol = asReal(s_tol);
 	int maxit = asInteger(s_maxit);
-	int n_thr = 1;
-#ifdef _OPENMP
-	if (N >= LOGIT_PAR_MIN && n_threads > 1) {
-		n_thr = omp_get_max_threads();
-		if (n_thr > n_threads)
-			n_thr = n_threads;
-		if (n_thr > LOGIT_MAX_THREADS)
-			n_thr = LOGIT_MAX_THREADS;
-		if (n_thr < 1)
-			n_thr = 1;
-	}
-#else
-	(void) n_threads;
-#endif
-
-	if (last_fit_equal(X, yc, n, p, epsilon, maxit, tol, n_thr)) {
-		SEXP s_mu = PROTECT(allocVector(REALSXP, N));
-		memcpy(REAL(s_mu), last_fit.mu, (size_t) N * sizeof(double));
-		SEXP ans = fit_value(s_mu, last_fit.conv, last_fit.bound);
-		UNPROTECT(1);
-		return ans;
-	}
-	last_fit_clear();
 	if (may_have_nan_or_inf(X, NP))
 		return R_NilValue;
 
@@ -241,6 +137,21 @@ static SEXP logit_impl(SEXP x, SEXP ycode, SEXP s_eps, SEXP s_maxit,
 	/* the deviance residuals, summed after the linkinv loop; dqrls
 	 * overwrites rsd before reading it */
 	double *dr = rsd;
+
+	int n_thr = 1;
+#ifdef _OPENMP
+	if (N >= LOGIT_PAR_MIN && n_threads > 1) {
+		n_thr = omp_get_max_threads();
+		if (n_thr > n_threads)
+			n_thr = n_threads;
+		if (n_thr > LOGIT_MAX_THREADS)
+			n_thr = LOGIT_MAX_THREADS;
+		if (n_thr < 1)
+			n_thr = 1;
+	}
+#else
+	(void) n_threads;
+#endif
 
 	/* binomial()$initialize for a factor: y != levels(y)[1L], then
 	 * mustart <- (weights * y + 0.5)/(weights + 1); eta <- linkfun(mustart).
@@ -373,9 +284,11 @@ static SEXP logit_impl(SEXP x, SEXP ycode, SEXP s_eps, SEXP s_maxit,
 			break;
 		}
 
-	last_fit_store(X, yc, mu, n, p, epsilon, maxit, tol, n_thr, conv, bound);
-	SEXP ans = fit_value(s_mu, conv, bound);
-	UNPROTECT(8);
+	SEXP ans = PROTECT(allocVector(VECSXP, 3));
+	SET_VECTOR_ELT(ans, 0, s_mu);
+	SET_VECTOR_ELT(ans, 1, ScalarLogical(conv));
+	SET_VECTOR_ELT(ans, 2, ScalarLogical(bound));
+	UNPROTECT(9);
 	return ans;
 
 fallback:
