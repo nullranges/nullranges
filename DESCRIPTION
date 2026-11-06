@@ -50,6 +50,7 @@ Suggests:
     mariner
 Imports:
     stats,
+    BiocGenerics,
     IRanges,
     GenomicRanges,
     Seqinfo,
