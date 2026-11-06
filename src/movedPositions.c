@@ -185,6 +185,19 @@ static int end_max(const int *ys, const int *ye, int cs, int ce, int *em,
 	return m;
 }
 
+/* 1 where ranges cs to ce - 1 (starts in order) are in the order of
+ * IRanges' NCList pre-order, start ascending, end descending, index
+ * ascending: no equal-start pair whose later range ends later. Then a
+ * block's hits by increasing index are findOverlaps()' on either side. */
+static unsigned char nclist_order(const int *ys, const int *ye, int cs,
+	int ce)
+{
+	for (int k = cs + 1; k < ce; k++)
+		if (ys[k] == ys[k - 1] && ye[k] > ye[k - 1])
+			return 0;
+	return 1;
+}
+
 /* The end of the entries in [cs, ce) at or before x */
 static inline int count_le(const int *p, int cs, int ce, const buckets *b,
 	const int *t_all, int64_t x)
@@ -579,7 +592,7 @@ typedef struct {
 	int k;
 } m_arena;
 
-#define ARENA_SLOTS 32
+#define ARENA_SLOTS 40
 
 static void *m_alloc(m_arena *a, size_t n, size_t sz)
 {
@@ -595,6 +608,8 @@ typedef struct {
 	moved_ctx x;
 	R_xlen_t n, n_blocks;
 	int n_rep, n_lev, n_thr, by_lev;
+	/* per seqlevel, 1 where y's ranges there are in NCList order or none */
+	const unsigned char *nc_ok;
 	int with_block, with_cols, with_code, gather;
 	R_xlen_t ncol;
 	const int *circ;
@@ -719,12 +734,16 @@ static int moved_setup(moved_plan *pl, SEXP b_code_, SEXP b_start_,
 	int *em = (int *) m_alloc(arena, n_y > 0 ? n_y : 1, sizeof(int));
 	int *n_short = (int *) m_alloc(arena, n_y + 1, sizeof(int));
 	int *n_base = (int *) m_alloc(arena, n_lev > 0 ? n_lev : 1, sizeof(int));
+	unsigned char *nc_ok = (unsigned char *) m_alloc(arena,
+		n_lev > 0 ? n_lev : 1, 1);
 	n_short[0] = 0;
 #ifdef _OPENMP
 #pragma omp parallel for num_threads(n_thr) schedule(dynamic, 1) if(n_thr > 1)
 #endif
-	for (int c = 0; c < n_lev; c++)
+	for (int c = 0; c < n_lev; c++) {
 		n_base[c] = end_max(ys, ye, seg[c], seg[c + 1], em, n_short);
+		nc_ok[c] = nclist_order(ys, ye, seg[c], seg[c + 1]);
+	}
 	int n_before = 0;
 	for (int c = 0; c < n_lev; c++) {
 		int m = n_base[c];
@@ -787,6 +806,7 @@ static int moved_setup(moved_plan *pl, SEXP b_code_, SEXP b_start_,
 	pl->n_rep = n_rep;
 	pl->n_lev = n_lev;
 	pl->n_thr = n_thr;
+	pl->nc_ok = nc_ok;
 	/* the count test over the seqlevels a replicate's blocks counted when
 	 * there are no more of them than blocks */
 	pl->by_lev = (R_xlen_t) n_lev <= n_blocks;
@@ -802,8 +822,9 @@ static int moved_setup(moved_plan *pl, SEXP b_code_, SEXP b_start_,
 
 /* bait_overlaps(): every block of replicate r (0-based) on
  * sorted_overlaps()' path, i.e. its replicate has fewer blocks on its
- * sequence than y has ranges there; sorted_overlaps(): none on a circular
- * sequence. The code, the circular check and the count test; pass 1 makes
+ * sequence than y has ranges there, or on y's NCList where that gives the
+ * same hits in the same order (y has no ranges there, or they are in NCList
+ * order); sorted_overlaps(): none on a circular sequence. The code, the circular check and the count test; pass 1 makes
  * the checks of each block's start, width and target. 0 where moved_impl()
  * returns R_NilValue. cnt holds n_lev zeros, as it is left on success. */
 static int moved_rep_check(const moved_plan *pl, R_xlen_t r, int *cnt)
@@ -820,14 +841,15 @@ static int moved_rep_check(const moved_plan *pl, R_xlen_t r, int *cnt)
 	}
 	if (pl->by_lev) {
 		for (int c = 0; c < n_lev; c++)
-			if (cnt[c] != 0 && cnt[c] >= seg[c + 1] - seg[c])
+			if (cnt[c] != 0 && cnt[c] >= seg[c + 1] - seg[c] &&
+				!pl->nc_ok[c])
 				return 0;
 		memset(cnt, 0, n_lev * sizeof(int));
 		return 1;
 	}
 	for (R_xlen_t b = b0; b < b1; b++) {
 		int c = raw != NULL ? raw_code(raw, b) : bc[b];
-		if (cnt[c - 1] >= seg[c] - seg[c - 1])
+		if (cnt[c - 1] >= seg[c] - seg[c - 1] && !pl->nc_ok[c - 1])
 			return 0;
 	}
 	for (R_xlen_t b = b0; b < b1; b++)

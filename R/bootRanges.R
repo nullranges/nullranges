@@ -187,12 +187,14 @@ bootRanges <- function(y, blockLength, R = 1,
       seg, seg_mcols, chr_lens, blockLength, proportionLength, unseg_setup
     )
     chunks <- boot_chunks(n_rep, per_rep)
-    # where each replicate has at least as many blocks as 'y' has ranges, the
-    # compiled moves decline every replicate (some sequence holds at least
-    # as many of its blocks as ranges of 'y'): the draws are made without
-    # them and the blocks moved by move_blocks_pieces()
+    # where each replicate has at least as many blocks as 'y' has ranges,
+    # some sequence holds at least as many of a replicate's blocks as ranges
+    # of 'y', and the compiled moves decline it unless y's ranges there are
+    # in the order of its NCList (or none): unless they are on every
+    # sequence, the draws are made without them and the blocks moved by
+    # move_blocks_pieces()
     r_route <- identical(as.vector(class(y)), "GRanges") &&
-      !is.na(per_rep) && per_rep >= length(y)
+      !is.na(per_rep) && per_rep >= length(y) && !y_nclist_order(y)
     # each chunk's replicates are drawn before any of them is moved. On any
     # warning or error from here, .Random.seed is put back as it was before
     # the first draw and base's code, which draws and moves one replicate
@@ -400,6 +402,36 @@ plain_iter_cols <- function(br, n) {
     is.null(mc@rownames) && is.null(mc@elementMetadata) &&
     length(mc@metadata) == 0L &&
     identical(mc@nrows, length(br)) && isTRUE(n == mc@nrows)
+}
+
+# TRUE where, on every sequence, the ranges of 'y' (a GRanges) in index
+# order are non-empty and in the order of the NCList IRanges builds on them
+# (start ascending, then end descending): the compiled moves then give
+# each block's hits in findOverlaps()' order whichever side holds the
+# NCList, as moved_setup() checks it
+#
+# @param y the input GRanges
+y_nclist_order <- function(y) {
+  code <- as.integer(seqnames(y))
+  y_start <- start(y)
+  y_end <- end(y)
+  if (anyNA(code) || any(y_end < y_start)) {
+    return(FALSE)
+  }
+  if (is.unsorted(code)) {
+    o <- order(code, method = "radix")
+    code <- code[o]
+    y_start <- y_start[o]
+    y_end <- y_end[o]
+  }
+  n <- length(code)
+  if (n < 2L) {
+    return(TRUE)
+  }
+  k <- seq.int(2L, n)
+  same <- code[k] == code[k - 1L]
+  !any(same & (y_start[k] < y_start[k - 1L] |
+    (y_start[k] == y_start[k - 1L] & y_end[k] > y_end[k - 1L])))
 }
 
 # The most bait blocks bootRanges() draws and moves at once, unless one
