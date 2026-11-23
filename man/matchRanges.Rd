@@ -9,11 +9,11 @@
 \usage{
 matchRanges(focal, pool, covar, method = "nearest", replace = TRUE, ...)
 
-\S4method{matchRanges}{DF_OR_df_OR_dt,DF_OR_df_OR_dt,formula,character_OR_missing,logical_OR_missing}(focal, pool, covar, method, replace)
+\S4method{matchRanges}{DF_OR_df_OR_dt,DF_OR_df_OR_dt,formula,character_OR_missing,logical_OR_missing}(focal, pool, covar, method, replace, compiledCode = TRUE)
 
-\S4method{matchRanges}{GRanges,GRanges,formula,character_OR_missing,logical_OR_missing}(focal, pool, covar, method, replace)
+\S4method{matchRanges}{GRanges,GRanges,formula,character_OR_missing,logical_OR_missing}(focal, pool, covar, method, replace, compiledCode = TRUE)
 
-\S4method{matchRanges}{GInteractions,GInteractions,formula,character_OR_missing,logical_OR_missing}(focal, pool, covar, method, replace)
+\S4method{matchRanges}{GInteractions,GInteractions,formula,character_OR_missing,logical_OR_missing}(focal, pool, covar, method, replace, compiledCode = TRUE)
 }
 \arguments{
 \item{focal}{A DataFrame, GRanges, or GInteractions object containing
@@ -31,6 +31,11 @@ supported options are either 'nearest', 'rejection', or 'stratified'.}
 replacement.}
 
 \item{...}{Additional arguments.}
+
+\item{compiledCode}{whether to use the compiled implementation
+(default \code{TRUE}), which returns the same matches and uses the random
+number generator in the same order as the R code, or \code{FALSE} to run
+the R code only.}
 }
 \value{
 A covariate-matched control set of data.

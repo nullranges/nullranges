@@ -27,9 +27,11 @@ Description: Modular package for generation of sets of ranges
     plyranges Bioconductor package.
 Suggests:
     testthat,
+    parallel,
     knitr,
     rmarkdown,
     ks,
+    KernSmooth,
     DNAcopy,
     RcppHMM,
     AnnotationHub,
@@ -48,6 +50,7 @@ Suggests:
     mariner
 Imports:
     stats,
+    BiocGenerics,
     IRanges,
     GenomicRanges,
     Seqinfo,

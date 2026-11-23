@@ -14,7 +14,8 @@ bootRanges(
   proportionLength = TRUE,
   type = c("bootstrap", "permute"),
   withinChrom = FALSE,
-  storeBlockLength = FALSE
+  storeBlockLength = FALSE,
+  compiledCode = TRUE
 )
 }
 \arguments{
@@ -47,6 +48,11 @@ across chromosomes (default) or only within chromosomes
 
 \item{storeBlockLength}{whether to save blockLength as a
 metadata column}
+
+\item{compiledCode}{whether to use the compiled implementation
+(default \code{TRUE}), which returns the same ranges and uses the random
+number generator in the same order as the R code, or \code{FALSE} to run
+the R code only}
 }
 \value{
 a BootRanges (GRanges object) with the bootstrapped ranges,

@@ -421,7 +421,18 @@ matchRanges_Core <- function(focal, pool, covar, method, replace) {
 #' @inheritParams matchRanges_Core
 #' @return A `MatchedDataFrame` object.
 #' @noRd
-matchRanges_MatchedDataFrame <- function(focal, pool, covar, method, replace) {
+matchRanges_MatchedDataFrame <- function(focal, pool, covar, method, replace,
+                                  compiledCode = TRUE) {
+
+  if (compiledCode) {
+    # NULL when the compiled code declines the call; the code below
+    # then runs, with the random number generator as it was
+    obj <- run_or_decline(matchRanges_MatchedDataFrame_compiled, focal, pool,
+                          covar, method, replace)
+    if (!is.null(obj)) {
+      return(obj)
+    }
+  }
 
   ## Convert focal and pool to DataFrames
   f <- DataFrame(focal)
@@ -492,6 +503,10 @@ matchRanges_MatchedDataFrame <- function(focal, pool, covar, method, replace) {
 #'   supported options are either 'nearest', 'rejection', or 'stratified'.
 #' @param replace TRUE/FALSE describing whether to select matches with or without
 #'   replacement.
+#' @param compiledCode whether to use the compiled implementation
+#'   (default `TRUE`), which returns the same matches and uses the random
+#'   number generator in the same order as the R code, or `FALSE` to run
+#'   the R code only.
 #' @param ... Additional arguments.
 #'
 #' @return A covariate-matched control set of data.
@@ -579,7 +594,18 @@ setMethod("matchRanges",
 #' @inheritParams matchRanges
 #' @return A `MatchedGRanges` object
 #' @noRd
-matchRanges_MatchedGRanges <- function(focal, pool, covar, method, replace) {
+matchRanges_MatchedGRanges <- function(focal, pool, covar, method, replace,
+                                  compiledCode = TRUE) {
+
+  if (compiledCode) {
+    # NULL when the compiled code declines the call; the code below
+    # then runs, with the random number generator as it was
+    obj <- run_or_decline(matchRanges_MatchedGRanges_compiled, focal, pool,
+                          covar, method, replace)
+    if (!is.null(obj)) {
+      return(obj)
+    }
+  }
 
   ## Extract DataFrame from GRanges/GInteractions objects
   f <- mcols(focal)
@@ -620,7 +646,18 @@ setMethod("matchRanges",
 #' @inheritParams matchRanges
 #' @return A `MatchedGInteractions` object
 #' @noRd
-matchRanges_MatchedGInteractions <- function(focal, pool, covar, method, replace) {
+matchRanges_MatchedGInteractions <- function(focal, pool, covar, method, replace,
+                                  compiledCode = TRUE) {
+
+  if (compiledCode) {
+    # NULL when the compiled code declines the call; the code below
+    # then runs, with the random number generator as it was
+    obj <- run_or_decline(matchRanges_MatchedGInteractions_compiled, focal, pool,
+                          covar, method, replace)
+    if (!is.null(obj)) {
+      return(obj)
+    }
+  }
 
   ## Extract DataFrame from GRanges/GInteractions objects
   f <- mcols(focal)

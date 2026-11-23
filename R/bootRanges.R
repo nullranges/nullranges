@@ -30,6 +30,10 @@
 #' (un-segmented bootstrap only)
 #' @param storeBlockLength whether to save blockLength as a
 #' metadata column
+#' @param compiledCode whether to use the compiled implementation
+#' (default `TRUE`), which returns the same ranges and uses the random
+#' number generator in the same order as the R code, or `FALSE` to run
+#' the R code only
 #'
 #' @return a BootRanges (GRanges object) with the bootstrapped ranges,
 #' where iteration and block length are recorded as metadata columns
@@ -76,7 +80,18 @@ bootRanges <- function(y, blockLength, R = 1,
                        proportionLength = TRUE,
                        type = c("bootstrap", "permute"),
                        withinChrom = FALSE,
-                       storeBlockLength = FALSE) {
+                       storeBlockLength = FALSE,
+                       compiledCode = TRUE) {
+  if (compiledCode && !missing(blockLength)) {
+    # NULL when the compiled code declines the call; the code below then
+    # runs, with the random number generator as it was
+    out <- bootRanges_compiled(y, blockLength, R, seg, exclude,
+                               excludeOption, proportionLength, type,
+                               withinChrom, storeBlockLength)
+    if (!is.null(out)) {
+      return(out)
+    }
+  }
   chr_lens <- seqlengths(y)
   stopifnot(all(!is.na(chr_lens)))
   excludeOption <- match.arg(excludeOption)
